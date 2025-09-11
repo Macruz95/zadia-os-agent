@@ -86,10 +86,35 @@
     "edit": "Editar",
     "back": "Volver",
     "next": "Siguiente",
-    "previous": "Anterior"
+    "previous": "Anterior",
+    "notAvailable": "No disponible"
   },
   "dashboard": {
-    "welcome": "Bienvenido a ZADIA OS",
-    "userProfile": "Perfil de Usuario"
+    "welcome": "Bienvenido, {{name}}",
+    "subtitle": "Gestiona tu organización con IA agéntica",
+    "userProfile": "Perfil de Usuario",
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "description": "Operaciones frecuentes del sistema",
+      "comingSoon": "Próximamente disponible"
+    },
+    "systemStatus": {
+      "title": "Estado del Sistema",
+      "description": "Monitoreo en tiempo real",
+      "operational": "Sistema operativo"
+    }
+  },
+  "userProfile": {
+    "fields": {
+      "role": "Rol",
+      "language": "Idioma",
+      "organization": "Organización",
+      "objective": "Objetivo",
+      "createdAt": "Fecha de registro",
+      "lastLogin": "Último acceso"
+    },
+    "errors": {
+      "loadFailed": "Error al cargar el perfil"
+    }
   }
 }

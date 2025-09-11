@@ -86,10 +86,35 @@
     "edit": "Edit",
     "back": "Back",
     "next": "Next",
-    "previous": "Previous"
+    "previous": "Previous",
+    "notAvailable": "Not available"
   },
   "dashboard": {
-    "welcome": "Welcome to ZADIA OS",
-    "userProfile": "User Profile"
+    "welcome": "Welcome, {{name}}",
+    "subtitle": "Manage your organization with agentic AI",
+    "userProfile": "User Profile",
+    "quickActions": {
+      "title": "Quick Actions",
+      "description": "Frequent system operations",
+      "comingSoon": "Coming soon"
+    },
+    "systemStatus": {
+      "title": "System Status",
+      "description": "Real-time monitoring",
+      "operational": "System operational"
+    }
+  },
+  "userProfile": {
+    "fields": {
+      "role": "Role",
+      "language": "Language",
+      "organization": "Organization",
+      "objective": "Objective",
+      "createdAt": "Registration date",
+      "lastLogin": "Last access"
+    },
+    "errors": {
+      "loadFailed": "Failed to load profile"
+    }
   }
 }
