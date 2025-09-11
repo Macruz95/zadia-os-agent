@@ -78,6 +78,76 @@
       "loginSuccess": "Sesión iniciada correctamente"
     }
   },
+  "landing": {
+    "header": {
+      "signIn": "Iniciar Sesión",
+      "getStarted": "Comenzar"
+    },
+    "hero": {
+      "badge": "Sistema Operativo Empresarial",
+      "title": "ZADIA OS",
+      "subtitle": "La plataforma de operaciones autónomas que utiliza IA agéntica y un Gemelo Digital de tu organización para orquestar flujos de trabajo complejos con autonomía e inteligencia.",
+      "ctaPrimary": "Comenzar Gratis",
+      "ctaSecondary": "Ver Demo",
+      "freeText": "Gratis para siempre • No se requiere tarjeta de crédito"
+    },
+    "features": {
+      "title": "Potencia tu Organización",
+      "subtitle": "Tecnología agéntica que transforma la forma en que operas tu empresa",
+      "ai": {
+        "title": "IA Agéntica Avanzada",
+        "description": "Agentes inteligentes que ejecutan tareas complejas de forma autónoma, aprendiendo y adaptándose continuamente."
+      },
+      "automation": {
+        "title": "Automatización Inteligente",
+        "description": "Procesos empresariales que se ejecutan automáticamente con decisiones inteligentes en tiempo real."
+      },
+      "analytics": {
+        "title": "Análisis Predictivo",
+        "description": "Insights profundos sobre el rendimiento organizacional con predicciones basadas en IA."
+      },
+      "security": {
+        "title": "Seguridad Empresarial",
+        "description": "Protección robusta de datos con cifrado de extremo a extremo y cumplimiento normativo."
+      },
+      "collaboration": {
+        "title": "Colaboración Unificada",
+        "description": "Herramientas integradas que conectan equipos y departamentos en una sola plataforma."
+      },
+      "integration": {
+        "title": "Integración Universal",
+        "description": "Conecta con todas tus herramientas existentes a través de APIs y conectores inteligentes."
+      }
+    },
+    "benefits": {
+      "title": "¿Por qué elegir ZADIA OS?",
+      "subtitle": "Resultados comprobados que transforman organizaciones",
+      "efficiency": {
+        "title": "Eficiencia del 300%",
+        "description": "Automatización inteligente que triplica la productividad de tus equipos."
+      },
+      "decisions": {
+        "title": "Decisiones Data-Driven",
+        "description": "Insights en tiempo real que mejoran la toma de decisiones estratégicas."
+      },
+      "scalability": {
+        "title": "Escalabilidad Ilimitada",
+        "description": "Crece sin límites con una arquitectura que se adapta a tu organización."
+      },
+      "innovation": {
+        "title": "Innovación Continua",
+        "description": "Mantente a la vanguardia con actualizaciones automáticas de IA."
+      }
+    },
+    "cta": {
+      "title": "Transforma tu Organización Hoy",
+      "subtitle": "Únete a las empresas líderes que ya utilizan ZADIA OS para revolucionar sus operaciones.",
+      "button": "Comenzar Transformación"
+    },
+    "footer": {
+      "copyright": "© 2025 ZADIA OS. Sistema Operativo Empresarial Agéntico."
+    }
+  },
   "common": {
     "loading": "Cargando...",
     "save": "Guardar",

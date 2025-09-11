@@ -78,6 +78,76 @@
       "loginSuccess": "Successfully signed in"
     }
   },
+  "landing": {
+    "header": {
+      "signIn": "Sign In",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "badge": "Enterprise Operating System",
+      "title": "ZADIA OS",
+      "subtitle": "The autonomous operations platform that uses agentic AI and an organizational Digital Twin to orchestrate complex workflows with autonomy and intelligence.",
+      "ctaPrimary": "Start Free",
+      "ctaSecondary": "View Demo",
+      "freeText": "Free forever • No credit card required"
+    },
+    "features": {
+      "title": "Power Your Organization",
+      "subtitle": "Agentic technology that transforms how you operate your business",
+      "ai": {
+        "title": "Advanced Agentic AI",
+        "description": "Intelligent agents that execute complex tasks autonomously, continuously learning and adapting."
+      },
+      "automation": {
+        "title": "Smart Automation",
+        "description": "Business processes that run automatically with intelligent real-time decision making."
+      },
+      "analytics": {
+        "title": "Predictive Analytics",
+        "description": "Deep insights into organizational performance with AI-powered predictions."
+      },
+      "security": {
+        "title": "Enterprise Security",
+        "description": "Robust data protection with end-to-end encryption and regulatory compliance."
+      },
+      "collaboration": {
+        "title": "Unified Collaboration",
+        "description": "Integrated tools that connect teams and departments in a single platform."
+      },
+      "integration": {
+        "title": "Universal Integration",
+        "description": "Connect with all your existing tools through APIs and intelligent connectors."
+      }
+    },
+    "benefits": {
+      "title": "Why Choose ZADIA OS?",
+      "subtitle": "Proven results that transform organizations",
+      "efficiency": {
+        "title": "300% Efficiency",
+        "description": "Smart automation that triples your team's productivity."
+      },
+      "decisions": {
+        "title": "Data-Driven Decisions",
+        "description": "Real-time insights that improve strategic decision making."
+      },
+      "scalability": {
+        "title": "Unlimited Scalability",
+        "description": "Grow without limits with architecture that adapts to your organization."
+      },
+      "innovation": {
+        "title": "Continuous Innovation",
+        "description": "Stay ahead with automatic AI updates."
+      }
+    },
+    "cta": {
+      "title": "Transform Your Organization Today",
+      "subtitle": "Join leading companies already using ZADIA OS to revolutionize their operations.",
+      "button": "Start Transformation"
+    },
+    "footer": {
+      "copyright": "© 2025 ZADIA OS. Agentic Enterprise Operating System."
+    }
+  },
   "common": {
     "loading": "Loading...",
     "save": "Save",

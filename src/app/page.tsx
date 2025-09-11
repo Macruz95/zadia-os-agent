@@ -1,15 +1,34 @@
+'use client';
+
+import { useAuth } from '@/contexts/AuthContext';
+import { LandingPage } from '@/components/landing/LandingPage';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
 export default function Home() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-      <main className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Bienvenido a ZADIA OS</h1>
-        <p className="text-lg mb-8">
-          El Sistema Operativo Empresarial Agéntico. Gestiona tu empresa con autonomía e inteligencia.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          Próximamente: Cockpit del CEO y módulos unificados.
-        </p>
-      </main>
-    </div>
-  );
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      // Si el usuario está autenticado, redirigir al dashboard
+      router.push('/dashboard');
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="space-y-4 text-center">
+          <Skeleton className="h-8 w-64 mx-auto" />
+          <Skeleton className="h-4 w-96 mx-auto" />
+          <Skeleton className="h-4 w-80 mx-auto" />
+        </div>
+      </div>
+    );
+  }
+
+  // Si no hay usuario autenticado, mostrar la landing page
+  return <LandingPage />;
 }
