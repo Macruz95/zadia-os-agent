@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'next/navigation';
 import { 
   loginFormSchema, 
   registerFormSchema, 
@@ -22,6 +23,7 @@ import { showToast } from '@/lib/toast';
 export function useLoginForm() {
   const { t } = useTranslation();
   const { login } = useAuth();
+  const router = useRouter();
   
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
@@ -35,6 +37,8 @@ export function useLoginForm() {
     try {
       await login(data.email, data.password);
       showToast.success(t('auth.success.loginSuccess'));
+      // Redirect to dashboard after successful login
+      router.push('/dashboard');
     } catch (error) {
       const message = error instanceof Error ? t(error.message) : t('auth.errors.generic');
       showToast.error(message);
@@ -54,8 +58,9 @@ export function useLoginForm() {
 export function useRegisterForm() {
   const { t } = useTranslation();
   const { register } = useAuth();
+  const router = useRouter();
   
-  const form = useForm<RegisterFormData>({
+  const form = useForm({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
       name: '',
@@ -64,7 +69,7 @@ export function useRegisterForm() {
       confirmPassword: '',
       role: 'user' as const,
       language: 'es' as const,
-      organization: undefined,
+      organization: '',
       objective: undefined
     }
   });
@@ -73,6 +78,8 @@ export function useRegisterForm() {
     try {
       await register(data);
       showToast.success(t('auth.success.accountCreated'));
+      // Redirect to dashboard after successful registration
+      router.push('/dashboard');
     } catch (error) {
       const message = error instanceof Error ? t(error.message) : t('auth.errors.generic');
       showToast.error(message);
@@ -124,13 +131,14 @@ export function useForgotPasswordForm() {
 export function useGoogleCompleteForm() {
   const { t } = useTranslation();
   const { completeGoogleProfile } = useAuth();
+  const router = useRouter();
   
-  const form = useForm<GoogleCompleteFormData>({
+  const form = useForm({
     resolver: zodResolver(googleCompleteFormSchema),
     defaultValues: {
       role: 'user' as const,
       language: 'es' as const,
-      organization: undefined,
+      organization: '',
       objective: undefined
     }
   });
@@ -139,6 +147,8 @@ export function useGoogleCompleteForm() {
     try {
       await completeGoogleProfile(data);
       showToast.success(t('auth.success.accountCreated'));
+      // Redirect to dashboard after successful Google profile completion
+      router.push('/dashboard');
     } catch (error) {
       const message = error instanceof Error ? t(error.message) : t('auth.errors.generic');
       showToast.error(message);
