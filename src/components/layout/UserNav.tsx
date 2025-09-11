@@ -13,15 +13,19 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut, Settings, User, Globe } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '@/lib/toast';
+import { useRouter } from 'next/navigation';
 
 export function UserNav() {
   const { user, logout } = useAuth();
   const { t, i18n } = useTranslation();
+  const router = useRouter();
 
   const handleLogout = async () => {
     try {
       await logout();
       showToast.success('Sesión cerrada correctamente');
+      // Redirect to landing page after logout
+      router.push('/');
     } catch {
       showToast.error('Error al cerrar sesión');
     }
