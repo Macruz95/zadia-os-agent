@@ -1,0 +1,95 @@
+{
+  "auth": {
+    "login": {
+      "title": "Inicia Sesión en ZADIA OS",
+      "subtitle": "Sistema Operativo Empresarial Agéntico",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "submitButton": "Iniciar Sesión",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "noAccount": "¿No tienes cuenta?",
+      "createAccount": "Crear cuenta",
+      "orContinueWith": "O continúa con",
+      "googleButton": "Continuar con Google"
+    },
+    "register": {
+      "title": "Únete a ZADIA OS",
+      "subtitle": "Crea tu cuenta empresarial",
+      "name": "Nombre completo",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "role": "Tu rol en la organización",
+      "language": "Idioma preferido",
+      "organization": "Organización (opcional)",
+      "objective": "¿Qué buscas lograr?",
+      "submitButton": "Crear Cuenta",
+      "hasAccount": "¿Ya tienes cuenta?",
+      "signIn": "Iniciar sesión",
+      "orContinueWith": "O continúa con",
+      "googleButton": "Registrarse con Google"
+    },
+    "forgotPassword": {
+      "title": "Recuperar Contraseña",
+      "subtitle": "Te enviaremos un enlace para restablecer tu contraseña",
+      "email": "Correo electrónico",
+      "submitButton": "Enviar enlace",
+      "backToLogin": "Volver al inicio de sesión"
+    },
+    "googleComplete": {
+      "title": "Completa tu perfil",
+      "subtitle": "Necesitamos algunos datos adicionales para configurar tu cuenta",
+      "role": "Tu rol en la organización",
+      "language": "Idioma preferido",
+      "organization": "Organización (opcional)",
+      "objective": "¿Qué buscas lograr con ZADIA OS?",
+      "submitButton": "Completar registro"
+    },
+    "roles": {
+      "admin": "Administrador",
+      "manager": "Gerente",
+      "user": "Usuario"
+    },
+    "objectives": {
+      "automation": "Automatizar procesos",
+      "analytics": "Análisis y reportes",
+      "collaboration": "Colaboración en equipo",
+      "growth": "Crecimiento empresarial"
+    },
+    "validation": {
+      "emailRequired": "El correo electrónico es requerido",
+      "emailInvalid": "Correo electrónico inválido",
+      "passwordRequired": "La contraseña es requerida",
+      "passwordMinLength": "La contraseña debe tener al menos 6 caracteres",
+      "passwordsNoMatch": "Las contraseñas no coinciden",
+      "nameRequired": "El nombre es requerido",
+      "roleRequired": "Selecciona tu rol"
+    },
+    "errors": {
+      "invalidCredentials": "Credenciales incorrectas",
+      "userNotFound": "Usuario no encontrado",
+      "emailAlreadyInUse": "El correo ya está en uso",
+      "weakPassword": "La contraseña es muy débil",
+      "generic": "Ocurrió un error. Inténtalo de nuevo"
+    },
+    "success": {
+      "accountCreated": "Cuenta creada exitosamente",
+      "passwordResetSent": "Enlace de recuperación enviado",
+      "loginSuccess": "Sesión iniciada correctamente"
+    }
+  },
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior"
+  },
+  "dashboard": {
+    "welcome": "Bienvenido a ZADIA OS",
+    "userProfile": "Perfil de Usuario"
+  }
+}

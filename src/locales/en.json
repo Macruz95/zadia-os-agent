@@ -1,0 +1,95 @@
+{
+  "auth": {
+    "login": {
+      "title": "Sign In to ZADIA OS",
+      "subtitle": "Agentic Enterprise Operating System",
+      "email": "Email address",
+      "password": "Password",
+      "submitButton": "Sign In",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create account",
+      "orContinueWith": "Or continue with",
+      "googleButton": "Continue with Google"
+    },
+    "register": {
+      "title": "Join ZADIA OS",
+      "subtitle": "Create your enterprise account",
+      "name": "Full name",
+      "email": "Email address",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "role": "Your role in the organization",
+      "language": "Preferred language",
+      "organization": "Organization (optional)",
+      "objective": "What do you want to achieve?",
+      "submitButton": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "orContinueWith": "Or continue with",
+      "googleButton": "Sign up with Google"
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "subtitle": "We'll send you a link to reset your password",
+      "email": "Email address",
+      "submitButton": "Send link",
+      "backToLogin": "Back to sign in"
+    },
+    "googleComplete": {
+      "title": "Complete your profile",
+      "subtitle": "We need some additional information to set up your account",
+      "role": "Your role in the organization",
+      "language": "Preferred language",
+      "organization": "Organization (optional)",
+      "objective": "What do you want to achieve with ZADIA OS?",
+      "submitButton": "Complete registration"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "manager": "Manager",
+      "user": "User"
+    },
+    "objectives": {
+      "automation": "Automate processes",
+      "analytics": "Analytics and reports",
+      "collaboration": "Team collaboration",
+      "growth": "Business growth"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email address",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "passwordsNoMatch": "Passwords don't match",
+      "nameRequired": "Name is required",
+      "roleRequired": "Select your role"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid credentials",
+      "userNotFound": "User not found",
+      "emailAlreadyInUse": "Email already in use",
+      "weakPassword": "Password is too weak",
+      "generic": "An error occurred. Please try again"
+    },
+    "success": {
+      "accountCreated": "Account created successfully",
+      "passwordResetSent": "Password reset link sent",
+      "loginSuccess": "Successfully signed in"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "dashboard": {
+    "welcome": "Welcome to ZADIA OS",
+    "userProfile": "User Profile"
+  }
+}
