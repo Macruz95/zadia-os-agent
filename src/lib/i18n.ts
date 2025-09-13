@@ -1,5 +1,3 @@
-'use client';
-
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -17,25 +15,42 @@ const resources = {
   }
 };
 
-// Only initialize on client side
-if (typeof window !== 'undefined') {
+const isServer = typeof window === 'undefined';
+
+// Initialize i18n with SSR support
+const initOptions = {
+  resources,
+  fallbackLng: 'es',
+  lng: isServer ? 'es' : undefined, // Set default language for SSR
+  debug: false,
+  
+  interpolation: {
+    escapeValue: false
+  },
+
+  // Ensure SSR compatibility
+  react: {
+    useSuspense: false
+  }
+};
+
+if (!isServer) {
+  // Only use LanguageDetector on client side
   i18n
     .use(LanguageDetector)
     .use(initReactI18next)
     .init({
-      resources,
-      fallbackLng: 'es',
-      debug: process.env.NODE_ENV === 'development',
-      
+      ...initOptions,
       detection: {
         order: ['localStorage', 'navigator', 'htmlTag'],
         caches: ['localStorage']
-      },
-      
-      interpolation: {
-        escapeValue: false
       }
     });
+} else {
+  // Server-side initialization without language detection
+  i18n
+    .use(initReactI18next)
+    .init(initOptions);
 }
 
 export default i18n;
