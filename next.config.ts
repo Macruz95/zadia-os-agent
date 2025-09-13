@@ -18,13 +18,6 @@ const nextConfig: NextConfig = {
       };
     }
     
-    // Optimize bundle size
-    config.optimization = {
-      ...config.optimization,
-      usedExports: true,
-      sideEffects: false,
-    };
-    
     return config;
   },
   
