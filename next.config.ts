@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  outputFileTracingRoot: __dirname,
-  
   // Enable experimental features for better performance
   experimental: {
     optimizeServerReact: true,
@@ -20,14 +18,39 @@ const nextConfig: NextConfig = {
       };
     }
     
+    // Optimize bundle size
+    config.optimization = {
+      ...config.optimization,
+      usedExports: true,
+      sideEffects: false,
+    };
+    
     return config;
   },
   
   // Optimize static generation
-  staticPageGenerationTimeout: 180, // Increase timeout to 3 minutes
+  staticPageGenerationTimeout: 60, // Reduced to 1 minute
   
-  // Configure output
-  output: 'standalone',
+  // Better compression and optimization
+  compress: true,
+  poweredByHeader: false,
+  
+  // Image optimization
+  images: {
+    formats: ['image/webp', 'image/avif'],
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+  
+  // TypeScript configuration
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  
+  // ESLint configuration
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
   
   // Disable server-side compilation for specific modules that cause issues
   transpilePackages: ['react-i18next', 'i18next'],

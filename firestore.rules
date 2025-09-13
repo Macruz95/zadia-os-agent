@@ -1,29 +1,66 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Reglas para el DTO (Gemelo Digital de la Organización)
-    // Permitir lectura/escritura solo para usuarios autenticados
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    // REGLAS DE SEGURIDAD ESTRICTAS PARA ZADIA OS
+    
+    // Función para verificar si el usuario está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
     }
-
-    // Reglas específicas para colecciones críticas (ej. usuarios, proyectos)
+    
+    // Función para verificar si el usuario es dueño del documento
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Función para verificar roles de usuario
+    function hasRole(role) {
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+    
+    // COLECCIÓN DE USUARIOS - Solo el propio usuario puede leer/escribir sus datos
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isAuthenticated() && isOwner(userId);
+      // Los administradores pueden leer todos los perfiles (solo lectura)
+      allow read: if hasRole('admin');
     }
-
+    
+    // COLECCIÓN DE PROYECTOS - Acceso basado en roles
     match /projects/{projectId} {
-      allow read, write: if request.auth != null;
-      // TODO: Agregar reglas más específicas basadas en roles
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && hasRole('admin') || hasRole('manager');
+      allow update, delete: if isAuthenticated() && (
+        hasRole('admin') || 
+        (hasRole('manager') && resource.data.createdBy == request.auth.uid)
+      );
     }
-
+    
+    // COLECCIÓN DE CLIENTES - Acceso controlado
     match /clients/{clientId} {
-      allow read, write: if request.auth != null;
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && hasRole('admin') || hasRole('manager');
+      allow update, delete: if isAuthenticated() && hasRole('admin');
     }
-
-    // Reglas para agentes IA (futuro)
+    
+    // COLECCIÓN DE AGENTES IA - Solo administradores
     match /agents/{agentId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAuthenticated() && hasRole('admin');
+    }
+    
+    // COLECCIÓN DE CONFIGURACIONES DEL SISTEMA - Solo administradores
+    match /system/{configId} {
+      allow read, write: if isAuthenticated() && hasRole('admin');
+    }
+    
+    // COLECCIÓN DE LOGS Y AUDITORÍA - Solo lectura para administradores
+    match /logs/{logId} {
+      allow read: if isAuthenticated() && hasRole('admin');
+      allow write: if false; // Los logs solo se escriben desde el servidor
+    }
+    
+    // RECHAZAR CUALQUIER OTRO ACCESO NO ESPECIFICADO
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

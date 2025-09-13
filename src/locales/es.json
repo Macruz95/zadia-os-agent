@@ -166,6 +166,10 @@
       "copyright": "© 2025 ZADIA OS. Sistema Operativo Empresarial Agéntico."
     }
   },
+  "metadata": {
+    "title": "ZADIA OS - Sistema Operativo Empresarial Agéntico",
+    "description": "Plataforma de Operaciones Autónomas que utiliza IA agéntica y un Gemelo Digital de la Organización para orquestar flujos de trabajo complejos con autonomía e inteligencia."
+  },
   "common": {
     "loading": "Cargando...",
     "save": "Guardar",

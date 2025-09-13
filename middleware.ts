@@ -1,20 +1,52 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+/**
+ * Enhanced Middleware for ZADIA OS
+ * Provides robust authentication and authorization for protected routes
+ */
 export function middleware(request: NextRequest) {
-  // Get the pathname of the request
   const pathname = request.nextUrl.pathname;
-
-  // Check if the path starts with /(main) - these are protected routes
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/profile') || pathname.startsWith('/settings')) {
-    // Here you would typically check for authentication token
-    // For now, we'll rely on the client-side AuthContext to handle redirects
-    // In a production app, you'd validate a JWT token here
-    
-    return NextResponse.next();
+  
+  // Define protected routes that require authentication
+  const protectedRoutes = ['/dashboard', '/profile', '/settings', '/admin'];
+  const authRoutes = ['/login', '/register', '/forgot-password', '/google-complete'];
+  
+  // Check if current path is a protected route
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
+  
+  // Get authentication token from cookies
+  const authToken = request.cookies.get('auth-token')?.value;
+  
+  // If accessing protected route without token, redirect to login
+  if (isProtectedRoute && !authToken) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
   }
-
-  return NextResponse.next();
+  
+  // If user is authenticated and tries to access auth pages, redirect to dashboard
+  if (isAuthRoute && authToken) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+  
+  // Add security headers
+  const response = NextResponse.next();
+  
+  // Security headers for all requests
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  
+  // Content Security Policy
+  response.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.firebase.google.com https://firestore.googleapis.com;"
+  );
+  
+  return response;
 }
 
 export const config = {

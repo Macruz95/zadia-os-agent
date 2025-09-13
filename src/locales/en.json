@@ -166,6 +166,10 @@
       "copyright": "© 2025 ZADIA OS. Agentic Enterprise Operating System."
     }
   },
+  "metadata": {
+    "title": "ZADIA OS - Agentic Enterprise Operating System",
+    "description": "Autonomous Operations Platform that uses agentic AI and an organizational Digital Twin to orchestrate complex workflows with autonomy and intelligence."
+  },
   "common": {
     "loading": "Loading...",
     "save": "Save",
