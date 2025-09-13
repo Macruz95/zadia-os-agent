@@ -71,7 +71,7 @@ export function UserNav() {
         </DropdownMenuItem>
         <DropdownMenuItem>
           <Settings className="mr-2 h-4 w-4" />
-          <span>Configuración</span>
+          <span>{t('common.settings', 'Configuración')}</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={toggleLanguage}>
           <Globe className="mr-2 h-4 w-4" />

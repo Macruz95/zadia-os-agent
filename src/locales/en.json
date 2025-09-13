@@ -50,6 +50,10 @@
       "manager": "Manager",
       "user": "User"
     },
+    "languages": {
+      "es": "Spanish",
+      "en": "English"
+    },
     "objectives": {
       "automation": "Automate processes",
       "analytics": "Analytics and reports",
@@ -171,7 +175,8 @@
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
-    "notAvailable": "Not available"
+    "notAvailable": "Not available",
+    "settings": "Settings"
   },
   "dashboard": {
     "welcome": "Welcome, {{name}}",
