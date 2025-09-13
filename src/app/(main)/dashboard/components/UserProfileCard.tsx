@@ -90,14 +90,14 @@ export function UserProfileCard() {
           
           {user.organization && (
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Organización</p>
+              <p className="text-sm font-medium text-muted-foreground">{t('userProfile.fields.organization')}</p>
               <p className="text-base">{user.organization}</p>
             </div>
           )}
           
           {user.objective && (
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Objetivo</p>
+              <p className="text-sm font-medium text-muted-foreground">{t('userProfile.fields.objective')}</p>
               <p className="text-base">{t(`auth.objectives.${user.objective}`)}</p>
             </div>
           )}

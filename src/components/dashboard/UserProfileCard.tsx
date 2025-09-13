@@ -185,7 +185,7 @@ export function UserProfileCard({ userId }: UserProfileCardProps) {
             </div>
             <div className="flex items-start gap-2">
               <Target className="h-4 w-4 mt-0.5" />
-              <p className="text-sm">{profile.objective}</p>
+              <p className="text-sm">{t(`auth.objectives.${profile.objective}`)}</p>
             </div>
           </div>
         )}
