@@ -10,13 +10,13 @@ export function LandingFeatures() {
   const features = [
     {
       icon: <Code className="h-8 w-8" />,
-      title: t('landing.features.development.title'),
-      description: t('landing.features.development.description'),
+      title: t('landing.features.ai.title'),
+      description: t('landing.features.ai.description'),
     },
     {
       icon: <Globe className="h-8 w-8" />,
-      title: t('landing.features.deployment.title'),
-      description: t('landing.features.deployment.description'),
+      title: t('landing.features.integration.title'),
+      description: t('landing.features.integration.description'),
     },
     {
       icon: <Lock className="h-8 w-8" />,
@@ -25,18 +25,18 @@ export function LandingFeatures() {
     },
     {
       icon: <Zap className="h-8 w-8" />,
-      title: t('landing.features.performance.title'),
-      description: t('landing.features.performance.description'),
-    },
-    {
-      icon: <Settings className="h-8 w-8" />,
       title: t('landing.features.automation.title'),
       description: t('landing.features.automation.description'),
     },
     {
+      icon: <Settings className="h-8 w-8" />,
+      title: t('landing.features.analytics.title'),
+      description: t('landing.features.analytics.description'),
+    },
+    {
       icon: <CheckCircle className="h-8 w-8" />,
-      title: t('landing.features.quality.title'),
-      description: t('landing.features.quality.description'),
+      title: t('landing.features.collaboration.title'),
+      description: t('landing.features.collaboration.description'),
     },
   ];
 

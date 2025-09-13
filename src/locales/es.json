@@ -139,10 +139,24 @@
         "description": "Mantente a la vanguardia con actualizaciones automáticas de IA."
       }
     },
+    "testimonials": {
+      "title": "Lo que dicen nuestros usuarios",
+      "subtitle": "Descubre cómo ZADIA OS está transformando la forma en que las empresas operan",
+      "alex": {
+        "comment": "ZADIA OS ha revolucionado nuestra forma de trabajar. La automatización inteligente nos ha permitido reducir tiempos de respuesta en un 70% y aumentar la productividad del equipo."
+      },
+      "sarah": {
+        "comment": "La integración perfecta con nuestras herramientas existentes y la capacidad de crear flujos de trabajo personalizados nos ha dado una ventaja competitiva significativa."
+      },
+      "marcus": {
+        "comment": "El sistema de IA agéntica es impresionante. Puede manejar tareas complejas de forma autónoma, aprendiendo continuamente y adaptándose a nuestras necesidades específicas."
+      }
+    },
     "cta": {
       "title": "Transforma tu Organización Hoy",
       "subtitle": "Únete a las empresas líderes que ya utilizan ZADIA OS para revolucionar sus operaciones.",
-      "button": "Comenzar Transformación"
+      "button": "Comenzar Transformación",
+      "secondary": "Saber Más"
     },
     "footer": {
       "copyright": "© 2025 ZADIA OS. Sistema Operativo Empresarial Agéntico."

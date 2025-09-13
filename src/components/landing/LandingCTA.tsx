@@ -26,7 +26,7 @@ export function LandingCTA() {
               variant="secondary" 
               className="w-full sm:w-auto bg-background text-foreground hover:bg-background/90"
             >
-              {t('landing.cta.primary')}
+              {t('landing.cta.button')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>

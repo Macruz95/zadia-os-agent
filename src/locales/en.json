@@ -139,10 +139,24 @@
         "description": "Stay ahead with automatic AI updates."
       }
     },
+    "testimonials": {
+      "title": "What Our Users Say",
+      "subtitle": "Discover how ZADIA OS is transforming the way companies operate",
+      "alex": {
+        "comment": "ZADIA OS has revolutionized our way of working. Smart automation has allowed us to reduce response times by 70% and increase team productivity."
+      },
+      "sarah": {
+        "comment": "The perfect integration with our existing tools and the ability to create customized workflows has given us a significant competitive advantage."
+      },
+      "marcus": {
+        "comment": "The agentic AI system is impressive. It can handle complex tasks autonomously, continuously learning and adapting to our specific needs."
+      }
+    },
     "cta": {
       "title": "Transform Your Organization Today",
       "subtitle": "Join leading companies already using ZADIA OS to revolutionize their operations.",
-      "button": "Start Transformation"
+      "button": "Start Transformation",
+      "secondary": "Learn More"
     },
     "footer": {
       "copyright": "© 2025 ZADIA OS. Agentic Enterprise Operating System."
