@@ -1,64 +1,94 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // REGLAS DE SEGURIDAD ESTRICTAS PARA ZADIA OS
     
-    // Función para verificar si el usuario está autenticado
+    // Helper function to check if user is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
     
-    // Función para verificar si el usuario es dueño del documento
+    // Helper function to check if user is the owner of the document
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
     
-    // Función para verificar roles de usuario
+    // Helper function to check user role via Custom Claims (secure)
     function hasRole(role) {
-      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+      return isAuthenticated() && request.auth.token.role == role;
     }
     
-    // COLECCIÓN DE USUARIOS - Solo el propio usuario puede leer/escribir sus datos
+    // Helper function to check if user has admin role
+    function isAdmin() {
+      return hasRole('admin');
+    }
+    
+    // Helper function to check if user has manager or admin role
+    function isManagerOrAdmin() {
+      return hasRole('manager') || hasRole('admin');
+    }
+    
+    // Users collection - users can only read/write their own profile
     match /users/{userId} {
-      allow read, write: if isAuthenticated() && isOwner(userId);
-      // Los administradores pueden leer todos los perfiles (solo lectura)
-      allow read: if hasRole('admin');
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUserData();
+      allow update: if isOwner(userId) && isValidUserUpdate();
+      allow delete: if isAdmin(); // Only admins can delete users
+      
+      // Validate user data on creation
+      function isValidUserData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['email', 'displayName', 'role', 'language', 'createdAt', 'lastLogin', 'isActive']) &&
+               data.role == 'user' && // New users can only be created with 'user' role
+               data.email == request.auth.token.email &&
+               data.isActive == true;
+      }
+      
+      // Validate user data on update - prevent role escalation
+      function isValidUserUpdate() {
+        let data = request.resource.data;
+        let existingData = resource.data;
+        return !data.diff(existingData).affectedKeys().hasAny(['role', 'email', 'createdAt']) ||
+               isAdmin(); // Only admins can change critical fields
+      }
     }
     
-    // COLECCIÓN DE PROYECTOS - Acceso basado en roles
+    // Projects collection - only project members can access
     match /projects/{projectId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && hasRole('admin') || hasRole('manager');
-      allow update, delete: if isAuthenticated() && (
-        hasRole('admin') || 
-        (hasRole('manager') && resource.data.createdBy == request.auth.uid)
-      );
+      allow read, write: if isAuthenticated() && 
+        (isProjectMember(projectId) || isManagerOrAdmin());
+      
+      function isProjectMember(projectId) {
+        return request.auth.uid in resource.data.members;
+      }
     }
     
-    // COLECCIÓN DE CLIENTES - Acceso controlado
+    // Clients collection - role-based access
     match /clients/{clientId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && hasRole('admin') || hasRole('manager');
-      allow update, delete: if isAuthenticated() && hasRole('admin');
+      allow read: if isManagerOrAdmin();
+      allow write: if isAdmin();
     }
     
-    // COLECCIÓN DE AGENTES IA - Solo administradores
-    match /agents/{agentId} {
-      allow read, write: if isAuthenticated() && hasRole('admin');
+    // Tasks collection - project-based access
+    match /tasks/{taskId} {
+      allow read, write: if isAuthenticated() && 
+        (request.auth.uid == resource.data.assignedTo || 
+         request.auth.uid == resource.data.createdBy ||
+         isManagerOrAdmin());
     }
     
-    // COLECCIÓN DE CONFIGURACIONES DEL SISTEMA - Solo administradores
-    match /system/{configId} {
-      allow read, write: if isAuthenticated() && hasRole('admin');
+    // Analytics collection - admin only
+    match /analytics/{document} {
+      allow read, write: if isAdmin();
     }
     
-    // COLECCIÓN DE LOGS Y AUDITORÍA - Solo lectura para administradores
+    // System logs - admin only
     match /logs/{logId} {
-      allow read: if isAuthenticated() && hasRole('admin');
-      allow write: if false; // Los logs solo se escriben desde el servidor
+      allow read: if isAdmin();
+      allow write: if false; // Logs should only be written by server-side functions
     }
     
-    // RECHAZAR CUALQUIER OTRO ACCESO NO ESPECIFICADO
+    // Default deny for any other paths
     match /{document=**} {
       allow read, write: if false;
     }

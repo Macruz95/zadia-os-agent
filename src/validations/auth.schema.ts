@@ -26,8 +26,8 @@ export const registerFormSchema = z.object({
   name: z
     .string()
     .min(1, 'auth.validation.nameRequired')
-    .min(2, 'Name must be at least 2 characters')
-    .max(50, 'Name must be less than 50 characters'),
+    .min(2, 'auth.validation.nameMinLength')
+    .max(50, 'auth.validation.nameMaxLength'),
   email: z
     .string()
     .min(1, 'auth.validation.emailRequired')
@@ -35,17 +35,23 @@ export const registerFormSchema = z.object({
   password: z
     .string()
     .min(1, 'auth.validation.passwordRequired')
-    .min(6, 'auth.validation.passwordMinLength'),
+    .min(8, 'auth.validation.passwordMinLength')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 'auth.validation.passwordComplexity'),
   confirmPassword: z
     .string()
-    .min(1, 'Confirm password is required'),
-  role: userRoleSchema,
+    .min(1, 'auth.validation.confirmPasswordRequired'),
   language: languageSchema,
   organization: z
     .string()
     .optional()
     .transform(val => val === '' ? undefined : val),
-  objective: userObjectiveSchema.optional()
+  objective: userObjectiveSchema.optional(),
+  acceptTerms: z
+    .boolean()
+    .refine(val => val === true, 'auth.validation.termsRequired'),
+  acceptPrivacy: z
+    .boolean()
+    .refine(val => val === true, 'auth.validation.privacyRequired')
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'auth.validation.passwordsNoMatch',
   path: ['confirmPassword']
@@ -61,7 +67,6 @@ export const forgotPasswordFormSchema = z.object({
 
 // Google profile completion validation schema
 export const googleCompleteFormSchema = z.object({
-  role: userRoleSchema,
   language: languageSchema,
   organization: z
     .string()

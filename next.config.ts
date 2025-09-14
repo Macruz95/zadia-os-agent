@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Fix Next.js workspace root warning
+  outputFileTracingRoot: __dirname,
+  
   // Enable experimental features for better performance
   experimental: {
     optimizeServerReact: true,

@@ -67,7 +67,6 @@ export function useRegisterForm() {
       email: '',
       password: '',
       confirmPassword: '',
-      role: 'user' as const,
       language: 'es' as const,
       organization: '',
       objective: undefined
@@ -136,7 +135,6 @@ export function useGoogleCompleteForm() {
   const form = useForm({
     resolver: zodResolver(googleCompleteFormSchema),
     defaultValues: {
-      role: 'user' as const,
       language: 'es' as const,
       organization: '',
       objective: undefined

@@ -64,9 +64,13 @@
       "emailRequired": "El correo electrónico es requerido",
       "emailInvalid": "Correo electrónico inválido",
       "passwordRequired": "La contraseña es requerida",
-      "passwordMinLength": "La contraseña debe tener al menos 6 caracteres",
+      "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+      "passwordComplexity": "La contraseña debe contener al menos: 1 minúscula, 1 mayúscula, 1 número y 1 símbolo",
       "passwordsNoMatch": "Las contraseñas no coinciden",
       "nameRequired": "El nombre es requerido",
+      "nameMinLength": "El nombre debe tener al menos 2 caracteres",
+      "nameMaxLength": "El nombre debe tener menos de 50 caracteres",
+      "confirmPasswordRequired": "Confirmar contraseña es requerido",
       "roleRequired": "Selecciona tu rol"
     },
     "errors": {

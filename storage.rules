@@ -1,20 +1,68 @@
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
-    // Reglas para almacenamiento de archivos
-    // Permitir acceso solo a usuarios autenticados
-    match /{allPaths=**} {
-      allow read, write: if request.auth != null;
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
     }
-
-    // Reglas específicas para uploads de usuarios
+    
+    // Helper function to check user role via Custom Claims
+    function hasRole(role) {
+      return isAuthenticated() && request.auth.token.role == role;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return hasRole('admin');
+    }
+    
+    // Helper function to check if user is manager or admin
+    function isManagerOrAdmin() {
+      return hasRole('manager') || hasRole('admin');
+    }
+    
+    // User profile images - users can only access their own files
     match /users/{userId}/{allPaths=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isAuthenticated() && 
+        (request.auth.uid == userId || isAdmin());
     }
-
-    // Reglas para archivos de proyectos
+    
+    // Project files - only project members can access
     match /projects/{projectId}/{allPaths=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAuthenticated() && 
+        (isProjectMember(projectId) || isManagerOrAdmin());
+      
+      function isProjectMember(projectId) {
+        return request.auth.uid in 
+          firestore.get(/databases/(default)/documents/projects/$(projectId)).data.members;
+      }
+    }
+    
+    // Client files - manager/admin only
+    match /clients/{clientId}/{allPaths=**} {
+      allow read, write: if isManagerOrAdmin();
+    }
+    
+    // System files - admin only
+    match /system/{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Analytics and reports - admin only
+    match /analytics/{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Temp uploads - authenticated users for their own temp files only
+    match /temp/{userId}/{allPaths=**} {
+      allow read, write, delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Default deny for any other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
     }
   }
 }

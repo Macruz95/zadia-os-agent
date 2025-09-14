@@ -24,29 +24,6 @@ export function GoogleCompleteForm() {
       </CardHeader>
       <CardContent className="space-y-4">
         <form onSubmit={onSubmit} className="space-y-4">
-          {/* Role Field */}
-          <div className="space-y-2">
-            <Label htmlFor="role">{t('auth.googleComplete.role')}</Label>
-            <Select
-              value={form.watch('role')}
-              onValueChange={(value) => form.setValue('role', value as 'admin' | 'manager' | 'user')}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={t('auth.googleComplete.role')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="user">{t('auth.roles.user')}</SelectItem>
-                <SelectItem value="manager">{t('auth.roles.manager')}</SelectItem>
-                <SelectItem value="admin">{t('auth.roles.admin')}</SelectItem>
-              </SelectContent>
-            </Select>
-            {form.formState.errors.role && (
-              <p className="text-sm text-destructive">
-                {t(form.formState.errors.role.message || 'auth.validation.roleRequired')}
-              </p>
-            )}
-          </div>
-
           {/* Language Field */}
           <div className="space-y-2">
             <Label htmlFor="language">{t('auth.googleComplete.language')}</Label>
