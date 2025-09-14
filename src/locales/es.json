@@ -1,5 +1,6 @@
 {
   "auth": {
+    "or": "O",
     "login": {
       "title": "Inicia Sesión en ZADIA OS",
       "subtitle": "Sistema Operativo Empresarial Agéntico",
@@ -23,11 +24,29 @@
       "language": "Idioma preferido",
       "organization": "Organización (opcional)",
       "objective": "¿Qué buscas lograr?",
+      "selectObjective": "Selecciona tu objetivo",
+      "selectLanguage": "Selecciona tu idioma",
+      "acceptTerms": "Acepto los términos y condiciones",
+      "acceptPrivacy": "Acepto la política de privacidad",
+      "submit": "Crear Cuenta",
+      "registering": "Creando cuenta...",
+      "haveAccount": "¿Ya tienes cuenta?",
+      "loginLink": "Iniciar sesión",
       "submitButton": "Crear Cuenta",
       "hasAccount": "¿Ya tienes cuenta?",
       "signIn": "Iniciar sesión",
       "orContinueWith": "O continúa con",
-      "googleButton": "Registrarse con Google"
+      "googleButton": "Registrarse con Google",
+      "objectives": {
+        "automation": "Automatizar procesos",
+        "analytics": "Análisis y reportes",
+        "collaboration": "Colaboración en equipo",
+        "growth": "Crecimiento empresarial"
+      },
+      "languages": {
+        "spanish": "Español",
+        "english": "Inglés"
+      }
     },
     "forgotPassword": {
       "title": "Recuperar Contraseña",

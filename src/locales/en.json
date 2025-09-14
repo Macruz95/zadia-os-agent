@@ -1,5 +1,6 @@
 {
   "auth": {
+    "or": "Or",
     "login": {
       "title": "Sign In to ZADIA OS",
       "subtitle": "Agentic Enterprise Operating System",
@@ -23,11 +24,29 @@
       "language": "Preferred language",
       "organization": "Organization (optional)",
       "objective": "What do you want to achieve?",
+      "selectObjective": "Select your objective",
+      "selectLanguage": "Select your language",
+      "acceptTerms": "I accept the terms and conditions",
+      "acceptPrivacy": "I accept the privacy policy",
+      "submit": "Create Account",
+      "registering": "Creating account...",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in",
       "submitButton": "Create Account",
       "hasAccount": "Already have an account?",
       "signIn": "Sign in",
       "orContinueWith": "Or continue with",
-      "googleButton": "Sign up with Google"
+      "googleButton": "Sign up with Google",
+      "objectives": {
+        "automation": "Automate processes",
+        "analytics": "Analytics and reports",
+        "collaboration": "Team collaboration",
+        "growth": "Business growth"
+      },
+      "languages": {
+        "spanish": "Spanish",
+        "english": "English"
+      }
     },
     "forgotPassword": {
       "title": "Reset Password",
