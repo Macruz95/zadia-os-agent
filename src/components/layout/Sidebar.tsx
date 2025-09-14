@@ -1,15 +1,23 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  LayoutDashboard, 
-  Settings, 
-  User
+import {
+  Sidebar as SidebarComponent,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from '@/components/ui/sidebar';
+import {
+  LayoutDashboard,
+  Settings,
+  User,
 } from 'lucide-react';
 
 const sidebarNavItems = [
@@ -39,47 +47,80 @@ export function Sidebar() {
 
   if (loading) {
     return (
-      <aside className="hidden md:flex h-screen w-64 flex-col border-r bg-background">
-        <div className="p-4 space-y-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-10 bg-muted animate-pulse rounded" />
-          ))}
-        </div>
-      </aside>
+      <SidebarComponent>
+        <SidebarHeader>
+          <div className="flex items-center space-x-2 px-4 py-2">
+            <div className="h-6 w-6 animate-pulse bg-muted rounded" />
+            <div className="h-4 w-24 animate-pulse bg-muted rounded" />
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Navegación</SidebarGroupLabel>
+            <SidebarMenu>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <SidebarMenuItem key={i}>
+                  <div className="flex items-center space-x-2 px-2 py-2">
+                    <div className="h-4 w-4 animate-pulse bg-muted rounded" />
+                    <div className="h-4 w-20 animate-pulse bg-muted rounded" />
+                  </div>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+      </SidebarComponent>
     );
   }
 
   if (!user) return null;
 
-  const filteredItems = sidebarNavItems.filter(item => 
+  const filteredItems = sidebarNavItems.filter(item =>
     item.roles.includes(user.role)
   );
 
   return (
-    <aside className="hidden md:flex h-screen w-64 flex-col border-r bg-background">
-      <ScrollArea className="flex-1">
-        <nav className="p-4 space-y-2">
-          {filteredItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            
-            return (
-              <Link key={item.href} href={item.href}>
-                <Button
-                  variant={isActive ? 'secondary' : 'ghost'}
-                  className={cn(
-                    'w-full justify-start',
-                    isActive && 'bg-secondary'
-                  )}
-                >
-                  <Icon className="mr-2 h-4 w-4" />
-                  {item.title}
-                </Button>
-              </Link>
-            );
-          })}
-        </nav>
-      </ScrollArea>
-    </aside>
+    <SidebarComponent>
+      <SidebarHeader>
+        <div className="flex items-center space-x-2 px-4 py-2">
+          <div className="h-6 w-6 rounded bg-primary flex items-center justify-center">
+            <span className="text-xs font-bold text-primary-foreground">Z</span>
+          </div>
+          <h2 className="text-lg font-semibold">ZADIA OS</h2>
+        </div>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Navegación</SidebarGroupLabel>
+          <SidebarMenu>
+            {filteredItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+
+              return (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild isActive={isActive}>
+                    <Link href={item.href}>
+                      <Icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton>
+              <User className="h-4 w-4" />
+              <span>{user.email}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </SidebarComponent>
   );
 }

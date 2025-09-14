@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/layout/Header";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
@@ -58,14 +59,16 @@ export default function MainLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="flex">
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
         <Sidebar />
-        <main className="flex-1 p-6">
-          {children}
-        </main>
+        <SidebarInset>
+          <Header />
+          <main className="flex-1 p-6">
+            {children}
+          </main>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
