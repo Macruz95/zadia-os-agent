@@ -1,7 +1,8 @@
 'use client';
 
 import { MessageSquare, FileText, Briefcase, Users, Clock } from 'lucide-react';
-import { formatDate, formatCurrency } from '../../utils/clients.utils';
+import { formatDate } from '../../utils/date.utils';
+import { formatCurrency } from '../../utils/currency.utils';
 import { Interaction, Transaction, Project, Quote, Meeting, Task } from '../../types/clients.types';
 
 interface TimelineItemProps {
@@ -97,15 +98,19 @@ export const TimelineItem = ({ item, type }: TimelineItemProps) => {
   };
 
   return (
-    <div className="flex gap-4 p-4 border rounded-lg">
-      <div className="flex-shrink-0">
-        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-          {getIcon()}
+    <div className="flex flex-col p-4 border rounded-lg bg-card hover:shadow-md transition-all duration-200 h-full">
+      <div className="flex items-start gap-3 mb-3">
+        <div className="flex-shrink-0">
+          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+            {getIcon()}
+          </div>
+        </div>
+        <div className="flex-1 min-w-0">
+          {getContent()}
         </div>
       </div>
-      <div className="flex-1">
-        {getContent()}
-        <p className="text-xs text-muted-foreground mt-2">
+      <div className="mt-auto pt-2 border-t border-gray-100">
+        <p className="text-xs text-muted-foreground">
           {formatDate(getTimelineDate())}
         </p>
       </div>

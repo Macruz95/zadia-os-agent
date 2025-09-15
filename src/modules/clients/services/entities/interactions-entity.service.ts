@@ -38,14 +38,22 @@ export class InteractionsService {
    * Get interactions by client ID
    */
   static async getInteractionsByClient(clientId: string, limitCount = 10): Promise<Interaction[]> {
-    const q = query(
-      collection(db, INTERACTIONS_COLLECTION),
-      where('clientId', '==', clientId),
-      orderBy('date', 'desc'),
-      limit(limitCount)
-    );
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(docToInteraction);
+    console.log('🔍 getInteractionsByClient called with clientId:', clientId, 'limit:', limitCount);
+    try {
+      const q = query(
+        collection(db, INTERACTIONS_COLLECTION),
+        where('clientId', '==', clientId),
+        orderBy('date', 'desc'),
+        limit(limitCount)
+      );
+      const querySnapshot = await getDocs(q);
+      const interactions = querySnapshot.docs.map(docToInteraction);
+      console.log('✅ Interactions found:', interactions.length);
+      return interactions;
+    } catch (error) {
+      console.error('❌ Error getting interactions by client:', error);
+      throw error;
+    }
   }
 
   /**

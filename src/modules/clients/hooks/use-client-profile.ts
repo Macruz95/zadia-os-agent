@@ -8,6 +8,7 @@ import {
 
 export const useClientProfile = (clientId: string | null) => {
   const [state, setState] = useState<ClientProfileState>({
+    client: undefined,
     contacts: [],
     interactions: [],
     transactions: [],
@@ -16,9 +17,13 @@ export const useClientProfile = (clientId: string | null) => {
     meetings: [],
     tasks: [],
     loading: false,
+    error: undefined,
   });
 
   const fetchClientProfile = useCallback(async (id: string) => {
+    console.log('🔍 Fetching client profile for ID:', id);
+    console.log('🔍 Client ID type:', typeof id);
+    console.log('🔍 Client ID length:', id.length);
     setState(prev => ({ ...prev, loading: true, error: undefined }));
 
     try {
@@ -32,6 +37,15 @@ export const useClientProfile = (clientId: string | null) => {
         getInteractionsByClient(id),
       ]);
 
+      console.log('✅ Client profile loaded:', { 
+        client: !!client, 
+        clientId: client?.id,
+        contactsCount: contacts.length, 
+        interactionsCount: interactions.length 
+      });
+      console.log('📋 Client data:', client);
+      console.log('👥 Contacts data:', contacts);
+
       setState({
         client: client || undefined,
         contacts,
@@ -44,6 +58,7 @@ export const useClientProfile = (clientId: string | null) => {
         loading: false,
       });
     } catch (error) {
+      console.error('❌ Error loading client profile:', error);
       setState(prev => ({
         ...prev,
         loading: false,
@@ -59,10 +74,13 @@ export const useClientProfile = (clientId: string | null) => {
   }, [clientId, fetchClientProfile]);
 
   useEffect(() => {
+    console.log('🔄 useClientProfile useEffect triggered with clientId:', clientId);
     if (clientId) {
       fetchClientProfile(clientId);
     } else {
+      console.log('⚠️ No clientId provided, resetting state');
       setState({
+        client: undefined,
         contacts: [],
         interactions: [],
         transactions: [],
@@ -71,6 +89,7 @@ export const useClientProfile = (clientId: string | null) => {
         meetings: [],
         tasks: [],
         loading: false,
+        error: undefined,
       });
     }
   }, [clientId, fetchClientProfile]);

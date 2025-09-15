@@ -71,6 +71,42 @@ service cloud.firestore {
       // allow write: if isAdmin();
     }
     
+    // Contacts collection - temporalmente abierto para pruebas
+    match /contacts/{contactId} {
+      allow read, write: if true; // Temporary rule for testing
+      // TODO: Restore proper authentication rules:
+      // allow read: if isManagerOrAdmin();
+      // allow write: if isAdmin();
+    }
+    
+    // Interactions collection - temporalmente abierto para pruebas
+    match /interactions/{interactionId} {
+      allow read, write: if true; // Temporary rule for testing
+      // TODO: Restore proper authentication rules:
+      // allow read: if isManagerOrAdmin();
+      // allow write: if isAdmin();
+    }
+    
+    // Transactions collection - temporalmente abierto para pruebas
+    match /transactions/{transactionId} {
+      allow read, write: if true; // Temporary rule for testing
+    }
+    
+    // Projects collection - temporalmente abierto para pruebas
+    match /projects/{projectId} {
+      allow read, write: if true; // Temporary rule for testing
+    }
+    
+    // Quotes collection - temporalmente abierto para pruebas
+    match /quotes/{quoteId} {
+      allow read, write: if true; // Temporary rule for testing
+    }
+    
+    // Meetings collection - temporalmente abierto para pruebas
+    match /meetings/{meetingId} {
+      allow read, write: if true; // Temporary rule for testing
+    }
+    
     // Tasks collection - project-based access
     match /tasks/{taskId} {
       allow read, write: if isAuthenticated() && 

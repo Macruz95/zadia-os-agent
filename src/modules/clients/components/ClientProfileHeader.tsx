@@ -6,7 +6,8 @@ import { Card, CardContent } from '../../../components/ui/card';
 import { Badge } from '../../../components/ui/badge';
 import { Avatar, AvatarFallback } from '../../../components/ui/avatar';
 import { Client } from '../types/clients.types';
-import { getStatusColor, getClientTypeDisplay, calculateAge } from '../utils/clients.utils';
+import { getStatusColor, getClientTypeDisplay } from '../utils/display.utils';
+import { calculateAge } from '../utils/age.utils';
 
 interface ClientProfileHeaderProps {
   client: Client;
@@ -50,7 +51,7 @@ export const ClientProfileHeader = ({ client }: ClientProfileHeaderProps) => {
               )}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm">
               <Plus className="w-4 h-4 mr-2" />
               Añadir Interacción

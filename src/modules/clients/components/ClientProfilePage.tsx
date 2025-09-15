@@ -14,17 +14,23 @@ interface ClientProfilePageProps {
 }
 
 export const ClientProfilePage = ({ clientId, onBack }: ClientProfilePageProps) => {
+  console.log('🔍 ClientProfilePage rendered with clientId:', clientId);
   const { client, contacts, interactions, transactions, projects, quotes, meetings, tasks, loading, error } = useClientProfile(clientId);
+
+  console.log('📊 ClientProfilePage state:', { client: !!client, loading, error, contactsCount: contacts?.length, interactionsCount: interactions?.length });
 
   if (loading) {
     return <div className="flex items-center justify-center h-64">Cargando perfil del cliente...</div>;
   }
 
   if (error || !client) {
+    console.log('❌ ClientProfilePage showing error state:', { error, hasClient: !!client });
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-red-600 mb-4">Error al cargar el perfil del cliente</p>
+          <p className="text-red-600 mb-4">
+            {error ? `Error: ${error}` : 'Cliente no encontrado'}
+          </p>
           <button
             onClick={onBack}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -41,35 +47,35 @@ export const ClientProfilePage = ({ clientId, onBack }: ClientProfilePageProps) 
       {/* Header */}
       <ClientProfileHeader client={client} onBack={onBack} />
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-9 gap-6">
-        {/* Left Panel - Info and Contacts */}
-        <div className="lg:col-span-3 space-y-6">
-          <ClientInfoCard client={client} />
-          <ClientContactsCard contacts={contacts} />
-        </div>
-
-        {/* Center Panel - Timeline */}
-        <div className="lg:col-span-3">
-          <ClientTimeline
-            interactions={interactions}
-            transactions={transactions}
-            projects={projects}
-            quotes={quotes}
-            meetings={meetings}
-            tasks={tasks}
-          />
-        </div>
-
-        {/* Right Panel - KPIs and Summary */}
-        <div className="lg:col-span-3 space-y-6">
+      {/* Main Content Grid - 2 Rows Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column - Info and KPIs */}
+        <div className="space-y-6">
+          <ClientInfoCard client={client} contacts={contacts} />
           <ClientKPIsCard transactions={transactions} />
+        </div>
+
+        {/* Right Column - Contacts and Summary */}
+        <div className="space-y-6">
+          <ClientContactsCard contacts={contacts} />
           <ClientSummaryCards
             projects={projects}
             quotes={quotes}
             tasks={tasks}
           />
         </div>
+      </div>
+
+      {/* Bottom Row - Timeline takes full width */}
+      <div className="w-full">
+        <ClientTimeline
+          interactions={interactions}
+          transactions={transactions}
+          projects={projects}
+          quotes={quotes}
+          meetings={meetings}
+          tasks={tasks}
+        />
       </div>
     </div>
   );

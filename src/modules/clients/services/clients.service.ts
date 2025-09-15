@@ -20,6 +20,7 @@ import { InteractionsService } from './entities/interactions-entity.service';
  * @deprecated Use specific entity services instead
  */
 export const createClient = ClientsService.createClient;
+export const createClientWithContacts = ClientsService.createClientWithContacts;
 export const getClients = ClientsService.getClients;
 export const getClient = ClientsService.getClientById;
 export const getClientById = ClientsService.getClientById;
@@ -31,7 +32,6 @@ export const createContact = ContactsService.createContact;
 export const getContactsByClient = ContactsService.getContactsByClient;
 export const getContactById = ContactsService.getContactById;
 export const updateContact = ContactsService.updateContact;
-export const deleteContact = ContactsService.deleteContact;
 
 export const createInteraction = InteractionsService.createInteraction;
 export const getInteractionsByClient = InteractionsService.getInteractionsByClient;

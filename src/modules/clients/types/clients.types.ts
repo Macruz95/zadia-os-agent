@@ -49,8 +49,9 @@ export interface Contact {
   clientId: string;
   name: string;
   role?: string;
-  email: string;
+  email?: string;
   phone: string;
+  phoneCountryId?: string;
   isPrimary: boolean;
   createdAt: Date;
   updatedAt: Date;

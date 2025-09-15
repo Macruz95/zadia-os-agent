@@ -23,14 +23,22 @@ export const TASKS_COLLECTION = 'tasks';
 // Document converters
 export const docToClient = (doc: DocumentSnapshot): Client => {
   const data = doc.data();
+  console.log('🔍 Converting Firestore doc to Client:', { docId: doc.id, data });
+
+  if (!data) {
+    throw new Error('Document data is null or undefined');
+  }
+
   const client = {
     id: doc.id,
     ...data,
-    birthDate: data?.birthDate?.toDate(),
-    createdAt: data?.createdAt?.toDate(),
-    updatedAt: data?.updatedAt?.toDate(),
-    lastInteractionDate: data?.lastInteractionDate?.toDate(),
+    birthDate: data.birthDate ? data.birthDate.toDate() : undefined,
+    createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
+    updatedAt: data.updatedAt ? data.updatedAt.toDate() : new Date(),
+    lastInteractionDate: data.lastInteractionDate ? data.lastInteractionDate.toDate() : undefined,
   } as Client;
+
+  console.log('✅ Client converted successfully:', client);
   return client;
 };
 

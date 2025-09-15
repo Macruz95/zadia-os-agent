@@ -16,6 +16,7 @@ import { ClientFormSchema } from '../validations/clients.schema';
 import { BasicInfoStep } from './form-steps/BasicInfoStep';
 import { AddressStep } from './form-steps/AddressStep';
 import { TagsManager } from './TagsManager';
+import { ContactsManager } from './ContactsManager';
 import { z } from 'zod';
 
 // Esquema de edición que reutiliza ClientFormSchema pero sin contactos
@@ -145,6 +146,12 @@ export function EditClientDialog({
               </div>
 
               <TagsManager form={form} />
+            </div>
+
+            {/* Gestión de Contactos */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Información de Contacto</h3>
+              <ContactsManager clientId={client.id} />
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t">

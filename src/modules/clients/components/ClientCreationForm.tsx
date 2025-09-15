@@ -13,7 +13,7 @@ import { ContactStep } from './form-steps/ContactStep';
 import { ReviewStep } from './form-steps/ReviewStep';
 import { StepLayout } from './form-steps/StepLayout';
 import { PhoneCodeInput } from './reusable-components';
-import { createClient } from '../services/clients.service';
+import { createClientWithContacts } from '../services/clients.service';
 import { notificationService } from '@/lib/notifications';
 import { getStepTitles as getFormStepTitles } from '../utils/form-steps.utils';
 
@@ -76,12 +76,17 @@ export function ClientCreationForm({ onSuccess }: ClientCreationFormProps) {
       setIsSubmitting(true);
       const formData = form.getValues();
       
-      // Create client with validation
-      await createClient(formData);
+      console.log('📝 Form data to be submitted:', formData);
+      console.log('👥 Contacts in form:', formData.contacts);
       
-      notificationService.success('Cliente creado exitosamente');
+      // Create client with contacts using new function
+      const clientId = await createClientWithContacts(formData);
+      
+      console.log('✅ Client created with ID:', clientId);
+      notificationService.success('Cliente y contactos creados exitosamente');
       onSuccess?.();
     } catch (error) {
+      console.error('❌ Error creating client:', error);
       const message = error instanceof Error ? error.message : 'Error al crear el cliente';
       notificationService.error(message);
     } finally {
