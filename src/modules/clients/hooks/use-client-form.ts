@@ -84,9 +84,9 @@ export const useClientForm = ({ clientId, onSuccess, onError }: UseClientFormOpt
       for (const contact of data.contacts) {
         await createContact({
           clientId: clientIdToUse!,
-          name: contact.name,
-          role: contact.role,
-          email: contact.email,
+          name: contact.name || '',
+          role: contact.role || '',
+          email: contact.email || '',
           phone: contact.phone,
           isPrimary: contact.isPrimary,
         });

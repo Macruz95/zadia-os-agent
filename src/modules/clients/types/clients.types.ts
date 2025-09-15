@@ -40,7 +40,7 @@ export interface Address {
   state: string;
   city: string;
   street: string;
-  postalCode: string;
+  postalCode?: string;
 }
 
 export interface Contact {

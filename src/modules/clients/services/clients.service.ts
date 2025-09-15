@@ -39,32 +39,5 @@ export const getInteractionById = InteractionsService.getInteractionById;
 export const updateInteraction = InteractionsService.updateInteraction;
 export const deleteInteraction = InteractionsService.deleteInteraction;
 
-// Placeholder functions for entities not yet implemented
-// TODO: Implement these services when needed
-export const getTransactionsByClient = async (clientId: string) => {
-  console.warn('getTransactionsByClient not implemented yet');
-  return [];
-};
-
-export const getProjectsByClient = async (clientId: string) => {
-  console.warn('getProjectsByClient not implemented yet');
-  return [];
-};
-
-export const getQuotesByClient = async (clientId: string) => {
-  console.warn('getQuotesByClient not implemented yet');
-  return [];
-};
-
-export const getMeetingsByClient = async (clientId: string) => {
-  console.warn('getMeetingsByClient not implemented yet');
-  return [];
-};
-
-export const getTasksByClient = async (clientId: string) => {
-  console.warn('getTasksByClient not implemented yet');
-  return [];
-};
-
 // Re-export types
 export * from '../types/clients.types';

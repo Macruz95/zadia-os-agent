@@ -14,33 +14,19 @@ import { ReviewStep } from './form-steps/ReviewStep';
 import { StepLayout } from './form-steps/StepLayout';
 import { PhoneCodeInput } from './reusable-components';
 import { createClient } from '../services/clients.service';
-import { showToast } from '@/lib/toast';
+import { notificationService } from '@/lib/notifications';
+import { getStepTitles as getFormStepTitles } from '../utils/form-steps.utils';
 
 interface ClientCreationFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-const STEP_TITLES = [
-  'Tipo de Cliente',
-  'Información Básica',
-  'Dirección',
-  'Contacto Principal',
-  'Revisar y Confirmar'
-];
+const TOTAL_STEPS = 5;
 
 // Función para obtener títulos dinámicos según el tipo de cliente
 const getStepTitles = (clientType: string) => {
-  if (clientType === 'PersonaNatural') {
-    return [
-      'Tipo de Cliente',
-      'Información Básica',
-      'Dirección',
-      'Contacto Principal (Auto)',
-      'Revisar y Confirmar'
-    ];
-  }
-  return STEP_TITLES;
+  return getFormStepTitles(clientType as 'PersonaNatural' | 'Empresa');
 };
 
 export function ClientCreationForm({ onSuccess }: ClientCreationFormProps) {
@@ -93,11 +79,11 @@ export function ClientCreationForm({ onSuccess }: ClientCreationFormProps) {
       // Create client with validation
       await createClient(formData);
       
-      showToast.success('Cliente creado exitosamente');
+      notificationService.success('Cliente creado exitosamente');
       onSuccess?.();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error al crear el cliente';
-      showToast.error(message);
+      notificationService.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -108,7 +94,7 @@ export function ClientCreationForm({ onSuccess }: ClientCreationFormProps) {
     if (currentStep === 4 && clientType === 'PersonaNatural') {
       const isValid = await form.trigger(['contacts.0.phone' as keyof ClientFormData]);
       if (isValid) {
-        setCurrentStep(prev => Math.min(prev + 1, STEP_TITLES.length));
+        setCurrentStep(prev => Math.min(prev + 1, TOTAL_STEPS));
       }
       return;
     }
@@ -118,7 +104,7 @@ export function ClientCreationForm({ onSuccess }: ClientCreationFormProps) {
     const isValid = await form.trigger(fieldsToValidate as (keyof ClientFormData)[]);
     
     if (isValid) {
-      setCurrentStep(prev => Math.min(prev + 1, STEP_TITLES.length));
+      setCurrentStep(prev => Math.min(prev + 1, TOTAL_STEPS));
     }
   };
 
@@ -235,13 +221,13 @@ export function ClientCreationForm({ onSuccess }: ClientCreationFormProps) {
     <Form {...form}>
       <StepLayout
         currentStep={currentStep}
-        totalSteps={STEP_TITLES.length}
+        totalSteps={TOTAL_STEPS}
         onPrevious={prevStep}
         onNext={nextStep}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         isFirstStep={currentStep === 1}
-        isLastStep={currentStep === STEP_TITLES.length}
+        isLastStep={currentStep === TOTAL_STEPS}
         stepTitles={getStepTitles(clientType)}
       >
         {renderStepContent()}

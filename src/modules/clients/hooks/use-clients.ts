@@ -15,12 +15,10 @@ export const useClients = (initialParams: ClientSearchParams = {}) => {
 
   const fetchClients = useCallback(async (params?: ClientSearchParams) => {
     const searchParams = params || currentParamsRef.current;
-    console.log('use-clients: fetchClients called with params:', searchParams);
     setState(prev => ({ ...prev, loading: true, error: undefined }));
 
     try {
       const result = await searchClients(searchParams);
-      console.log('use-clients: searchClients result:', result);
       setState(prev => ({
         ...prev,
         clients: result.clients,
@@ -29,7 +27,6 @@ export const useClients = (initialParams: ClientSearchParams = {}) => {
         searchParams,
       }));
     } catch (error) {
-      console.error('use-clients: Error fetching clients:', error);
       setState(prev => ({
         ...prev,
         loading: false,

@@ -43,8 +43,7 @@ export const registerFormSchema = z.object({
   language: languageSchema,
   organization: z
     .string()
-    .optional()
-    .transform(val => val === '' ? undefined : val),
+    .optional(),
   objective: userObjectiveSchema.optional(),
   acceptTerms: z
     .boolean()
@@ -70,8 +69,7 @@ export const googleCompleteFormSchema = z.object({
   language: languageSchema,
   organization: z
     .string()
-    .optional()
-    .transform(val => val === '' ? undefined : val),
+    .optional(),
   objective: userObjectiveSchema.optional()
 });
 

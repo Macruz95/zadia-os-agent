@@ -4,11 +4,6 @@ import {
   getClient,
   getContactsByClient,
   getInteractionsByClient,
-  getTransactionsByClient,
-  getProjectsByClient,
-  getQuotesByClient,
-  getMeetingsByClient,
-  getTasksByClient,
 } from '../services/clients.service';
 
 export const useClientProfile = (clientId: string | null) => {
@@ -31,31 +26,21 @@ export const useClientProfile = (clientId: string | null) => {
         client,
         contacts,
         interactions,
-        transactions,
-        projects,
-        quotes,
-        meetings,
-        tasks,
       ] = await Promise.all([
         getClient(id),
         getContactsByClient(id),
         getInteractionsByClient(id),
-        getTransactionsByClient(id),
-        getProjectsByClient(id),
-        getQuotesByClient(id),
-        getMeetingsByClient(id),
-        getTasksByClient(id),
       ]);
 
       setState({
         client: client || undefined,
         contacts,
         interactions,
-        transactions,
-        projects,
-        quotes,
-        meetings,
-        tasks,
+        transactions: [], // Empty until implemented
+        projects: [], // Empty until implemented
+        quotes: [], // Empty until implemented
+        meetings: [], // Empty until implemented
+        tasks: [], // Empty until implemented
         loading: false,
       });
     } catch (error) {

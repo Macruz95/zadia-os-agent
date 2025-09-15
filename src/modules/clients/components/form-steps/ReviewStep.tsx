@@ -10,10 +10,6 @@ import { CountriesService } from '../../../countries/services/countries.service'
 import { DepartmentsService } from '../../../departments/services/departments.service';
 import { MunicipalitiesService } from '../../../municipalities/services/municipalities.service';
 import { DistrictsService } from '../../../districts/services/districts.service';
-import { Country } from '../../../countries/types/countries.types';
-import { Department } from '../../../departments/types/departments.types';
-import { Municipality } from '../../../municipalities/types/municipalities.types';
-import { District } from '../../../districts/types/districts.types';
 
 interface ReviewStepProps {
   form: UseFormReturn<ClientFormData>;

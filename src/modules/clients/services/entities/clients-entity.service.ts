@@ -42,12 +42,9 @@ export class ClientsService {
    * Get all clients
    */
   static async getClients(): Promise<Client[]> {
-    console.log('ClientsService.getClients: Starting to fetch clients');
     const q = query(collection(db, CLIENTS_COLLECTION), orderBy('lastInteractionDate', 'desc'));
     const querySnapshot = await getDocs(q);
     const clients = querySnapshot.docs.map(docToClient);
-    console.log('ClientsService.getClients: Found', clients.length, 'clients');
-    console.log('ClientsService.getClients: Clients data:', clients);
     return clients;
   }
 
@@ -91,7 +88,6 @@ export class ClientsService {
     totalCount: number;
     hasMore: boolean;
   }> {
-    console.log('ClientsService.searchClients: Starting search with params:', params);
     let q: Query = collection(db, CLIENTS_COLLECTION);
 
     // Apply filters
@@ -115,9 +111,6 @@ export class ClientsService {
     const querySnapshot = await getDocs(q);
     const clients = querySnapshot.docs.slice(0, pageSize).map(docToClient);
     const hasMore = querySnapshot.docs.length > pageSize;
-
-    console.log('ClientsService.searchClients: Found', clients.length, 'clients');
-    console.log('ClientsService.searchClients: Clients data:', clients);
 
     return {
       clients,

@@ -1,6 +1,6 @@
 'use client';
 
-import { Trash2 } from 'lucide-react';
+import { Trash2, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -12,10 +12,11 @@ interface ClientTableProps {
   clients: Client[];
   loading: boolean;
   onClientSelect?: (client: Client) => void;
-  onDeleteClient: (clientId: string) => void;
+  onDeleteClient: (client: Client) => void;
+  onEditClient?: (client: Client) => void;
 }
 
-export function ClientTable({ clients, loading, onClientSelect, onDeleteClient }: ClientTableProps) {
+export function ClientTable({ clients, loading, onClientSelect, onDeleteClient, onEditClient }: ClientTableProps) {
   if (loading) {
     return (
       <Card>
@@ -90,17 +91,32 @@ export function ClientTable({ clients, loading, onClientSelect, onDeleteClient }
                   }
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteClient(client.id);
-                    }}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    {onEditClient && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditClient(client);
+                        }}
+                        className="text-blue-600 hover:text-blue-700"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteClient(client);
+                      }}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

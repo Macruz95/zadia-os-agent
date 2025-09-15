@@ -60,7 +60,7 @@ export function useRegisterForm() {
   const { register } = useAuth();
   const router = useRouter();
   
-  const form = useForm({
+  const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
       name: '',
@@ -69,7 +69,9 @@ export function useRegisterForm() {
       confirmPassword: '',
       language: 'es' as const,
       organization: '',
-      objective: undefined
+      objective: undefined,
+      acceptTerms: false,
+      acceptPrivacy: false
     }
   });
 

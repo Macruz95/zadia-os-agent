@@ -23,7 +23,6 @@ export const TASKS_COLLECTION = 'tasks';
 // Document converters
 export const docToClient = (doc: DocumentSnapshot): Client => {
   const data = doc.data();
-  console.log('docToClient: Converting document:', doc.id, data);
   const client = {
     id: doc.id,
     ...data,
@@ -32,7 +31,6 @@ export const docToClient = (doc: DocumentSnapshot): Client => {
     updatedAt: data?.updatedAt?.toDate(),
     lastInteractionDate: data?.lastInteractionDate?.toDate(),
   } as Client;
-  console.log('docToClient: Converted client:', client);
   return client;
 };
 
@@ -70,11 +68,15 @@ export const docToProject = (doc: DocumentSnapshot): Project => {
   const data = doc.data();
   return {
     id: doc.id,
-    ...data,
+    clientId: data?.clientId || '',
+    name: data?.name || '',
+    status: data?.status || 'Planificación',
+    progress: data?.progress || 0,
     startDate: data?.startDate?.toDate(),
     endDate: data?.endDate?.toDate(),
     createdAt: data?.createdAt?.toDate(),
     updatedAt: data?.updatedAt?.toDate(),
+    ...data,
   } as Project;
 };
 
@@ -82,10 +84,15 @@ export const docToQuote = (doc: DocumentSnapshot): Quote => {
   const data = doc.data();
   return {
     id: doc.id,
-    ...data,
+    clientId: data?.clientId || '',
+    number: data?.number || '',
+    date: data?.date?.toDate() || new Date(),
+    estimatedAmount: data?.estimatedAmount || 0,
+    status: data?.status || 'Borrador',
     validUntil: data?.validUntil?.toDate(),
     createdAt: data?.createdAt?.toDate(),
     updatedAt: data?.updatedAt?.toDate(),
+    ...data,
   } as Quote;
 };
 
@@ -103,9 +110,13 @@ export const docToTask = (doc: DocumentSnapshot): Task => {
   const data = doc.data();
   return {
     id: doc.id,
-    ...data,
+    clientId: data?.clientId || '',
+    title: data?.title || '',
+    status: data?.status || 'Pendiente',
+    priority: data?.priority || 'Media',
     dueDate: data?.dueDate?.toDate(),
     createdAt: data?.createdAt?.toDate(),
     updatedAt: data?.updatedAt?.toDate(),
+    ...data,
   } as Task;
 };
