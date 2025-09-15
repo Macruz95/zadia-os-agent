@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { useClients } from '../hooks/use-clients';
 import { Client, ClientType, ClientStatus } from '../types/clients.types';
@@ -18,6 +19,7 @@ interface ClientDirectoryProps {
 }
 
 export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirectoryProps) {
+  const router = useRouter();
   const { clients, loading, error, updateSearchParams } = useClients({
     sortBy: 'lastInteractionDate',
     sortOrder: 'desc',
@@ -77,6 +79,26 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
     setEditDialog({ open: true, client });
   };
 
+  const handleClientSelect = (client: Client) => {
+    if (onClientSelect) {
+      // Si se proporciona callback, usar el comportamiento legacy
+      onClientSelect(client);
+    } else {
+      // Usar routing por defecto
+      router.push(`/clients/${client.id}`);
+    }
+  };
+
+  const handleCreateClientClick = () => {
+    if (onCreateClient) {
+      // Si se proporciona callback, usar el comportamiento legacy
+      onCreateClient();
+    } else {
+      // Usar routing por defecto
+      router.push('/clients/create');
+    }
+  };
+
   const confirmDelete = async () => {
     if (!deleteDialog.client) return;
     
@@ -111,7 +133,7 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
 
   return (
     <div className="space-y-6">
-      <ClientHeader onCreateClient={onCreateClient} />
+      <ClientHeader onCreateClient={handleCreateClientClick} />
       
       <ClientFilters
         searchQuery={searchQuery}
@@ -125,7 +147,7 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
       <ClientTable
         clients={clients}
         loading={loading}
-        onClientSelect={onClientSelect}
+        onClientSelect={handleClientSelect}
         onDeleteClient={handleDeleteClient}
         onEditClient={handleEditClient}
       />
