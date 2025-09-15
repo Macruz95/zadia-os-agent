@@ -1,5 +1,16 @@
 # Configuración de Envío de Correos
 
+## Implementación Actual
+
+El sistema de envío de correos utiliza la **API REST de Resend** directamente mediante fetch, evitando dependencias problemáticas como `@react-email/render`.
+
+### Características Técnicas:
+- ✅ **Sin dependencias externas problemáticas**
+- ✅ **API REST nativa** usando fetch
+- ✅ **Manejo de errores robusto**
+- ✅ **Compatible con Edge Runtime**
+- ✅ **Funciona en server-side y client-side**
+
 ## Resend Setup
 
 Para habilitar el envío de correos en ZADIA OS, necesitas configurar Resend:

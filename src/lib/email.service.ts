@@ -1,7 +1,3 @@
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export interface EmailData {
   to: string | string[];
   subject: string;
@@ -17,31 +13,67 @@ export interface EmailTemplate {
 }
 
 /**
- * Service for sending emails using Resend
+ * Service for sending emails using Resend API directly
  */
 export class EmailService {
   private static readonly DEFAULT_FROM = 'ZADIA OS <noreply@zadia-os.com>';
+  private static readonly API_URL = 'https://api.resend.com/emails';
 
   /**
-   * Send a basic email
+   * Send a basic email using Resend API
    */
   static async sendEmail(data: EmailData): Promise<{ success: boolean; id?: string; error?: string }> {
     try {
+      const apiKey = process.env.RESEND_API_KEY;
+
+      if (!apiKey) {
+        return {
+          success: false,
+          error: 'RESEND_API_KEY not configured'
+        };
+      }
+
       const from = data.from || this.DEFAULT_FROM;
 
-      // Ensure we have at least text content
-      const emailData = {
+      // Ensure we have content
+      if (!data.text && !data.html) {
+        return {
+          success: false,
+          error: 'Email must have either HTML or text content'
+        };
+      }
+
+      // Prepare recipients array
+      const to = Array.isArray(data.to) ? data.to : [data.to];
+
+      const emailPayload = {
         from,
-        to: data.to,
+        to,
         subject: data.subject,
         text: data.text || (data.html ? 'This email contains HTML content. Please view in an HTML-compatible email client.' : ''),
         ...(data.html && { html: data.html }),
       };
 
-      const result = await resend.emails.send(emailData);
+      const response = await fetch(this.API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailPayload),
+      });
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: `Resend API error: ${response.status} ${response.statusText}`,
+        };
+      }
+
+      const result = await response.json();
 
       console.log('📧 Email sent successfully:', result);
-      return { success: true, id: result.data?.id };
+      return { success: true, id: result.id };
     } catch (error) {
       console.error('❌ Error sending email:', error);
       return {
