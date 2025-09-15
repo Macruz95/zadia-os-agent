@@ -10,7 +10,6 @@ import {
   query,
   where,
   orderBy,
-  limit,
   Timestamp,
   Query,
 } from 'firebase/firestore';
@@ -65,9 +64,14 @@ export class ClientsService {
    */
   static async updateClient(clientId: string, updates: Partial<Client>): Promise<void> {
     const docRef = doc(db, CLIENTS_COLLECTION, clientId);
+
+    // Create a clean update object without undefined values
+    const cleanUpdates = Object.fromEntries(
+      Object.entries(updates).filter((entry) => entry[1] !== undefined)
+    );
+
     await updateDoc(docRef, {
-      ...updates,
-      birthDate: updates.birthDate ? Timestamp.fromDate(updates.birthDate) : undefined,
+      ...cleanUpdates,
       updatedAt: Timestamp.now(),
     });
   }
@@ -90,7 +94,7 @@ export class ClientsService {
   }> {
     let q: Query = collection(db, CLIENTS_COLLECTION);
 
-    // Apply filters
+    // Apply filters first (before sorting to avoid composite indexes)
     if (params.filters) {
       const { clientType, status, tags, source } = params.filters;
       if (clientType) q = query(q, where('clientType', '==', clientType));
@@ -99,22 +103,63 @@ export class ClientsService {
       if (tags && tags.length > 0) q = query(q, where('tags', 'array-contains-any', tags));
     }
 
-    // Apply sorting
+    // Get all matching documents first
+    const querySnapshot = await getDocs(q);
+    let clients = querySnapshot.docs.map(docToClient);
+
+    // Apply text search in memory if query is provided
+    if (params.query && params.query.trim()) {
+      const { searchInClient } = await import('../../utils/clients.utils');
+      clients = clients.filter(client => searchInClient(client, params.query!));
+    }
+
+    // Apply sorting in memory to avoid composite index requirements
     const sortBy = params.sortBy || 'lastInteractionDate';
     const sortOrder = params.sortOrder || 'desc';
-    q = query(q, orderBy(sortBy, sortOrder));
+
+    // Helper function for safe comparison
+    const compareValues = (a: unknown, b: unknown): number => {
+      // Handle dates
+      if (a instanceof Date && b instanceof Date) {
+        return a.getTime() - b.getTime();
+      }
+
+      // Handle strings
+      if (typeof a === 'string' && typeof b === 'string') {
+        const aLower = a.toLowerCase();
+        const bLower = b.toLowerCase();
+        return aLower.localeCompare(bLower);
+      }
+
+      // Handle numbers
+      if (typeof a === 'number' && typeof b === 'number') {
+        return a - b;
+      }
+
+      // Convert to strings for comparison
+      const aStr = String(a || '');
+      const bStr = String(b || '');
+      return aStr.localeCompare(bStr);
+    };
+
+    clients.sort((a, b) => {
+      const aValue = a[sortBy as keyof Client];
+      const bValue = b[sortBy as keyof Client];
+
+      const comparison = compareValues(aValue, bValue);
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
 
     // Apply pagination
     const pageSize = params.pageSize || 20;
-    q = query(q, limit(pageSize + 1)); // +1 to check if there's more
-
-    const querySnapshot = await getDocs(q);
-    const clients = querySnapshot.docs.slice(0, pageSize).map(docToClient);
-    const hasMore = querySnapshot.docs.length > pageSize;
+    const page = params.page || 1;
+    const startIndex = (page - 1) * pageSize;
+    const paginatedClients = clients.slice(startIndex, startIndex + pageSize);
+    const hasMore = startIndex + pageSize < clients.length;
 
     return {
-      clients,
-      totalCount: clients.length, // Simplified - would need separate count query
+      clients: paginatedClients,
+      totalCount: clients.length,
       hasMore,
     };
   }

@@ -6,6 +6,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DatePicker } from '@/components/ui/date-picker';
 
 // Using any type temporarily to resolve build issues with form compatibility
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -63,11 +64,10 @@ export function BasicInfoStep({ form, clientType }: BasicInfoStepProps) {
               <FormItem>
                 <FormLabel>Fecha de nacimiento</FormLabel>
                 <FormControl>
-                  <Input
-                    type="date"
-                    {...field}
-                    value={field.value ? (typeof field.value === 'string' ? field.value : field.value.toISOString().split('T')[0]) : ''}
-                    onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                  <DatePicker
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Seleccione fecha de nacimiento"
                   />
                 </FormControl>
                 <FormMessage />

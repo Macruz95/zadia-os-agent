@@ -64,25 +64,37 @@ export function EditClientDialog({
   const handleSubmit = async (data: EditClientFormData) => {
     try {
       setIsSubmitting(true);
-      await updateClient(client.id, {
+
+      // Prepare update data, excluding undefined values
+      const updateData: Partial<Client> = {
         name: data.name,
         documentId: data.documentId,
         clientType: data.clientType,
         status: data.status,
-        birthDate: data.birthDate ? new Date(data.birthDate) : undefined,
         gender: data.gender,
         tags: data.tags,
-        source: data.source || undefined,
         communicationOptIn: data.communicationOptIn,
         address: {
           country: data.address.country,
           state: data.address.state,
           city: data.address.city,
           street: data.address.street,
-          postalCode: data.address.postalCode || undefined,
+          ...(data.address.district && data.address.district.trim() && { district: data.address.district.trim() }),
+          ...(data.address.postalCode && data.address.postalCode.trim() && { postalCode: data.address.postalCode.trim() }),
         },
-      });
-      
+      };
+
+      // Add optional fields only if they have values
+      if (data.birthDate) {
+        updateData.birthDate = data.birthDate;
+      }
+
+      if (data.source && data.source.trim()) {
+        updateData.source = data.source.trim();
+      }
+
+      await updateClient(client.id, updateData);
+
       notificationService.success('Cliente actualizado exitosamente');
       onSuccess?.();
       onOpenChange(false);

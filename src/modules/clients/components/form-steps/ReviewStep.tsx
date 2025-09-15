@@ -5,7 +5,8 @@ import { UseFormReturn } from 'react-hook-form';
 import { Check } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ClientFormData } from '../../validations/clients.schema';
-import { getClientTypeDisplay } from '../../utils/clients.utils';
+import { getClientTypeDisplay } from '../../utils/display.utils';
+import { formatDate } from '../../utils/date.utils';
 import { CountriesService } from '../../../countries/services/countries.service';
 import { DepartmentsService } from '../../../departments/services/departments.service';
 import { MunicipalitiesService } from '../../../municipalities/services/municipalities.service';
@@ -93,7 +94,7 @@ export function ReviewStep({ form }: ReviewStepProps) {
               <div><strong>Tipo:</strong> {getClientTypeDisplay(formData.clientType)}</div>
               <div><strong>Estado:</strong> {formData.status}</div>
               {formData.source && <div><strong>Origen:</strong> {formData.source}</div>}
-              {formData.birthDate && <div><strong>Fecha de nacimiento:</strong> {formData.birthDate.toLocaleDateString()}</div>}
+              {formData.birthDate && <div><strong>Fecha de nacimiento:</strong> {formatDate(formData.birthDate)}</div>}
               {formData.gender && <div><strong>Género:</strong> {formData.gender}</div>}
             </div>
           </CardContent>
