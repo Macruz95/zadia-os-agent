@@ -57,7 +57,7 @@ export const ClientProfilePage = ({ clientId, onBack }: ClientProfilePageProps) 
 
         {/* Right Column - Contacts and Summary */}
         <div className="space-y-6">
-          <ClientContactsCard contacts={contacts} />
+          <ClientContactsCard contacts={contacts} clientName={client.name} />
           <ClientSummaryCards
             projects={projects}
             quotes={quotes}

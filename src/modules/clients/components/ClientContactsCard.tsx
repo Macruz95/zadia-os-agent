@@ -1,21 +1,44 @@
 'use client';
 
-import { Mail, Phone } from 'lucide-react';
+import { useState } from 'react';
+import { Mail, Phone, Send } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Badge } from '../../../components/ui/badge';
+import { Button } from '../../../components/ui/button';
 import { Contact } from '../types/clients.types';
+import { SendEmailDialog } from '../../../components/SendEmailDialog';
+
+interface ClientContactsCardProps {
+  contacts: Contact[];
+  clientName?: string;
+}
 
 interface ClientContactsCardProps {
   contacts: Contact[];
 }
 
-export const ClientContactsCard = ({ contacts }: ClientContactsCardProps) => {
+export const ClientContactsCard = ({ contacts, clientName }: ClientContactsCardProps) => {
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+
   console.log('👥 ClientContactsCard contacts:', contacts);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Contactos</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">Contactos</CardTitle>
+          {contacts && contacts.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEmailDialogOpen(true)}
+              className="gap-2"
+            >
+              <Send className="w-4 h-4" />
+              Enviar Correo
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {contacts && contacts.length > 0 ? (
@@ -54,6 +77,13 @@ export const ClientContactsCard = ({ contacts }: ClientContactsCardProps) => {
           </div>
         )}
       </CardContent>
+
+      <SendEmailDialog
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        contacts={contacts || []}
+        clientName={clientName || 'Cliente'}
+      />
     </Card>
   );
 };
