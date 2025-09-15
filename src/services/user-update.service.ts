@@ -44,16 +44,14 @@ export class UserUpdateService {
       const userDoc = await getDoc(userRef);
       
       if (!userDoc.exists()) {
-        console.warn(`User document ${uid} does not exist, skipping lastLogin update`);
         return;
       }
       
       await updateDoc(userRef, {
         lastLogin: serverTimestamp()
       });
-    } catch (error) {
-      console.error('Error updating last login:', error);
-      // Don't throw error for lastLogin update failures
+    } catch {
+      // Don't throw error for lastLogin update failures - fail silently
     }
   }
 

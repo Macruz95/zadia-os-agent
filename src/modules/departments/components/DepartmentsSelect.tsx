@@ -50,8 +50,8 @@ export function DepartmentsSelect({
         setLoading(true);
         const data = await DepartmentsService.getDepartmentsByCountry(countryId);
         setDepartments(data);
-      } catch (err) {
-        console.error('Error fetching departments:', err);
+      } catch {
+        // Error silencioso - el estado loading se controla en el hook
       } finally {
         setLoading(false);
       }
@@ -99,6 +99,7 @@ export function DepartmentsSelect({
                   key={department.id}
                   value={department.name}
                   onSelect={() => {
+                    console.log('DepartmentsSelect onSelect - department.id:', department.id);
                     onValueChange(department.id === value ? "" : department.id);
                     setOpen(false);
                   }}

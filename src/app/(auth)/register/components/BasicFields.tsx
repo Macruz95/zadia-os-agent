@@ -1,14 +1,15 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
+import { UseFormReturn } from 'react-hook-form';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { usePasswordVisibility } from '@/hooks/use-password-visibility';
+import { RegisterFormData } from '@/validations/auth.schema';
 
 interface BasicFieldsProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: any;
+  form: UseFormReturn<RegisterFormData>;
 }
 
 export function BasicFields({ form }: BasicFieldsProps) {

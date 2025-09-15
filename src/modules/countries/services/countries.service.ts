@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Country, countrySchema } from '../types/countries.types';
+import { MOCK_COUNTRIES } from '../data/mock-countries';
 
 /**
  * Countries Service
@@ -27,6 +28,12 @@ export class CountriesService {
       const countriesRef = collection(db, 'countries');
       const q = query(countriesRef, where('isActive', '==', true), orderBy('name'));
       const querySnapshot = await getDocs(q);
+
+      // If no countries in Firestore, return mock data
+      if (querySnapshot.empty) {
+        console.warn('No countries found in Firestore, using mock data');
+        return MOCK_COUNTRIES;
+      }
 
       const countries: Country[] = [];
       querySnapshot.forEach((doc) => {
@@ -44,7 +51,8 @@ export class CountriesService {
 
       return countries;
     } catch (error) {
-      throw new Error(`Error fetching countries: ${error}`);
+      console.warn('Error fetching countries from Firestore, using mock data:', error);
+      return MOCK_COUNTRIES;
     }
   }
 

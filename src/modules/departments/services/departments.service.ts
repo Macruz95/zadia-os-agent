@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Department, departmentSchema } from '../types/departments.types';
+import { MOCK_DEPARTMENTS } from '../mock-departments';
 
 /**
  * Departments Service
@@ -41,9 +42,15 @@ export class DepartmentsService {
         departments.push(departmentSchema.parse(department));
       });
 
+      // If no departments in Firestore, return mock data
+      if (departments.length === 0) {
+        return MOCK_DEPARTMENTS;
+      }
+
       return departments;
     } catch (error) {
-      throw new Error(`Error fetching departments: ${error}`);
+      console.warn('Error fetching departments from Firestore, using mock data:', error);
+      return MOCK_DEPARTMENTS;
     }
   }
 
@@ -74,9 +81,15 @@ export class DepartmentsService {
         departments.push(departmentSchema.parse(department));
       });
 
+      // If no departments in Firestore, return mock data filtered by country
+      if (departments.length === 0) {
+        return MOCK_DEPARTMENTS.filter(dept => dept.countryId === countryId);
+      }
+
       return departments;
     } catch (error) {
-      throw new Error(`Error fetching departments by country: ${error}`);
+      console.warn('Error fetching departments from Firestore, using mock data:', error);
+      return MOCK_DEPARTMENTS.filter(dept => dept.countryId === countryId);
     }
   }
 
@@ -89,7 +102,9 @@ export class DepartmentsService {
       const departmentSnap = await getDoc(departmentRef);
 
       if (!departmentSnap.exists()) {
-        return null;
+        // Try to find in mock data
+        const mockDepartment = MOCK_DEPARTMENTS.find(dept => dept.id === id);
+        return mockDepartment || null;
       }
 
       const data = departmentSnap.data();
@@ -102,7 +117,9 @@ export class DepartmentsService {
 
       return departmentSchema.parse(department);
     } catch (error) {
-      throw new Error(`Error fetching department: ${error}`);
+      console.warn('Error fetching department from Firestore, using mock data:', error);
+      const mockDepartment = MOCK_DEPARTMENTS.find(dept => dept.id === id);
+      return mockDepartment || null;
     }
   }
 

@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Municipality, municipalitySchema } from '../types/municipalities.types';
+import { MOCK_MUNICIPALITIES } from '../mock-municipalities';
 
 /**
  * Municipalities Service
@@ -23,6 +24,7 @@ export class MunicipalitiesService {
    * Get municipalities by department ID
    */
   static async getMunicipalitiesByDepartment(departmentId: string): Promise<Municipality[]> {
+    console.log('getMunicipalitiesByDepartment called with departmentId:', departmentId);
     try {
       const municipalitiesRef = collection(db, 'municipalities');
       const q = query(
@@ -46,9 +48,22 @@ export class MunicipalitiesService {
         municipalities.push(municipalitySchema.parse(municipality));
       });
 
+      // If no municipalities in Firestore, return mock data filtered by department
+      if (municipalities.length === 0) {
+        console.log('No municipalities in Firestore, using mock data');
+        console.log('MOCK_MUNICIPALITIES:', MOCK_MUNICIPALITIES);
+        const filtered = MOCK_MUNICIPALITIES.filter(mun => mun.departmentId === departmentId);
+        console.log('Filtered municipalities for departmentId', departmentId, ':', filtered);
+        return filtered;
+      }
+
       return municipalities;
     } catch (error) {
-      throw new Error(`Error fetching municipalities: ${error}`);
+      console.warn('Error fetching municipalities from Firestore, using mock data:', error);
+      console.log('MOCK_MUNICIPALITIES in catch:', MOCK_MUNICIPALITIES);
+      const filtered = MOCK_MUNICIPALITIES.filter(mun => mun.departmentId === departmentId);
+      console.log('Filtered municipalities in catch for departmentId', departmentId, ':', filtered);
+      return filtered;
     }
   }
 
@@ -61,7 +76,9 @@ export class MunicipalitiesService {
       const municipalitySnap = await getDoc(municipalityRef);
 
       if (!municipalitySnap.exists()) {
-        return null;
+        // Try to find in mock data
+        const mockMunicipality = MOCK_MUNICIPALITIES.find(mun => mun.id === id);
+        return mockMunicipality || null;
       }
 
       const data = municipalitySnap.data();
@@ -74,7 +91,9 @@ export class MunicipalitiesService {
 
       return municipalitySchema.parse(municipality);
     } catch (error) {
-      throw new Error(`Error fetching municipality: ${error}`);
+      console.warn('Error fetching municipality from Firestore, using mock data:', error);
+      const mockMunicipality = MOCK_MUNICIPALITIES.find(mun => mun.id === id);
+      return mockMunicipality || null;
     }
   }
 

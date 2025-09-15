@@ -40,18 +40,23 @@ export function MunicipalitiesSelect({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    console.log('MunicipalitiesSelect useEffect triggered with departmentId:', departmentId);
     if (!departmentId) {
+      console.log('No departmentId provided, clearing municipalities');
       setMunicipalities([]);
       return;
     }
 
     const fetchMunicipalities = async () => {
       try {
+        console.log('Fetching municipalities for departmentId:', departmentId);
         setLoading(true);
         const data = await MunicipalitiesService.getMunicipalitiesByDepartment(departmentId);
+        console.log('Fetched municipalities:', data);
         setMunicipalities(data);
-      } catch (err) {
-        console.error('Error fetching municipalities:', err);
+      } catch (error) {
+        console.error('Error fetching municipalities:', error);
+        // Error silencioso - el estado loading se controla en el hook
       } finally {
         setLoading(false);
       }

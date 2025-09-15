@@ -18,6 +18,7 @@ import {
   LayoutDashboard,
   Settings,
   User,
+  Users,
 } from 'lucide-react';
 
 const sidebarNavItems = [
@@ -25,6 +26,12 @@ const sidebarNavItems = [
     title: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
+    roles: ['admin', 'manager', 'user']
+  },
+  {
+    title: 'Clientes',
+    href: '/clients',
+    icon: Users,
     roles: ['admin', 'manager', 'user']
   },
   {

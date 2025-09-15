@@ -20,8 +20,8 @@ export const useAuthState = () => {
         const userProfile = await UserService.getUserProfile(firebaseUser.uid);
         setUser(userProfile);
       }
-    } catch (error) {
-      console.error('Failed to refresh user profile:', error);
+    } catch {
+      // Error silencioso - la aplicación puede continuar sin perfil actualizado
     }
   };
 
@@ -41,8 +41,8 @@ export const useAuthState = () => {
         } else {
           setUser(null);
         }
-      } catch (error) {
-        console.error('Failed to load user profile:', error);
+      } catch {
+        // Error silencioso - setUser(null) maneja el estado fallback
         setUser(null);
       } finally {
         setLoading(false);

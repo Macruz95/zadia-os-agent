@@ -17,8 +17,8 @@ export function useDepartments(countryId?: string) {
       setLoading(true);
       const data = await DepartmentsService.getDepartmentsByCountry(id);
       setDepartments(data);
-    } catch (err) {
-      console.error('Error fetching departments:', err);
+    } catch {
+      // Error silencioso - el estado loading se maneja en el componente
     } finally {
       setLoading(false);
     }

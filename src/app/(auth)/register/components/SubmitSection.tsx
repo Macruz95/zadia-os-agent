@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { UseFormReturn } from 'react-hook-form';
 import { Check } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { RegisterFormData } from '@/validations/auth.schema';
 
 interface SubmitSectionProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: any;
+  form: UseFormReturn<RegisterFormData>;
   isLoading: boolean;
 }
 

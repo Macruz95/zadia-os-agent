@@ -44,9 +44,8 @@ export function CountriesSelect({
         setLoading(true);
         const data = await CountriesService.getCountries();
         setCountries(data);
-      } catch (err) {
+      } catch {
         setError('Error al cargar países');
-        console.error('Error fetching countries:', err);
       } finally {
         setLoading(false);
       }

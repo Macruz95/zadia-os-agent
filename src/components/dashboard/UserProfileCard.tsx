@@ -26,8 +26,7 @@ export function UserProfileCard({ userId }: UserProfileCardProps) {
         setError(null);
         const userProfile = await UserService.getUserProfile(userId);
         setProfile(userProfile);
-      } catch (err) {
-        console.error('Error loading user profile:', err);
+      } catch {
         setError('Error al cargar el perfil');
       } finally {
         setLoading(false);

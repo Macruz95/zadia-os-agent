@@ -17,8 +17,8 @@ export function useMunicipalities(departmentId?: string) {
       setLoading(true);
       const data = await MunicipalitiesService.getMunicipalitiesByDepartment(id);
       setMunicipalities(data);
-    } catch (err) {
-      console.error('Error fetching municipalities:', err);
+    } catch {
+      // Error silencioso - el estado loading se maneja en el componente
     } finally {
       setLoading(false);
     }

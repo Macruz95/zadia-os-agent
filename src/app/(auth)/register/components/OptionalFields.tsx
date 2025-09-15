@@ -1,14 +1,15 @@
 'use client';
 
 import { useTranslation } from 'react-i18next';
+import { UseFormReturn } from 'react-hook-form';
 import { Building, Target } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RegisterFormData } from '@/validations/auth.schema';
 
 interface OptionalFieldsProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  form: any;
+  form: UseFormReturn<RegisterFormData>;
 }
 
 export function OptionalFields({ form }: OptionalFieldsProps) {

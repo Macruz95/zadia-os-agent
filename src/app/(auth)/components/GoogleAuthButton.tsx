@@ -14,9 +14,8 @@ export function GoogleAuthButton() {
     try {
       setIsLoading(true);
       await handleGoogleLogin();
-    } catch (error) {
+    } catch {
       // Error is already handled in the hook
-      console.error('Google login error:', error);
     } finally {
       setIsLoading(false);
     }

@@ -15,7 +15,6 @@ export function useCountries() {
       setCountries(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
-      console.error('Error fetching countries:', err);
     } finally {
       setLoading(false);
     }

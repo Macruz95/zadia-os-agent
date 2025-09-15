@@ -94,7 +94,7 @@ export const useAuthActions = () => {
       await AuthService.signOut();
       // User state will be updated by onAuthStateChanged
     } catch (error) {
-      console.error('Logout error:', error);
+      // Re-lanzar error para manejo en el componente
       throw error;
     }
   };
