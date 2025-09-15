@@ -26,7 +26,7 @@ export const ContactSchema = z.object({
 // Client Schema
 export const ClientSchema = z.object({
   name: z.string().min(1, 'Nombre es requerido'),
-  documentId: z.string().regex(/^[0-9]{8}-[0-9]$/, 'Formato de DUI inválido (########-#)'),
+  documentId: z.string().min(1, 'Documento de identidad es requerido'),
   clientType: z.enum(['PersonaNatural', 'Organización', 'Empresa']),
   birthDate: z.date().optional(),
   gender: z.enum(['Masculino', 'Femenino', 'Otro']).optional(),
@@ -35,6 +35,20 @@ export const ClientSchema = z.object({
   source: z.string().optional(),
   communicationOptIn: z.boolean(),
   address: AddressSchema,
+}).refine((data) => {
+  // Validación condicional del formato de documento según el tipo de cliente
+  if (data.clientType === 'PersonaNatural') {
+    // Para personas naturales: formato DUI (########-#)
+    return /^[0-9]{8}-[0-9]$/.test(data.documentId);
+  } else {
+    // Para organizaciones y empresas: formato más flexible
+    // Permite formatos como REG-001-2025, NIT, etc.
+    // Longitud mínima de 4 caracteres para evitar códigos demasiado cortos
+    return data.documentId.length >= 4 && data.documentId.length <= 50;
+  }
+}, {
+  message: 'Formato de documento inválido. Para personas naturales use formato DUI (########-#), para organizaciones use formato válido.',
+  path: ['documentId'],
 }).refine((data) => {
   if (data.clientType === 'PersonaNatural' && !data.birthDate) {
     return false;

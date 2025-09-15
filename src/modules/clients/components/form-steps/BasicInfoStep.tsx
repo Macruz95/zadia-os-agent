@@ -45,9 +45,19 @@ export function BasicInfoStep({ form, clientType }: BasicInfoStepProps) {
           name="documentId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Número de documento</FormLabel>
+              <FormLabel>
+                {clientType === 'PersonaNatural' ? 'Número de DUI' : 'Número de registro'}
+              </FormLabel>
               <FormControl>
-                <Input placeholder="########-#" {...field} value={field.value || ''} />
+                <Input
+                  placeholder={
+                    clientType === 'PersonaNatural'
+                      ? '########-#'
+                      : 'Ej: REG-001-2025, NIT, etc.'
+                  }
+                  {...field}
+                  value={field.value || ''}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
