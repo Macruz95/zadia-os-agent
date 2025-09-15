@@ -54,6 +54,7 @@ export function EditClientDialog({
         country: client.address.country,
         state: client.address.state,
         city: client.address.city,
+        district: client.address.district || '',
         street: client.address.street,
         postalCode: client.address.postalCode || '',
       },
