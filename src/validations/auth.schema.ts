@@ -18,7 +18,7 @@ export const loginFormSchema = z.object({
   password: z
     .string()
     .min(1, 'auth.validation.passwordRequired')
-    .min(6, 'auth.validation.passwordMinLength')
+    .min(8, 'auth.validation.passwordMinLength')
 });
 
 // Register form validation schema

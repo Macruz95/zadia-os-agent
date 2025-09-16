@@ -14,17 +14,13 @@ interface ClientProfilePageProps {
 }
 
 export const ClientProfilePage = ({ clientId, onBack }: ClientProfilePageProps) => {
-  console.log('🔍 ClientProfilePage rendered with clientId:', clientId);
   const { client, contacts, interactions, transactions, projects, quotes, meetings, tasks, loading, error } = useClientProfile(clientId);
-
-  console.log('📊 ClientProfilePage state:', { client: !!client, loading, error, contactsCount: contacts?.length, interactionsCount: interactions?.length });
 
   if (loading) {
     return <div className="flex items-center justify-center h-64">Cargando perfil del cliente...</div>;
   }
 
   if (error || !client) {
-    console.log('❌ ClientProfilePage showing error state:', { error, hasClient: !!client });
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">

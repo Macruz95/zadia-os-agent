@@ -27,7 +27,6 @@ export const ClientTimeline = ({
 }: ClientTimelineProps) => {
   const [activeTab, setActiveTab] = useState('timeline');
 
-  // TODO: Crear tipo union apropiado para elementos del timeline
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const allTimelineItems: any[] = processTimelineItems(
     interactions,

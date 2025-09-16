@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CountriesSelect, DepartmentsSelect, MunicipalitiesSelect, DistrictsSelect } from '../reusable-components';
 
-// Using any type temporarily to resolve build issues with form compatibility
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface AddressStepProps {
   form: UseFormReturn<any>;
@@ -21,8 +20,6 @@ export function AddressStep({ form }: AddressStepProps) {
   
   // Check if the selected country is El Salvador
   const isSalvador = countryValue === 'sv';
-
-  console.log('AddressStep - countryValue:', countryValue, 'stateValue:', stateValue, 'isSalvador:', isSalvador);
 
   return (
     <div className="space-y-6">

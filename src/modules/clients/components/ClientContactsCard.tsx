@@ -20,8 +20,6 @@ interface ClientContactsCardProps {
 export const ClientContactsCard = ({ contacts, clientName }: ClientContactsCardProps) => {
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
 
-  console.log('👥 ClientContactsCard contacts:', contacts);
-
   return (
     <Card>
       <CardHeader>

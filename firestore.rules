@@ -63,51 +63,152 @@ service cloud.firestore {
       }
     }
     
-    // Clients collection - temporalmente abierto para pruebas
+    // Clients collection - secured with proper authentication
     match /clients/{clientId} {
-      allow read, write: if true; // Temporary rule for testing
-      // TODO: Restore proper authentication rules:
-      // allow read: if isManagerOrAdmin();
-      // allow write: if isAdmin();
+      allow read: if isAuthenticated() && (isOwnerData(clientId) || isManagerOrAdmin());
+      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidClientData();
+      allow update: if isAuthenticated() && (isOwnerData(clientId) || isManagerOrAdmin()) && isValidClientUpdate();
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isOwnerData(clientId) {
+        return resource.data.createdBy == request.auth.uid;
+      }
+      
+      function isValidClientData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['name', 'documentId', 'clientType', 'status', 'createdBy', 'createdAt']) &&
+               data.createdBy == request.auth.uid &&
+               data.clientType in ['PersonaNatural', 'Organización', 'Empresa'] &&
+               data.status in ['Potencial', 'Activo', 'Inactivo'];
+      }
+      
+      function isValidClientUpdate() {
+        let data = request.resource.data;
+        let existingData = resource.data;
+        return !data.diff(existingData).affectedKeys().hasAny(['createdBy', 'createdAt']) ||
+               isAdmin();
+      }
     }
-    
-    // Contacts collection - temporalmente abierto para pruebas
+
+    // Contacts collection - secured with client ownership validation
     match /contacts/{contactId} {
-      allow read, write: if true; // Temporary rule for testing
-      // TODO: Restore proper authentication rules:
-      // allow read: if isManagerOrAdmin();
-      // allow write: if isAdmin();
+      allow read: if isAuthenticated() && (isContactOwner(contactId) || isManagerOrAdmin());
+      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidContactData();
+      allow update: if isAuthenticated() && (isContactOwner(contactId) || isManagerOrAdmin());
+      allow delete: if isAuthenticated() && (isContactOwner(contactId) || isAdmin());
+      
+      function isContactOwner(contactId) {
+        return resource.data.clientId != null && 
+               exists(/databases/$(database)/documents/clients/$(resource.data.clientId)) &&
+               get(/databases/$(database)/documents/clients/$(resource.data.clientId)).data.createdBy == request.auth.uid;
+      }
+      
+      function isValidContactData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['clientId', 'phone', 'createdBy']) &&
+               data.createdBy == request.auth.uid &&
+               exists(/databases/$(database)/documents/clients/$(data.clientId));
+      }
     }
-    
-    // Interactions collection - temporalmente abierto para pruebas
+
+    // Interactions collection - secured with client ownership validation
     match /interactions/{interactionId} {
-      allow read, write: if true; // Temporary rule for testing
-      // TODO: Restore proper authentication rules:
-      // allow read: if isManagerOrAdmin();
-      // allow write: if isAdmin();
+      allow read: if isAuthenticated() && (isInteractionOwner(interactionId) || isManagerOrAdmin());
+      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidInteractionData();
+      allow update: if isAuthenticated() && (isInteractionOwner(interactionId) || isManagerOrAdmin());
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isInteractionOwner(interactionId) {
+        return resource.data.clientId != null && 
+               exists(/databases/$(database)/documents/clients/$(resource.data.clientId)) &&
+               get(/databases/$(database)/documents/clients/$(resource.data.clientId)).data.createdBy == request.auth.uid;
+      }
+      
+      function isValidInteractionData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['clientId', 'type', 'createdBy']) &&
+               data.createdBy == request.auth.uid &&
+               exists(/databases/$(database)/documents/clients/$(data.clientId));
+      }
     }
-    
-    // Transactions collection - temporalmente abierto para pruebas
+
+    // Transactions collection - secured with authentication and validation
     match /transactions/{transactionId} {
-      allow read, write: if true; // Temporary rule for testing
+      allow read: if isAuthenticated() && (isTransactionOwner(transactionId) || isManagerOrAdmin());
+      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidTransactionData();
+      allow update: if isAuthenticated() && (isTransactionOwner(transactionId) || isManagerOrAdmin());
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isTransactionOwner(transactionId) {
+        return resource.data.createdBy == request.auth.uid;
+      }
+      
+      function isValidTransactionData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['clientId', 'amount', 'type', 'status', 'createdBy']) &&
+               data.createdBy == request.auth.uid &&
+               data.amount is number && data.amount >= 0;
+      }
     }
-    
-    // Projects collection - temporalmente abierto para pruebas
+
+    // Projects collection - secured with authentication
     match /projects/{projectId} {
-      allow read, write: if true; // Temporary rule for testing
+      allow read: if isAuthenticated() && (isProjectOwner(projectId) || isManagerOrAdmin());
+      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidProjectData();
+      allow update: if isAuthenticated() && (isProjectOwner(projectId) || isManagerOrAdmin());
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isProjectOwner(projectId) {
+        return resource.data.createdBy == request.auth.uid || 
+               request.auth.uid in resource.data.members;
+      }
+      
+      function isValidProjectData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['name', 'clientId', 'status', 'createdBy']) &&
+               data.createdBy == request.auth.uid &&
+               exists(/databases/$(database)/documents/clients/$(data.clientId));
+      }
     }
-    
-    // Quotes collection - temporalmente abierto para pruebas
+
+    // Quotes collection - secured with authentication
     match /quotes/{quoteId} {
-      allow read, write: if true; // Temporary rule for testing
+      allow read: if isAuthenticated() && (isQuoteOwner(quoteId) || isManagerOrAdmin());
+      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidQuoteData();
+      allow update: if isAuthenticated() && (isQuoteOwner(quoteId) || isManagerOrAdmin());
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isQuoteOwner(quoteId) {
+        return resource.data.createdBy == request.auth.uid;
+      }
+      
+      function isValidQuoteData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['clientId', 'total', 'status', 'createdBy']) &&
+               data.createdBy == request.auth.uid &&
+               data.total is number && data.total >= 0;
+      }
     }
-    
-    // Meetings collection - temporalmente abierto para pruebas
+
+    // Meetings collection - secured with authentication
     match /meetings/{meetingId} {
-      allow read, write: if true; // Temporary rule for testing
-    }
-    
-    // Tasks collection - project-based access
+      allow read: if isAuthenticated() && (isMeetingParticipant(meetingId) || isManagerOrAdmin());
+      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidMeetingData();
+      allow update: if isAuthenticated() && (isMeetingParticipant(meetingId) || isManagerOrAdmin());
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isMeetingParticipant(meetingId) {
+        return resource.data.createdBy == request.auth.uid ||
+               request.auth.uid in resource.data.attendees;
+      }
+      
+      function isValidMeetingData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['date', 'attendees', 'createdBy']) &&
+               data.createdBy == request.auth.uid &&
+               data.attendees is list;
+      }
+    }    // Tasks collection - project-based access
     match /tasks/{taskId} {
       allow read, write: if isAuthenticated() && 
         (request.auth.uid == resource.data.assignedTo || 

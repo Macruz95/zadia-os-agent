@@ -17,7 +17,10 @@ export const AddressSchema = z.object({
 export const ContactSchema = z.object({
   name: z.string().optional(),
   role: z.string().optional(),
-  email: z.string().email('Email inválido').optional().or(z.literal('')),
+  email: z.union([
+    z.string().email('Email inválido'),
+    z.literal(''),
+  ]).optional(),
   phone: z.string().min(1, 'Teléfono es requerido'),
   phoneCountryId: z.string().optional(),
   isPrimary: z.boolean(),

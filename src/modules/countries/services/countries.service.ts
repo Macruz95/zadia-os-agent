@@ -46,7 +46,12 @@ export class CountriesService {
         };
 
         // Validate data structure with Zod
-        countries.push(countrySchema.parse(country));
+        const validationResult = countrySchema.safeParse(country);
+        if (validationResult.success) {
+          countries.push(validationResult.data);
+        } else {
+          console.warn('Invalid country data format:', validationResult.error.message);
+        }
       });
 
       return countries;

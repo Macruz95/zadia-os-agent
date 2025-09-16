@@ -21,9 +21,6 @@ export const useClientProfile = (clientId: string | null) => {
   });
 
   const fetchClientProfile = useCallback(async (id: string) => {
-    console.log('🔍 Fetching client profile for ID:', id);
-    console.log('🔍 Client ID type:', typeof id);
-    console.log('🔍 Client ID length:', id.length);
     setState(prev => ({ ...prev, loading: true, error: undefined }));
 
     try {
@@ -36,15 +33,6 @@ export const useClientProfile = (clientId: string | null) => {
         getContactsByClient(id),
         getInteractionsByClient(id),
       ]);
-
-      console.log('✅ Client profile loaded:', { 
-        client: !!client, 
-        clientId: client?.id,
-        contactsCount: contacts.length, 
-        interactionsCount: interactions.length 
-      });
-      console.log('📋 Client data:', client);
-      console.log('👥 Contacts data:', contacts);
 
       setState({
         client: client || undefined,
@@ -74,11 +62,9 @@ export const useClientProfile = (clientId: string | null) => {
   }, [clientId, fetchClientProfile]);
 
   useEffect(() => {
-    console.log('🔄 useClientProfile useEffect triggered with clientId:', clientId);
     if (clientId) {
       fetchClientProfile(clientId);
     } else {
-      console.log('⚠️ No clientId provided, resetting state');
       setState({
         client: undefined,
         contacts: [],

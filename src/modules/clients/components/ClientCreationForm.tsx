@@ -76,17 +76,12 @@ export function ClientCreationForm({ onSuccess }: ClientCreationFormProps) {
       setIsSubmitting(true);
       const formData = form.getValues();
       
-      console.log('📝 Form data to be submitted:', formData);
-      console.log('👥 Contacts in form:', formData.contacts);
-      
       // Create client with contacts using new function
-      const clientId = await createClientWithContacts(formData);
+      await createClientWithContacts(formData);
       
-      console.log('✅ Client created with ID:', clientId);
       notificationService.success('Cliente y contactos creados exitosamente');
       onSuccess?.();
     } catch (error) {
-      console.error('❌ Error creating client:', error);
       const message = error instanceof Error ? error.message : 'Error al crear el cliente';
       notificationService.error(message);
     } finally {

@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 
-// Using any type temporarily to resolve build issues with form compatibility
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface TagsManagerProps {
   form: UseFormReturn<any>;

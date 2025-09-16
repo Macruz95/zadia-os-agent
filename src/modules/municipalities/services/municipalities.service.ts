@@ -24,7 +24,6 @@ export class MunicipalitiesService {
    * Get municipalities by department ID
    */
   static async getMunicipalitiesByDepartment(departmentId: string): Promise<Municipality[]> {
-    console.log('getMunicipalitiesByDepartment called with departmentId:', departmentId);
     try {
       const municipalitiesRef = collection(db, 'municipalities');
       const q = query(
@@ -50,19 +49,13 @@ export class MunicipalitiesService {
 
       // If no municipalities in Firestore, return mock data filtered by department
       if (municipalities.length === 0) {
-        console.log('No municipalities in Firestore, using mock data');
-        console.log('MOCK_MUNICIPALITIES:', MOCK_MUNICIPALITIES);
         const filtered = MOCK_MUNICIPALITIES.filter(mun => mun.departmentId === departmentId);
-        console.log('Filtered municipalities for departmentId', departmentId, ':', filtered);
         return filtered;
       }
 
       return municipalities;
-    } catch (error) {
-      console.warn('Error fetching municipalities from Firestore, using mock data:', error);
-      console.log('MOCK_MUNICIPALITIES in catch:', MOCK_MUNICIPALITIES);
+    } catch {
       const filtered = MOCK_MUNICIPALITIES.filter(mun => mun.departmentId === departmentId);
-      console.log('Filtered municipalities in catch for departmentId', departmentId, ':', filtered);
       return filtered;
     }
   }

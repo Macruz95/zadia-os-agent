@@ -27,14 +27,16 @@ export class ClientsService {
    * Create a new client with contacts
    */
   static async createClientWithContacts(formData: ClientFormData): Promise<string> {
-    console.log('🔍 Creating client with contacts:', formData);
-    
     try {
       const batch = writeBatch(db);
       
       // Validate and prepare client data (without contacts)
       const { contacts, ...clientData } = formData;
-      const validatedClient = ClientSchema.parse(clientData);
+      const validationResult = ClientSchema.safeParse(clientData);
+      if (!validationResult.success) {
+        throw new Error(`Validation failed: ${validationResult.error.message}`);
+      }
+      const validatedClient = validationResult.data;
       const now = Timestamp.now();
       
       // Create client document
@@ -48,16 +50,12 @@ export class ClientsService {
       };
       
       batch.set(clientRef, clientDoc);
-      console.log('📋 Client document prepared with ID:', clientRef.id);
       
       // Create contact documents
       if (contacts && contacts.length > 0) {
-        console.log('👥 Creating contacts:', contacts.length);
-        
         for (const contactData of contacts) {
           // Skip empty contacts
           if (!contactData.phone || contactData.phone.trim() === '') {
-            console.log('⚠️ Skipping contact without phone');
             continue;
           }
           
@@ -75,17 +73,14 @@ export class ClientsService {
           };
           
           batch.set(contactRef, contactDoc);
-          console.log('📞 Contact prepared:', contactDoc);
         }
       }
       
       // Execute batch
       await batch.commit();
-      console.log('✅ Client and contacts created successfully');
       
       return clientRef.id;
     } catch (error) {
-      console.error('❌ Error creating client with contacts:', error);
       throw error;
     }
   }
@@ -94,7 +89,11 @@ export class ClientsService {
    * Create a new client (legacy method - without contacts)
    */
   static async createClient(clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
-    const validated = ClientSchema.parse(clientData);
+    const validationResult = ClientSchema.safeParse(clientData);
+    if (!validationResult.success) {
+      throw new Error(`Validation failed: ${validationResult.error.message}`);
+    }
+    const validated = validationResult.data;
     const now = Timestamp.now();
     const docRef = await addDoc(collection(db, CLIENTS_COLLECTION), {
       ...validated,
@@ -113,7 +112,6 @@ export class ClientsService {
     const q = query(collection(db, CLIENTS_COLLECTION), orderBy('lastInteractionDate', 'desc'));
     const querySnapshot = await getDocs(q);
     const clients = querySnapshot.docs.map(docToClient);
-    console.log('✅ Clients found:', clients.length);
     
     return clients;
   }
@@ -122,29 +120,29 @@ export class ClientsService {
    * Get client by ID
    */
   static async getClientById(clientId: string): Promise<Client | null> {
-    console.log('🔍 getClientById called with ID:', clientId);
-    
-    // Import auth here to check current user
-    const { auth } = await import('../../../../lib/firebase');
-    const currentUser = auth.currentUser;
-    console.log('👤 Current user:', currentUser ? { uid: currentUser.uid, email: currentUser.email } : 'No user');
-    
     try {
-      const docRef = doc(db, CLIENTS_COLLECTION, clientId);
-      console.log('📄 Attempting to get document from:', CLIENTS_COLLECTION, 'with ID:', clientId);
+      // Validate clientId parameter
+      if (!clientId || typeof clientId !== 'string' || clientId.trim().length === 0) {
+        throw new Error('Invalid client ID provided');
+      }
+      
+      // Sanitize clientId to prevent NoSQL injection
+      const sanitizedClientId = clientId.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+      if (sanitizedClientId !== clientId.trim()) {
+        throw new Error('Invalid client ID format');
+      }
+      
+      const docRef = doc(db, CLIENTS_COLLECTION, sanitizedClientId);
       
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const client = docToClient(docSnap);
-        console.log('✅ Client found:', client);
         return client;
       } else {
-        console.log('⚠️ Client not found for ID:', clientId);
         return null;
       }
     } catch (error) {
-      console.error('❌ Error getting client by ID:', error);
       throw error;
     }
   }
@@ -175,44 +173,6 @@ export class ClientsService {
   }
 
   /**
-   * Create test client data for development
-   */
-  static async createTestClient(): Promise<string> {
-    try {
-      console.log('🧪 Creating test client data');
-      
-      const testClient = {
-        name: 'Tech Solutions S.A. de C.V.',
-        documentId: '0614257890123',
-        clientType: 'Empresa',
-        status: 'Activo',
-        tags: ['Tecnología', 'Desarrollo'],
-        source: 'Referido',
-        communicationOptIn: true,
-        address: {
-          country: 'SV',
-          state: 'SS',
-          city: 'SV-SS-01',
-          district: 'SV-SS-01-01',
-          street: 'Avenida Tecnológica #456',
-          postalCode: '1101'
-        },
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
-        lastInteractionDate: Timestamp.now()
-      };
-      
-      const docRef = await addDoc(collection(db, CLIENTS_COLLECTION), testClient);
-      console.log('✅ Test client created with ID:', docRef.id);
-      
-      return docRef.id;
-    } catch (error) {
-      console.error('❌ Error creating test client:', error);
-      throw error;
-    }
-  }
-
-  /**
    * Search clients with filters and pagination
    */
   static async searchClients(params: ClientSearchParams): Promise<{
@@ -225,10 +185,46 @@ export class ClientsService {
     // Apply filters first (before sorting to avoid composite indexes)
     if (params.filters) {
       const { clientType, status, tags, source } = params.filters;
-      if (clientType) q = query(q, where('clientType', '==', clientType));
-      if (status) q = query(q, where('status', '==', status));
-      if (source) q = query(q, where('source', '==', source));
-      if (tags && tags.length > 0) q = query(q, where('tags', 'array-contains-any', tags));
+      
+      // Validate and sanitize clientType
+      if (clientType) {
+        const validClientTypes = ['PersonaNatural', 'Organización', 'Empresa'];
+        if (!validClientTypes.includes(clientType)) {
+          throw new Error('Invalid client type filter');
+        }
+        q = query(q, where('clientType', '==', clientType));
+      }
+      
+      // Validate and sanitize status
+      if (status) {
+        const validStatuses = ['Potencial', 'Activo', 'Inactivo'];
+        if (!validStatuses.includes(status)) {
+          throw new Error('Invalid status filter');
+        }
+        q = query(q, where('status', '==', status));
+      }
+      
+      // Validate and sanitize source
+      if (source) {
+        if (typeof source !== 'string' || source.length > 100) {
+          throw new Error('Invalid source filter');
+        }
+        const sanitizedSource = source.trim().substring(0, 100);
+        q = query(q, where('source', '==', sanitizedSource));
+      }
+      
+      // Validate and sanitize tags
+      if (tags && tags.length > 0) {
+        if (!Array.isArray(tags) || tags.length > 10) {
+          throw new Error('Invalid tags filter');
+        }
+        const sanitizedTags = tags.filter(tag => 
+          typeof tag === 'string' && tag.length <= 50
+        ).map(tag => tag.trim());
+        if (sanitizedTags.length > 0) {
+          q = query(q, where('tags', 'array-contains-any', sanitizedTags));
+        }
+      }
     }
 
     // Get all matching documents first

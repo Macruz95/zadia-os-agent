@@ -72,10 +72,8 @@ export class EmailService {
 
       const result = await response.json();
 
-      console.log('📧 Email sent successfully:', result);
       return { success: true, id: result.id };
     } catch (error) {
-      console.error('❌ Error sending email:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'

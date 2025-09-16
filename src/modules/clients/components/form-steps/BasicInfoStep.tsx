@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePicker } from '@/components/ui/date-picker';
 
-// Using any type temporarily to resolve build issues with form compatibility
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface BasicInfoStepProps {
   form: UseFormReturn<any>;

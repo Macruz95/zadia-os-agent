@@ -12,13 +12,10 @@ interface ClientInfoCardProps {
 }
 
 export const ClientInfoCard = ({ client, contacts }: ClientInfoCardProps) => {
-  console.log('🏠 Client address:', client.address);
-  console.log('👥 Contacts received:', contacts);
   const { formattedAddress, loading } = useFormattedAddress(client.address);
   
   // Get primary contact or first contact
   const primaryContact = contacts?.find(c => c.isPrimary) || contacts?.[0];
-  console.log('🎯 Primary contact found:', primaryContact);
   
   return (
     <Card>

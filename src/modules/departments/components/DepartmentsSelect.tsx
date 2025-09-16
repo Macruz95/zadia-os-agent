@@ -99,7 +99,6 @@ export function DepartmentsSelect({
                   key={department.id}
                   value={department.name}
                   onSelect={() => {
-                    console.log('DepartmentsSelect onSelect - department.id:', department.id);
                     onValueChange(department.id === value ? "" : department.id);
                     setOpen(false);
                   }}
