@@ -97,7 +97,46 @@
       "userNotFound": "Usuario no encontrado",
       "emailAlreadyInUse": "El correo ya está en uso",
       "weakPassword": "La contraseña es muy débil",
-      "generic": "Ocurrió un error. Inténtalo de nuevo"
+      "generic": "Ocurrió un error. Inténtalo de nuevo",
+      "user": {
+        "permissionDenied": "No tienes permisos para realizar esta acción",
+        "notFound": "Usuario no encontrado",
+        "alreadyExists": "El usuario ya existe",
+        "resourceExhausted": "Se han agotado los recursos disponibles",
+        "failedPrecondition": "No se cumplieron las condiciones necesarias",
+        "operationAborted": "La operación fue cancelada",
+        "outOfRange": "Valor fuera del rango permitido",
+        "unimplemented": "Funcionalidad no implementada",
+        "internalError": "Error interno del servidor",
+        "serviceUnavailable": "Servicio temporalmente no disponible",
+        "dataLoss": "Se perdieron algunos datos",
+        "unauthenticated": "Debes iniciar sesión para continuar",
+        "firebaseGeneric": "Error del servicio de autenticación",
+        "generic": "Error al procesar datos del usuario"
+      },
+      "validation": {
+        "invalidType": "Tipo de dato inválido",
+        "invalidLiteral": "Valor literal inválido",
+        "unrecognizedKeys": "Campos no reconocidos",
+        "invalidUnion": "Valor de unión inválido",
+        "invalidUnionDiscriminator": "Discriminador de unión inválido",
+        "invalidEnumValue": "Valor de enumeración inválido",
+        "invalidArguments": "Argumentos inválidos",
+        "invalidReturnType": "Tipo de retorno inválido",
+        "invalidDate": "Fecha inválida",
+        "invalidString": "Texto inválido",
+        "tooSmall": "Valor demasiado pequeño",
+        "tooBig": "Valor demasiado grande",
+        "invalidIntersectionTypes": "Tipos de intersección inválidos",
+        "notMultipleOf": "No es múltiplo del valor requerido",
+        "notFinite": "El número debe ser finito",
+        "generic": "Datos inválidos"
+      },
+      "network": {
+        "connectionFailed": "Error de conexión",
+        "timeout": "Tiempo de espera agotado",
+        "generic": "Error de red"
+      }
     },
     "success": {
       "accountCreated": "Cuenta creada exitosamente",
@@ -192,6 +231,13 @@
   "metadata": {
     "title": "ZADIA OS - Sistema Operativo Empresarial Agéntico",
     "description": "Plataforma de Operaciones Autónomas que utiliza IA agéntica y un Gemelo Digital de la Organización para orquestar flujos de trabajo complejos con autonomía e inteligencia."
+  },
+  "navigation": {
+    "label": "Navegación",
+    "dashboard": "Dashboard",
+    "clients": "Clientes",
+    "profile": "Mi Perfil",
+    "settings": "Configuración"
   },
   "common": {
     "loading": "Cargando...",

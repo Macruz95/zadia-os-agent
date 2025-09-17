@@ -1,4 +1,5 @@
 import { DocumentSnapshot } from 'firebase/firestore';
+import { logger } from '@/lib/logger';
 import {
   Client,
   Contact,
@@ -23,7 +24,7 @@ export const TASKS_COLLECTION = 'tasks';
 // Document converters
 export const docToClient = (doc: DocumentSnapshot): Client => {
   const data = doc.data();
-  console.log('🔍 Converting Firestore doc to Client:', { docId: doc.id, data });
+  logger.dataConversion('Firestore doc to Client', { docId: doc.id, hasData: !!data });
 
   if (!data) {
     throw new Error('Document data is null or undefined');
@@ -38,7 +39,7 @@ export const docToClient = (doc: DocumentSnapshot): Client => {
     lastInteractionDate: data.lastInteractionDate ? data.lastInteractionDate.toDate() : undefined,
   } as Client;
 
-  console.log('✅ Client converted successfully:', client);
+  logger.dataConversion('Client conversion completed', { clientId: client.id, clientType: client.clientType });
   return client;
 };
 

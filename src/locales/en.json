@@ -97,7 +97,46 @@
       "userNotFound": "User not found",
       "emailAlreadyInUse": "Email already in use",
       "weakPassword": "Password is too weak",
-      "generic": "An error occurred. Please try again"
+      "generic": "An error occurred. Please try again",
+      "user": {
+        "permissionDenied": "You don't have permission to perform this action",
+        "notFound": "User not found",
+        "alreadyExists": "User already exists",
+        "resourceExhausted": "Available resources have been exhausted",
+        "failedPrecondition": "Required conditions were not met",
+        "operationAborted": "Operation was cancelled",
+        "outOfRange": "Value out of allowed range",
+        "unimplemented": "Functionality not implemented",
+        "internalError": "Internal server error",
+        "serviceUnavailable": "Service temporarily unavailable",
+        "dataLoss": "Some data was lost",
+        "unauthenticated": "You must sign in to continue",
+        "firebaseGeneric": "Authentication service error",
+        "generic": "Failed to process user data"
+      },
+      "validation": {
+        "invalidType": "Invalid data type",
+        "invalidLiteral": "Invalid literal value",
+        "unrecognizedKeys": "Unrecognized fields",
+        "invalidUnion": "Invalid union value",
+        "invalidUnionDiscriminator": "Invalid union discriminator",
+        "invalidEnumValue": "Invalid enumeration value",
+        "invalidArguments": "Invalid arguments",
+        "invalidReturnType": "Invalid return type",
+        "invalidDate": "Invalid date",
+        "invalidString": "Invalid text",
+        "tooSmall": "Value too small",
+        "tooBig": "Value too large",
+        "invalidIntersectionTypes": "Invalid intersection types",
+        "notMultipleOf": "Not a multiple of required value",
+        "notFinite": "Number must be finite",
+        "generic": "Invalid data"
+      },
+      "network": {
+        "connectionFailed": "Connection error",
+        "timeout": "Request timeout",
+        "generic": "Network error"
+      }
     },
     "success": {
       "accountCreated": "Account created successfully",
@@ -192,6 +231,13 @@
   "metadata": {
     "title": "ZADIA OS - Agentic Enterprise Operating System",
     "description": "Autonomous Operations Platform that uses agentic AI and an organizational Digital Twin to orchestrate complex workflows with autonomy and intelligence."
+  },
+  "navigation": {
+    "label": "Navigation",
+    "dashboard": "Dashboard",
+    "clients": "Clients",
+    "profile": "My Profile",
+    "settings": "Settings"
   },
   "common": {
     "loading": "Loading...",

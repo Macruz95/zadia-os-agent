@@ -53,16 +53,6 @@ service cloud.firestore {
       }
     }
     
-    // Projects collection - only project members can access
-    match /projects/{projectId} {
-      allow read, write: if isAuthenticated() && 
-        (isProjectMember(projectId) || isManagerOrAdmin());
-      
-      function isProjectMember(projectId) {
-        return request.auth.uid in resource.data.members;
-      }
-    }
-    
     // Clients collection - secured with proper authentication
     match /clients/{clientId} {
       allow read: if isAuthenticated() && (isOwnerData(clientId) || isManagerOrAdmin());

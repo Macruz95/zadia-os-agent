@@ -1,4 +1,5 @@
 import { db } from '../../../../lib/firebase';
+import { logger } from '../../../../lib/logger';
 import {
   collection,
   doc,
@@ -38,7 +39,7 @@ export class InteractionsService {
    * Get interactions by client ID
    */
   static async getInteractionsByClient(clientId: string, limitCount = 10): Promise<Interaction[]> {
-    console.log('🔍 getInteractionsByClient called with clientId:', clientId, 'limit:', limitCount);
+    logger.serviceCall('InteractionsEntityService', 'getInteractionsByClient', { clientId, limitCount });
     try {
       const q = query(
         collection(db, INTERACTIONS_COLLECTION),
@@ -48,10 +49,16 @@ export class InteractionsService {
       );
       const querySnapshot = await getDocs(q);
       const interactions = querySnapshot.docs.map(docToInteraction);
-      console.log('✅ Interactions found:', interactions.length);
+      logger.debug(`Interactions retrieved for client ${clientId}`, { 
+        component: 'InteractionsEntityService',
+        metadata: { count: interactions.length }
+      });
       return interactions;
     } catch (error) {
-      console.error('❌ Error getting interactions by client:', error);
+      logger.error('Error getting interactions by client', error as Error, { 
+        component: 'InteractionsEntityService',
+        metadata: { clientId, limitCount }
+      });
       throw error;
     }
   }

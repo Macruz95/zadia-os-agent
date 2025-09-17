@@ -50,7 +50,7 @@ export const useAuthState = () => {
     });
 
     return () => unsubscribe();
-  }, [firebaseUser]);
+  }, []); // Remove firebaseUser dependency to prevent infinite loops
 
   return {
     user,

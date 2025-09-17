@@ -1,6 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -23,25 +24,25 @@ import {
 
 const sidebarNavItems = [
   {
-    title: 'Dashboard',
+    title: 'navigation.dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
     roles: ['admin', 'manager', 'user']
   },
   {
-    title: 'Clientes',
+    title: 'navigation.clients',
     href: '/clients',
     icon: Users,
     roles: ['admin', 'manager', 'user']
   },
   {
-    title: 'Mi Perfil',
+    title: 'navigation.profile',
     href: '/profile',
     icon: User,
     roles: ['admin', 'manager', 'user']
   },
   {
-    title: 'Configuración',
+    title: 'navigation.settings',
     href: '/settings',
     icon: Settings,
     roles: ['admin', 'manager']
@@ -50,6 +51,7 @@ const sidebarNavItems = [
 
 export function Sidebar() {
   const { user, loading } = useAuth();
+  const { t } = useTranslation();
   const pathname = usePathname();
 
   if (loading) {
@@ -98,7 +100,7 @@ export function Sidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navegación</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('navigation.label')}</SidebarGroupLabel>
           <SidebarMenu>
             {filteredItems.map((item) => {
               const Icon = item.icon;
@@ -109,7 +111,7 @@ export function Sidebar() {
                   <SidebarMenuButton asChild isActive={isActive}>
                     <Link href={item.href}>
                       <Icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <span>{t(item.title)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
