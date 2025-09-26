@@ -20,6 +20,7 @@ import {
   Settings,
   User,
   Users,
+  Package,
 } from 'lucide-react';
 
 const sidebarNavItems = [
@@ -33,6 +34,12 @@ const sidebarNavItems = [
     title: 'navigation.clients',
     href: '/clients',
     icon: Users,
+    roles: ['admin', 'manager', 'user']
+  },
+  {
+    title: 'navigation.inventory',
+    href: '/inventory',
+    icon: Package,
     roles: ['admin', 'manager', 'user']
   },
   {
