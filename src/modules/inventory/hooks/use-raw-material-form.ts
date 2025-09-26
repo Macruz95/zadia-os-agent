@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { RawMaterialFormData, RawMaterialFormSchema } from '../validations/inventory.schema';
 import { createRawMaterial, updateRawMaterial } from '../services/inventory.service';
-import { RawMaterial } from '../types';
+import { RawMaterial } from '../types/inventory.types';
 
 interface UseRawMaterialFormProps {
   initialData?: RawMaterial;
@@ -51,13 +51,34 @@ export const useRawMaterialForm = ({
   const onSubmit = useCallback(async (data: RawMaterialFormData) => {
     setLoading(true);
     try {
+      // Clean the data - ensure numbers and only include non-empty optional fields
+      const baseData = {
+        name: data.name,
+        category: data.category,      
+        unitOfMeasure: data.unitOfMeasure,
+        minimumStock: typeof data.minimumStock === 'string' && data.minimumStock === '' ? 0 : Number(data.minimumStock) || 0,
+        unitCost: typeof data.unitCost === 'string' && data.unitCost === '' ? 0 : Number(data.unitCost) || 0,
+        location: data.location,
+      };
+
+      // Build clean data object with only non-empty optional fields
+      const cleanData = {
+        ...baseData,
+        ...(data.supplierId && typeof data.supplierId === 'string' && data.supplierId.trim() !== '' && { supplierId: data.supplierId.trim() }),
+        ...(data.supplierName && typeof data.supplierName === 'string' && data.supplierName.trim() !== '' && { supplierName: data.supplierName.trim() }),
+        ...(data.description && typeof data.description === 'string' && data.description.trim() !== '' && { description: data.description.trim() }),
+        ...(data.specifications && typeof data.specifications === 'string' && data.specifications.trim() !== '' && { specifications: data.specifications.trim() }),
+      };
+
+
+
       let result: RawMaterial;
       
       if (isEditing && initialData) {
-        result = await updateRawMaterial(initialData.id, data, 'current-user'); // TODO: Get actual user
+        result = await updateRawMaterial(initialData.id, cleanData as RawMaterialFormData, 'current-user'); // TODO: Get actual user
         toast.success('Materia prima actualizada exitosamente');
       } else {
-        result = await createRawMaterial(data, 'current-user'); // TODO: Get actual user
+        result = await createRawMaterial(cleanData as RawMaterialFormData, 'current-user'); // TODO: Get actual user
         toast.success('Materia prima creada exitosamente');
       }
 

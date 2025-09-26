@@ -2,16 +2,10 @@
 import {
   RawMaterial,
   FinishedProduct,
-  RawMaterialCategory,
-  FinishedProductCategory,
-  UnitOfMeasure,
   ProductStatus,
   MovementType,
-  BOMItem,
   BillOfMaterials,
-  InventoryMovement,
-  Dimensions,
-  InventoryLocation
+  InventoryMovement
 } from './inventory.types';
 
 // Additional Inventory Types
@@ -64,34 +58,7 @@ export interface InventorySearchParams {
   pageSize?: number;
 }
 
-// Form Types
-export interface RawMaterialFormData {
-  name: string;
-  category: RawMaterialCategory;
-  unitOfMeasure: UnitOfMeasure;
-  minimumStock: number;
-  unitCost: number;
-  location: InventoryLocation;
-  supplierId?: string;
-  supplierName?: string;
-  description?: string;
-  specifications?: string;
-}
-
-export interface FinishedProductFormData {
-  name: string;
-  category: FinishedProductCategory;
-  description?: string;
-  dimensions?: Dimensions;
-  minimumStock: number;
-  laborCost: number;
-  overheadCost: number;
-  suggestedPrice: number;
-  sellingPrice: number;
-  location: InventoryLocation;
-  specifications?: string;
-  billOfMaterials?: Omit<BOMItem, 'totalCost'>[];
-}
+// Form Types - RawMaterialFormData and FinishedProductFormData are now defined in inventory.types.ts to avoid duplication
 
 export interface MovementFormData {
   itemId: string;

@@ -82,7 +82,7 @@ export function InventoryDirectory() {
             <Search className="h-4 w-4 mr-2" />
             Ver Historial
           </Button>
-          <Button>
+          <Button onClick={() => router.push('/inventory/create')}>
             <Plus className="h-4 w-4 mr-2" />
             Agregar Ítem
           </Button>

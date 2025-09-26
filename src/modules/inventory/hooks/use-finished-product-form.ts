@@ -2,33 +2,7 @@ import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { FinishedProductSchema } from '../validations/inventory.schema';
-import { FinishedProductCategory } from '../types';
-
-// Simplified form data without BOM for now
-type FinishedProductFormData = {
-  name: string;
-  category: FinishedProductCategory;
-  description?: string;
-  dimensions?: {
-    length?: number;
-    width?: number;
-    height?: number;
-    unit: 'cm' | 'm' | 'inches';
-  };
-  minimumStock: number;
-  laborCost: number;
-  overheadCost: number;
-  suggestedPrice: number;
-  sellingPrice: number;
-  location: {
-    warehouse: string;
-    section?: string;
-    shelf?: string;
-    position?: string;
-  };
-  specifications?: string;
-};
+import { FinishedProductFormData, FinishedProductFormSchema } from '../validations/inventory.schema';
 import { createFinishedProduct, updateFinishedProduct } from '../services/inventory.service';
 import { FinishedProduct } from '../types';
 
@@ -47,7 +21,7 @@ export const useFinishedProductForm = ({
   const isEditing = Boolean(initialData);
 
   const form = useForm<FinishedProductFormData>({
-    resolver: zodResolver(FinishedProductSchema),
+    resolver: zodResolver(FinishedProductFormSchema),
     defaultValues: initialData ? {
       name: initialData.name,
       category: initialData.category,
@@ -80,13 +54,33 @@ export const useFinishedProductForm = ({
   const onSubmit = useCallback(async (data: FinishedProductFormData) => {
     setLoading(true);
     try {
+      // Clean the data - ensure numbers and only include non-empty optional fields
+      const baseData = {
+        name: data.name,
+        category: data.category,      
+        minimumStock: typeof data.minimumStock === 'string' && data.minimumStock === '' ? 0 : Number(data.minimumStock) || 0,
+        laborCost: typeof data.laborCost === 'string' && data.laborCost === '' ? 0 : Number(data.laborCost) || 0,
+        overheadCost: typeof data.overheadCost === 'string' && data.overheadCost === '' ? 0 : Number(data.overheadCost) || 0,
+        suggestedPrice: typeof data.suggestedPrice === 'string' && data.suggestedPrice === '' ? 0 : Number(data.suggestedPrice) || 0,
+        sellingPrice: typeof data.sellingPrice === 'string' && data.sellingPrice === '' ? 0 : Number(data.sellingPrice) || 0,
+        location: data.location,
+      };
+
+      // Build clean data object with only non-empty optional fields
+      const cleanData = {
+        ...baseData,
+        ...(data.description && typeof data.description === 'string' && data.description.trim() !== '' && { description: data.description.trim() }),
+        ...(data.dimensions && { dimensions: data.dimensions }),
+        ...(data.specifications && typeof data.specifications === 'string' && data.specifications.trim() !== '' && { specifications: data.specifications.trim() }),
+      };
+
       let result: FinishedProduct;
       
       if (isEditing && initialData) {
-        result = await updateFinishedProduct(initialData.id, data, 'current-user'); // TODO: Get actual user
+        result = await updateFinishedProduct(initialData.id, cleanData as FinishedProductFormData, 'current-user'); // TODO: Get actual user
         toast.success('Producto terminado actualizado exitosamente');
       } else {
-        result = await createFinishedProduct(data, 'current-user'); // TODO: Get actual user
+        result = await createFinishedProduct(cleanData as FinishedProductFormData, 'current-user'); // TODO: Get actual user
         toast.success('Producto terminado creado exitosamente');
       }
 

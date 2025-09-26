@@ -30,7 +30,7 @@ export const DimensionsSchema = z.object({
 export const RawMaterialSchema = z.object({
   name: z.string().min(1, 'Nombre es requerido').max(100, 'Nombre muy largo'),
   category: z.enum(['Maderas', 'Acabados', 'Adhesivos', 'Herrajes', 'Químicos', 'Textiles', 'Herramientas', 'Otros']),
-  unitOfMeasure: z.enum(['unidades', 'kg', 'g', 'litros', 'ml', 'm3', 'm2', 'm', 'cm', 'pies']),
+  unitOfMeasure: z.enum(['unidades', 'kg', 'g', 'lb', 'oz', 'litros', 'ml', 'gal', 'm3', 'm2', 'm', 'cm', 'mm', 'pies', 'pulgadas', 'yardas']),
   minimumStock: z.number().min(0, 'Stock mínimo no puede ser negativo'),
   unitCost: z.number().positive('Costo unitario debe ser positivo'),
   location: InventoryLocationSchema,

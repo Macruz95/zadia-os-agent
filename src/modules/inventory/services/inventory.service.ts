@@ -42,11 +42,10 @@ export const getLowStockFinishedProducts = FinishedProductsService.getLowStockFi
 // Inventory Movements
 export const createMovement = InventoryMovementsService.createMovement;
 export const createInventoryMovement = InventoryMovementsService.createMovement;
-export const getInventoryMovementById = InventoryMovementsService.getMovementById;
 export const getMovementsByItem = InventoryMovementsService.getMovementsByItem;
 export const getRecentMovements = InventoryMovementsService.getRecentMovements;
 export const getMovementsByType = InventoryMovementsService.getMovementsByType;
-export const bulkStockAdjustment = InventoryMovementsService.bulkStockAdjustment;
+export const getMovementsByDateRange = InventoryMovementsService.getMovementsByDateRange;
 
 // Re-export types
 export * from '../types';

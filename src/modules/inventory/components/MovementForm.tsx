@@ -7,15 +7,13 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { ArrowUp, ArrowDown, RotateCcw, Minus, Package, ShoppingCart, Undo, Plus } from 'lucide-react';
-import { MovementFormData } from '../types';
+import { Form } from '@/components/ui/form';
+import { Plus } from 'lucide-react';
 import { createMovement } from '../services/inventory.service';
 import { RawMaterial, FinishedProduct } from '../types';
+import { MovementTypeSelector } from './movement-form/MovementTypeSelector';
+import { MovementFormFields } from './movement-form/MovementFormFields';
+import { StockPreview } from './movement-form/StockPreview';
 
 // Schema específico para el formulario de movimientos
 const movementFormSchema = z.object({
@@ -36,16 +34,6 @@ interface MovementFormProps {
   trigger?: React.ReactNode;
 }
 
-const movementTypes = [
-  { value: 'Entrada', label: 'Entrada', icon: ArrowUp, color: 'text-green-600' },
-  { value: 'Salida', label: 'Salida', icon: ArrowDown, color: 'text-red-600' },
-  { value: 'Ajuste', label: 'Ajuste', icon: RotateCcw, color: 'text-blue-600' },
-  { value: 'Merma', label: 'Merma', icon: Minus, color: 'text-orange-600' },
-  { value: 'Produccion', label: 'Producción', icon: Package, color: 'text-purple-600' },
-  { value: 'Venta', label: 'Venta', icon: ShoppingCart, color: 'text-indigo-600' },
-  { value: 'Devolucion', label: 'Devolución', icon: Undo, color: 'text-yellow-600' },
-] as const;
-
 export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFormProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -54,7 +42,7 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
     if ('unitOfMeasure' in item) {
       return item.unitOfMeasure;
     }
-    return 'unidades'; // Default para productos terminados
+    return 'unidades';
   };
 
   const form = useForm<MovementFormInput>({
@@ -65,7 +53,7 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
       movementType: 'Entrada',
       quantity: 1,
       reason: '',
-      performedBy: '', // Se debe llenar automáticamente con el usuario actual
+      performedBy: '',
     },
   });
 
@@ -96,32 +84,6 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
     }
   };
 
-  const calculateNewStock = () => {
-    const currentStock = item.currentStock;
-    const quantity = watchedQuantity || 0;
-    
-    switch (watchedMovementType) {
-      case 'Entrada':
-      case 'Devolucion':
-        return currentStock + quantity;
-      case 'Salida':
-      case 'Merma':
-      case 'Venta':
-      case 'Produccion':
-        return Math.max(0, currentStock - quantity);
-      case 'Ajuste':
-        return quantity; // Para ajustes, la cantidad es el nuevo stock
-      default:
-        return currentStock;
-    }
-  };
-
-  const getMovementTypeInfo = (type: string) => {
-    return movementTypes.find(mt => mt.value === type);
-  };
-
-  const selectedMovementType = getMovementTypeInfo(watchedMovementType);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -132,135 +94,42 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Registrar Movimiento de Inventario</DialogTitle>
         </DialogHeader>
 
-        <div className="mb-4 p-3 bg-muted rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">{item.name}</span>
-            <Badge variant="outline">{item.sku}</Badge>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Stock actual: <span className="font-medium">{item.currentStock} {getItemUnit(item)}</span>
-          </div>
-        </div>
-
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="movementType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo de Movimiento</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona el tipo" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {movementTypes.map((type) => {
-                        const Icon = type.icon;
-                        return (
-                          <SelectItem key={type.value} value={type.value}>
-                            <div className="flex items-center gap-2">
-                              <Icon className={`h-4 w-4 ${type.color}`} />
-                              {type.label}
-                            </div>
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="quantity"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {watchedMovementType === 'Ajuste' ? 'Nuevo Stock' : 'Cantidad'}
-                  </FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        type="number"
-                        min="0"
-                        step="1"
-                        {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                        className="pr-12"
-                      />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                        {getItemUnit(item)}
-                      </div>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Previsualización del nuevo stock */}
-            <div className="p-3 border rounded-lg bg-background">
-              <div className="flex items-center justify-between text-sm">
-                <span>Stock resultante:</span>
-                <div className="flex items-center gap-2">
-                  {selectedMovementType && (
-                    <selectedMovementType.icon 
-                      className={`h-4 w-4 ${selectedMovementType.color}`} 
-                    />
-                  )}
-                  <span className="font-medium">
-                    {calculateNewStock()} {getItemUnit(item)}
-                  </span>
-                </div>
-              </div>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Item Information Header */}
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-1">Artículo Seleccionado</h4>
+              <p className="text-blue-700 text-sm">{item.name}</p>
+              <p className="text-blue-600 text-xs">SKU: {item.sku} | Stock actual: {item.currentStock} {getItemUnit(item)}</p>
             </div>
 
-            <FormField
+            {/* Movement Type Selector */}
+            <MovementTypeSelector 
               control={form.control}
-              name="reason"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Motivo (Opcional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Describe el motivo del movimiento..."
-                      className="resize-none"
-                      rows={3}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              selectedType={watchedMovementType}
             />
 
-            <FormField
+            {/* Form Fields */}
+            <MovementFormFields
               control={form.control}
-              name="performedBy"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Realizado por</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Usuario que realiza el movimiento"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              itemName={item.name}
+              unit={getItemUnit(item)}
             />
 
+            {/* Stock Preview */}
+            <StockPreview
+              item={item}
+              itemType={itemType}
+              quantity={watchedQuantity}
+              movementType={watchedMovementType}
+            />
+
+            {/* Action Buttons */}
             <div className="flex gap-2 pt-4">
               <Button
                 type="button"

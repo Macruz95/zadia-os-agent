@@ -30,13 +30,19 @@ export const UnitOfMeasureEnum = z.enum([
   'unidades',
   'kg',
   'g',
+  'lb',
+  'oz',
   'litros',
   'ml',
+  'gal',
   'm3',
   'm2',
   'm',
   'cm',
-  'pies'
+  'mm',
+  'pies',
+  'pulgadas',
+  'yardas'
 ]);
 export type UnitOfMeasure = z.infer<typeof UnitOfMeasureEnum>;
 
@@ -182,4 +188,32 @@ export interface InventoryMovement {
   performedBy: string;
   performedAt: Date;
   notes?: string;
+}
+
+// Form types that allow undefined for optional numeric fields
+export interface RawMaterialFormData {
+  name: string;
+  category: RawMaterialCategory;
+  unitOfMeasure: UnitOfMeasure;
+  minimumStock: number;
+  unitCost: number;
+  location: InventoryLocation;
+  supplierId?: string;
+  supplierName?: string;
+  description?: string;
+  specifications?: string;
+}
+
+export interface FinishedProductFormData {
+  name: string;
+  category: FinishedProductCategory;
+  description?: string;
+  dimensions?: Dimensions;
+  minimumStock: number;
+  laborCost: number;
+  overheadCost: number;
+  suggestedPrice: number;
+  sellingPrice: number;
+  location: InventoryLocation;
+  specifications?: string;
 }
