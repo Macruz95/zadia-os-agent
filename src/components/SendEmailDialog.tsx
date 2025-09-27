@@ -111,9 +111,11 @@ export function SendEmailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Enviar Correo Electrónico</DialogTitle>
+      <DialogContent className="sm:max-w-2xl w-full mx-4 my-8 max-h-[85vh] overflow-hidden flex flex-col">
+        <DialogHeader className="space-y-3 flex-shrink-0">
+          <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
+            Enviar Correo Electrónico
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>

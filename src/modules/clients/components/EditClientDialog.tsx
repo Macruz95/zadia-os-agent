@@ -109,9 +109,11 @@ export function EditClientDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Editar Cliente</DialogTitle>
+      <DialogContent className="sm:max-w-2xl w-full mx-4 my-8 max-h-[85vh] overflow-y-auto">
+        <DialogHeader className="space-y-3 flex-shrink-0">
+          <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
+            Editar Cliente
+          </DialogTitle>
         </DialogHeader>
         
         <Form {...form}>
