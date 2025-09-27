@@ -21,6 +21,7 @@ import {
   User,
   Users,
   Package,
+  TrendingUp,
 } from 'lucide-react';
 
 const sidebarNavItems = [
@@ -40,6 +41,12 @@ const sidebarNavItems = [
     title: 'navigation.inventory',
     href: '/inventory',
     icon: Package,
+    roles: ['admin', 'manager', 'user']
+  },
+  {
+    title: 'navigation.sales',
+    href: '/sales',
+    icon: TrendingUp,
     roles: ['admin', 'manager', 'user']
   },
   {

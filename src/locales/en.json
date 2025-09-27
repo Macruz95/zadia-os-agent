@@ -236,6 +236,8 @@
     "label": "Navigation",
     "dashboard": "Dashboard",
     "clients": "Clients",
+    "inventory": "Inventory",
+    "sales": "Sales",
     "profile": "My Profile",
     "settings": "Settings"
   },
