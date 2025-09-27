@@ -94,7 +94,7 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg w-full mx-4 my-8">
+      <DialogContent className="sm:max-w-lg w-full mx-4 my-12 sm:my-16 max-h-[calc(100vh-6rem)] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
             Registrar Movimiento de Inventario
