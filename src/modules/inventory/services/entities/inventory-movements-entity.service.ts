@@ -28,8 +28,7 @@ export class InventoryMovementsService {
    * Create a new inventory movement and update stock
    */
   static async createMovement(
-    data: MovementFormData,
-    performedBy: string
+    data: MovementFormData
   ): Promise<InventoryMovement> {
     try {
       // Get current item to calculate new stock
@@ -45,7 +44,7 @@ export class InventoryMovementsService {
       const processedMovement = MovementDataProcessor.processMovementData(
         data,
         currentItem,
-        performedBy
+        data.performedBy
       );
 
       // Create movement document

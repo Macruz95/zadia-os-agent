@@ -100,10 +100,11 @@ export const MovementSchema = z.object({
   itemType: z.enum(['raw-material', 'finished-product']),
   movementType: z.enum(['Entrada', 'Salida', 'Ajuste', 'Merma', 'Produccion', 'Venta', 'Devolucion']),
   quantity: z.number().positive('Cantidad debe ser positiva'),
-  unitCost: z.number().positive('Costo unitario debe ser positivo').optional(),
+  unitCost: z.number().min(0, 'Costo unitario no puede ser negativo'),
   reason: z.string().max(200, 'Razón muy larga').optional(),
   referenceDocument: z.string().max(50, 'Referencia muy larga').optional(),
   notes: z.string().max(500, 'Notas muy largas').optional(),
+  performedBy: z.string().min(1, 'Usuario que realiza el movimiento es requerido'),
 });
 
 // Filter Schemas

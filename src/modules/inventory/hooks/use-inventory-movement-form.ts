@@ -31,8 +31,10 @@ export const useInventoryMovementForm = ({
       itemType: 'raw-material',
       movementType: 'Entrada',
       quantity: 0,
+      unitCost: 0,
       reason: '',
       referenceDocument: '',
+      performedBy: '',
       notes: '',
     },
   });
@@ -40,7 +42,7 @@ export const useInventoryMovementForm = ({
   const onSubmit = useCallback(async (data: MovementFormData) => {
     setLoading(true);
     try {
-      const result = await InventoryMovementsService.createMovement(data, 'current-user'); // TODO: Get actual user
+      const result = await InventoryMovementsService.createMovement(data);
       
       let successMessage = '';
       switch (data.movementType) {

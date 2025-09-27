@@ -5,22 +5,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Control } from 'react-hook-form';
 
-type MovementFormValues = {
-  itemId: string;
-  itemType: 'raw-material' | 'finished-product';
-  movementType: 'Entrada' | 'Salida' | 'Ajuste' | 'Merma' | 'Produccion' | 'Venta' | 'Devolucion';
-  quantity: number;
-  reason?: string;
-  performedBy: string;
-};
-
 interface MovementFormFieldsProps {
-  control: Control<MovementFormValues>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>;
   itemName: string;
   unit: string;
+  currentUnitCost?: number;
 }
 
-export function MovementFormFields({ control, itemName, unit }: MovementFormFieldsProps) {
+export function MovementFormFields({ control, itemName, unit, currentUnitCost }: MovementFormFieldsProps) {
   return (
     <div className="space-y-4">
       {/* Item Information */}
@@ -44,6 +37,28 @@ export function MovementFormFields({ control, itemName, unit }: MovementFormFiel
                 placeholder={`Ingrese la cantidad en ${unit}`}
                 {...field}
                 onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Unit Cost Field */}
+      <FormField
+        control={control}
+        name="unitCost"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Costo Unitario (USD)</FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder={currentUnitCost ? `Costo actual: $${currentUnitCost.toFixed(2)}` : "Ingrese el costo por unidad"}
+                {...field}
+                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
               />
             </FormControl>
             <FormMessage />

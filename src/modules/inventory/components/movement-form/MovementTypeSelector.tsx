@@ -16,17 +16,9 @@ const movementTypes = [
   { value: 'Devolucion', label: 'Devolución', icon: Undo, color: 'text-yellow-600' },
 ] as const;
 
-type MovementFormValues = {
-  itemId: string;
-  itemType: 'raw-material' | 'finished-product';
-  movementType: 'Entrada' | 'Salida' | 'Ajuste' | 'Merma' | 'Produccion' | 'Venta' | 'Devolucion';
-  quantity: number;
-  reason?: string;
-  performedBy: string;
-};
-
 interface MovementTypeSelectorProps {
-  control: Control<MovementFormValues>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<any>;
   selectedType: string;
 }
 

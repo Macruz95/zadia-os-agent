@@ -21,6 +21,7 @@ const movementFormSchema = z.object({
   itemType: z.enum(['raw-material', 'finished-product']),
   movementType: z.enum(['Entrada', 'Salida', 'Ajuste', 'Merma', 'Produccion', 'Venta', 'Devolucion']),
   quantity: z.number().int().min(0, 'La cantidad debe ser mayor o igual a 0'),
+  unitCost: z.number().min(0, 'Costo unitario no puede ser negativo'),
   reason: z.string().optional(),
   performedBy: z.string().min(1, 'Usuario que realiza el movimiento es requerido'),
 });
@@ -45,6 +46,16 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
     return 'unidades';
   };
 
+  const getCurrentUnitCost = (): number => {
+    if (itemType === 'raw-material') {
+      return (item as RawMaterial).unitCost;
+    } else {
+      // Para productos terminados, usar costo de materiales + labor + overhead
+      const finishedProduct = item as FinishedProduct;
+      return (finishedProduct.laborCost || 0) + (finishedProduct.overheadCost || 0);
+    }
+  };
+
   const form = useForm<MovementFormInput>({
     resolver: zodResolver(movementFormSchema),
     defaultValues: {
@@ -52,6 +63,7 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
       itemType,
       movementType: 'Entrada',
       quantity: 1,
+      unitCost: getCurrentUnitCost(),
       reason: '',
       performedBy: '',
     },
@@ -59,6 +71,7 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
 
   const watchedMovementType = form.watch('movementType');
   const watchedQuantity = form.watch('quantity');
+  const watchedUnitCost = form.watch('unitCost');
 
   const onSubmit = async (data: MovementFormInput) => {
     setLoading(true);
@@ -69,8 +82,10 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
         itemType: data.itemType,
         movementType: data.movementType,
         quantity: data.quantity,
+        unitCost: data.unitCost,
         reason: data.reason,
-      }, data.performedBy);
+        performedBy: data.performedBy,
+      });
       
       toast.success(`Se ha registrado el movimiento de ${data.movementType.toLowerCase()} correctamente.`);
       
@@ -121,6 +136,7 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
               control={form.control}
               itemName={item.name}
               unit={getItemUnit(item)}
+              currentUnitCost={getCurrentUnitCost()}
             />
 
             {/* Stock Preview */}
@@ -129,6 +145,7 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
               itemType={itemType}
               quantity={watchedQuantity}
               movementType={watchedMovementType}
+              unitCost={watchedUnitCost}
             />
 
             {/* Action Buttons */}

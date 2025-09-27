@@ -65,10 +65,11 @@ export interface MovementFormData {
   itemType: 'raw-material' | 'finished-product';
   movementType: MovementType;
   quantity: number;
-  unitCost?: number;
+  unitCost: number;
   reason?: string;
   referenceDocument?: string;
   notes?: string;
+  performedBy: string;
 }
 
 // UI State Types
