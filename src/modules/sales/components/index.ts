@@ -4,12 +4,18 @@
  * Exports for all sales components
  */
 
+// Navigation
+export { SalesNavigation } from './SalesNavigation';
+
 // Leads components
 export { LeadsDirectory } from './leads/LeadsDirectory';
 export { CreateLeadDialog } from './leads/CreateLeadDialogSimple';
 
-// Opportunities components (placeholder)
-// export { OpportunitiesKanban } from './opportunities/OpportunitiesKanban';
+// Opportunities components
+export { OpportunitiesKanban } from './opportunities/OpportunitiesKanban';
 
-// Quotes components (placeholder)  
-// export { QuotesDirectory } from './quotes/QuotesDirectory';
+// Quotes components
+export { QuotesDirectory } from './quotes/QuotesDirectory';
+
+// Projects components
+export { ProjectsDirectory } from './projects/ProjectsDirectory';
