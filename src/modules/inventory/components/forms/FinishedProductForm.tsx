@@ -278,7 +278,8 @@ export function FinishedProductForm({ onSuccess, onCancel }: FinishedProductForm
                         step="0.1"
                         placeholder="0"
                         {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -299,7 +300,8 @@ export function FinishedProductForm({ onSuccess, onCancel }: FinishedProductForm
                         step="0.1"
                         placeholder="0"
                         {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                        value={field.value || ''}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
                     </FormControl>
                     <FormMessage />

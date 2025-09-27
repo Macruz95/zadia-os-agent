@@ -1,19 +1,24 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Plus, Package, Hammer } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 import { useInventory } from '../hooks/use-inventory';
+import { useInventoryAlerts } from '../hooks/use-inventory-alerts';
+import { useInventoryKPIs } from '../hooks/use-inventory-kpis';
 import { InventoryTable } from './InventoryTable';
 import { DeleteInventoryItemDialog } from './DeleteInventoryItemDialog';
 import { EditInventoryItemDialog } from './EditInventoryItemDialog';
+import { StockAlertsCard } from './alerts/StockAlertsCard';
+import { InventoryKPIsCard } from './dashboard/InventoryKPIsCard';
 import { RawMaterial, FinishedProduct } from '../types';
 import { deleteRawMaterial, deleteFinishedProduct } from '../services/inventory.service';
-import { useState } from 'react';
 
 export function InventoryDirectory() {
   const router = useRouter();
@@ -29,7 +34,38 @@ export function InventoryDirectory() {
     refresh
   } = useInventory();
 
+  // Alerts and KPIs hooks
+  const { alerts, refreshAlerts, checkStockLevels } = useInventoryAlerts();
+  const { kpis, loading: kpisLoading, refreshKPIs } = useInventoryKPIs();
+
   const [searchQuery, setSearchQuery] = useState(searchParams.query || '');
+
+  // Load all inventory data for KPIs
+  useEffect(() => {
+    const loadAllInventoryData = async () => {
+      if (!loading) {
+        try {
+          // Load both raw materials and finished products for KPIs
+          const [rmResult, fpResult] = await Promise.all([
+            import('../services/inventory.service').then(service => 
+              service.searchRawMaterials({})
+            ),
+            import('../services/inventory.service').then(service => 
+              service.searchFinishedProducts({})
+            )
+          ]);
+          
+          // Calculate KPIs with all data
+          refreshKPIs(rmResult.rawMaterials, fpResult.finishedProducts);
+          checkStockLevels(rmResult.rawMaterials, fpResult.finishedProducts);
+        } catch (error) {
+          logger.error('Error loading inventory data for KPIs:', error as Error);
+        }
+      }
+    };
+
+    loadAllInventoryData();
+  }, [loading, refreshKPIs, checkStockLevels]);
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
     item: RawMaterial | FinishedProduct | null;
@@ -131,66 +167,18 @@ export function InventoryDirectory() {
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Materias Primas</CardTitle>
-            <Hammer className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{rawMaterials.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {rawMaterials.filter(rm => rm.currentStock <= rm.minimumStock).length} con stock bajo
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Productos Terminados</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{finishedProducts.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {finishedProducts.filter(fp => fp.currentStock <= fp.minimumStock).length} con stock bajo
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Valor Total Inventario</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${(
-                rawMaterials.reduce((sum, rm) => sum + (rm.currentStock * rm.unitCost), 0) +
-                finishedProducts.reduce((sum, fp) => sum + (fp.currentStock * fp.totalCost), 0)
-              ).toFixed(2)}
-            </div>
-            <p className="text-xs text-muted-foreground">Valor actual de stock</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alertas de Stock</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
-              {rawMaterials.filter(rm => rm.currentStock <= rm.minimumStock).length +
-               finishedProducts.filter(fp => fp.currentStock <= fp.minimumStock).length}
-            </div>
-            <p className="text-xs text-muted-foreground">Ítems requieren atención</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Search Bar */}
+      {/* Dashboard - KPIs and Alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <InventoryKPIsCard kpis={kpis} loading={kpisLoading} />
+        </div>
+        <div>
+          <StockAlertsCard
+            alerts={alerts}
+            onRefresh={refreshAlerts}
+          />
+        </div>
+      </div>      {/* Search Bar */}
       <div className="flex gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />

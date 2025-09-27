@@ -9,6 +9,9 @@
 export { RawMaterialsService } from './entities/raw-materials-entity.service';
 export { FinishedProductsService } from './entities/finished-products-entity.service';
 export { InventoryMovementsService } from './entities/inventory-movements-entity.service';
+export { InventoryAlertsService } from './entities/inventory-alerts.service';
+export { InventoryKPIsService } from './entities/inventory-kpis.service';
+export { BOMService } from './entities/bom.service';
 
 // Legacy API compatibility layer
 import { RawMaterialsService } from './entities/raw-materials-entity.service';
@@ -46,6 +49,10 @@ export const getMovementsByItem = InventoryMovementsService.getMovementsByItem;
 export const getRecentMovements = InventoryMovementsService.getRecentMovements;
 export const getMovementsByType = InventoryMovementsService.getMovementsByType;
 export const getMovementsByDateRange = InventoryMovementsService.getMovementsByDateRange;
+
+// Helper functions for backward compatibility
+export const getAllRawMaterials = () => RawMaterialsService.searchRawMaterials();
+export const getAllFinishedProducts = () => FinishedProductsService.searchFinishedProducts();
 
 // Re-export types
 export * from '../types';

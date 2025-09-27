@@ -37,6 +37,13 @@ export const useFinishedProductForm = ({
     } : {
       name: '',
       category: 'Dormitorio',
+      description: '',
+      dimensions: {
+        length: 0,
+        width: 0,
+        height: 0,
+        unit: 'cm'
+      },
       minimumStock: 0,
       laborCost: 0,
       overheadCost: 0,
@@ -48,6 +55,7 @@ export const useFinishedProductForm = ({
         shelf: '',
         position: ''
       },
+      specifications: '',
     },
   });
 
