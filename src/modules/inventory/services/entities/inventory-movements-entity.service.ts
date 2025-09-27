@@ -107,7 +107,10 @@ export class InventoryMovementsService {
       logger.error('Error fetching movements by item', error as Error);
       // If it's a "not found" or "permission denied" error, return empty array
       if (error instanceof Error && (error.message.includes('not found') || error.message.includes('Missing or insufficient permissions'))) {
-        console.log('No movements collection found or no permissions, returning empty array');
+        logger.warn('No movements collection found or no permissions', {
+          component: 'InventoryMovements',
+          action: 'getMovementsByItem'
+        });
         return [];
       }
       throw new Error('Error al obtener historial de movimientos');

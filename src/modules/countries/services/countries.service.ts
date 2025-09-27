@@ -15,6 +15,8 @@ import { Country, countrySchema } from '../types/countries.types';
 import { MOCK_COUNTRIES } from '../data/mock-countries';
 
 /**
+ * ⚠️ CRÍTICO: NO MODIFICAR - SISTEMA DE DIRECCIONES FUNCIONA PERFECTO
+ * ⚠️ Si tocas este archivo se rompe todo el sistema de direcciones
  * Countries Service
  * Handles country CRUD operations with Firebase Firestore
  */

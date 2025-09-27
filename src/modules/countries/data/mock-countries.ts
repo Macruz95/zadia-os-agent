@@ -1,6 +1,9 @@
 import { Country } from '../types/countries.types';
 
 /**
+ * ⚠️ CRÍTICO: NO MODIFICAR ESTE ARCHIVO - SISTEMA DE DIRECCIONES
+ * ⚠️ Si modificas cualquier parte del sistema de direcciones se rompe todo
+ * ⚠️ Este sistema funciona perfecto tal como está - NO TOCAR
  * Mock countries data for development/fallback
  */
 export const MOCK_COUNTRIES: Country[] = [

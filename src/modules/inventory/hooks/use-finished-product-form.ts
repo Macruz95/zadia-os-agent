@@ -77,10 +77,14 @@ export const useFinishedProductForm = ({
       let result: FinishedProduct;
       
       if (isEditing && initialData) {
-        result = await updateFinishedProduct(initialData.id, cleanData as FinishedProductFormData, 'current-user'); // TODO: Get actual user
+        // TODO: Implementar AuthContext para obtener usuario actual
+        const currentUser = 'system-user'; // Temporal hasta implementar auth context
+        result = await updateFinishedProduct(initialData.id, cleanData as FinishedProductFormData, currentUser);
         toast.success('Producto terminado actualizado exitosamente');
       } else {
-        result = await createFinishedProduct(cleanData as FinishedProductFormData, 'current-user'); // TODO: Get actual user
+        // TODO: Implementar AuthContext para obtener usuario actual
+        const currentUser = 'system-user'; // Temporal hasta implementar auth context
+        result = await createFinishedProduct(cleanData as FinishedProductFormData, currentUser);
         toast.success('Producto terminado creado exitosamente');
       }
 

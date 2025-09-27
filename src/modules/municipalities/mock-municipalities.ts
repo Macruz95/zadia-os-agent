@@ -1,5 +1,10 @@
 import { Municipality } from './types/municipalities.types';
 
+/**
+ * ⚠️ CRÍTICO: NO MODIFICAR ESTE ARCHIVO - SISTEMA DE DIRECCIONES
+ * ⚠️ Si modificas cualquier parte del sistema de direcciones se rompe todo
+ * ⚠️ Este sistema funciona perfecto tal como está - NO TOCAR
+ */
 export const MOCK_MUNICIPALITIES: Municipality[] = [
   // Ahuachapán
   { id: 'm1-1', name: 'Ahuachapán Norte', departmentId: 'd1', isActive: true },

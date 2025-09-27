@@ -11,6 +11,7 @@ import { RawMaterial, FinishedProduct } from '@/modules/inventory/types';
 import { MovementHistory } from '@/modules/inventory/components/MovementHistory';
 import { MovementForm } from '@/modules/inventory/components/MovementForm';
 import { getRawMaterialById, getFinishedProductById } from '@/modules/inventory/services/inventory.service';
+import { logger } from '@/lib/logger';
 
 interface InventoryDetailClientProps {
   type: 'raw-materials' | 'finished-products';
@@ -69,7 +70,10 @@ export function InventoryDetailClient({ type, id }: InventoryDetailClientProps) 
         setItem(updatedItem);
       }
     } catch (error) {
-      console.error('Error refreshing item:', error);
+      logger.error('Error refreshing inventory item', error as Error, {
+        component: 'InventoryDetailClient',
+        metadata: { itemType: type, itemId: id }
+      });
     }
   };
 

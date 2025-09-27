@@ -12,21 +12,21 @@ export function LandingTestimonials() {
     {
       name: 'Alex Chen',
       role: 'Software Engineer',
-      avatar: '/avatars/alex.jpg',
+      avatar: '', // Usar fallback a iniciales
       rating: 5,
       comment: t('landing.testimonials.alex.comment'),
     },
     {
       name: 'Sarah Johnson',
       role: 'Tech Lead',
-      avatar: '/avatars/sarah.jpg',
+      avatar: '', // Usar fallback a iniciales
       rating: 5,
       comment: t('landing.testimonials.sarah.comment'),
     },
     {
       name: 'Marcus Rodriguez',
       role: 'Full Stack Developer',
-      avatar: '/avatars/marcus.jpg',
+      avatar: '', // Usar fallback a iniciales
       rating: 5,
       comment: t('landing.testimonials.marcus.comment'),
     },

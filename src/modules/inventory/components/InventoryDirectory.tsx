@@ -66,7 +66,8 @@ export function InventoryDirectory() {
     
     setIsDeleting(true);
     try {
-      const deletedBy = 'current-user'; // TODO: Get actual user
+      // TODO: Implementar AuthContext para obtener usuario actual
+      const deletedBy = 'system-user'; // Temporal hasta implementar auth context
       
       if (deleteDialog.itemType === 'raw-materials') {
         await deleteRawMaterial(deleteDialog.item.id, deletedBy);

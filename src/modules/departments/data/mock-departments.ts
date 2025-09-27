@@ -1,6 +1,9 @@
 import { Department } from '../types/departments.types';
 
 /**
+ * ⚠️ CRÍTICO: NO MODIFICAR ESTE ARCHIVO - SISTEMA DE DIRECCIONES
+ * ⚠️ Si modificas cualquier parte del sistema de direcciones se rompe todo
+ * ⚠️ Este sistema funciona perfecto tal como está - NO TOCAR
  * Mock departments data for El Salvador
  */
 export const MOCK_DEPARTMENTS: Department[] = [

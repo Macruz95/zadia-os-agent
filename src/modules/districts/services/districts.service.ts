@@ -15,12 +15,12 @@ import { District, districtSchema } from '../types/districts.types';
 import { MOCK_DISTRICTS } from '../mock-districts';
 
 /**
- * Districts Service
+ * ⚠️ CRÍTICO: NO MODIFICAR - SISTEMA DE DIRECCIONES FUNCIONA PERFECTO
+ * ⚠️ Si tocas este archivo se rompe todo el sistema de direcciones
+ * Districts Service  
  * Handles district CRUD operations with Firebase Firestore
  */
-export class DistrictsService {
-
-  /**
+export class DistrictsService {  /**
    * Get districts by municipality ID
    */
   static async getDistrictsByMunicipality(municipalityId: string): Promise<District[]> {

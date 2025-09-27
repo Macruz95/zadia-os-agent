@@ -8,6 +8,7 @@ import { getMovementsByItem, getRecentMovements } from '../services/inventory.se
 import { MovementRow } from './movement-history/MovementRow';
 import { MovementTableHeader } from './movement-history/MovementTableHeader';
 import { MovementHistoryStates } from './movement-history/MovementHistoryStates';
+import { logger } from '@/lib/logger';
 
 interface MovementHistoryProps {
   itemId?: string;
@@ -44,7 +45,10 @@ export function MovementHistory({
         
         setMovements(data);
       } catch (error) {
-        console.error('MovementHistory error:', error);
+        logger.error('Movement history loading failed', error as Error, {
+          component: 'MovementHistory',
+          metadata: { itemId, itemType }
+        });
         const errorMessage = error instanceof Error ? error.message : 'Error al cargar movimientos';
         // Don't set error for "no movements found" cases
         if (!errorMessage.includes('No movements') && !errorMessage.includes('not found')) {

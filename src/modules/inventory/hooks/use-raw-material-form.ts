@@ -75,10 +75,14 @@ export const useRawMaterialForm = ({
       let result: RawMaterial;
       
       if (isEditing && initialData) {
-        result = await updateRawMaterial(initialData.id, cleanData as RawMaterialFormData, 'current-user'); // TODO: Get actual user
+        // TODO: Implementar AuthContext para obtener usuario actual
+        const currentUser = 'system-user'; // Temporal hasta implementar auth context
+        result = await updateRawMaterial(initialData.id, cleanData as RawMaterialFormData, currentUser);
         toast.success('Materia prima actualizada exitosamente');
       } else {
-        result = await createRawMaterial(cleanData as RawMaterialFormData, 'current-user'); // TODO: Get actual user
+        // TODO: Implementar AuthContext para obtener usuario actual
+        const currentUser = 'system-user'; // Temporal hasta implementar auth context
+        result = await createRawMaterial(cleanData as RawMaterialFormData, currentUser);
         toast.success('Materia prima creada exitosamente');
       }
 

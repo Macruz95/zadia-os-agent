@@ -1,5 +1,10 @@
 import { District } from './types/districts.types';
 
+/**
+ * ⚠️ CRÍTICO: NO MODIFICAR ESTE ARCHIVO - SISTEMA DE DIRECCIONES
+ * ⚠️ Si modificas cualquier parte del sistema de direcciones se rompe todo
+ * ⚠️ Este sistema funciona perfecto tal como está - NO TOCAR
+ */
 export const MOCK_DISTRICTS: District[] = [
   // Ahuachapán Norte
   { id: 'dist1-1-1', name: 'Atiquizaya', municipalityId: 'm1-1', isActive: true },

@@ -15,6 +15,8 @@ import { Department, departmentSchema } from '../types/departments.types';
 import { MOCK_DEPARTMENTS } from '../mock-departments';
 
 /**
+ * ⚠️ CRÍTICO: NO MODIFICAR - SISTEMA DE DIRECCIONES FUNCIONA PERFECTO
+ * ⚠️ Si tocas este archivo se rompe todo el sistema de direcciones
  * Departments Service
  * Handles department CRUD operations with Firebase Firestore
  */

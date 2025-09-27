@@ -38,27 +38,16 @@ export function DeleteInventoryItemDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>¿Eliminar {itemTypeLabel}?</AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <p>
-              Esta acción eliminará permanentemente <strong>{item.name}</strong>.
-            </p>
-            <div className="bg-yellow-50 p-3 rounded-md border border-yellow-200">
-              <p className="text-sm text-yellow-800">
-                <strong>Información del ítem:</strong>
-              </p>
-              <ul className="text-sm text-yellow-700 mt-1 space-y-1">
-                <li>• SKU: {item.sku}</li>
-                <li>• Stock actual: {item.currentStock}</li>
-                {item.currentStock > 0 && (
-                  <li className="text-red-600 font-medium">
-                    • ⚠️ Este ítem tiene stock disponible
-                  </li>
-                )}
-              </ul>
-            </div>
-            <p className="text-red-600 font-medium">
+          <AlertDialogDescription>
+            Esta acción eliminará permanentemente <strong>{item.name}</strong>.
+            {item.currentStock > 0 && (
+              <span className="block mt-2 text-orange-600 font-medium">
+                ⚠️ Este ítem tiene {item.currentStock} unidades en stock.
+              </span>
+            )}
+            <span className="block mt-2 text-red-600 font-medium">
               Esta operación no se puede deshacer.
-            </p>
+            </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

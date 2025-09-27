@@ -15,6 +15,8 @@ import { Municipality, municipalitySchema } from '../types/municipalities.types'
 import { MOCK_MUNICIPALITIES } from '../mock-municipalities';
 
 /**
+ * ⚠️ CRÍTICO: NO MODIFICAR - SISTEMA DE DIRECCIONES FUNCIONA PERFECTO
+ * ⚠️ Si tocas este archivo se rompe todo el sistema de direcciones
  * Municipalities Service
  * Handles municipality CRUD operations with Firebase Firestore
  */
