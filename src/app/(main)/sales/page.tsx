@@ -1,11 +1,11 @@
 /**
  * ZADIA OS - Sales Module Page
  * 
- * Main sales module entry point
+ * Main sales module entry point with executive dashboard
  */
 
-import { LeadsDirectory } from '@/modules/sales/components/leads/LeadsDirectory';
+import { ExecutiveDashboard } from '@/modules/sales/components/dashboard/ExecutiveDashboard';
 
 export default function SalesPage() {
-  return <LeadsDirectory />;
+  return <ExecutiveDashboard />;
 }

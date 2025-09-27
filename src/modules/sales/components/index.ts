@@ -19,3 +19,9 @@ export { QuotesDirectory } from './quotes/QuotesDirectory';
 
 // Projects components
 export { ProjectsDirectory } from './projects/ProjectsDirectory';
+
+// Analytics components
+export { SalesAnalytics } from './analytics/SalesAnalytics';
+
+// Dashboard components
+export { ExecutiveDashboard } from './dashboard/ExecutiveDashboard';
