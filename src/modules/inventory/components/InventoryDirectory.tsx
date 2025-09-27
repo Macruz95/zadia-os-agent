@@ -6,9 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Plus, Package, Hammer } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from 'sonner';
 import { useInventory } from '../hooks/use-inventory';
 import { InventoryTable } from './InventoryTable';
+import { DeleteInventoryItemDialog } from './DeleteInventoryItemDialog';
+import { EditInventoryItemDialog } from './EditInventoryItemDialog';
 import { RawMaterial, FinishedProduct } from '../types';
+import { deleteRawMaterial, deleteFinishedProduct } from '../services/inventory.service';
 import { useState } from 'react';
 
 export function InventoryDirectory() {
@@ -26,6 +30,17 @@ export function InventoryDirectory() {
   } = useInventory();
 
   const [searchQuery, setSearchQuery] = useState(searchParams.query || '');
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    item: RawMaterial | FinishedProduct | null;
+    itemType: 'raw-materials' | 'finished-products';
+  }>({ open: false, item: null, itemType: 'raw-materials' });
+  const [editDialog, setEditDialog] = useState<{
+    open: boolean;
+    item: RawMaterial | FinishedProduct | null;
+    itemType: 'raw-materials' | 'finished-products';
+  }>({ open: false, item: null, itemType: 'raw-materials' });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -37,13 +52,39 @@ export function InventoryDirectory() {
   };
 
   const handleDeleteItem = (item: RawMaterial | FinishedProduct) => {
-    // TODO: Implement delete confirmation dialog
-    console.log('Delete item:', item);
+    const itemType = 'unitOfMeasure' in item ? 'raw-materials' : 'finished-products';
+    setDeleteDialog({ open: true, item, itemType });
   };
 
   const handleEditItem = (item: RawMaterial | FinishedProduct) => {
-    // TODO: Navigate to edit form
-    console.log('Edit item:', item);
+    const itemType = 'unitOfMeasure' in item ? 'raw-materials' : 'finished-products';
+    setEditDialog({ open: true, item, itemType });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteDialog.item) return;
+    
+    setIsDeleting(true);
+    try {
+      const deletedBy = 'current-user'; // TODO: Get actual user
+      
+      if (deleteDialog.itemType === 'raw-materials') {
+        await deleteRawMaterial(deleteDialog.item.id, deletedBy);
+        toast.success(`Materia prima "${deleteDialog.item.name}" eliminada correctamente`);
+      } else {
+        await deleteFinishedProduct(deleteDialog.item.id, deletedBy);
+        toast.success(`Producto terminado "${deleteDialog.item.name}" eliminado correctamente`);
+      }
+      
+      // Close dialog and refresh data
+      setDeleteDialog({ open: false, item: null, itemType: 'raw-materials' });
+      refresh();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error al eliminar el ítem';
+      toast.error(message);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleItemSelect = (item: RawMaterial | FinishedProduct) => {
@@ -201,6 +242,24 @@ export function InventoryDirectory() {
           />
         </TabsContent>
       </Tabs>
+
+      {/* Delete Dialog */}
+      <DeleteInventoryItemDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => !isDeleting && setDeleteDialog(prev => ({ ...prev, open }))}
+        onConfirm={handleConfirmDelete}
+        item={deleteDialog.item}
+        itemType={deleteDialog.itemType}
+        loading={isDeleting}
+      />
+
+      {/* Edit Dialog */}
+      <EditInventoryItemDialog
+        open={editDialog.open}
+        onOpenChange={(open) => setEditDialog(prev => ({ ...prev, open }))}
+        item={editDialog.item}
+        itemType={editDialog.itemType}
+      />
     </div>
   );
 }
