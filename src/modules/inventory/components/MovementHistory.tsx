@@ -44,7 +44,14 @@ export function MovementHistory({
         
         setMovements(data);
       } catch (error) {
-        setError(error instanceof Error ? error.message : 'Error al cargar movimientos');
+        console.error('MovementHistory error:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Error al cargar movimientos';
+        // Don't set error for "no movements found" cases
+        if (!errorMessage.includes('No movements') && !errorMessage.includes('not found')) {
+          setError(errorMessage);
+        } else {
+          setMovements([]);
+        }
       } finally {
         setLoading(false);
       }

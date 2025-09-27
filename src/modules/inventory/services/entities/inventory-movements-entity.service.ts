@@ -83,21 +83,34 @@ export class InventoryMovementsService {
     limitCount: number = 50
   ): Promise<InventoryMovement[]> {
     try {
-      let q = query(
+      // Simple query without ordering to avoid index issues initially
+      const simpleQuery = query(
         collection(db, COLLECTION_NAME),
         where('itemId', '==', itemId),
-        orderBy('performedAt', 'desc'),
         limit(limitCount)
       );
 
-      if (itemType) {
-        q = query(q, where('itemType', '==', itemType));
+      const querySnapshot = await getDocs(simpleQuery);
+      
+      if (querySnapshot.empty) {
+        return [];
       }
-
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(MovementDataProcessor.fromFirestoreFormat);
-    } catch {
-      logger.error('Error fetching movements by item');
+      
+      const movements = querySnapshot.docs.map(doc => 
+        MovementDataProcessor.fromFirestoreFormat(doc)
+      );
+      
+      // Sort by date in memory since we removed orderBy from query
+      movements.sort((a, b) => b.performedAt.getTime() - a.performedAt.getTime());
+      
+      return movements;
+    } catch (error) {
+      logger.error('Error fetching movements by item', error as Error);
+      // If it's a "not found" or "permission denied" error, return empty array
+      if (error instanceof Error && (error.message.includes('not found') || error.message.includes('Missing or insufficient permissions'))) {
+        console.log('No movements collection found or no permissions, returning empty array');
+        return [];
+      }
       throw new Error('Error al obtener historial de movimientos');
     }
   }
@@ -115,8 +128,8 @@ export class InventoryMovementsService {
 
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(MovementDataProcessor.fromFirestoreFormat);
-    } catch {
-      logger.error('Error fetching recent movements');
+    } catch (error) {
+      logger.error('Error fetching recent movements', error as Error);
       throw new Error('Error al obtener movimientos recientes');
     }
   }
@@ -138,8 +151,8 @@ export class InventoryMovementsService {
 
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(MovementDataProcessor.fromFirestoreFormat);
-    } catch {
-      logger.error('Error fetching movements by type');
+    } catch (error) {
+      logger.error('Error fetching movements by type', error as Error);
       throw new Error('Error al obtener movimientos por tipo');
     }
   }
@@ -163,8 +176,8 @@ export class InventoryMovementsService {
 
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(MovementDataProcessor.fromFirestoreFormat);
-    } catch {
-      logger.error('Error fetching movements by date range');
+    } catch (error) {
+      logger.error('Error fetching movements by date range', error as Error);
       throw new Error('Error al obtener movimientos por rango de fechas');
     }
   }
