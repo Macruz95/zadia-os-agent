@@ -109,15 +109,16 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg w-full max-w-[calc(100vw-2rem)] max-h-[calc(100vh-4rem)] mx-4">
-        <DialogHeader className="space-y-3">
+      <DialogContent className="sm:max-w-lg w-full max-w-[calc(100vw-2rem)] max-h-[calc(100vh-8rem)] mx-4 my-8 overflow-hidden flex flex-col">
+        <DialogHeader className="space-y-3 flex-shrink-0">
           <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
             Registrar Movimiento de Inventario
           </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden">
+            <div className="flex-1 overflow-y-auto space-y-6 pr-2">
             {/* Item Information Header */}
             <div className="bg-blue-50 p-3 rounded-lg">
               <h4 className="font-medium text-blue-900 mb-1">Artículo Seleccionado</h4>
@@ -147,9 +148,10 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
               movementType={watchedMovementType}
               unitCost={watchedUnitCost}
             />
+            </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2 pt-4">
+            <div className="flex gap-2 pt-4 mt-4 border-t flex-shrink-0">
               <Button
                 type="button"
                 variant="outline"
