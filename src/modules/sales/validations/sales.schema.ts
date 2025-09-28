@@ -57,8 +57,8 @@ export const leadSchema = z.object({
   phone: z.string().min(8, 'Teléfono muy corto').max(20, 'Teléfono muy largo'),
   company: z.string().max(100, 'Empresa muy larga').optional(),
   source: LeadSourceSchema,
-  priority: LeadPrioritySchema.default('warm'),
-  score: z.number().int().min(1).max(100).default(50),
+  priority: LeadPrioritySchema,
+  score: z.number().int().min(1).max(100),
   assignedTo: z.string().min(1, 'Vendedor asignado requerido'),
   notes: z.string().max(1000, 'Notas muy largas').optional(),
 }).refine((data) => {

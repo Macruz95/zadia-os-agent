@@ -1,17 +1,15 @@
 'use client';
 
-import { Controller, UseFormReturn } from 'react-hook-form';
+import { Controller, UseFormReturn, FieldValues } from 'react-hook-form';
 import { MapPin } from 'lucide-react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CountriesSelect, DepartmentsSelect, MunicipalitiesSelect, DistrictsSelect } from '../reusable-components';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 interface AddressStepProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<FieldValues>;
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export function AddressStep({ form }: AddressStepProps) {
   const countryValue = form.watch('address.country');

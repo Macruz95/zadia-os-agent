@@ -13,7 +13,7 @@ const ContactsFormSchema = z.object({
   }))
 });
 
-type ContactsFormData = z.infer<typeof ContactsFormSchema>;
+export type ContactsFormData = z.infer<typeof ContactsFormSchema>;
 
 interface UseContactsManagerProps {
   clientId: string;

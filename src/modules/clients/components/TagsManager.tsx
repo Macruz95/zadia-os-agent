@@ -1,21 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+import { UseFormReturn, FieldValues } from 'react-hook-form';
 import { X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 interface TagsManagerProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<FieldValues>;
   fieldName?: string;
   label?: string;
   placeholder?: string;
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export function TagsManager({
   form,

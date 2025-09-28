@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { ContactsFormData } from '../../hooks/use-contacts-manager';
 
 interface ContactFormFieldProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  control: Control<{ contacts: any[] }>;
+  control: Control<ContactsFormData>;
   index: number;
   isPrimary: boolean;
   onRemove: () => void;

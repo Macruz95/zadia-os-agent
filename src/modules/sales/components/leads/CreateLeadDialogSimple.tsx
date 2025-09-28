@@ -13,23 +13,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Loader2, User, Building2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLeads } from '../../hooks/use-leads';
 import type { LeadFormData } from '../../validations/sales.schema';
+
+import { EntityTypeSelector } from './EntityTypeSelector';
+import { LeadBasicInfo } from './LeadBasicInfo';
+import { LeadSourcePriority } from './LeadSourcePriority';
+import { LeadNotes } from './LeadNotes';
+import { LeadDialogActions } from './LeadDialogActions';
 
 interface CreateLeadDialogProps {
   open: boolean;
@@ -128,179 +122,47 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Entity Type Selection */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">Tipo de Entidad</Label>
-            <div className="flex gap-4">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id="person"
-                  name="entityType"
-                  value="person"
-                  checked={entityType === 'person'}
-                  onChange={() => setEntityType('person')}
-                  className="w-4 h-4"
-                />
-                <Label htmlFor="person" className="flex items-center gap-2 cursor-pointer">
-                  <User className="h-4 w-4" />
-                  Persona Individual
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id="company"
-                  name="entityType"
-                  value="company"
-                  checked={entityType === 'company'}
-                  onChange={() => setEntityType('company')}
-                  className="w-4 h-4"
-                />
-                <Label htmlFor="company" className="flex items-center gap-2 cursor-pointer">
-                  <Building2 className="h-4 w-4" />
-                  Empresa
-                </Label>
-              </div>
-            </div>
-          </div>
+          <EntityTypeSelector 
+            entityType={entityType} 
+            onEntityTypeChange={setEntityType} 
+          />
 
           <Separator />
 
-          {/* Name Field */}
-          <div className="space-y-2">
-            {entityType === 'person' ? (
-              <>
-                <Label htmlFor="fullName">Nombre Completo *</Label>
-                <Input
-                  id="fullName"
-                  placeholder="Juan Carlos López"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                />
-              </>
-            ) : (
-              <>
-                <Label htmlFor="entityName">Nombre de la Empresa *</Label>
-                <Input
-                  id="entityName"
-                  placeholder="Tecnologías ABC S.A."
-                  value={entityName}
-                  onChange={(e) => setEntityName(e.target.value)}
-                />
-              </>
-            )}
-          </div>
-
-          {/* Contact Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="contacto@ejemplo.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Teléfono *</Label>
-              <Input
-                id="phone"
-                placeholder="+595 21 123456"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Additional Info for Person */}
-          {entityType === 'person' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="company">Empresa</Label>
-                <Input
-                  id="company"
-                  placeholder="Empresa donde trabaja"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="position">Cargo</Label>
-                <Input
-                  id="position"
-                  placeholder="Gerente de Sistemas"
-                  value={position}
-                  onChange={(e) => setPosition(e.target.value)}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Lead Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="source">Fuente *</Label>
-              <Select value={source} onValueChange={(value) => setSource(value as typeof source)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="web">Sitio Web</SelectItem>
-                  <SelectItem value="referral">Referido</SelectItem>
-                  <SelectItem value="event">Evento</SelectItem>
-                  <SelectItem value="cold-call">Llamada Fría</SelectItem>
-                  <SelectItem value="imported">Importado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="priority">Prioridad *</Label>
-              <Select value={priority} onValueChange={(value) => setPriority(value as typeof priority)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="hot">🔥 Caliente</SelectItem>
-                  <SelectItem value="warm">🟡 Tibio</SelectItem>
-                  <SelectItem value="cold">🧊 Frío</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notas Iniciales</Label>
-            <Textarea
-              id="notes"
-              placeholder="Observaciones, contexto del contacto, necesidades específicas..."
-              className="min-h-[80px]"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            />
-          </div>
+          <LeadBasicInfo
+            entityType={entityType}
+            fullName={fullName}
+            onFullNameChange={setFullName}
+            entityName={entityName}
+            onEntityNameChange={setEntityName}
+            email={email}
+            onEmailChange={setEmail}
+            phone={phone}
+            onPhoneChange={setPhone}
+            company={company}
+            onCompanyChange={setCompany}
+            position={position}
+            onPositionChange={setPosition}
+          />
 
           <Separator />
 
-          {/* Actions */}
-          <div className="flex justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
-              Cancelar
-            </Button>
-            <Button onClick={onSubmit} disabled={loading}>
-              {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Crear Lead
-            </Button>
-          </div>
+          <LeadSourcePriority
+            source={source}
+            onSourceChange={setSource}
+            priority={priority}
+            onPriorityChange={setPriority}
+          />
+
+          <LeadNotes notes={notes} onNotesChange={setNotes} />
+
+          <Separator />
+
+          <LeadDialogActions
+            loading={loading}
+            onCancel={() => onOpenChange(false)}
+            onSubmit={onSubmit}
+          />
         </div>
       </DialogContent>
     </Dialog>

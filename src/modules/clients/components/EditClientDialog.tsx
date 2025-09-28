@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormReturn, FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -118,8 +118,8 @@ export function EditClientDialog({
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-            <BasicInfoStep form={form} clientType={form.watch('clientType')} />
-            <AddressStep form={form} />
+            <BasicInfoStep form={form as unknown as UseFormReturn<FieldValues>} clientType={form.watch('clientType')} />
+            <AddressStep form={form as unknown as UseFormReturn<FieldValues>} />
             
             {/* Información Adicional */}
             <div className="space-y-4">
@@ -147,7 +147,7 @@ export function EditClientDialog({
                 </Label>
               </div>
 
-              <TagsManager form={form} />
+              <TagsManager form={form as unknown as UseFormReturn<FieldValues>} />
             </div>
 
             {/* Gestión de Contactos */}

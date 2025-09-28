@@ -1,6 +1,6 @@
 'use client';
 
-import { UseFormReturn } from 'react-hook-form';
+import { UseFormReturn, FieldValues } from 'react-hook-form';
 import { User } from 'lucide-react';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -8,12 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePicker } from '@/components/ui/date-picker';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 interface BasicInfoStepProps {
-  form: UseFormReturn<any>;
+  form: UseFormReturn<FieldValues>;
   clientType: string;
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export function BasicInfoStep({ form, clientType }: BasicInfoStepProps) {
   return (

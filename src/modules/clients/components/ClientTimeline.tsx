@@ -27,8 +27,7 @@ export const ClientTimeline = ({
 }: ClientTimelineProps) => {
   const [activeTab, setActiveTab] = useState('timeline');
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const allTimelineItems: any[] = processTimelineItems(
+  const allTimelineItems = processTimelineItems(
     interactions,
     transactions,
     projects,
@@ -59,7 +58,7 @@ export const ClientTimeline = ({
               {allTimelineItems.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {allTimelineItems.map((item, index) => (
-                    <TimelineItem key={`${item.type}-${item.id || index}`} item={item} type={item.type} />
+                    <TimelineItem key={`${item.type}-${item.id || index}`} item={item as unknown as Interaction | Transaction | Project | Quote | Meeting | Task} type={item.type} />
                   ))}
                 </div>
               ) : (

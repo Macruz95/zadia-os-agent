@@ -1,27 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, Plus, Package, Hammer } from 'lucide-react';
 
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import { useInventory } from '../hooks/use-inventory';
 import { useInventoryAlerts } from '../hooks/use-inventory-alerts';
 import { useInventoryKPIs } from '../hooks/use-inventory-kpis';
-import { InventoryTable } from './InventoryTable';
-import { DeleteInventoryItemDialog } from './DeleteInventoryItemDialog';
-import { EditInventoryItemDialog } from './EditInventoryItemDialog';
-import { StockAlertsCard } from './alerts/StockAlertsCard';
-import { InventoryKPIsCard } from './dashboard/InventoryKPIsCard';
+import { InventoryDirectoryHeader } from './InventoryDirectoryHeader';
+import { InventoryDashboard } from './InventoryDashboard';
+import { InventoryTabsContent } from './InventoryTabsContent';
+import { InventoryDialogs } from './InventoryDialogs';
 import { RawMaterial, FinishedProduct } from '../types';
 import { deleteRawMaterial, deleteFinishedProduct } from '../services/inventory.service';
 
 export function InventoryDirectory() {
-  const router = useRouter();
   const {
     rawMaterials,
     finishedProducts,
@@ -87,16 +82,6 @@ export function InventoryDirectory() {
     switchTab(tab as 'raw-materials' | 'finished-products');
   };
 
-  const handleDeleteItem = (item: RawMaterial | FinishedProduct) => {
-    const itemType = 'unitOfMeasure' in item ? 'raw-materials' : 'finished-products';
-    setDeleteDialog({ open: true, item, itemType });
-  };
-
-  const handleEditItem = (item: RawMaterial | FinishedProduct) => {
-    const itemType = 'unitOfMeasure' in item ? 'raw-materials' : 'finished-products';
-    setEditDialog({ open: true, item, itemType });
-  };
-
   const handleConfirmDelete = async () => {
     if (!deleteDialog.item) return;
     
@@ -124,11 +109,6 @@ export function InventoryDirectory() {
     }
   };
 
-  const handleItemSelect = (item: RawMaterial | FinishedProduct) => {
-    const itemType = 'unitOfMeasure' in item ? 'raw-materials' : 'finished-products';
-    router.push(`/inventory/${itemType}/${item.id}`);
-  };
-
   if (error) {
     return (
       <div className="container mx-auto p-6">
@@ -144,110 +124,45 @@ export function InventoryDirectory() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Inventario</h1>
-          <p className="text-muted-foreground">
-            Gestiona materias primas y productos terminados
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => router.push('/inventory/movements')}
-          >
-            <Search className="h-4 w-4 mr-2" />
-            Ver Historial
-          </Button>
-          <Button onClick={() => router.push('/inventory/create')}>
-            <Plus className="h-4 w-4 mr-2" />
-            Agregar Ítem
-          </Button>
-        </div>
-      </div>
+      <InventoryDirectoryHeader 
+        searchQuery={searchQuery}
+        onSearchChange={handleSearch}
+        onRefresh={refresh}
+      />
 
-      {/* Dashboard - KPIs and Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <InventoryKPIsCard kpis={kpis} loading={kpisLoading} />
-        </div>
-        <div>
-          <StockAlertsCard
-            alerts={alerts}
-            onRefresh={refreshAlerts}
-          />
-        </div>
-      </div>      {/* Search Bar */}
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por nombre, SKU o categoría..."
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Button variant="outline" onClick={refresh}>
-          Actualizar
-        </Button>
-      </div>
+      <InventoryDashboard
+        kpis={kpis}
+        kpisLoading={kpisLoading}
+        alerts={alerts}
+        onRefreshAlerts={refreshAlerts}
+      />
 
-      {/* Inventory Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
         <TabsList>
           <TabsTrigger value="raw-materials" className="flex items-center gap-2">
-            <Hammer className="h-4 w-4" />
             Materias Primas ({rawMaterials.length})
           </TabsTrigger>
           <TabsTrigger value="finished-products" className="flex items-center gap-2">
-            <Package className="h-4 w-4" />
             Productos Terminados ({finishedProducts.length})
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="raw-materials" className="space-y-4">
-          <InventoryTable
-            items={rawMaterials}
-            loading={loading}
-            itemType="raw-materials"
-            onItemSelect={handleItemSelect}
-            onDeleteItem={handleDeleteItem}
-            onEditItem={handleEditItem}
-            onRefresh={refresh}
-          />
-        </TabsContent>
-
-        <TabsContent value="finished-products" className="space-y-4">
-          <InventoryTable
-            items={finishedProducts}
-            loading={loading}
-            itemType="finished-products"
-            onItemSelect={handleItemSelect}
-            onDeleteItem={handleDeleteItem}
-            onEditItem={handleEditItem}
-            onRefresh={refresh}
-          />
-        </TabsContent>
+        <InventoryTabsContent
+          rawMaterials={rawMaterials}
+          finishedProducts={finishedProducts}
+          rawMaterialsLoading={loading}
+          finishedProductsLoading={loading}
+          onRefresh={refresh}
+        />
       </Tabs>
 
-      {/* Delete Dialog */}
-      <DeleteInventoryItemDialog
-        open={deleteDialog.open}
-        onOpenChange={(open) => !isDeleting && setDeleteDialog(prev => ({ ...prev, open }))}
-        onConfirm={handleConfirmDelete}
-        item={deleteDialog.item}
-        itemType={deleteDialog.itemType}
-        loading={isDeleting}
-      />
-
-      {/* Edit Dialog */}
-      <EditInventoryItemDialog
-        open={editDialog.open}
-        onOpenChange={(open) => setEditDialog(prev => ({ ...prev, open }))}
-        item={editDialog.item}
-        itemType={editDialog.itemType}
+      <InventoryDialogs
+        deleteDialog={deleteDialog}
+        editDialog={editDialog}
+        isDeleting={isDeleting}
+        onDeleteDialogChange={(open: boolean) => !isDeleting && setDeleteDialog(prev => ({ ...prev, open }))}
+        onEditDialogChange={(open: boolean) => setEditDialog(prev => ({ ...prev, open }))}
+        onConfirmDelete={handleConfirmDelete}
       />
     </div>
   );

@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { ArrowUp, ArrowDown, RotateCcw, Minus, Package, ShoppingCart, Undo } from 'lucide-react';
 import { Control } from 'react-hook-form';
+import { MovementFormData } from '../../validations/inventory.schema';
 
 const movementTypes = [
   { value: 'Entrada', label: 'Entrada', icon: ArrowUp, color: 'text-green-600' },
@@ -17,8 +18,7 @@ const movementTypes = [
 ] as const;
 
 interface MovementTypeSelectorProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  control: Control<any>;
+  control: Control<MovementFormData>;
   selectedType: string;
 }
 
