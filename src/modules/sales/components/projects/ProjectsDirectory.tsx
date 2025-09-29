@@ -40,9 +40,9 @@ export function ProjectsDirectory() {
         </div>
       </div>
 
-      {/* KPIs */}
+      {/* KPIs - Placeholder hasta implementar módulo de proyectos */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="opacity-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Proyectos Activos
@@ -50,14 +50,14 @@ export function ProjectsDirectory() {
             <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">--</div>
             <p className="text-xs text-muted-foreground">
-              En desarrollo
+              No implementado
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="opacity-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               En Progreso
@@ -65,14 +65,14 @@ export function ProjectsDirectory() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
+            <div className="text-2xl font-bold">--</div>
             <p className="text-xs text-muted-foreground">
-              Dentro del cronograma
+              No implementado
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="opacity-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Completados
@@ -80,14 +80,14 @@ export function ProjectsDirectory() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">25</div>
+            <div className="text-2xl font-bold">--</div>
             <p className="text-xs text-muted-foreground">
-              Este año
+              No implementado
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="opacity-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Atrasados
@@ -95,9 +95,9 @@ export function ProjectsDirectory() {
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
+            <div className="text-2xl font-bold">--</div>
             <p className="text-xs text-muted-foreground">
-              Requieren atención
+              No implementado
             </p>
           </CardContent>
         </Card>

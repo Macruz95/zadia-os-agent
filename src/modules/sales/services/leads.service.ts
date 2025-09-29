@@ -178,21 +178,33 @@ export class LeadsService {
     opportunityId: string;
   }> {
     try {
+      const lead = await this.getLeadById(id);
+      if (!lead) {
+        throw new Error('Lead no encontrado');
+      }
+
       // Update lead status
       await this.updateLead(id, {
         status: 'converted',
         convertedAt: Timestamp.fromDate(new Date()),
       });
 
-      // Note: Client and Opportunity creation would be handled by 
-      // the conversion service that orchestrates multiple modules
+      // TODO: Implement actual client and opportunity creation
+      // This would require integration with clients and opportunities modules
+      const mockClientId = `client_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const mockOpportunityId = `opp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
-      logger.info(`Lead converted: ${id}`);
+      // Update lead with conversion references
+      await this.updateLead(id, {
+        convertedToClientId: mockClientId,
+        convertedToOpportunityId: mockOpportunityId,
+      });
       
-      // Return placeholder IDs - actual implementation would create client/opportunity
+      logger.info(`Lead converted: ${id} -> Client: ${mockClientId}, Opportunity: ${mockOpportunityId}`);
+      
       return {
-        clientId: 'client-id-placeholder',
-        opportunityId: 'opportunity-id-placeholder',
+        clientId: mockClientId,
+        opportunityId: mockOpportunityId,
       };
     } catch (error) {
       logger.error('Error converting lead:', error as Error);

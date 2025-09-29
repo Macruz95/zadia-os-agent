@@ -14,6 +14,7 @@ import {
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
 import { Lead, Opportunity, Quote } from '../types/sales.types';
+import { UsersTargetsService } from './users-targets.service';
 
 export interface SalesOverview {
   totalRevenue: number;
@@ -299,13 +300,15 @@ export class SalesAnalyticsService {
       const performance: SalesPerformance[] = [];
       
       for (const [userId, data] of userPerformance.entries()) {
-        // For now, use userId as name. In a real implementation, 
-        // you would fetch user details from the users collection
-        const target = 100000; // Default target, should come from user profile
+        // Calculate dynamic target using the new service
+        const target = UsersTargetsService.calculateDynamicTarget(data.revenue, data.deals);
         const progress = (data.revenue / target) * 100;
         
+        // Format user name using the new service
+        const userName = UsersTargetsService.formatUserDisplayName(userId);
+        
         performance.push({
-          name: `User ${userId.slice(-4)}`, // Simplified for demo
+          name: userName,
           deals: data.deals,
           revenue: data.revenue,
           target,
