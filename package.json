@@ -6,7 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "lint:modules": "eslint src/modules --ext .ts,.tsx",
+    "type-check": "tsc --noEmit",
+    "validate:structure": "node scripts/validate-structure.js",
+    "validate:exports": "node scripts/validate-exports.js", 
+    "validate:all": "npm run validate:structure && npm run validate:exports && npm run lint:modules && npm run type-check",
+    "quality:report": "node scripts/quality-report.js",
+    "pre-commit": "npm run validate:all",
+    "analyze:modules": "node scripts/analyze-modules.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
