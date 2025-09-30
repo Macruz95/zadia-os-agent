@@ -2,276 +2,344 @@
 
 ## Overview
 
-El módulo de Inventario gestiona materias primas, productos terminados y movimientos de inventario en ZADIA OS. Proporciona funcionalidades completas para el control de stock, costos y trazabilidad.
+El módulo Inventory gestiona todo el inventario de la empresa, incluyendo materias primas, productos terminados, movimientos de inventario, alertas y KPIs.
 
-## 🏗️ Architecture
+## Features
 
-```
-src/modules/inventory/
-├── components/           # Componentes React para UI
-├── hooks/               # Hooks personalizados para estado
-├── services/            # Servicios de datos y lógica de negocio
-├── types/               # Definiciones de tipos TypeScript
-├── utils/               # Utilidades y helpers
-├── validations/         # Esquemas de validación Zod
-└── docs/               # Documentación del módulo
-```
+### 🏭 Raw Materials Management
+- ✅ Gestión completa de materias primas
+- ✅ Control de stock mínimo y máximo
+- ✅ Cálculo automático de costos promedio
+- ✅ Alertas de stock bajo
+- ✅ Categorización por tipo de material
 
-## 🚀 Quick Start
+### 🛋️ Finished Products Management
+- ✅ Gestión de productos terminados
+- ✅ Control de costos de producción
+- ✅ Precios de venta y márgenes
+- ✅ Bill of Materials (BOM)
+- ✅ Categorización por tipo de mueble
 
-### Importar componentes principales
+### 📊 Inventory Movements
+- ✅ Registro de entradas y salidas
+- ✅ Movimientos de ajuste y mermas
+- ✅ Transferencias entre ubicaciones
+- ✅ Histórico completo de movimientos
+- ✅ Trazabilidad total
+
+### 🚨 Alerts & Notifications
+- ✅ Alertas de stock bajo
+- ✅ Notificaciones de stock crítico
+- ✅ Alertas de productos obsoletos
+- ✅ Recordatorios de reorden
+
+### 📈 Analytics & KPIs
+- ✅ Valor total de inventario
+- ✅ Rotación de inventario
+- ✅ Análisis ABC de productos
+- ✅ Tendencias de consumo
+- ✅ Reportes de eficiencia
+
+## Quick Start
+
+### Raw Materials Hook
 ```typescript
-import { InventoryDirectory } from '@/modules/inventory/components';
-import { InventoryForm } from '@/modules/inventory/components';
-```
+import { useRawMaterials } from '@/modules/inventory/hooks';
 
-### Usar hooks de estado
-```typescript
-import { useRawMaterials, useFinishedProducts, useInventoryMovements } from '@/modules/inventory/hooks';
+function RawMaterialsComponent() {
+  const {
+    rawMaterials,
+    loading,
+    error,
+    searchRawMaterials,
+    createRawMaterial,
+    updateStock
+  } = useRawMaterials();
 
-function MyComponent() {
-  const { rawMaterials, loading, searchRawMaterials } = useRawMaterials();
-  
   useEffect(() => {
     searchRawMaterials();
   }, []);
-  
+
   return (
     <div>
-      {loading ? 'Cargando...' : rawMaterials.map(material => (
-        <div key={material.id}>{material.name}</div>
+      {loading && <div>Loading...</div>}
+      {error && <div className="text-red-500">{error}</div>}
+      {rawMaterials.map(material => (
+        <div key={material.id}>
+          {material.name} - Stock: {material.currentStock}
+        </div>
       ))}
     </div>
   );
 }
 ```
 
-### Usar servicios directamente
+### Finished Products Hook
 ```typescript
-import { RawMaterialsService } from '@/modules/inventory/services';
+import { useFinishedProducts } from '@/modules/inventory/hooks';
 
-const materials = await RawMaterialsService.searchRawMaterials();
-const newMaterial = await RawMaterialsService.createRawMaterial(data, userId);
-```
+function ProductsComponent() {
+  const {
+    finishedProducts,
+    loading,
+    createFinishedProduct,
+    updateUnitCost
+  } = useFinishedProducts();
 
-## 📊 Key Features
+  const handleCreateProduct = async (data) => {
+    try {
+      await createFinishedProduct(data);
+      toast.success('Producto creado exitosamente');
+    } catch (error) {
+      toast.error('Error al crear producto');
+    }
+  };
 
-### ✅ Raw Materials Management
-- ✅ CRUD operations for raw materials
-- ✅ Stock level tracking and alerts
-- ✅ Category-based organization
-- ✅ Supplier management
-- ✅ Cost tracking with average cost method
-
-### ✅ Finished Products Management
-- ✅ Product catalog management
-- ✅ BOM (Bill of Materials) integration
-- ✅ Pricing and margin calculations
-- ✅ Multi-category organization
-- ✅ Stock control and alerts
-
-### ✅ Inventory Movements
-- ✅ Complete movement history
-- ✅ Multiple movement types (Entry, Exit, Adjustment, etc.)
-- ✅ Automatic stock updates
-- ✅ Audit trail and traceability
-- ✅ Batch and serial number tracking
-
-### ✅ Analytics and Reporting
-- ✅ KPI dashboard
-- ✅ Stock valuation reports
-- ✅ Low stock alerts
-- ✅ Movement analytics
-- ✅ Cost analysis
-
-## 🔧 Configuration
-
-### Default Settings
-```typescript
-const defaultConfig = {
-  currency: 'GTQ',
-  costingMethod: 'Promedio',
-  lowStockThreshold: 10,
-  autoGenerateSKU: true
-};
-```
-
-### Custom Categories
-```typescript
-// Raw Material Categories
-const rawMaterialCategories = [
-  'Maderas', 'Acabados', 'Adhesivos', 'Herrajes', 
-  'Químicos', 'Textiles', 'Herramientas', 'Otros'
-];
-
-// Finished Product Categories
-const finishedProductCategories = [
-  'Dormitorio', 'Oficina', 'Sala', 'Cocina', 'Comedor', 
-  'Baño', 'Infantil', 'Exterior', 'Otros'
-];
-```
-
-## 📝 Usage Examples
-
-### Creating a Raw Material
-```typescript
-const { createRawMaterial } = useRawMaterials();
-
-const newMaterial = await createRawMaterial({
-  name: 'Madera Caoba',
-  description: 'Madera caoba premium',
-  category: 'Maderas',
-  unitOfMeasure: 'm3',
-  unitCost: 1500.00,
-  currentStock: 50,
-  minStock: 10,
-  maxStock: 200,
-  supplier: 'Maderería San Juan'
-});
-```
-
-### Creating a Movement
-```typescript
-const { createMovement } = useInventoryMovements();
-
-const movement = await createMovement({
-  itemId: 'material-123',
-  itemType: 'raw-material',
-  type: 'Entrada',
-  quantity: 25,
-  reason: 'Compra a proveedor',
-  reference: 'PO-2024-001'
-});
-```
-
-### Checking Low Stock
-```typescript
-const { getLowStockMaterials } = useRawMaterials();
-const { getLowStockProducts } = useFinishedProducts();
-
-const lowStockMaterials = await getLowStockMaterials();
-const lowStockProducts = await getLowStockProducts();
-```
-
-## 🎨 UI Components
-
-### InventoryForm
-Formulario genérico para crear y editar artículos de inventario.
-
-```typescript
-<InventoryForm
-  type="raw-material" // or "finished-product"
-  initialData={material}
-  onSubmit={handleSubmit}
-  onCancel={handleCancel}
-  isLoading={loading}
-/>
-```
-
-### InventoryDirectory
-Directorio principal con tabla, filtros y acciones.
-
-```typescript
-<InventoryDirectory
-  type="raw-materials"
-  title="Materias Primas"
-  description="Gestión de materias primas"
-/>
-```
-
-## 🔄 State Management
-
-Todos los hooks siguen el mismo patrón:
-
-```typescript
-const {
-  items,           // Array de elementos
-  loading,         // Estado de carga
-  error,           // Mensaje de error
-  totalCount,      // Total de elementos
-  searchItems,     // Buscar elementos
-  createItem,      // Crear nuevo elemento
-  updateItem,      // Actualizar elemento
-  deleteItem,      // Eliminar elemento
-  refresh          // Refrescar datos
-} = useInventoryHook();
-```
-
-## 🔍 Search and Filtering
-
-```typescript
-const filters = {
-  category: 'Maderas',
-  status: 'Disponible',
-  lowStock: true,
-  searchTerm: 'caoba'
-};
-
-const results = await RawMaterialsService.searchRawMaterials(filters);
-```
-
-## 🚨 Error Handling
-
-Todos los hooks incluyen manejo de errores:
-
-```typescript
-const { error, createRawMaterial } = useRawMaterials();
-
-try {
-  await createRawMaterial(data);
-} catch (err) {
-  // Error capturado automáticamente en el estado
-  console.log(error); // "Error al crear materia prima"
+  return (
+    <InventoryForm
+      type="finished-product"
+      onSubmit={handleCreateProduct}
+      isLoading={loading}
+    />
+  );
 }
 ```
 
-## 📊 Analytics Integration
-
+### Inventory Movements Hook
 ```typescript
-const { metrics, loadMetrics } = useInventoryKPIs();
+import { useInventoryMovements } from '@/modules/inventory/hooks';
 
-useEffect(() => {
-  loadMetrics();
-}, []);
+function MovementsComponent() {
+  const {
+    movements,
+    getMovementsByItem,
+    createMovement
+  } = useInventoryMovements();
 
-// metrics contiene:
-// - totalValue: Valor total del inventario
-// - totalItems: Total de artículos
-// - lowStockItems: Artículos con stock bajo
-// - movementsToday: Movimientos del día
+  const handleStockAdjustment = async (itemId, newStock) => {
+    await createMovement({
+      itemId,
+      itemType: 'raw-material',
+      movementType: 'Ajuste',
+      quantity: newStock,
+      reason: 'Ajuste de inventario'
+    });
+  };
+
+  return (
+    <div>
+      {/* Movement history table */}
+    </div>
+  );
+}
 ```
 
-## 🔒 Permissions
+## Utilities
 
-El módulo respeta los permisos del usuario:
-
+### Formatting
 ```typescript
-// Solo usuarios con permisos pueden:
-// - Crear/editar/eliminar artículos
-// - Realizar movimientos de inventario
-// - Ver reportes financieros
-// - Modificar configuración
+import { inventoryUtils } from '@/modules/inventory/utils';
+
+// Format quantities
+const formattedQty = inventoryUtils.formatQuantity(25.5, 'kg');
+// Output: "25.5 kg"
+
+// Format costs
+const formattedCost = inventoryUtils.formatUnitCost(125.50);
+// Output: "Q125.50"
+
+// Calculate total value
+const totalValue = inventoryUtils.calculateTotalValue(10, 125.50);
+// Output: 1255
+
+// Get status colors
+const statusColor = inventoryUtils.getStatusColor('Disponible');
+// Output: "green"
 ```
 
-## 🎯 Best Practices
+### Stock Calculations
+```typescript
+import { stockCalculations } from '@/modules/inventory/utils';
 
-1. **Usar hooks** para manejo de estado en componentes
-2. **Servicios directos** solo para lógica compleja
-3. **Validación** siempre con esquemas Zod
-4. **Manejo de errores** en todas las operaciones
-5. **Optimistic updates** para mejor UX
-6. **Logging** de todas las operaciones críticas
+// Calculate reorder point
+const reorderPoint = stockCalculations.calculateReorderPoint(
+  averageDemand: 10,
+  leadTimeDays: 5,
+  safetyStock: 15
+);
+// Output: 65
 
-## 🔗 Related Modules
+// Calculate EOQ
+const eoq = stockCalculations.calculateEOQ(
+  annualDemand: 1200,
+  orderingCost: 50,
+  holdingCost: 2
+);
+// Output: 245
+```
 
-- **Sales**: Integración con cotizaciones y ventas
-- **Production**: Consumo de materias primas
-- **Purchasing**: Entradas de inventario
-- **Accounting**: Valuación y costos
+## Components
 
-## 📚 Additional Resources
+### InventoryForm
+Formulario universal para crear/editar materias primas y productos terminados.
 
-- [API Reference](./API.md)
-- [Examples](./examples.md)
-- [Migration Guide](./migration.md)
-- [Testing Guide](./testing.md)
+**Props:**
+- `type`: 'raw-material' | 'finished-product'
+- `initialData?`: Datos iniciales para edición
+- `onSubmit`: Función callback al enviar
+- `onCancel`: Función callback al cancelar
+- `isLoading?`: Estado de carga
+
+### InventoryTable
+Tabla para mostrar inventario con filtros y paginación.
+
+### InventoryDirectory
+Vista principal del directorio de inventario.
+
+## Services Architecture
+
+### Entity Services
+- `RawMaterialsService`: Gestión de materias primas
+- `FinishedProductsService`: Gestión de productos terminados
+- `InventoryMovementsService`: Gestión de movimientos
+- `InventoryAlertsService`: Sistema de alertas
+- `InventoryKPIsService`: Métricas y análisis
+- `BOMService`: Bill of Materials
+
+### Service Methods
+```typescript
+// Raw Materials
+RawMaterialsService.createRawMaterial(data, createdBy)
+RawMaterialsService.searchRawMaterials(params?)
+RawMaterialsService.updateStock(id, newStock, avgCost?, updatedBy?)
+RawMaterialsService.getLowStockRawMaterials()
+
+// Finished Products
+FinishedProductsService.createFinishedProduct(data, createdBy)
+FinishedProductsService.searchFinishedProducts(params?)
+FinishedProductsService.updateUnitCost(id, newCost, updatedBy?)
+FinishedProductsService.getLowStockFinishedProducts()
+
+// Movements
+InventoryMovementsService.createMovement(data)
+InventoryMovementsService.getMovementsByItem(itemId, itemType)
+InventoryMovementsService.getRecentMovements(limit?)
+```
+
+## Types
+
+### Core Types
+```typescript
+type RawMaterialCategory = 'Maderas' | 'Acabados' | 'Adhesivos' | 'Herrajes' | 'Químicos' | 'Textiles' | 'Herramientas' | 'Otros'
+type FinishedProductCategory = 'Dormitorio' | 'Oficina' | 'Sala' | 'Cocina' | 'Comedor' | 'Baño' | 'Infantil' | 'Exterior' | 'Otros'
+type UnitOfMeasure = 'unidades' | 'kg' | 'g' | 'lb' | 'litros' | 'ml' | 'm3' | 'm2' | 'm' | 'cm'
+type ProductStatus = 'Disponible' | 'Reservado' | 'Vendido' | 'FueraDeCatalogo' | 'EnProduccion'
+type MovementType = 'Entrada' | 'Salida' | 'Ajuste' | 'Merma' | 'Produccion' | 'Venta' | 'Devolucion'
+```
+
+### Interfaces
+```typescript
+interface RawMaterial {
+  id: string;
+  sku: string;
+  name: string;
+  category: RawMaterialCategory;
+  unitOfMeasure: UnitOfMeasure;
+  currentStock: number;
+  minimumStock: number;
+  unitCost: number;
+  // ... more fields
+}
+
+interface FinishedProduct {
+  id: string;
+  sku: string;
+  name: string;
+  category: FinishedProductCategory;
+  unitOfMeasure: UnitOfMeasure;
+  currentStock: number;
+  minimumStock: number;
+  unitCost: number;
+  sellingPrice: number;
+  // ... more fields
+}
+```
+
+## Validation Schemas
+
+Using Zod for runtime validation:
+
+```typescript
+import { RawMaterialFormSchema, FinishedProductFormSchema } from '@/modules/inventory/validations';
+
+// Validate raw material data
+const validatedData = RawMaterialFormSchema.parse(formData);
+
+// Validate finished product data
+const validatedProduct = FinishedProductFormSchema.parse(productData);
+```
+
+## Error Handling
+
+Todos los hooks incluyen manejo de errores estandarizado:
+
+```typescript
+const { error, clearError } = useRawMaterials();
+
+if (error) {
+  return (
+    <Alert variant="destructive">
+      <AlertDescription>{error}</AlertDescription>
+      <Button onClick={clearError}>Reintentar</Button>
+    </Alert>
+  );
+}
+```
+
+## Best Practices
+
+### 1. **Consistent State Management**
+- Usar hooks para manejo de estado
+- Implementar loading states
+- Manejar errores apropiadamente
+
+### 2. **Data Validation**
+- Validar datos en frontend y backend
+- Usar Zod schemas consistentemente
+- Mostrar errores de validación claramente
+
+### 3. **Performance**
+- Implementar paginación para listas grandes
+- Usar optimistic updates cuando sea apropiado
+- Cachear datos frecuentemente accedidos
+
+### 4. **User Experience**
+- Mostrar estados de carga
+- Proporcionar feedback inmediato
+- Implementar confirmaciones para acciones destructivas
+
+## Module Structure
+
+```
+src/modules/inventory/
+├── components/           # React components
+│   ├── InventoryForm.tsx
+│   ├── InventoryTable.tsx
+│   └── InventoryDirectory.tsx
+├── hooks/               # Custom hooks
+│   ├── use-raw-materials.ts
+│   ├── use-finished-products.ts
+│   └── use-inventory-movements.ts
+├── services/            # API services
+│   ├── entities/
+│   └── inventory.service.ts
+├── types/               # TypeScript types
+│   └── inventory.types.ts
+├── validations/         # Zod schemas
+│   └── inventory.schema.ts
+├── utils/               # Utility functions
+│   └── inventory.utils.ts
+├── docs/                # Documentation
+│   └── README.md
+└── index.ts            # Main exports
+```

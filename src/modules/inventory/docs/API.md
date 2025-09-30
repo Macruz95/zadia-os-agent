@@ -1,182 +1,15 @@
-# 📚 ZADIA OS - Inventory API Reference
+# 📦 ZADIA OS - Inventory Module API Reference
 
-## Services
-
-### RawMaterialsService
-
-Servicio principal para gestión de materias primas.
-
-#### Methods
-
-##### `createRawMaterial(data, createdBy)`
-Crea una nueva materia prima.
-
-**Parameters:**
-- `data: RawMaterialFormData` - Datos de la materia prima
-- `createdBy: string` - ID del usuario que crea
-
-**Returns:** `Promise<RawMaterial>`
-
-**Example:**
-```typescript
-const material = await RawMaterialsService.createRawMaterial({
-  name: 'Madera Pino',
-  category: 'Maderas',
-  unitOfMeasure: 'm3',
-  unitCost: 800.00,
-  currentStock: 100,
-  minStock: 20,
-  maxStock: 500
-}, userId);
-```
-
-##### `searchRawMaterials(searchParams?)`
-Busca materias primas con filtros opcionales.
-
-**Parameters:**
-- `searchParams?: InventorySearchParams` - Parámetros de búsqueda
-
-**Returns:** `Promise<{ rawMaterials: RawMaterial[], totalCount: number }>`
-
-**Example:**
-```typescript
-const result = await RawMaterialsService.searchRawMaterials({
-  category: 'Maderas',
-  lowStock: true
-});
-```
-
-##### `updateRawMaterial(id, data, updatedBy)`
-Actualiza una materia prima existente.
-
-**Parameters:**
-- `id: string` - ID de la materia prima
-- `data: Partial<RawMaterialFormData>` - Datos a actualizar
-- `updatedBy: string` - ID del usuario que actualiza
-
-**Returns:** `Promise<RawMaterial>`
-
-##### `updateStock(id, newStock, newAverageCost?, updatedBy?)`
-Actualiza el stock de una materia prima.
-
-**Parameters:**
-- `id: string` - ID de la materia prima
-- `newStock: number` - Nuevo nivel de stock
-- `newAverageCost?: number` - Nuevo costo promedio
-- `updatedBy?: string` - ID del usuario
-
-**Returns:** `Promise<void>`
-
-##### `deleteRawMaterial(id, deletedBy)`
-Elimina (marca como inactiva) una materia prima.
-
-**Parameters:**
-- `id: string` - ID de la materia prima
-- `deletedBy: string` - ID del usuario que elimina
-
-**Returns:** `Promise<void>`
-
-##### `getLowStockRawMaterials()`
-Obtiene materias primas con stock bajo.
-
-**Returns:** `Promise<RawMaterial[]>`
-
----
-
-### FinishedProductsService
-
-Servicio principal para gestión de productos terminados.
-
-#### Methods
-
-##### `createFinishedProduct(data, createdBy)`
-Crea un nuevo producto terminado.
-
-**Parameters:**
-- `data: FinishedProductFormData` - Datos del producto
-- `createdBy: string` - ID del usuario que crea
-
-**Returns:** `Promise<FinishedProduct>`
-
-##### `searchFinishedProducts(searchParams?)`
-Busca productos terminados con filtros opcionales.
-
-**Parameters:**
-- `searchParams?: InventorySearchParams` - Parámetros de búsqueda
-
-**Returns:** `Promise<{ finishedProducts: FinishedProduct[], totalCount: number }>`
-
-##### `updateFinishedProduct(id, data, updatedBy)`
-Actualiza un producto terminado existente.
-
-##### `updateStock(id, newStock, updatedBy?)`
-Actualiza el stock de un producto terminado.
-
-##### `updateUnitCost(id, newUnitCost, updatedBy?)`
-Actualiza el costo unitario de un producto terminado.
-
-##### `deleteFinishedProduct(id, deletedBy)`
-Elimina (marca como inactivo) un producto terminado.
-
-##### `getLowStockFinishedProducts()`
-Obtiene productos terminados con stock bajo.
-
----
-
-### InventoryMovementsService
-
-Servicio para gestión de movimientos de inventario.
-
-#### Methods
-
-##### `createMovement(data)`
-Crea un nuevo movimiento de inventario.
-
-**Parameters:**
-- `data: InventoryMovementFormData` - Datos del movimiento
-
-**Returns:** `Promise<InventoryMovement>`
-
-**Example:**
-```typescript
-const movement = await InventoryMovementsService.createMovement({
-  itemId: 'material-123',
-  itemType: 'raw-material',
-  type: 'Entrada',
-  quantity: 50,
-  reason: 'Compra nueva',
-  reference: 'PO-001'
-});
-```
-
-##### `getMovementsByItem(itemId, itemType)`
-Obtiene movimientos de un artículo específico.
-
-**Parameters:**
-- `itemId: string` - ID del artículo
-- `itemType: 'raw-material' | 'finished-product'` - Tipo de artículo
-
-**Returns:** `Promise<InventoryMovement[]>`
-
-##### `getRecentMovements(limit?)`
-Obtiene movimientos recientes.
-
-**Parameters:**
-- `limit?: number` - Límite de resultados (default: 50)
-
-**Returns:** `Promise<InventoryMovement[]>`
-
----
-
-## Hooks
+## Hooks API
 
 ### useRawMaterials()
 
-Hook para gestión de estado de materias primas.
+Maneja el estado y operaciones de materias primas.
 
-**Returns:**
+**Returns:** `UseRawMaterialsReturn`
+
 ```typescript
-{
+interface UseRawMaterialsReturn {
   rawMaterials: RawMaterial[];
   loading: boolean;
   error?: string;
@@ -191,13 +24,42 @@ Hook para gestión de estado de materias primas.
 }
 ```
 
+**Example:**
+```typescript
+const {
+  rawMaterials,
+  loading,
+  error,
+  searchRawMaterials,
+  createRawMaterial
+} = useRawMaterials();
+
+// Load materials
+useMemo(() => {
+  searchRawMaterials();
+}, []);
+
+// Create new material
+const handleCreate = async (data) => {
+  try {
+    const newMaterial = await createRawMaterial(data);
+    console.log('Created:', newMaterial);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+```
+
+---
+
 ### useFinishedProducts()
 
-Hook para gestión de estado de productos terminados.
+Maneja el estado y operaciones de productos terminados.
 
-**Returns:**
+**Returns:** `UseFinishedProductsReturn`
+
 ```typescript
-{
+interface UseFinishedProductsReturn {
   finishedProducts: FinishedProduct[];
   loading: boolean;
   error?: string;
@@ -213,13 +75,35 @@ Hook para gestión de estado de productos terminados.
 }
 ```
 
+**Example:**
+```typescript
+const {
+  finishedProducts,
+  updateStock,
+  updateUnitCost
+} = useFinishedProducts();
+
+// Update stock
+const handleStockUpdate = async (productId, newStock) => {
+  await updateStock(productId, newStock);
+};
+
+// Update cost
+const handleCostUpdate = async (productId, newCost) => {
+  await updateUnitCost(productId, newCost);
+};
+```
+
+---
+
 ### useInventoryMovements()
 
-Hook para gestión de estado de movimientos de inventario.
+Maneja el estado y operaciones de movimientos de inventario.
 
-**Returns:**
+**Returns:** `UseInventoryMovementsReturn`
+
 ```typescript
-{
+interface UseInventoryMovementsReturn {
   movements: InventoryMovement[];
   loading: boolean;
   error?: string;
@@ -231,89 +115,275 @@ Hook para gestión de estado de movimientos de inventario.
 }
 ```
 
+**Example:**
+```typescript
+const {
+  movements,
+  getMovementsByItem,
+  createMovement
+} = useInventoryMovements();
+
+// Get movements for specific item
+const loadItemMovements = async (itemId) => {
+  await getMovementsByItem(itemId, 'raw-material');
+};
+
+// Create new movement
+const handleNewMovement = async () => {
+  await createMovement({
+    itemId: 'material-123',
+    itemType: 'raw-material',
+    movementType: 'Entrada',
+    quantity: 100,
+    reason: 'Compra'
+  });
+};
+```
+
 ---
 
-## Types
+## Service Methods API
 
-### RawMaterial
+### RawMaterialsService
+
+#### `createRawMaterial(data: RawMaterialFormData, createdBy: string): Promise<RawMaterial>`
+
+Crea una nueva materia prima.
+
+**Parameters:**
+- `data`: Datos de la materia prima
+- `createdBy`: ID del usuario que crea
+
+**Returns:** Promise con la materia prima creada
+
+**Example:**
 ```typescript
-interface RawMaterial {
-  id: string;
-  sku: string;
-  name: string;
-  category: RawMaterialCategory;
-  unitOfMeasure: UnitOfMeasure;
-  currentStock: number;
-  minimumStock: number;
-  unitCost: number;
-  supplier?: string;
-  description?: string;
-  status: ProductStatus;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  createdBy: string;
-  updatedBy?: string;
+const newMaterial = await RawMaterialsService.createRawMaterial({
+  name: 'Madera de Roble',
+  category: 'Maderas',
+  unitOfMeasure: 'm3',
+  unitCost: 2500,
+  currentStock: 50,
+  minimumStock: 10
+}, 'user-123');
+```
+
+#### `searchRawMaterials(params?: InventorySearchParams): Promise<{rawMaterials: RawMaterial[], totalCount: number}>`
+
+Busca materias primas con filtros opcionales.
+
+**Parameters:**
+- `params`: Parámetros de búsqueda (opcional)
+
+**Returns:** Promise con array de materias primas y total
+
+**Example:**
+```typescript
+const result = await RawMaterialsService.searchRawMaterials({
+  category: 'Maderas',
+  minStock: 5
+});
+console.log(`Found ${result.totalCount} materials`);
+```
+
+#### `updateStock(id: string, newStock: number, avgCost?: number, updatedBy?: string): Promise<void>`
+
+Actualiza el stock de una materia prima.
+
+**Parameters:**
+- `id`: ID de la materia prima
+- `newStock`: Nuevo stock
+- `avgCost`: Nuevo costo promedio (opcional)
+- `updatedBy`: ID del usuario (opcional)
+
+#### `getLowStockRawMaterials(): Promise<RawMaterial[]>`
+
+Obtiene materias primas con stock bajo.
+
+**Returns:** Array de materias primas con stock bajo
+
+---
+
+### FinishedProductsService
+
+#### `createFinishedProduct(data: FinishedProductFormData, createdBy: string): Promise<FinishedProduct>`
+
+Crea un nuevo producto terminado.
+
+**Example:**
+```typescript
+const newProduct = await FinishedProductsService.createFinishedProduct({
+  name: 'Mesa de Comedor Clásica',
+  category: 'Comedor',
+  unitOfMeasure: 'unidades',
+  unitCost: 850,
+  sellingPrice: 1200,
+  currentStock: 5,
+  minimumStock: 2
+}, 'user-123');
+```
+
+#### `updateUnitCost(id: string, newCost: number, updatedBy?: string): Promise<void>`
+
+Actualiza el costo unitario de un producto.
+
+**Parameters:**
+- `id`: ID del producto
+- `newCost`: Nuevo costo unitario
+- `updatedBy`: ID del usuario (opcional)
+
+---
+
+### InventoryMovementsService
+
+#### `createMovement(data: InventoryMovementData): Promise<InventoryMovement>`
+
+Crea un nuevo movimiento de inventario.
+
+**Parameters:**
+- `data`: Datos del movimiento
+
+**Example:**
+```typescript
+const movement = await InventoryMovementsService.createMovement({
+  itemId: 'material-123',
+  itemType: 'raw-material',
+  movementType: 'Entrada',
+  quantity: 25,
+  unitCost: 125.50,
+  reason: 'Compra a proveedor XYZ',
+  reference: 'PO-2024-001'
+});
+```
+
+#### `getMovementsByItem(itemId: string, itemType: 'raw-material' | 'finished-product'): Promise<InventoryMovement[]>`
+
+Obtiene movimientos de un artículo específico.
+
+#### `getRecentMovements(limit?: number): Promise<InventoryMovement[]>`
+
+Obtiene movimientos recientes.
+
+**Parameters:**
+- `limit`: Límite de resultados (default: 50)
+
+---
+
+## Utility Functions API
+
+### inventoryUtils
+
+#### `formatQuantity(quantity: number, unit: UnitOfMeasure): string`
+
+Formatea cantidad con unidad de medida.
+
+**Example:**
+```typescript
+const formatted = inventoryUtils.formatQuantity(25.5, 'kg');
+// Returns: "25.5 kg"
+```
+
+#### `formatUnitCost(cost: number, currency?: string): string`
+
+Formatea costo con moneda.
+
+**Example:**
+```typescript
+const formatted = inventoryUtils.formatUnitCost(125.50);
+// Returns: "Q125.50"
+```
+
+#### `calculateTotalValue(quantity: number, unitCost: number): number`
+
+Calcula valor total.
+
+#### `getStatusColor(status: ProductStatus): string`
+
+Obtiene color para estado de producto.
+
+#### `getMovementTypeColor(type: MovementType): string`
+
+Obtiene color para tipo de movimiento.
+
+#### `isLowStock(currentStock: number, minStock: number): boolean`
+
+Verifica si el stock está bajo.
+
+#### `generateSKU(category: string, name: string): string`
+
+Genera SKU automático.
+
+**Example:**
+```typescript
+const sku = inventoryUtils.generateSKU('Maderas', 'Roble Europeo');
+// Returns: "MAD-ROBLEEU-1234"
+```
+
+---
+
+### stockCalculations
+
+#### `calculateReorderPoint(averageDemand: number, leadTimeDays: number, safetyStock: number): number`
+
+Calcula punto de reorden.
+
+**Example:**
+```typescript
+const reorderPoint = stockCalculations.calculateReorderPoint(10, 5, 15);
+// Returns: 65 (10 * 5 + 15)
+```
+
+#### `calculateEOQ(annualDemand: number, orderingCost: number, holdingCost: number): number`
+
+Calcula cantidad económica de pedido.
+
+#### `calculateTurnoverRatio(costOfGoodsSold: number, averageInventoryValue: number): number`
+
+Calcula ratio de rotación de inventario.
+
+---
+
+## Component Props API
+
+### InventoryForm
+
+```typescript
+interface InventoryFormProps {
+  type: 'raw-material' | 'finished-product';
+  initialData?: Partial<RawMaterialFormData | FinishedProductFormData>;
+  onSubmit: (data: RawMaterialFormData | FinishedProductFormData) => Promise<void>;
+  onCancel: () => void;
+  isLoading?: boolean;
 }
 ```
 
-### FinishedProduct
+**Example:**
 ```typescript
-interface FinishedProduct {
-  id: string;
-  sku: string;
-  name: string;
-  category: FinishedProductCategory;
-  unitOfMeasure: UnitOfMeasure;
-  currentStock: number;
-  minimumStock: number;
-  unitCost: number;
-  sellingPrice: number;
-  description?: string;
-  status: ProductStatus;
-  bomId?: string;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  createdBy: string;
-  updatedBy?: string;
-}
+<InventoryForm
+  type="raw-material"
+  onSubmit={handleSubmit}
+  onCancel={() => setIsOpen(false)}
+  isLoading={loading}
+/>
 ```
 
-### InventoryMovement
-```typescript
-interface InventoryMovement {
-  id: string;
-  itemId: string;
-  itemType: 'raw-material' | 'finished-product';
-  type: MovementType;
-  quantity: number;
-  previousStock: number;
-  newStock: number;
-  unitCost?: number;
-  totalCost?: number;
-  reason?: string;
-  reference?: string;
-  createdAt: Timestamp;
-  createdBy: string;
-}
-```
+---
 
-### Enums
+## Type Definitions
 
-#### RawMaterialCategory
+### Core Enums
+
 ```typescript
 type RawMaterialCategory = 
   | 'Maderas'
-  | 'Acabados'
+  | 'Acabados' 
   | 'Adhesivos'
   | 'Herrajes'
   | 'Químicos'
   | 'Textiles'
   | 'Herramientas'
   | 'Otros';
-```
 
-#### FinishedProductCategory
-```typescript
 type FinishedProductCategory = 
   | 'Dormitorio'
   | 'Oficina'
@@ -324,10 +394,20 @@ type FinishedProductCategory =
   | 'Infantil'
   | 'Exterior'
   | 'Otros';
-```
 
-#### MovementType
-```typescript
+type UnitOfMeasure = 
+  | 'unidades' | 'kg' | 'g' | 'lb' | 'oz'
+  | 'litros' | 'ml' | 'gal'
+  | 'm3' | 'm2' | 'm' | 'cm' | 'mm'
+  | 'pies' | 'pulgadas' | 'yardas';
+
+type ProductStatus = 
+  | 'Disponible'
+  | 'Reservado'
+  | 'Vendido'
+  | 'FueraDeCatalogo'
+  | 'EnProduccion';
+
 type MovementType = 
   | 'Entrada'
   | 'Salida'
@@ -338,86 +418,87 @@ type MovementType =
   | 'Devolucion';
 ```
 
-#### ProductStatus
-```typescript
-type ProductStatus = 
-  | 'Disponible'
-  | 'Reservado'
-  | 'Vendido'
-  | 'FueraDeCatalogo'
-  | 'EnProduccion';
-```
-
-#### UnitOfMeasure
-```typescript
-type UnitOfMeasure = 
-  | 'unidades'
-  | 'kg' | 'g' | 'lb' | 'oz'
-  | 'litros' | 'ml' | 'gal'
-  | 'm3' | 'm2' | 'm' | 'cm' | 'mm'
-  | 'pies' | 'pulgadas' | 'yardas';
-```
-
----
-
-## Utilities
-
-### inventoryUtils
-
-Colección de utilidades para formateo y cálculos.
-
-#### Methods
-
-##### `formatQuantity(quantity, unit)`
-Formatea cantidad con unidad de medida.
-
-##### `formatUnitCost(cost, currency?)`
-Formatea costo unitario con moneda.
-
-##### `calculateTotalValue(quantity, unitCost)`
-Calcula valor total.
-
-##### `getStatusColor(status)`
-Obtiene color para estado de producto.
-
-##### `getMovementTypeColor(type)`
-Obtiene color para tipo de movimiento.
-
-##### `generateSKU(category, name)`
-Genera SKU automático.
-
-##### `validateQuantity(quantity, unit)`
-Valida entrada de cantidad.
-
-### stockCalculations
-
-Utilidades para cálculos de stock.
-
-#### Methods
-
-##### `calculateReorderPoint(averageDemand, leadTimeDays, safetyStock)`
-Calcula punto de reorden.
-
-##### `calculateEOQ(annualDemand, orderingCost, holdingCost)`
-Calcula cantidad económica de pedido.
-
-##### `calculateTurnoverRatio(costOfGoodsSold, averageInventoryValue)`
-Calcula ratio de rotación de inventario.
-
----
-
-## Error Handling
-
-Todos los servicios y hooks incluyen manejo de errores estandarizado:
+### Core Interfaces
 
 ```typescript
-try {
-  const result = await service.method();
-  return result;
-} catch (error) {
-  logger.error('Error message', error);
-  throw new Error('User-friendly error message');
+interface RawMaterial {
+  id: string;
+  sku: string;
+  name: string;
+  category: RawMaterialCategory;
+  unitOfMeasure: UnitOfMeasure;
+  currentStock: number;
+  minimumStock: number;
+  unitCost: number;
+  averageCost: number;
+  supplier?: string;
+  status: ProductStatus;
+  location?: InventoryLocation;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  createdBy: string;
+}
+
+interface FinishedProduct {
+  id: string;
+  sku: string;
+  name: string;
+  category: FinishedProductCategory;
+  unitOfMeasure: UnitOfMeasure;
+  currentStock: number;
+  minimumStock: number;
+  unitCost: number;
+  sellingPrice: number;
+  margin: number;
+  status: ProductStatus;
+  bomId?: string;
+  location?: InventoryLocation;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  createdBy: string;
+}
+
+interface InventoryMovement {
+  id: string;
+  itemId: string;
+  itemType: 'raw-material' | 'finished-product';
+  movementType: MovementType;
+  quantity: number;
+  unitCost?: number;
+  totalCost?: number;
+  previousStock: number;
+  newStock: number;
+  reason: string;
+  reference?: string;
+  performedAt: Timestamp;
+  performedBy: string;
 }
 ```
 
-Los errores se capturan automáticamente en los hooks y se exponen en la propiedad `error`.
+## Error Handling
+
+Todos los métodos pueden lanzar las siguientes excepciones:
+
+- `ValidationError`: Error de validación de datos
+- `NotFoundError`: Recurso no encontrado
+- `PermissionError`: Sin permisos para la operación
+- `NetworkError`: Error de conexión
+- `ServerError`: Error interno del servidor
+
+**Example:**
+```typescript
+try {
+  await createRawMaterial(data);
+} catch (error) {
+  if (error instanceof ValidationError) {
+    // Handle validation errors
+    console.error('Validation failed:', error.details);
+  } else if (error instanceof NotFoundError) {
+    // Handle not found
+    console.error('Resource not found');
+  } else {
+    // Handle other errors
+    console.error('Unexpected error:', error.message);
+  }
+}
+```
