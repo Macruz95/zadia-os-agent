@@ -25,7 +25,7 @@ export {
 export { LeadsService } from './services/leads.service';
 export { OpportunitiesService } from './services/opportunities.service';
 export { QuotesService } from './services/quotes.service';
-export { AnalyticsService } from './services/analytics.service';
+export { SalesAnalyticsService as AnalyticsService } from './services/analytics.service';
 export { UsersTargetsService } from './services/users-targets.service';
 
 // Hooks
