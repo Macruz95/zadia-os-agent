@@ -5,6 +5,7 @@ export const districtSchema = z.object({
   id: z.string(),
   name: z.string().min(1, 'El nombre del distrito es requerido'),
   municipalityId: z.string().min(1, 'El ID del municipio es requerido'),
+  code: z.string().optional(),
   isActive: z.boolean().default(true)
 });
 
