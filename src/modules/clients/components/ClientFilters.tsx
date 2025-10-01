@@ -58,7 +58,7 @@ export function ClientFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos los estados</SelectItem>
-              <SelectItem value="Potencial">Potencial</SelectItem>
+              <SelectItem value="Prospecto">Prospecto</SelectItem>
               <SelectItem value="Activo">Activo</SelectItem>
               <SelectItem value="Inactivo">Inactivo</SelectItem>
             </SelectContent>

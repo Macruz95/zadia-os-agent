@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const ClientTypeEnum = z.enum(['PersonaNatural', 'Organización', 'Empresa']);
 export type ClientType = z.infer<typeof ClientTypeEnum>;
 
-export const ClientStatusEnum = z.enum(['Potencial', 'Activo', 'Inactivo']);
+export const ClientStatusEnum = z.enum(['Prospecto', 'Activo', 'Inactivo']);
 export type ClientStatus = z.infer<typeof ClientStatusEnum>;
 
 export const GenderEnum = z.enum(['Masculino', 'Femenino', 'Otro']);

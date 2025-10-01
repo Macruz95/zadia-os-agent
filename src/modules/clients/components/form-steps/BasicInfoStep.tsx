@@ -120,7 +120,7 @@ export function BasicInfoStep({ form, clientType }: BasicInfoStepProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="Potencial">Potencial</SelectItem>
+                  <SelectItem value="Prospecto">Prospecto</SelectItem>
                   <SelectItem value="Activo">Activo</SelectItem>
                   <SelectItem value="Inactivo">Inactivo</SelectItem>
                 </SelectContent>

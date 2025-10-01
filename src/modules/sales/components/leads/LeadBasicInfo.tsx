@@ -1,5 +1,6 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PhoneCodeInput } from '@/modules/phone-codes/components/PhoneCodeInput';
 
 interface LeadBasicInfoProps {
   entityType: 'person' | 'company' | 'institution';
@@ -11,6 +12,8 @@ interface LeadBasicInfoProps {
   onEmailChange: (value: string) => void;
   phone: string;
   onPhoneChange: (value: string) => void;
+  phoneCountryId?: string;
+  onPhoneCountryChange?: (countryId: string) => void;
   company: string;
   onCompanyChange: (value: string) => void;
   position: string;
@@ -27,6 +30,8 @@ export function LeadBasicInfo({
   onEmailChange,
   phone,
   onPhoneChange,
+  phoneCountryId,
+  onPhoneCountryChange,
   company,
   onCompanyChange,
   position,
@@ -40,7 +45,7 @@ export function LeadBasicInfo({
           <Label htmlFor="fullName">Nombre Completo *</Label>
           <Input
             id="fullName"
-            placeholder="Ej: Juan Carlos Pérez"
+            placeholder="Nombre completo"
             value={fullName}
             onChange={(e) => onFullNameChange(e.target.value)}
             autoFocus
@@ -53,7 +58,7 @@ export function LeadBasicInfo({
           </Label>
           <Input
             id="entityName"
-            placeholder={entityType === 'company' ? 'Ej: Tecnología S.A.' : 'Ej: Universidad Nacional'}
+            placeholder={entityType === 'company' ? 'Nombre de la empresa' : 'Nombre de la institución'}
             value={entityName}
             onChange={(e) => onEntityNameChange(e.target.value)}
             autoFocus
@@ -67,7 +72,7 @@ export function LeadBasicInfo({
         <Input
           id="email"
           type="email"
-          placeholder="correo@ejemplo.com"
+          placeholder="correo@empresa.com"
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
         />
@@ -75,12 +80,12 @@ export function LeadBasicInfo({
 
       <div className="space-y-2">
         <Label htmlFor="phone">Teléfono *</Label>
-        <Input
-          id="phone"
-          type="tel"
-          placeholder="+595 21 123456"
+        <PhoneCodeInput
           value={phone}
-          onChange={(e) => onPhoneChange(e.target.value)}
+          onChange={onPhoneChange}
+          countryId={phoneCountryId}
+          onCountryChange={onPhoneCountryChange}
+          placeholder="Ingrese número de teléfono"
         />
       </div>
 
@@ -91,7 +96,7 @@ export function LeadBasicInfo({
             <Label htmlFor="company">Empresa</Label>
             <Input
               id="company"
-              placeholder="Empresa donde trabaja"
+              placeholder="Nombre de la empresa"
               value={company}
               onChange={(e) => onCompanyChange(e.target.value)}
             />
@@ -101,7 +106,7 @@ export function LeadBasicInfo({
             <Label htmlFor="position">Cargo</Label>
             <Input
               id="position"
-              placeholder="Director, Gerente, etc."
+              placeholder="Cargo o posición"
               value={position}
               onChange={(e) => onPositionChange(e.target.value)}
             />

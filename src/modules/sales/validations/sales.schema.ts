@@ -25,6 +25,7 @@ export const createLeadSchema = z.object({
   entityName: z.string().min(1, 'Nombre de entidad requerido').optional(),
   email: z.string().email('Email inválido'),
   phone: z.string().min(1, 'Teléfono requerido'),
+  phoneCountryId: z.string().optional(),
   company: z.string().optional(),
   position: z.string().optional(),
   source: LeadSourceSchema,

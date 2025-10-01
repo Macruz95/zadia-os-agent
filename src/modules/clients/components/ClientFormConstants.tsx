@@ -20,7 +20,7 @@ export const getDefaultFormValues = () => ({
   name: '',
   documentId: '',
   clientType: 'PersonaNatural' as const,
-  status: 'Potencial' as const,
+  status: 'Prospecto' as const,
   tags: [],
   communicationOptIn: false,
   address: {

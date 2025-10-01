@@ -49,6 +49,7 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
       entityType: 'person',
       email: '',
       phone: '',
+      phoneCountryId: 'PE', // Default a Perú
       source: 'web',
       priority: 'warm'
     }
@@ -61,6 +62,7 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
       entityType: 'person',
       email: '',
       phone: '',
+      phoneCountryId: 'PE',
       source: 'web',
       priority: 'warm'
     });
@@ -123,6 +125,8 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
               onEmailChange={(value) => form.setValue('email', value)}
               phone={form.watch('phone')}
               onPhoneChange={(value) => form.setValue('phone', value)}
+              phoneCountryId={form.watch('phoneCountryId')}
+              onPhoneCountryChange={(value) => form.setValue('phoneCountryId', value)}
               company={form.watch('company') || ''}
               onCompanyChange={(value) => form.setValue('company', value)}
               position={form.watch('position') || ''}
