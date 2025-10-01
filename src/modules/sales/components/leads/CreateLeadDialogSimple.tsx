@@ -7,6 +7,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { logger } from '@/lib/logger';
 import {
   Dialog,
@@ -14,11 +16,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLeads } from '../../hooks/use-leads';
-import type { LeadFormData } from '../../validations/sales.schema';
+import { createLeadSchema } from '../../validations/sales.schema';
+import type { z } from 'zod';
+
+type CreateLeadFormData = z.infer<typeof createLeadSchema>;
 
 import { EntityTypeSelector } from './EntityTypeSelector';
 import { LeadBasicInfo } from './LeadBasicInfo';
@@ -37,69 +43,42 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
   const { createLead } = useLeads();
   const [loading, setLoading] = useState(false);
   
-  // Form state
-  const [entityType, setEntityType] = useState<'person' | 'company' | 'institution'>('person');
-  const [fullName, setFullName] = useState('');
-  const [entityName, setEntityName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [company, setCompany] = useState('');
-  const [position, setPosition] = useState('');
-  const [source, setSource] = useState<'web' | 'referral' | 'event' | 'cold-call' | 'imported'>('web');
-  const [priority, setPriority] = useState<'hot' | 'warm' | 'cold'>('warm');
-  const [notes, setNotes] = useState('');
+  const form = useForm<CreateLeadFormData>({
+    resolver: zodResolver(createLeadSchema),
+    defaultValues: {
+      entityType: 'person',
+      email: '',
+      phone: '',
+      source: 'web',
+      priority: 'warm'
+    }
+  });
+
+  const watchEntityType = form.watch('entityType');
 
   const resetForm = () => {
-    setEntityType('person');
-    setFullName('');
-    setEntityName('');
-    setEmail('');
-    setPhone('');
-    setCompany('');
-    setPosition('');
-    setSource('web');
-    setPriority('warm');
-    setNotes('');
+    form.reset({
+      entityType: 'person',
+      email: '',
+      phone: '',
+      source: 'web',
+      priority: 'warm'
+    });
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: CreateLeadFormData) => {
     if (!user?.uid) {
       toast.error('Usuario no autenticado');
-      return;
-    }
-
-    // Basic validation
-    if (!email || !phone) {
-      toast.error('Email y teléfono son requeridos');
-      return;
-    }
-
-    if (entityType === 'person' && !fullName) {
-      toast.error('Nombre completo es requerido para persona');
-      return;
-    }
-
-    if ((entityType === 'company' || entityType === 'institution') && !entityName) {
-      toast.error('Nombre de entidad es requerido');
       return;
     }
 
     try {
       setLoading(true);
       
-      const leadData: LeadFormData = {
-        entityType,
-        fullName: entityType === 'person' ? fullName : undefined,
-        entityName: entityType !== 'person' ? entityName : undefined,
-        email,
-        phone,
-        company: entityType === 'person' ? company : undefined,
-        position: entityType === 'person' ? position : undefined,
-        source,
-        priority,
+      const leadData = {
+        ...data,
         score: 50, // Default score
-        assignedTo: user.uid,
-        notes: notes || undefined,
+        assignedTo: user.uid
       };
       
       await createLead(leadData, user.uid);
@@ -125,49 +104,54 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
           <DialogTitle>Crear Nuevo Lead</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
-          <EntityTypeSelector 
-            entityType={entityType} 
-            onEntityTypeChange={setEntityType} 
-          />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <EntityTypeSelector 
+              entityType={watchEntityType}
+              onEntityTypeChange={(value) => form.setValue('entityType', value)}
+            />
 
-          <Separator />
+            <Separator />
 
-          <LeadBasicInfo
-            entityType={entityType}
-            fullName={fullName}
-            onFullNameChange={setFullName}
-            entityName={entityName}
-            onEntityNameChange={setEntityName}
-            email={email}
-            onEmailChange={setEmail}
-            phone={phone}
-            onPhoneChange={setPhone}
-            company={company}
-            onCompanyChange={setCompany}
-            position={position}
-            onPositionChange={setPosition}
-          />
+            <LeadBasicInfo
+              entityType={watchEntityType}
+              fullName={form.watch('fullName') || ''}
+              onFullNameChange={(value) => form.setValue('fullName', value)}
+              entityName={form.watch('entityName') || ''}
+              onEntityNameChange={(value) => form.setValue('entityName', value)}
+              email={form.watch('email')}
+              onEmailChange={(value) => form.setValue('email', value)}
+              phone={form.watch('phone')}
+              onPhoneChange={(value) => form.setValue('phone', value)}
+              company={form.watch('company') || ''}
+              onCompanyChange={(value) => form.setValue('company', value)}
+              position={form.watch('position') || ''}
+              onPositionChange={(value) => form.setValue('position', value)}
+            />
 
-          <Separator />
+            <Separator />
 
-          <LeadSourcePriority
-            source={source}
-            onSourceChange={setSource}
-            priority={priority}
-            onPriorityChange={setPriority}
-          />
+            <LeadSourcePriority
+              source={form.watch('source')}
+              onSourceChange={(value) => form.setValue('source', value)}
+              priority={form.watch('priority')}
+              onPriorityChange={(value) => form.setValue('priority', value)}
+            />
 
-          <LeadNotes notes={notes} onNotesChange={setNotes} />
+            <LeadNotes 
+              notes={form.watch('notes') || ''}
+              onNotesChange={(value) => form.setValue('notes', value)}
+            />
 
-          <Separator />
+            <Separator />
 
-          <LeadDialogActions
-            loading={loading}
-            onCancel={() => onOpenChange(false)}
-            onSubmit={onSubmit}
-          />
-        </div>
+            <LeadDialogActions
+              loading={loading}
+              onCancel={() => onOpenChange(false)}
+              onSubmit={() => form.handleSubmit(onSubmit)()}
+            />
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

@@ -13,12 +13,42 @@ import {
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
 import { PhoneCode, phoneCodeSchema } from '../types/phone-codes.types';
-import { MOCK_PHONE_CODES } from '../mock-phone-codes';
 
 /**
  * Phone Codes Service
  * Handles phone code CRUD operations with Firebase Firestore
+ * 
+ * Following ZADIA OS Rule 1: No mocks, only real data from Firestore
+ * Implements auto-initialization system for empty collections
  */
+
+// Real phone codes data for initialization (not mocks - real data to populate Firestore)
+const INITIAL_PHONE_CODES_DATA: Omit<PhoneCode, 'id'>[] = [
+  {
+    countryId: 'PE',
+    code: '+51',
+    dialCode: '51',
+    priority: 100,
+    isActive: true,
+    example: '987654321'
+  },
+  {
+    countryId: 'US',
+    code: '+1',
+    dialCode: '1',
+    priority: 90,
+    isActive: true,
+    example: '5551234567'
+  },
+  {
+    countryId: 'CO',
+    code: '+57',
+    dialCode: '57',
+    priority: 80,
+    isActive: true,
+    example: '3001234567'
+  }
+];
 export class PhoneCodesService {
   /**
    * Get all phone codes
@@ -47,18 +77,23 @@ export class PhoneCodesService {
         phoneCodes.push(phoneCodeSchema.parse(phoneCode));
       });
 
-      // If no phone codes in Firestore, return mock data
+      // If no phone codes in Firestore, initialize with real data
       if (phoneCodes.length === 0) {
-        return MOCK_PHONE_CODES;
+        logger.info('No phone codes found in Firestore. Initializing with real data...', {
+          component: 'PhoneCodesService',
+          action: 'initializePhoneCodes'
+        });
+        
+        return await this.initializePhoneCodes();
       }
 
       return phoneCodes;
     } catch (error) {
-      logger.error('Error fetching phone codes from Firestore, using mock data', error as Error, {
+      logger.error('Error fetching phone codes from Firestore', error as Error, {
         component: 'PhoneCodesService',
         action: 'getPhoneCodes'
       });
-      return MOCK_PHONE_CODES;
+      throw new Error('Error al obtener códigos telefónicos');
     }
   }
 
@@ -89,19 +124,20 @@ export class PhoneCodesService {
         phoneCodes.push(phoneCodeSchema.parse(phoneCode));
       });
 
-      // If no phone codes in Firestore, return filtered mock data
+      // If no phone codes in Firestore, initialize and return filtered data
       if (phoneCodes.length === 0) {
-        return MOCK_PHONE_CODES.filter(code => code.countryId === countryId);
+        const initializedCodes = await this.initializePhoneCodes();
+        return initializedCodes.filter(code => code.countryId === countryId);
       }
 
       return phoneCodes;
     } catch (error) {
-      logger.error('Error fetching phone codes from Firestore, using mock data', error as Error, {
+      logger.error('Error fetching phone codes from Firestore', error as Error, {
         component: 'PhoneCodesService',
         action: 'getPhoneCodesByCountry',
         metadata: { countryId }
       });
-      return MOCK_PHONE_CODES.filter(code => code.countryId === countryId);
+      throw new Error(`Error al obtener códigos telefónicos para ${countryId}`);
     }
   }
 
@@ -114,28 +150,23 @@ export class PhoneCodesService {
       const phoneCodeSnap = await getDoc(phoneCodeRef);
 
       if (!phoneCodeSnap.exists()) {
-        // Try to find in mock data
-        const mockPhoneCode = MOCK_PHONE_CODES.find(code => code.id === id);
-        return mockPhoneCode || null;
+        return null;
       }
 
       const data = phoneCodeSnap.data();
       const phoneCode = {
         id: phoneCodeSnap.id,
-        ...data,
-        createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(),
-        updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : new Date()
+        ...data
       };
 
       return phoneCodeSchema.parse(phoneCode);
     } catch (error) {
-      logger.error('Error fetching phone code from Firestore, using mock data', error as Error, {
+      logger.error('Error fetching phone code from Firestore', error as Error, {
         component: 'PhoneCodesService',
         action: 'getPhoneCodeById',
         metadata: { phoneCodeId: id }
       });
-      const mockPhoneCode = MOCK_PHONE_CODES.find(code => code.id === id);
-      return mockPhoneCode || null;
+      throw new Error(`Error al obtener código telefónico ${id}`);
     }
   }
 
@@ -212,17 +243,57 @@ export class PhoneCodesService {
         return phoneCodeSchema.parse(phoneCode);
       }
 
-      // Try to find in mock data
-      const mockPhoneCode = MOCK_PHONE_CODES.find(code => code.dialCode === dialCode);
-      return mockPhoneCode || null;
+      return null;
     } catch (error) {
-      logger.error('Error finding phone code by dial code, using mock data', error as Error, {
+      logger.error('Error finding phone code by dial code', error as Error, {
         component: 'PhoneCodesService',
         action: 'findByDialCode',
         metadata: { dialCode }
       });
-      const mockPhoneCode = MOCK_PHONE_CODES.find(code => code.dialCode === dialCode);
-      return mockPhoneCode || null;
+      throw new Error(`Error al buscar código telefónico ${dialCode}`);
+    }
+  }
+
+  /**
+   * Initialize phone codes collection with real data
+   * This runs only once when Firestore collection is empty
+   */
+  private static async initializePhoneCodes(): Promise<PhoneCode[]> {
+    try {
+      logger.info('Initializing phone codes collection with real data...', {
+        component: 'PhoneCodesService',
+        action: 'initializePhoneCodes'
+      });
+
+      const phoneCodesRef = collection(db, 'phoneCodes');
+      const createdCodes: PhoneCode[] = [];
+
+      for (const phoneCodeData of INITIAL_PHONE_CODES_DATA) {
+        const docRef = await addDoc(phoneCodesRef, {
+          ...phoneCodeData,
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        });
+
+        createdCodes.push({
+          id: docRef.id,
+          ...phoneCodeData
+        });
+      }
+
+      logger.info(`Successfully initialized ${createdCodes.length} phone codes`, {
+        component: 'PhoneCodesService',
+        action: 'initializePhoneCodes',
+        metadata: { count: createdCodes.length }
+      });
+
+      return createdCodes;
+    } catch (error) {
+      logger.error('Error initializing phone codes', error as Error, {
+        component: 'PhoneCodesService',
+        action: 'initializePhoneCodes'
+      });
+      throw new Error('Error al inicializar códigos telefónicos');
     }
   }
 }
