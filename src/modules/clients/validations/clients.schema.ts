@@ -1,5 +1,20 @@
 import { z } from 'zod';
 
+// Import enums from types
+import { 
+  ClientStatusEnum, 
+  ClientTypeEnum,
+  GenderEnum,
+  InteractionTypeEnum,
+  TransactionTypeEnum,
+  TransactionStatusEnum,
+  ProjectStatusEnum,
+  QuoteStatusEnum,
+  MeetingStatusEnum,
+  TaskStatusEnum,
+  TaskPriorityEnum
+} from '../types/clients.types';
+
 // Re-export enums from types
 export { ClientTypeEnum, ClientStatusEnum, GenderEnum, InteractionTypeEnum, TransactionTypeEnum, TransactionStatusEnum, ProjectStatusEnum, QuoteStatusEnum, MeetingStatusEnum, TaskStatusEnum, TaskPriorityEnum } from '../types/clients.types';
 
@@ -30,10 +45,10 @@ export const ContactSchema = z.object({
 export const ClientSchema = z.object({
   name: z.string().min(1, 'Nombre es requerido'),
   documentId: z.string().min(1, 'Documento de identidad es requerido'),
-  clientType: z.enum(['PersonaNatural', 'Organización', 'Empresa']),
+  clientType: ClientTypeEnum,
   birthDate: z.date().optional(),
-  gender: z.enum(['Masculino', 'Femenino', 'Otro']).optional(),
-  status: z.enum(['Potencial', 'Activo', 'Inactivo']),
+  gender: GenderEnum.optional(),
+  status: ClientStatusEnum,
   tags: z.array(z.string()),
   source: z.string().optional(),
   communicationOptIn: z.boolean(),
@@ -73,23 +88,23 @@ export const ClientSchema = z.object({
 
 // Interaction Schema
 export const InteractionSchema = z.object({
-  type: z.enum(['Llamada', 'Email', 'Reunión', 'Visita', 'Otro']),
+  type: InteractionTypeEnum,
   date: z.date(),
   notes: z.string().min(1, 'Notas son requeridas'),
 });
 
 // Transaction Schema
 export const TransactionSchema = z.object({
-  type: z.enum(['Factura', 'Pago']),
+  type: TransactionTypeEnum,
   amount: z.number().positive('Monto debe ser positivo'),
-  status: z.enum(['Pendiente', 'Pagada', 'Vencida']),
+  status: TransactionStatusEnum,
   dueDate: z.date().optional(),
 });
 
 // Project Schema
 export const ProjectSchema = z.object({
   name: z.string().min(1, 'Nombre es requerido'),
-  status: z.enum(['Planificación', 'EnProgreso', 'Completado', 'Cancelado']),
+  status: ProjectStatusEnum,
   progress: z.number().min(0).max(100),
   startDate: z.date(),
   endDate: z.date().optional(),
@@ -100,7 +115,7 @@ export const QuoteSchema = z.object({
   number: z.string().min(1, 'Número es requerido'),
   date: z.date(),
   estimatedAmount: z.number().positive('Monto estimado debe ser positivo'),
-  status: z.enum(['Borrador', 'Enviada', 'Aceptada', 'Rechazada']),
+  status: QuoteStatusEnum,
 });
 
 // Meeting Schema
@@ -108,15 +123,15 @@ export const MeetingSchema = z.object({
   date: z.date(),
   attendees: z.array(z.string()).min(1, 'Al menos un asistente es requerido'),
   duration: z.number().positive('Duración debe ser positiva'),
-  status: z.enum(['Programada', 'Realizada', 'Cancelada']),
+  status: MeetingStatusEnum,
   notes: z.string().optional(),
 });
 
 // Task Schema
 export const TaskSchema = z.object({
   title: z.string().min(1, 'Título es requerido'),
-  status: z.enum(['Pendiente', 'EnProgreso', 'Completada', 'Cancelada']),
-  priority: z.enum(['Baja', 'Media', 'Alta', 'Urgente']),
+  status: TaskStatusEnum,
+  priority: TaskPriorityEnum,
   dueDate: z.date().optional(),
   assignedTo: z.string().optional(),
 });
@@ -130,8 +145,8 @@ export const ContactFormSchema = ContactSchema.omit({ isPrimary: true });
 
 // Filter Schemas
 export const ClientFiltersSchema = z.object({
-  clientType: z.enum(['PersonaNatural', 'Organización', 'Empresa']).optional(),
-  status: z.enum(['Potencial', 'Activo', 'Inactivo']).optional(),
+  clientType: ClientTypeEnum.optional(),
+  status: ClientStatusEnum.optional(),
   tags: z.array(z.string()).optional(),
   source: z.string().optional(),
 });

@@ -23,7 +23,7 @@ export const useClientForm = ({ clientId, onSuccess, onError }: UseClientFormOpt
       clientType: 'PersonaNatural',
       birthDate: undefined,
       gender: undefined,
-      status: 'Potencial',
+      status: 'Prospecto',
       tags: [],
       source: '',
       communicationOptIn: false,

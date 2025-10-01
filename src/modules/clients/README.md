@@ -73,7 +73,7 @@ clients/
 interface Client {
   id: string;
   type: ClientType; // 'PersonaNatural' | 'Empresa' | 'Organización'
-  status: ClientStatus; // 'Potencial' | 'Activo' | 'Inactivo'
+  status: ClientStatus; // 'Prospecto' | 'Activo' | 'Inactivo'
   
   // Información básica
   firstName?: string;

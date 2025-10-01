@@ -13,7 +13,7 @@ export const getStatusColor = (status: string): string => {
   }
 
   const colors: Record<string, string> = {
-    Potencial: 'bg-yellow-100 text-yellow-800',
+    Prospecto: 'bg-yellow-100 text-yellow-800',
     Activo: 'bg-green-100 text-green-800',
     Inactivo: 'bg-gray-100 text-gray-800',
     Pendiente: 'bg-orange-100 text-orange-800',

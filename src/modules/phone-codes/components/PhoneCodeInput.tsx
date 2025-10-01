@@ -32,7 +32,7 @@ export const PhoneCodeInput = forwardRef<HTMLInputElement, PhoneCodeInputProps>(
 
     return (
       <div className="flex gap-2">
-        <div className="w-48">
+        <div className="w-48 min-w-[192px]">
           <CountriesSelect
             value={countryId}
             onValueChange={onCountryChange || (() => {})}
@@ -47,7 +47,7 @@ export const PhoneCodeInput = forwardRef<HTMLInputElement, PhoneCodeInputProps>(
           onChange={(e) => handlePhoneChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled || !countryId}
-          className="flex-1"
+          className="flex-1 min-w-0"
         />
       </div>
     );

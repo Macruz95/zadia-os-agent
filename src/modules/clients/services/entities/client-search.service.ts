@@ -66,7 +66,7 @@ export class ClientSearchService {
     
     // Validate and sanitize status
     if (status) {
-      const validStatuses = ['Potencial', 'Activo', 'Inactivo'];
+      const validStatuses = ['Prospecto', 'Activo', 'Inactivo'];
       if (!validStatuses.includes(status)) {
         throw new Error('Invalid status filter');
       }
