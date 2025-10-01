@@ -34,7 +34,7 @@ export function OpportunitiesKanban() {
       setOpportunities(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error loading opportunities:', error);
+      console.error('Error loading opportunities', error);
       toast.error('Error al cargar oportunidades');
       setLoading(false);
     }
@@ -86,7 +86,7 @@ export function OpportunitiesKanban() {
       );
       toast.success('Etapa actualizada correctamente');
     } catch (error) {
-      console.error('Error updating stage:', error);
+      console.error('Error updating opportunity stage', error);
       toast.error('Error al actualizar la etapa');
     }
   };

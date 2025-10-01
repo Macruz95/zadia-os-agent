@@ -11,19 +11,19 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { logger } from '@/lib/logger';
 import { Department, departmentSchema } from '../types/departments.types';
-import { MOCK_DEPARTMENTS } from '../mock-departments';
+import { MASTER_DEPARTMENTS } from '@/modules/geographical/data';
 
 /**
- * ⚠️ CRÍTICO: NO MODIFICAR - SISTEMA DE DIRECCIONES FUNCIONA PERFECTO
- * ⚠️ Si tocas este archivo se rompe todo el sistema de direcciones
  * Departments Service
- * Handles department CRUD operations with Firebase Firestore
+ * Handles department operations with Firebase Firestore and master data fallback
  */
 export class DepartmentsService {
 
   /**
    * Get all active departments
+   * Uses Firestore first, falls back to master data if empty
    */
   static async getDepartments(): Promise<Department[]> {
     try {
@@ -44,15 +44,18 @@ export class DepartmentsService {
         departments.push(departmentSchema.parse(department));
       });
 
-      // If no departments in Firestore, return mock data
+      // If no departments in Firestore, return master data
       if (departments.length === 0) {
-        return MOCK_DEPARTMENTS;
+        return MASTER_DEPARTMENTS;
       }
 
       return departments;
     } catch (error) {
-      console.warn('Error fetching departments from Firestore, using mock data:', error);
-      return MOCK_DEPARTMENTS;
+      logger.error('Error fetching departments from Firestore, using master data', error as Error, {
+        component: 'DepartmentsService',
+        action: 'getDepartments'
+      });
+      return MASTER_DEPARTMENTS;
     }
   }
 
@@ -83,15 +86,14 @@ export class DepartmentsService {
         departments.push(departmentSchema.parse(department));
       });
 
-      // If no departments in Firestore, return mock data filtered by country
+      // If no departments in Firestore, return master data filtered by country
       if (departments.length === 0) {
-        return MOCK_DEPARTMENTS.filter(dept => dept.countryId === countryId);
+        return MASTER_DEPARTMENTS.filter(dept => dept.countryId === countryId);
       }
 
       return departments;
-    } catch (error) {
-      console.warn('Error fetching departments from Firestore, using mock data:', error);
-      return MOCK_DEPARTMENTS.filter(dept => dept.countryId === countryId);
+    } catch {
+      return MASTER_DEPARTMENTS.filter(dept => dept.countryId === countryId);
     }
   }
 
@@ -104,9 +106,9 @@ export class DepartmentsService {
       const departmentSnap = await getDoc(departmentRef);
 
       if (!departmentSnap.exists()) {
-        // Try to find in mock data
-        const mockDepartment = MOCK_DEPARTMENTS.find(dept => dept.id === id);
-        return mockDepartment || null;
+        // Try to find in master data
+        const masterDepartment = MASTER_DEPARTMENTS.find(dept => dept.id === id);
+        return masterDepartment || null;
       }
 
       const data = departmentSnap.data();
@@ -119,9 +121,13 @@ export class DepartmentsService {
 
       return departmentSchema.parse(department);
     } catch (error) {
-      console.warn('Error fetching department from Firestore, using mock data:', error);
-      const mockDepartment = MOCK_DEPARTMENTS.find(dept => dept.id === id);
-      return mockDepartment || null;
+      logger.error('Error fetching department from Firestore, using master data', error as Error, {
+        component: 'DepartmentsService',
+        action: 'getDepartmentById',
+        metadata: { departmentId: id }
+      });
+      const masterDepartment = MASTER_DEPARTMENTS.find(dept => dept.id === id);
+      return masterDepartment || null;
     }
   }
 

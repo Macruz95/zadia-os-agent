@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -59,7 +60,10 @@ export function CountriesDirectory() {
       await createCountry(data);
       setIsCreateDialogOpen(false);
     } catch (error) {
-      console.error('Error creating country:', error);
+      logger.error('Error creating country', error as Error, {
+        component: 'CountriesDirectory',
+        action: 'handleCreateCountry'
+      });
     }
   };
 
@@ -76,7 +80,10 @@ export function CountriesDirectory() {
       setIsEditDialogOpen(false);
       setSelectedCountry(null);
     } catch (error) {
-      console.error('Error updating country:', error);
+      logger.error('Error updating country', error as Error, {
+        component: 'CountriesDirectory',
+        action: 'handleUpdateCountry'
+      });
     }
   };
 
@@ -85,7 +92,11 @@ export function CountriesDirectory() {
       try {
         await deleteCountry(countryId);
       } catch (error) {
-        console.error('Error deleting country:', error);
+        logger.error('Error deleting country', error as Error, {
+          component: 'CountriesDirectory',
+          action: 'handleDeleteCountry',
+          metadata: { countryId }
+        });
       }
     }
   };

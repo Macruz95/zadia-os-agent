@@ -1,4 +1,5 @@
 import { db } from '../../../../lib/firebase';
+import { logger } from '../../../../lib/logger';
 import {
   collection,
   doc,
@@ -60,12 +61,13 @@ export class ContactsService {
 
       return contacts;
     } catch (error) {
-      console.error('❌ Error getting contacts by client:', error);
-      console.error('❌ Error details:', {
-        clientId,
-        collection: CONTACTS_COLLECTION,
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+      logger.error('Error getting contacts by client', error as Error, {
+        component: 'ContactsService',
+        action: 'getContactsByClient',
+        metadata: {
+          clientId,
+          collection: CONTACTS_COLLECTION
+        }
       });
       throw error;
     }

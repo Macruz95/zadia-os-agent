@@ -7,6 +7,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { useRouter } from 'next/navigation';
 import { QuotesPageHeader } from './QuotesPageHeader';
 import { QuotesKPICards } from './QuotesKPICards';
@@ -29,7 +30,10 @@ export function QuotesDirectory() {
         const data = await QuotesService.getQuotes();
         setQuotes(data);
       } catch (error) {
-        console.error('Error loading quotes:', error);
+        logger.error('Error loading quotes', error as Error, {
+          component: 'QuotesDirectory',
+          action: 'fetchQuotes'
+        });
         toast.error('Error al cargar cotizaciones');
       }
     };

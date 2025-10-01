@@ -27,7 +27,6 @@ export const phoneCodeFormSchema = z.object({
     .number()
     .min(1, 'La prioridad debe ser al menos 1')
     .max(10, 'La prioridad no puede exceder 10')
-    .default(1)
 });
 
 // Phone number validation schema

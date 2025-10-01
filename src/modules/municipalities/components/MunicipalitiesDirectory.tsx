@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -72,7 +73,10 @@ export function MunicipalitiesDirectory({ departmentId, departmentName }: Munici
       await createMunicipality(data);
       setIsCreateDialogOpen(false);
     } catch (error) {
-      console.error('Error creating municipality:', error);
+      logger.error('Error creating municipality', error as Error, {
+        component: 'MunicipalitiesDirectory',
+        action: 'handleCreateMunicipality'
+      });
     }
   };
 
@@ -89,7 +93,10 @@ export function MunicipalitiesDirectory({ departmentId, departmentName }: Munici
       setIsEditDialogOpen(false);
       setSelectedMunicipality(null);
     } catch (error) {
-      console.error('Error updating municipality:', error);
+      logger.error('Error updating municipality', error as Error, {
+        component: 'MunicipalitiesDirectory',
+        action: 'handleUpdateMunicipality'
+      });
     }
   };
 
@@ -98,7 +105,10 @@ export function MunicipalitiesDirectory({ departmentId, departmentName }: Munici
       try {
         await deleteMunicipality(municipalityId);
       } catch (error) {
-        console.error('Error deleting municipality:', error);
+        logger.error('Error deleting municipality', error as Error, {
+          component: 'MunicipalitiesDirectory',
+          action: 'handleDeleteMunicipality'
+        });
       }
     }
   };

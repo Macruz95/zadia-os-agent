@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Check } from 'lucide-react';
+import { logger } from '@/lib/logger';
 import { Card, CardContent } from '@/components/ui/card';
 import { ClientFormData } from '../../validations/clients.schema';
 import { getClientTypeDisplay } from '../../utils/display.utils';
@@ -57,7 +58,10 @@ export function ReviewStep({ form }: ReviewStepProps) {
           setDistrictName(district?.name || formData.address.district);
         }
       } catch (error) {
-        console.error('Error loading names:', error);
+        logger.error('Error loading location names', error as Error, {
+          component: 'ReviewStep',
+          action: 'loadNames'
+        });
         // En caso de error, mostrar los IDs
         setCountryName(formData.address.country);
         setDepartmentName(formData.address.state);

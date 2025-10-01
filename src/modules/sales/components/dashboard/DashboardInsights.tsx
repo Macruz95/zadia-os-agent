@@ -50,7 +50,7 @@ export function DashboardInsights({
           
           setRecentOpportunities(recentWins);
         } catch (oppError) {
-          console.warn('Could not fetch opportunities:', oppError);
+          console.warn('Could not fetch opportunities', oppError);
           setRecentOpportunities([]);
         }
 
@@ -69,11 +69,11 @@ export function DashboardInsights({
           
           setHighPriorityLeads(urgentLeads);
         } catch (leadsError) {
-          console.warn('Could not fetch leads, using empty state:', leadsError);
+          console.warn('Could not fetch leads, using empty state', leadsError);
           setHighPriorityLeads([]);
         }
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error('Error fetching dashboard data', error);
       } finally {
         setLoading(false);
       }

@@ -4,6 +4,12 @@ const nextConfig: NextConfig = {
   // Fix Next.js workspace root warning
   outputFileTracingRoot: __dirname,
   
+  // ESLint configuration for Next.js plugin detection
+  eslint: {
+    dirs: ['src'],
+    ignoreDuringBuilds: false,
+  },
+  
   // Enable experimental features for better performance
   experimental: {
     optimizeServerReact: true,
@@ -41,11 +47,6 @@ const nextConfig: NextConfig = {
   // TypeScript configuration
   typescript: {
     ignoreBuildErrors: false,
-  },
-  
-  // ESLint configuration
-  eslint: {
-    ignoreDuringBuilds: false,
   },
   
   // Disable server-side compilation for specific modules that cause issues

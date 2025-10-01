@@ -7,6 +7,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SalesAnalyticsService } from '../../services/analytics.service';
 import type { SalesAnalyticsData } from '../../services/analytics.service';
@@ -32,7 +33,10 @@ export function SalesAnalytics() {
         const data = await SalesAnalyticsService.getSalesAnalytics();
         setAnalyticsData(data);
       } catch (error) {
-        console.error('Error loading analytics:', error);
+        logger.error('Error loading sales analytics', error as Error, {
+          component: 'SalesAnalytics',
+          action: 'fetchAnalytics'
+        });
         toast.error('Error al cargar analytics');
       } finally {
         setLoading(false);
@@ -68,7 +72,7 @@ export function SalesAnalytics() {
     );
   }
 
-  const { overview, monthlyRevenue, pipelineByStage, leadsBySource, salesPerformance } = analyticsData;
+  const { overview, monthlyRevenue, pipelineStages, leadSources, salesPerformance } = analyticsData;
 
   return (
     <div className="space-y-6">
@@ -89,11 +93,11 @@ export function SalesAnalytics() {
         </TabsContent>
 
         <TabsContent value="pipeline" className="space-y-6">
-          <PipelineTab pipelineByStage={pipelineByStage} />
+          <PipelineTab pipelineByStage={pipelineStages} />
         </TabsContent>
 
         <TabsContent value="sources" className="space-y-6">
-          <SourcesTab leadsBySource={leadsBySource} />
+          <SourcesTab leadsBySource={leadSources} />
         </TabsContent>
 
         <TabsContent value="team" className="space-y-6">

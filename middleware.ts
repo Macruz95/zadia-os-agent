@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { isProtectedRoute, isAuthRoute } from '@/config/routes.config';
 
 /**
  * Enhanced Middleware for ZADIA OS
@@ -8,26 +9,22 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   
-  // Define protected routes that require authentication
-  const protectedRoutes = ['/dashboard', '/profile', '/settings', '/admin'];
-  const authRoutes = ['/login', '/register', '/forgot-password', '/google-complete'];
-  
-  // Check if current path is a protected route
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
+  // Check if current path is a protected or auth route
+  const isProtected = isProtectedRoute(pathname);
+  const isAuth = isAuthRoute(pathname);
   
   // Get authentication token from cookies
   const authToken = request.cookies.get('auth-token')?.value;
   
   // If accessing protected route without token, redirect to login
-  if (isProtectedRoute && !authToken) {
+  if (isProtected && !authToken) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
   
   // If user is authenticated and tries to access auth pages, redirect to dashboard
-  if (isAuthRoute && authToken) {
+  if (isAuth && authToken) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
   

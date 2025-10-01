@@ -2,6 +2,7 @@
  * Hook for formatting addresses with real location data
  */
 import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { formatFullAddressAsync } from '../utils/location.utils';
 import type { Address } from '../types/clients.types';
 
@@ -16,7 +17,10 @@ export const useFormattedAddress = (address: Address) => {
         const formatted = await formatFullAddressAsync(address);
         setFormattedAddress(formatted);
       } catch (error) {
-        console.error('Error formatting address:', error);
+        logger.error('Error formatting address', error as Error, {
+          component: 'use-formatted-address',
+          action: 'formatAddress'
+        });
         // Fallback to basic formatting
         const fallback = [
           address.street,

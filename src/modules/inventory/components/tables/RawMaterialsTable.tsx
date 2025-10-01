@@ -1,5 +1,6 @@
 'use client';
 
+import { logger } from '@/lib/logger';
 import { RawMaterial, FinishedProduct } from '../../types/inventory.types';
 import { InventoryTable } from '../InventoryTable';
 
@@ -16,17 +17,29 @@ export function RawMaterialsTable({
 }: RawMaterialsTableProps) {
   const handleDeleteItem = (item: RawMaterial | FinishedProduct) => {
     // TODO: Implement delete functionality
-    console.log('Delete raw material:', item as RawMaterial);
+    logger.info('Delete raw material action triggered', {
+      component: 'RawMaterialsTable',
+      action: 'handleDeleteItem',
+      metadata: { itemId: (item as RawMaterial).id }
+    });
   };
 
   const handleEditItem = (item: RawMaterial | FinishedProduct) => {
     // TODO: Implement edit functionality
-    console.log('Edit raw material:', item as RawMaterial);
+    logger.info('Edit raw material action triggered', {
+      component: 'RawMaterialsTable',
+      action: 'handleEditItem',
+      metadata: { itemId: (item as RawMaterial).id }
+    });
   };
 
   const handleItemSelect = (item: RawMaterial | FinishedProduct) => {
     // TODO: Implement item selection
-    console.log('Select raw material:', item as RawMaterial);
+    logger.info('Raw material selected', {
+      component: 'RawMaterialsTable',
+      action: 'handleItemSelect',
+      metadata: { itemId: (item as RawMaterial).id }
+    });
   };
 
   return (

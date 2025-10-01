@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -64,7 +65,10 @@ export function DepartmentsDirectory() {
       await createDepartment(data);
       setIsCreateDialogOpen(false);
     } catch (error) {
-      console.error('Error creating department:', error);
+      logger.error('Error creating department', error as Error, {
+        component: 'DepartmentsDirectory',
+        action: 'handleCreateDepartment'
+      });
     }
   };
 
@@ -81,7 +85,10 @@ export function DepartmentsDirectory() {
       setIsEditDialogOpen(false);
       setSelectedDepartment(null);
     } catch (error) {
-      console.error('Error updating department:', error);
+      logger.error('Error updating department', error as Error, {
+        component: 'DepartmentsDirectory',
+        action: 'handleUpdateDepartment'
+      });
     }
   };
 
@@ -90,7 +97,10 @@ export function DepartmentsDirectory() {
       try {
         await deleteDepartment(departmentId);
       } catch (error) {
-        console.error('Error deleting department:', error);
+        logger.error('Error deleting department', error as Error, {
+          component: 'DepartmentsDirectory',
+          action: 'handleDeleteDepartment'
+        });
       }
     }
   };

@@ -7,6 +7,7 @@
 'use client';
 
 import { useState } from 'react';
+import { logger } from '@/lib/logger';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -77,7 +78,10 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
-      console.error('Error creating lead:', error);
+      logger.error('Error creating lead', error as Error, {
+        component: 'CreateLeadDialog',
+        action: 'handleSubmit'
+      });
       toast.error('Error al crear el lead');
     } finally {
       setLoading(false);

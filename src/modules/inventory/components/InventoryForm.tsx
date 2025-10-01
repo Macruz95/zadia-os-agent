@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { logger } from '@/lib/logger';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -100,7 +101,10 @@ export function InventoryForm({
     try {
       await onSubmit(data);
     } catch (error) {
-      console.error('Error submitting form:', error);
+      logger.error('Error submitting inventory form', error as Error, {
+        component: 'InventoryForm',
+        action: 'handleFormSubmit'
+      });
     }
   };
 

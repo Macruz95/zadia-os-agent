@@ -4,7 +4,7 @@
  * Common utility functions for sales module
  */
 
-import { Lead, Opportunity, Quote } from '../types/sales.types';
+import { Lead, Opportunity } from '../types/sales.types';
 import { LeadStatus, OpportunityStage, QuoteStatus } from '../types/sales.types';
 
 /**

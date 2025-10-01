@@ -1,5 +1,6 @@
 'use client';
 
+import { logger } from '@/lib/logger';
 import { RawMaterial, FinishedProduct } from '../../types/inventory.types';
 import { InventoryTable } from '../InventoryTable';
 
@@ -16,17 +17,29 @@ export function FinishedProductsTable({
 }: FinishedProductsTableProps) {
   const handleDeleteItem = (item: RawMaterial | FinishedProduct) => {
     // TODO: Implement delete functionality
-    console.log('Delete finished product:', item as FinishedProduct);
+    logger.info('Delete finished product action triggered', {
+      component: 'FinishedProductsTable',
+      action: 'handleDeleteItem',
+      metadata: { itemId: (item as FinishedProduct).id }
+    });
   };
 
   const handleEditItem = (item: RawMaterial | FinishedProduct) => {
     // TODO: Implement edit functionality
-    console.log('Edit finished product:', item as FinishedProduct);
+    logger.info('Edit finished product action triggered', {
+      component: 'FinishedProductsTable',
+      action: 'handleEditItem',
+      metadata: { itemId: (item as FinishedProduct).id }
+    });
   };
 
   const handleItemSelect = (item: RawMaterial | FinishedProduct) => {
     // TODO: Implement item selection
-    console.log('Select finished product:', item as FinishedProduct);
+    logger.info('Finished product selected', {
+      component: 'FinishedProductsTable',
+      action: 'handleItemSelect',
+      metadata: { itemId: (item as FinishedProduct).id }
+    });
   };
 
   return (

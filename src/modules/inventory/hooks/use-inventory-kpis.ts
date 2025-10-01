@@ -69,7 +69,10 @@ export function useInventoryKPIs(): UseInventoryKPIsReturn {
       setCategoryData(categoryBreakdown);
       
     } catch (err) {
-      console.error('Error in refreshKPIs:', err);
+      logger.error('Error refreshing inventory KPIs', err as Error, {
+        component: 'use-inventory-kpis',
+        action: 'refreshKPIs'
+      });
       const errorMessage = 'Error al calcular KPIs de inventario';
       setError(errorMessage);
       logger.error('Error calculating inventory KPIs:', err as Error);

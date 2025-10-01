@@ -7,7 +7,6 @@
 import { useState, useCallback } from 'react';
 import { InventoryMovement } from '../types/inventory.types';
 import { InventoryMovementsService } from '../services/entities/inventory-movements-entity.service';
-import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/lib/logger';
 
 interface UseInventoryMovementsReturn {
@@ -22,7 +21,6 @@ interface UseInventoryMovementsReturn {
 }
 
 export function useInventoryMovements(): UseInventoryMovementsReturn {
-  const { user } = useAuth();
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();

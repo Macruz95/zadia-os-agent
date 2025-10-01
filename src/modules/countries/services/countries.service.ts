@@ -11,8 +11,9 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { logger } from '@/lib/logger';
 import { Country, countrySchema } from '../types/countries.types';
-import { MOCK_COUNTRIES } from '../data/mock-countries';
+import { MASTER_COUNTRIES } from '@/modules/geographical/data';
 
 /**
  * ⚠️ CRÍTICO: NO MODIFICAR - SISTEMA DE DIRECCIONES FUNCIONA PERFECTO
@@ -33,8 +34,11 @@ export class CountriesService {
 
       // If no countries in Firestore, return mock data
       if (querySnapshot.empty) {
-        console.warn('No countries found in Firestore, using mock data');
-        return MOCK_COUNTRIES;
+        logger.warn('No countries found in Firestore, using master data', {
+          component: 'CountriesService',
+          action: 'getCountries'
+        });
+        return MASTER_COUNTRIES;
       }
 
       const countries: Country[] = [];
@@ -52,14 +56,21 @@ export class CountriesService {
         if (validationResult.success) {
           countries.push(validationResult.data);
         } else {
-          console.warn('Invalid country data format:', validationResult.error.message);
+          logger.warn('Invalid country data format', {
+            component: 'CountriesService',
+            action: 'getCountries',
+            metadata: { error: validationResult.error.message }
+          });
         }
       });
 
       return countries;
     } catch (error) {
-      console.warn('Error fetching countries from Firestore, using mock data:', error);
-      return MOCK_COUNTRIES;
+      logger.error('Error fetching countries from Firestore, using master data', error as Error, {
+        component: 'CountriesService',
+        action: 'getCountries'
+      });
+      return MASTER_COUNTRIES;
     }
   }
 

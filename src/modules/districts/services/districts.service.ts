@@ -11,8 +11,9 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { logger } from '@/lib/logger';
 import { District, districtSchema } from '../types/districts.types';
-import { MOCK_DISTRICTS } from '../mock-districts';
+import { MASTER_DISTRICTS_SV } from '@/modules/geographical/data';
 
 /**
  * ⚠️ CRÍTICO: NO MODIFICAR - SISTEMA DE DIRECCIONES FUNCIONA PERFECTO
@@ -47,15 +48,19 @@ export class DistrictsService {  /**
         districts.push(districtSchema.parse(district));
       });
 
-      // If no districts in Firestore, return mock data filtered by municipality
+      // If no districts in Firestore, return master data filtered by municipality
       if (districts.length === 0) {
-        return MOCK_DISTRICTS.filter(district => district.municipalityId === municipalityId);
+        return MASTER_DISTRICTS_SV.filter(district => district.municipalityId === municipalityId);
       }
 
       return districts;
     } catch (error) {
-      console.warn('Error fetching districts from Firestore, using mock data:', error);
-      return MOCK_DISTRICTS.filter(district => district.municipalityId === municipalityId);
+      logger.error('Error fetching districts from Firestore, using master data', error as Error, {
+        component: 'DistrictsService',
+        action: 'getDistrictsByMunicipality',
+        metadata: { municipalityId }
+      });
+      return MASTER_DISTRICTS_SV.filter(district => district.municipalityId === municipalityId);
     }
   }
 
@@ -68,9 +73,9 @@ export class DistrictsService {  /**
       const districtSnap = await getDoc(districtRef);
 
       if (!districtSnap.exists()) {
-        // Try to find in mock data
-        const mockDistrict = MOCK_DISTRICTS.find(district => district.id === id);
-        return mockDistrict || null;
+        // Try to find in master data
+        const masterDistrict = MASTER_DISTRICTS_SV.find(district => district.id === id);
+        return masterDistrict || null;
       }
 
       const data = districtSnap.data();
@@ -83,9 +88,13 @@ export class DistrictsService {  /**
 
       return districtSchema.parse(district);
     } catch (error) {
-      console.warn('Error fetching district from Firestore, using mock data:', error);
-      const mockDistrict = MOCK_DISTRICTS.find(district => district.id === id);
-      return mockDistrict || null;
+      logger.error('Error fetching district from Firestore, using master data', error as Error, {
+        component: 'DistrictsService',
+        action: 'getDistrictById',
+        metadata: { districtId: id }
+      });
+      const masterDistrict = MASTER_DISTRICTS_SV.find(district => district.id === id);
+      return masterDistrict || null;
     }
   }
 

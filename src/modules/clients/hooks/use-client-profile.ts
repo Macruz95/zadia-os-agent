@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 import { ClientProfileState } from '../types/clients.types';
 import {
   getClient,
@@ -46,14 +47,18 @@ export const useClientProfile = (clientId: string | null) => {
         loading: false,
       });
     } catch (error) {
-      console.error('❌ Error loading client profile:', error);
+      logger.error('Error loading client profile', error as Error, {
+        component: 'use-client-profile',
+        action: 'loadProfile',
+        metadata: { clientId }
+      });
       setState(prev => ({
         ...prev,
         loading: false,
         error: error instanceof Error ? error.message : 'Error al cargar perfil del cliente',
       }));
     }
-  }, []);
+  }, [clientId]);
 
   const refresh = useCallback(() => {
     if (clientId) {

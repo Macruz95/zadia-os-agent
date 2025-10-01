@@ -11,8 +11,9 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { logger } from '@/lib/logger';
 import { Municipality, municipalitySchema } from '../types/municipalities.types';
-import { MOCK_MUNICIPALITIES } from '../mock-municipalities';
+import { MASTER_MUNICIPALITIES_SV } from '@/modules/geographical/data';
 
 /**
  * ⚠️ CRÍTICO: NO MODIFICAR - SISTEMA DE DIRECCIONES FUNCIONA PERFECTO
@@ -49,15 +50,20 @@ export class MunicipalitiesService {
         municipalities.push(municipalitySchema.parse(municipality));
       });
 
-      // If no municipalities in Firestore, return mock data filtered by department
+      // If no municipalities in Firestore, return master data filtered by department
       if (municipalities.length === 0) {
-        const filtered = MOCK_MUNICIPALITIES.filter(mun => mun.departmentId === departmentId);
+        const filtered = MASTER_MUNICIPALITIES_SV.filter(mun => mun.departmentId === departmentId);
         return filtered;
       }
 
       return municipalities;
-    } catch {
-      const filtered = MOCK_MUNICIPALITIES.filter(mun => mun.departmentId === departmentId);
+    } catch (error) {
+      logger.error('Error fetching municipalities from Firestore, using master data', error as Error, {
+        component: 'MunicipalitiesService',
+        action: 'getMunicipalitiesByDepartment',
+        metadata: { departmentId }
+      });
+      const filtered = MASTER_MUNICIPALITIES_SV.filter(mun => mun.departmentId === departmentId);
       return filtered;
     }
   }
@@ -71,9 +77,9 @@ export class MunicipalitiesService {
       const municipalitySnap = await getDoc(municipalityRef);
 
       if (!municipalitySnap.exists()) {
-        // Try to find in mock data
-        const mockMunicipality = MOCK_MUNICIPALITIES.find(mun => mun.id === id);
-        return mockMunicipality || null;
+        // Try to find in master data
+        const masterMunicipality = MASTER_MUNICIPALITIES_SV.find(mun => mun.id === id);
+        return masterMunicipality || null;
       }
 
       const data = municipalitySnap.data();
@@ -86,9 +92,13 @@ export class MunicipalitiesService {
 
       return municipalitySchema.parse(municipality);
     } catch (error) {
-      console.warn('Error fetching municipality from Firestore, using mock data:', error);
-      const mockMunicipality = MOCK_MUNICIPALITIES.find(mun => mun.id === id);
-      return mockMunicipality || null;
+      logger.error('Error fetching municipality from Firestore, using master data', error as Error, {
+        component: 'MunicipalitiesService',
+        action: 'getMunicipalityById',
+        metadata: { municipalityId: id }
+      });
+      const masterMunicipality = MASTER_MUNICIPALITIES_SV.find(mun => mun.id === id);
+      return masterMunicipality || null;
     }
   }
 

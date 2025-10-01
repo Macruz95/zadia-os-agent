@@ -7,6 +7,7 @@
 'use client';
 
 import { useState } from 'react';
+import { logger } from '@/lib/logger';
 import {
   Dialog,
   DialogContent,
@@ -107,7 +108,10 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
-      console.error('Error creating lead:', error);
+      logger.error('Error creating lead', error as Error, {
+        component: 'CreateLeadDialogSimple',
+        action: 'handleSubmit'
+      });
       toast.error('Error al crear el lead');
     } finally {
       setLoading(false);

@@ -59,7 +59,7 @@ export function LeadsDirectory() {
       toast.success('Lead convertido exitosamente');
       // TODO: Redirect to conversion wizard
     } catch (error) {
-      console.error('Error converting lead:', error);
+      console.error('Error converting lead', error);
       toast.error('Error al convertir lead');
     }
   };
@@ -72,7 +72,7 @@ export function LeadsDirectory() {
         toast.success('Lead descalificado');
       }
     } catch (error) {
-      console.error('Error disqualifying lead:', error);
+      console.error('Error disqualifying lead', error);
       toast.error('Error al descalificar lead');
     }
   };

@@ -11,6 +11,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { logger } from '@/lib/logger';
 import { PhoneCode, phoneCodeSchema } from '../types/phone-codes.types';
 import { MOCK_PHONE_CODES } from '../mock-phone-codes';
 
@@ -53,7 +54,10 @@ export class PhoneCodesService {
 
       return phoneCodes;
     } catch (error) {
-      console.warn('Error fetching phone codes from Firestore, using mock data:', error);
+      logger.error('Error fetching phone codes from Firestore, using mock data', error as Error, {
+        component: 'PhoneCodesService',
+        action: 'getPhoneCodes'
+      });
       return MOCK_PHONE_CODES;
     }
   }
@@ -92,7 +96,11 @@ export class PhoneCodesService {
 
       return phoneCodes;
     } catch (error) {
-      console.warn('Error fetching phone codes from Firestore, using mock data:', error);
+      logger.error('Error fetching phone codes from Firestore, using mock data', error as Error, {
+        component: 'PhoneCodesService',
+        action: 'getPhoneCodesByCountry',
+        metadata: { countryId }
+      });
       return MOCK_PHONE_CODES.filter(code => code.countryId === countryId);
     }
   }
@@ -121,7 +129,11 @@ export class PhoneCodesService {
 
       return phoneCodeSchema.parse(phoneCode);
     } catch (error) {
-      console.warn('Error fetching phone code from Firestore, using mock data:', error);
+      logger.error('Error fetching phone code from Firestore, using mock data', error as Error, {
+        component: 'PhoneCodesService',
+        action: 'getPhoneCodeById',
+        metadata: { phoneCodeId: id }
+      });
       const mockPhoneCode = MOCK_PHONE_CODES.find(code => code.id === id);
       return mockPhoneCode || null;
     }
@@ -204,7 +216,11 @@ export class PhoneCodesService {
       const mockPhoneCode = MOCK_PHONE_CODES.find(code => code.dialCode === dialCode);
       return mockPhoneCode || null;
     } catch (error) {
-      console.warn('Error finding phone code by dial code, using mock data:', error);
+      logger.error('Error finding phone code by dial code, using mock data', error as Error, {
+        component: 'PhoneCodesService',
+        action: 'findByDialCode',
+        metadata: { dialCode }
+      });
       const mockPhoneCode = MOCK_PHONE_CODES.find(code => code.dialCode === dialCode);
       return mockPhoneCode || null;
     }

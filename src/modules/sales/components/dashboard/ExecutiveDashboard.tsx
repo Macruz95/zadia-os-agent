@@ -7,6 +7,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { useRouter } from 'next/navigation';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardKPICards } from './DashboardKPICards';
@@ -27,7 +28,10 @@ export function ExecutiveDashboard() {
         const data = await SalesAnalyticsService.getSalesAnalytics();
         setAnalyticsData(data);
       } catch (error) {
-        console.error('Error loading dashboard data:', error);
+        logger.error('Error loading executive dashboard data', error as Error, {
+          component: 'ExecutiveDashboard',
+          action: 'fetchData'
+        });
         toast.error('Error al cargar datos del dashboard');
       } finally {
         setLoading(false);

@@ -5,4 +5,3 @@ export { useMunicipalities } from './hooks/use-municipalities';
 export * from './types/municipalities.types';
 export * from './validations/municipalities.schema';
 export * from './utils/municipalities.utils';
-export { MOCK_MUNICIPALITIES } from './mock-municipalities';

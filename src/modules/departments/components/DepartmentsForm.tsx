@@ -5,12 +5,11 @@
  */
 
 import React from 'react';
+import { logger } from '@/lib/logger';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Form,
   FormControl,
@@ -20,7 +19,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Switch } from '@/components/ui/switch';
 import { CountriesSelect } from '@/modules/countries/components';
 import { DepartmentFormData, departmentFormSchema } from '../validations/departments.schema';
 import { Department } from '../types/departments.types';
@@ -54,7 +52,10 @@ export function DepartmentsForm({
         form.reset();
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      logger.error('Error submitting department form', error as Error, {
+        component: 'DepartmentsForm',
+        action: 'handleSubmit'
+      });
     }
   };
 

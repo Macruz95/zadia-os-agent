@@ -80,7 +80,7 @@ export function DashboardKPICards({ analyticsData }: DashboardKPICardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {analyticsData.leadsBySource.reduce((total, source) => total + source.count, 0)}
+            {analyticsData.leadSources.reduce((total, source) => total + source.count, 0)}
           </div>
           <p className="text-xs text-muted-foreground">
             Este mes

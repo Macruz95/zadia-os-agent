@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { logger } from '@/lib/logger';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -57,7 +58,10 @@ export function MunicipalitiesForm({
         form.reset();
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
+      logger.error('Error submitting municipality form', error as Error, {
+        component: 'MunicipalitiesForm',
+        action: 'handleSubmit'
+      });
     }
   };
 

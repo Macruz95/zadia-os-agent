@@ -1,6 +1,7 @@
 /**
  * Asynchronous location name resolvers using real data services
  */
+import { logger } from '@/lib/logger';
 import { CountriesService } from '../../countries/services/countries.service';
 import { DepartmentsService } from '../../departments/services/departments.service';
 import { MunicipalitiesService } from '../../municipalities/services/municipalities.service';
@@ -20,7 +21,11 @@ export const getCountryNameById = async (countryId: string): Promise<string> => 
     const country = LocationCache.findCountryById(countryId);
     return country ? country.name : countryId;
   } catch (error) {
-    console.error('Error getting country name:', error);
+    logger.error('Error getting country name', error as Error, {
+      component: 'location-async-utils',
+      action: 'getCountryNameById',
+      metadata: { countryId }
+    });
     return countryId;
   }
 };
@@ -38,7 +43,11 @@ export const getDepartmentNameById = async (departmentId: string): Promise<strin
     const department = LocationCache.findDepartmentById(departmentId);
     return department ? department.name : departmentId;
   } catch (error) {
-    console.error('Error getting department name:', error);
+    logger.error('Error getting department name', error as Error, {
+      component: 'location-async-utils',
+      action: 'getDepartmentNameById',
+      metadata: { departmentId }
+    });
     return departmentId;
   }
 };
@@ -60,7 +69,11 @@ export const getMunicipalityNameById = async (municipalityId: string, department
     
     return municipality ? municipality.name : municipalityId;
   } catch (error) {
-    console.error('Error getting municipality name:', error);
+    logger.error('Error getting municipality name', error as Error, {
+      component: 'location-async-utils',
+      action: 'getMunicipalityNameById',
+      metadata: { municipalityId }
+    });
     return municipalityId;
   }
 };
@@ -82,7 +95,11 @@ export const getDistrictNameById = async (districtId: string, municipalityId?: s
     
     return district ? district.name : districtId;
   } catch (error) {
-    console.error('Error getting district name:', error);
+    logger.error('Error getting district name', error as Error, {
+      component: 'location-async-utils',
+      action: 'getDistrictNameById',
+      metadata: { districtId }
+    });
     return districtId;
   }
 };

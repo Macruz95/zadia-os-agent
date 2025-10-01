@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -66,7 +67,10 @@ export function DistrictsDirectory({ municipalityId, municipalityName }: Distric
       await createDistrict(data);
       setIsCreateDialogOpen(false);
     } catch (error) {
-      console.error('Error creating district:', error);
+      logger.error('Error creating district', error as Error, {
+        component: 'DistrictsDirectory',
+        action: 'handleCreateDistrict'
+      });
     }
   };
 
@@ -83,7 +87,10 @@ export function DistrictsDirectory({ municipalityId, municipalityName }: Distric
       setIsEditDialogOpen(false);
       setSelectedDistrict(null);
     } catch (error) {
-      console.error('Error updating district:', error);
+      logger.error('Error updating district', error as Error, {
+        component: 'DistrictsDirectory',
+        action: 'handleUpdateDistrict'
+      });
     }
   };
 
@@ -92,7 +99,10 @@ export function DistrictsDirectory({ municipalityId, municipalityName }: Distric
       try {
         await deleteDistrict(districtId);
       } catch (error) {
-        console.error('Error deleting district:', error);
+        logger.error('Error deleting district', error as Error, {
+          component: 'DistrictsDirectory',
+          action: 'handleDeleteDistrict'
+        });
       }
     }
   };

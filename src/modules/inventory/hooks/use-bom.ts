@@ -104,7 +104,7 @@ export function useBOM(): UseBOMReturn {
       setLoading(true);
       setError(undefined);
       
-      await BOMService.updateBOM(id, bomData, user.uid);
+      await BOMService.updateBOM(id, bomData);
       
       // Refresh current BOM
       const updatedBOM = await BOMService.getBOMById(id);
@@ -135,7 +135,7 @@ export function useBOM(): UseBOMReturn {
       setLoading(true);
       setError(undefined);
       
-      await BOMService.deactivateBOM(id, user.uid);
+      await BOMService.deactivateBOM(id);
       
       // Remove from current state
       setBoms(prev => prev.filter(b => b.id !== id));
@@ -189,7 +189,7 @@ export function useBOM(): UseBOMReturn {
       setError(undefined);
       
       const result = await BOMService.validateBOMItems(items);
-      setValidationResult(result);
+      setValidationResult(result as { isValid: boolean; errors: string[]; warnings: string[]; });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al validar items de BOM';
       setError(errorMessage);
@@ -205,7 +205,17 @@ export function useBOM(): UseBOMReturn {
       setError(undefined);
       
       const feasibility = await BOMService.calculateProductionFeasibility(bomId, quantity);
-      setProductionFeasibility(feasibility);
+      setProductionFeasibility(feasibility as { 
+        canProduce: boolean; 
+        maxQuantityPossible: number; 
+        missingMaterials: { 
+          materialId: string; 
+          materialName: string; 
+          required: number; 
+          available: number; 
+          missing: number; 
+        }[]; 
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al calcular viabilidad de producción';
       setError(errorMessage);

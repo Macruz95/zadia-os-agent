@@ -1,7 +1,6 @@
 /**
- * ZADIA OS - Bill of Materials (BOM) Service
- * 
- * Manages product recipes and cost calculations
+ * BOM Service - Refactored and Optimized
+ * Manages Bill of Materials CRUD operations with proper separation of concerns
  */
 
 import { 
@@ -18,9 +17,9 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
-import { BillOfMaterials, BOMItem } from '../../types/inventory.types';
-import { RawMaterialCrudService } from './raw-material-crud.service';
-import { FinishedProductCrudService } from './finished-product-crud.service';
+import { BillOfMaterials } from '../../types/inventory.types';
+import { BOMCostCalculator } from './bom-cost-calculator.service';
+import { BOMProductionValidator, ProductionFeasibility } from './bom-production-validator.service';
 
 const COLLECTION_NAME = 'bill-of-materials';
 
@@ -33,7 +32,13 @@ export class BOMService {
     createdBy: string
   ): Promise<BillOfMaterials> {
     try {
-      // Calculate totals from items
+      // Validate BOM structure
+      const validation = BOMProductionValidator.validateBOMStructure(bomData as BillOfMaterials);
+      if (!validation.isValid) {
+        throw new Error(`Invalid BOM structure: ${validation.errors.join(', ')}`);
+      }
+
+      // Calculate costs
       const tempBOM = {
         ...bomData,
         id: 'temp',
@@ -41,48 +46,35 @@ export class BOMService {
         updatedAt: new Date()
       } as BillOfMaterials;
       
-      const { 
-        totalMaterialCost, 
-        totalLaborCost, 
-        totalOverheadCost, 
-        totalCost 
-      } = await this.calculateBOMCosts(tempBOM);
+      const costs = await BOMCostCalculator.calculateBOMCosts(tempBOM);
 
-      const bomWithCalculations: Omit<BillOfMaterials, 'id'> = {
+      // Create BOM document
+      const bomToCreate = {
         ...bomData,
-        totalMaterialCost,
-        totalLaborCost,
-        totalOverheadCost,
-        totalCost,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        ...costs,
         createdBy,
-        isActive: true
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now()
       };
 
-      const docRef = await addDoc(collection(db, COLLECTION_NAME), {
-        ...bomWithCalculations,
-        createdAt: Timestamp.fromDate(bomWithCalculations.createdAt),
-        updatedAt: Timestamp.fromDate(bomWithCalculations.updatedAt)
+      const docRef = await addDoc(collection(db, COLLECTION_NAME), bomToCreate);
+      
+      const createdBOM: BillOfMaterials = {
+        ...bomToCreate,
+        id: docRef.id,
+        createdAt: bomToCreate.createdAt.toDate(),
+        updatedAt: bomToCreate.updatedAt.toDate()
+      };
+
+      logger.info('BOM created successfully', {
+        component: 'BOMService',
+        action: 'createBOM'
       });
 
-      const createdBOM: BillOfMaterials = {
-        ...bomWithCalculations,
-        id: docRef.id
-      };
-
-      // Update finished product unit cost
-      await FinishedProductCrudService.updateUnitCost(
-        bomData.finishedProductId,
-        totalMaterialCost,
-        createdBy
-      );
-
-      logger.info(`BOM created for product: ${bomData.finishedProductName}`);
       return createdBOM;
     } catch (error) {
       logger.error('Error creating BOM:', error as Error);
-      throw new Error('Error al crear lista de materiales');
+      throw new Error('Error al crear BOM');
     }
   }
 
@@ -91,61 +83,56 @@ export class BOMService {
    */
   static async getBOMById(id: string): Promise<BillOfMaterials | null> {
     try {
-      const docRef = doc(db, COLLECTION_NAME, id);
-      const docSnap = await getDoc(docRef);
+      const bomRef = doc(db, COLLECTION_NAME, id);
+      const bomSnap = await getDoc(bomRef);
 
-      if (!docSnap.exists()) {
+      if (!bomSnap.exists()) {
         return null;
       }
 
-      const data = docSnap.data();
+      const data = bomSnap.data();
       return {
-        id: docSnap.id,
+        id: bomSnap.id,
         ...data,
         createdAt: data.createdAt?.toDate() || new Date(),
         updatedAt: data.updatedAt?.toDate() || new Date()
       } as BillOfMaterials;
     } catch (error) {
-      logger.error('Error getting BOM by ID:', error as Error);
-      return null;
+      logger.error('Error getting BOM:', error as Error);
+      throw new Error('Error al obtener BOM');
     }
   }
 
   /**
-   * Get BOMs for finished product
+   * Get BOMs by finished product ID
    */
-  static async getBOMsForProduct(finishedProductId: string): Promise<BillOfMaterials[]> {
+  static async getBOMsByProductId(finishedProductId: string): Promise<BillOfMaterials[]> {
     try {
+      const bomsRef = collection(db, COLLECTION_NAME);
       const q = query(
-        collection(db, COLLECTION_NAME),
+        bomsRef,
         where('finishedProductId', '==', finishedProductId),
         where('isActive', '==', true),
         orderBy('version', 'desc')
       );
 
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date(),
-        updatedAt: doc.data().updatedAt?.toDate() || new Date()
-      })) as BillOfMaterials[];
-    } catch (error) {
-      logger.error('Error getting BOMs for product:', error as Error);
-      return [];
-    }
-  }
+      const boms: BillOfMaterials[] = [];
 
-  /**
-   * Get active (latest) BOM for finished product
-   */
-  static async getActiveBOMForProduct(finishedProductId: string): Promise<BillOfMaterials | null> {
-    try {
-      const boms = await this.getBOMsForProduct(finishedProductId);
-      return boms.length > 0 ? boms[0] : null;
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        boms.push({
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date()
+        } as BillOfMaterials);
+      });
+
+      return boms;
     } catch (error) {
-      logger.error('Error getting active BOM for product:', error as Error);
-      return null;
+      logger.error('Error getting BOMs by product:', error as Error);
+      throw new Error('Error al obtener BOMs del producto');
     }
   }
 
@@ -154,212 +141,157 @@ export class BOMService {
    */
   static async updateBOM(
     id: string,
-    bomData: Partial<Omit<BillOfMaterials, 'id' | 'createdAt' | 'updatedAt'>>,
-    updatedBy: string
+    updates: Partial<Omit<BillOfMaterials, 'id' | 'createdAt' | 'createdBy'>>
   ): Promise<void> {
     try {
-      const docRef = doc(db, COLLECTION_NAME, id);
-      const currentBOM = await this.getBOMById(id);
+      const bomRef = doc(db, COLLECTION_NAME, id);
       
-      if (!currentBOM) {
-        throw new Error('BOM no encontrado');
-      }
-
       // If items are being updated, recalculate costs
-      let calculatedData = bomData;
-      if (bomData.items) {
-        const costs = await this.calculateBOMCosts({
-          ...currentBOM,
-          ...bomData
-        } as BillOfMaterials);
-        
-        calculatedData = {
-          ...bomData,
-          ...costs
-        };
+      if (updates.items) {
+        const currentBOM = await this.getBOMById(id);
+        if (currentBOM) {
+          const updatedBOM = { ...currentBOM, ...updates } as BillOfMaterials;
+          const costs = await BOMCostCalculator.calculateBOMCosts(updatedBOM);
+          Object.assign(updates, costs);
+        }
       }
 
-      const updateData: Record<string, unknown> = {
-        ...calculatedData,
-        updatedAt: Timestamp.fromDate(new Date()),
-        updatedBy
-      };
-
-      await updateDoc(docRef, updateData);
-
-      // If material costs changed, update finished product unit cost
-      if (calculatedData.totalMaterialCost !== undefined) {
-        await FinishedProductCrudService.updateUnitCost(
-          currentBOM.finishedProductId,
-          calculatedData.totalMaterialCost,
-          updatedBy
-        );
-      }
-
-      logger.info(`BOM updated: ${id}`);
-    } catch (error) {
-      logger.error('Error updating BOM:', error as Error);
-      throw new Error('Error al actualizar lista de materiales');
-    }
-  }
-
-  /**
-   * Deactivate BOM (soft delete)
-   */
-  static async deactivateBOM(id: string, deactivatedBy: string): Promise<void> {
-    try {
-      const docRef = doc(db, COLLECTION_NAME, id);
-      await updateDoc(docRef, {
-        isActive: false,
-        updatedAt: Timestamp.fromDate(new Date()),
-        deactivatedBy
+      await updateDoc(bomRef, {
+        ...updates,
+        updatedAt: Timestamp.now()
       });
 
-      logger.info(`BOM deactivated: ${id}`);
+      logger.info('BOM updated successfully', {
+        component: 'BOMService',
+        action: 'updateBOM'
+      });
     } catch (error) {
-      logger.error('Error deactivating BOM:', error as Error);
-      throw new Error('Error al desactivar lista de materiales');
+      logger.error('Error updating BOM:', error as Error);
+      throw new Error('Error al actualizar BOM');
     }
   }
 
   /**
-   * Calculate total costs for BOM
+   * Delete BOM (soft delete)
    */
-  private static async calculateBOMCosts(bom: BillOfMaterials): Promise<{
-    totalMaterialCost: number;
-    totalLaborCost: number;
-    totalOverheadCost: number;
-    totalCost: number;
-  }> {
-    // Calculate material costs
-    let totalMaterialCost = 0;
-    
-    for (const item of bom.items) {
-      // Get current raw material data to ensure we have latest cost
-      const rawMaterial = await RawMaterialCrudService.getRawMaterialById(item.rawMaterialId);
-      const unitCost = rawMaterial?.unitCost || item.unitCost;
-      totalMaterialCost += item.quantity * unitCost;
+  static async deleteBOM(id: string): Promise<void> {
+    try {
+      const bomRef = doc(db, COLLECTION_NAME, id);
+      await updateDoc(bomRef, {
+        isActive: false,
+        updatedAt: Timestamp.now()
+      });
+
+      logger.info('BOM deleted successfully', {
+        component: 'BOMService',
+        action: 'deleteBOM'
+      });
+    } catch (error) {
+      logger.error('Error deleting BOM:', error as Error);
+      throw new Error('Error al eliminar BOM');
     }
-
-    // Calculate labor costs
-    const totalLaborCost = bom.estimatedLaborHours * bom.laborCostPerHour;
-    
-    // Calculate overhead costs
-    const totalOverheadCost = totalMaterialCost * (bom.overheadPercentage / 100);
-    
-    // Calculate total cost
-    const totalCost = totalMaterialCost + totalLaborCost + totalOverheadCost;
-
-    return {
-      totalMaterialCost,
-      totalLaborCost,
-      totalOverheadCost,
-      totalCost
-    };
   }
 
   /**
-   * Validate BOM items (check if raw materials exist and have sufficient stock)
+   * Get production feasibility
    */
-  static async validateBOMItems(items: BOMItem[]): Promise<{
-    isValid: boolean;
-    errors: string[];
-    warnings: string[];
-  }> {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-
-    for (const item of items) {
-      const rawMaterial = await RawMaterialCrudService.getRawMaterialById(item.rawMaterialId);
-      
-      if (!rawMaterial) {
-        errors.push(`Material no encontrado: ${item.rawMaterialName}`);
-        continue;
-      }
-
-      if (!rawMaterial.isActive) {
-        warnings.push(`Material inactivo: ${item.rawMaterialName}`);
-      }
-
-      if (rawMaterial.currentStock < item.quantity) {
-        warnings.push(
-          `Stock insuficiente para ${item.rawMaterialName}: disponible ${rawMaterial.currentStock}, requerido ${item.quantity}`
-        );
-      }
-
-      // Check if unit of measure matches
-      if (rawMaterial.unitOfMeasure !== item.unitOfMeasure) {
-        warnings.push(
-          `Unidad de medida diferente para ${item.rawMaterialName}: material usa ${rawMaterial.unitOfMeasure}, BOM especifica ${item.unitOfMeasure}`
-        );
-      }
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors,
-      warnings
-    };
-  }
-
-  /**
-   * Calculate production feasibility based on current stock
-   */
-  static async calculateProductionFeasibility(
+  static async getProductionFeasibility(
     bomId: string,
-    quantityToProduce: number
-  ): Promise<{
-    canProduce: boolean;
-    maxQuantityPossible: number;
-    missingMaterials: Array<{
-      materialId: string;
-      materialName: string;
-      required: number;
-      available: number;
-      missing: number;
-    }>;
-  }> {
+    quantity: number = 1
+  ): Promise<ProductionFeasibility> {
     try {
       const bom = await this.getBOMById(bomId);
       if (!bom) {
-        throw new Error('BOM no encontrado');
+        throw new Error('BOM not found');
       }
 
-      let canProduce = true;
-      let maxQuantityPossible = Infinity;
-      const missingMaterials = [];
-
-      for (const item of bom.items) {
-        const rawMaterial = await RawMaterialCrudService.getRawMaterialById(item.rawMaterialId);
-        if (!rawMaterial) continue;
-
-        const requiredQuantity = item.quantity * quantityToProduce;
-        const availableQuantity = rawMaterial.currentStock;
-
-        if (availableQuantity < requiredQuantity) {
-          canProduce = false;
-          missingMaterials.push({
-            materialId: item.rawMaterialId,
-            materialName: item.rawMaterialName,
-            required: requiredQuantity,
-            available: availableQuantity,
-            missing: requiredQuantity - availableQuantity
-          });
-        }
-
-        // Calculate max possible quantity with this material
-        const maxWithThisMaterial = Math.floor(availableQuantity / item.quantity);
-        maxQuantityPossible = Math.min(maxQuantityPossible, maxWithThisMaterial);
-      }
-
-      return {
-        canProduce,
-        maxQuantityPossible: maxQuantityPossible === Infinity ? 0 : maxQuantityPossible,
-        missingMaterials
-      };
+      return await BOMProductionValidator.calculateProductionFeasibility(bom, quantity);
     } catch (error) {
       logger.error('Error calculating production feasibility:', error as Error);
-      throw error;
+      throw new Error('Error al calcular factibilidad de producción');
     }
+  }
+
+  /**
+   * Get all active BOMs
+   */
+  static async getAllBOMs(): Promise<BillOfMaterials[]> {
+    try {
+      const bomsRef = collection(db, COLLECTION_NAME);
+      const q = query(
+        bomsRef,
+        where('isActive', '==', true),
+        orderBy('updatedAt', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      const boms: BillOfMaterials[] = [];
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        boms.push({
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date()
+        } as BillOfMaterials);
+      });
+
+      return boms;
+    } catch (error) {
+      logger.error('Error getting all BOMs:', error as Error);
+      throw new Error('Error al obtener BOMs');
+    }
+  }
+
+  /**
+   * Get BOMs for finished product (alias for compatibility)
+   */
+  static async getBOMsForProduct(finishedProductId: string): Promise<BillOfMaterials[]> {
+    return this.getBOMsByProductId(finishedProductId);
+  }
+
+  /**
+   * Deactivate BOM (alias for compatibility)
+   */
+  static async deactivateBOM(id: string): Promise<void> {
+    return this.deleteBOM(id);
+  }
+
+  /**
+   * Get active BOM for product (alias for compatibility)
+   */
+  static async getActiveBOMForProduct(finishedProductId: string): Promise<BillOfMaterials | null> {
+    try {
+      const boms = await this.getBOMsByProductId(finishedProductId);
+      return boms.length > 0 ? boms[0] : null;
+    } catch (error) {
+      logger.error('Error getting active BOM for product:', error as Error);
+      return null;
+    }
+  }
+
+  /**
+   * Validate BOM items (delegates to validator service)
+   */
+  static async validateBOMItems(items: unknown[]): Promise<unknown> {
+    try {
+      const tempBOM = { items } as BillOfMaterials;
+      return BOMProductionValidator.validateBOMStructure(tempBOM);
+    } catch (error) {
+      logger.error('Error validating BOM items:', error as Error);
+      return {
+        isValid: false,
+        errors: ['Error validating BOM items'],
+        warnings: []
+      };
+    }
+  }
+
+  /**
+   * Calculate production feasibility (alias for compatibility)
+   */
+  static async calculateProductionFeasibility(bomId: string, quantity: number): Promise<unknown> {
+    return this.getProductionFeasibility(bomId, quantity);
   }
 }

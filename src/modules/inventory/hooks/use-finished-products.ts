@@ -16,8 +16,8 @@ interface UseFinishedProductsReturn {
   error?: string;
   totalCount: number;
   searchFinishedProducts: () => Promise<void>;
-  createFinishedProduct: (data: any) => Promise<FinishedProduct>;
-  updateFinishedProduct: (id: string, data: any) => Promise<void>;
+  createFinishedProduct: (data: Omit<FinishedProduct, 'id' | 'createdAt' | 'updatedAt'>) => Promise<FinishedProduct>;
+  updateFinishedProduct: (id: string, data: Partial<Omit<FinishedProduct, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<void>;
   updateStock: (id: string, newStock: number) => Promise<void>;
   updateUnitCost: (id: string, newCost: number) => Promise<void>;
   deleteFinishedProduct: (id: string) => Promise<void>;
