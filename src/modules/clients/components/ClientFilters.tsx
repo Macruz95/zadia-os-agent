@@ -25,9 +25,6 @@ export function ClientFilters({
 }: ClientFiltersProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Buscar y Filtrar</CardTitle>
-      </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-4">
           <div className="flex-1">
