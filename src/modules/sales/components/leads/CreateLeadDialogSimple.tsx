@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { logger } from '@/lib/logger';
@@ -56,6 +56,20 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
   });
 
   const watchEntityType = form.watch('entityType');
+
+  // Limpiar campos cuando cambia el tipo de entidad
+  useEffect(() => {
+    if (watchEntityType === 'person') {
+      // Para persona natural: limpiar campos de empresa/representante
+      form.setValue('entityName', '');
+      form.setValue('company', '');
+      form.setValue('position', '');
+    } else {
+      // Para empresa/institución: limpiar campo de nombre completo (se usará para representante)
+      form.setValue('fullName', '');
+      form.setValue('company', '');
+    }
+  }, [watchEntityType, form]);
 
   const resetForm = () => {
     form.reset({

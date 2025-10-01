@@ -89,24 +89,24 @@ export function LeadBasicInfo({
         />
       </div>
 
-      {/* Additional Fields for Person */}
-      {entityType === 'person' && (
+      {/* Additional Fields for Company/Institution - Representative Contact */}
+      {(entityType === 'company' || entityType === 'institution') && (
         <>
           <div className="space-y-2">
-            <Label htmlFor="company">Empresa</Label>
+            <Label htmlFor="fullName">Nombre del Representante *</Label>
             <Input
-              id="company"
-              placeholder="Nombre de la empresa"
-              value={company}
-              onChange={(e) => onCompanyChange(e.target.value)}
+              id="fullName"
+              placeholder="Nombre completo del representante"
+              value={fullName}
+              onChange={(e) => onFullNameChange(e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="position">Cargo</Label>
+            <Label htmlFor="position">Cargo del Representante *</Label>
             <Input
               id="position"
-              placeholder="Cargo o posición"
+              placeholder="Gerente, Director, etc."
               value={position}
               onChange={(e) => onPositionChange(e.target.value)}
             />

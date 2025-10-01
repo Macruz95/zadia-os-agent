@@ -14,6 +14,7 @@ import { deleteLead } from '../../services/leads.service';
 import { CreateLeadDialog } from './CreateLeadDialogSimple';
 import { EditLeadDialog } from './EditLeadDialog';
 import { DeleteLeadDialog } from './DeleteLeadDialog';
+import { DisqualifyLeadDialog } from './DisqualifyLeadDialog';
 import { LeadsHeader } from './LeadsHeader';
 import { LeadsKPICards } from './LeadsKPICards';
 import { LeadsFilters } from './LeadsFilters';
@@ -43,6 +44,10 @@ export function LeadsDirectory() {
     lead: null,
   });
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; lead: Lead | null }>({
+    open: false,
+    lead: null,
+  });
+  const [disqualifyDialog, setDisqualifyDialog] = useState<{ open: boolean; lead: Lead | null }>({
     open: false,
     lead: null,
   });
@@ -76,15 +81,21 @@ export function LeadsDirectory() {
   };
 
   const handleDisqualifyLead = async (lead: Lead) => {
+    setDisqualifyDialog({ open: true, lead });
+  };
+
+  const confirmDisqualifyLead = async (reason: string) => {
+    if (!disqualifyDialog.lead) return;
+    
     try {
-      const reason = prompt('Motivo de descalificación:');
-      if (reason) {
-        await disqualifyLead(lead.id, reason);
-        toast.success('Lead descalificado');
-      }
+      await disqualifyLead(disqualifyDialog.lead.id, reason);
+      toast.success('Lead descalificado');
+      refresh();
     } catch (error) {
       console.error('Error disqualifying lead', error);
       toast.error('Error al descalificar lead');
+    } finally {
+      setDisqualifyDialog({ open: false, lead: null });
     }
   };
 
@@ -177,6 +188,13 @@ export function LeadsDirectory() {
         onOpenChange={(open) => setDeleteDialog({ open, lead: null })}
         onConfirm={confirmDeleteLead}
         leadName={deleteDialog.lead?.fullName || deleteDialog.lead?.entityName || ''}
+      />
+
+      <DisqualifyLeadDialog
+        open={disqualifyDialog.open}
+        onOpenChange={(open) => setDisqualifyDialog({ open, lead: null })}
+        onConfirm={confirmDisqualifyLead}
+        leadName={disqualifyDialog.lead?.fullName || disqualifyDialog.lead?.entityName || ''}
       />
     </div>
   );

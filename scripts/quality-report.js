@@ -15,7 +15,7 @@ const QUALITY_CRITERIA = {
 
 function analyzeModule(modulePath) {
   const moduleName = path.basename(modulePath);
-  console.log(`\n🔬 Analyzing module: ${moduleName}`);
+  console.log(`\n[ANALYSIS] Analyzing module: ${moduleName}`);
   
   const analysis = {
     name: moduleName,
@@ -71,7 +71,7 @@ function analyzeModule(modulePath) {
     analysis.status = '🟠';
   } else {
     analysis.classification = 'CRITICAL';
-    analysis.status = '🔴';
+    analysis.status = '[CRITICAL]';
   }
   
   console.log(`${analysis.status} Score: ${analysis.score}% - ${analysis.classification}`);
@@ -289,13 +289,13 @@ function generateRecommendations(analyses) {
 }
 
 function main() {
-  console.log('📊 ZADIA OS - Quality Report Generator');
+  console.log('[REPORT] ZADIA OS - Quality Report Generator');
   console.log('====================================');
   
   const modulesPath = path.join(__dirname, '../src/modules');
   
   if (!fs.existsSync(modulesPath)) {
-    console.log('❌ Modules directory not found at src/modules');
+    console.log('[ERROR] Modules directory not found at src/modules');
     process.exit(1);
   }
   
@@ -323,13 +323,13 @@ function main() {
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
   
   // Mostrar resumen
-  console.log('\n📊 QUALITY SUMMARY');
+  console.log('\n[SUMMARY] QUALITY SUMMARY');
   console.log('==================');
   console.log(`Total Modules: ${report.summary.total}`);
   console.log(`🟢 Excellent: ${report.summary.excellent}`);
   console.log(`🟡 Good: ${report.summary.good}`);
   console.log(`🟠 Needs Improvement: ${report.summary.needsImprovement}`);
-  console.log(`🔴 Critical: ${report.summary.critical}`);
+  console.log(`[CRITICAL] Critical: ${report.summary.critical}`);
   console.log(`Average Score: ${report.summary.averageScore.toFixed(1)}%`);
   
   console.log('\n🎯 TOP RECOMMENDATIONS');

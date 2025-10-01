@@ -7,9 +7,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 
 const PRIORITY_OPTIONS = [
-  { value: 'hot', label: '🔥 Caliente', description: 'Requiere atención inmediata' },
-  { value: 'warm', label: '🟡 Tibio', description: 'Seguimiento regular' },
-  { value: 'cold', label: '🧊 Frío', description: 'Contacto ocasional' },
+  { value: 'hot', label: 'Caliente', description: 'Requiere atención inmediata' },
+  { value: 'warm', label: 'Tibio', description: 'Seguimiento regular' },
+  { value: 'cold', label: 'Frío', description: 'Contacto ocasional' },
 ] as const;
 
 export function LeadPriorityInfo() {

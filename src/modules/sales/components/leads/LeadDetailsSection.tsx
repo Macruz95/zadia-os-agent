@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Flame, Thermometer, Snowflake } from 'lucide-react';
 import { LeadFormData } from '../../validations/sales.schema';
 
 interface LeadDetailsSectionProps {
@@ -35,9 +36,9 @@ const LEAD_SOURCE_OPTIONS = [
 ] as const;
 
 const PRIORITY_OPTIONS = [
-  { value: 'hot', label: '🔥 Caliente' },
-  { value: 'warm', label: '🟡 Tibio' },
-  { value: 'cold', label: '🧊 Frío' },
+  { value: 'hot', label: 'Caliente', icon: Flame, color: 'text-red-500' },
+  { value: 'warm', label: 'Tibio', icon: Thermometer, color: 'text-yellow-500' },
+  { value: 'cold', label: 'Frío', icon: Snowflake, color: 'text-blue-500' },
 ] as const;
 
 export function LeadDetailsSection({ control }: LeadDetailsSectionProps) {
@@ -86,13 +87,17 @@ export function LeadDetailsSection({ control }: LeadDetailsSectionProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {PRIORITY_OPTIONS.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        <div className="flex items-center justify-between w-full">
-                          <span>{option.label}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    {PRIORITY_OPTIONS.map((option) => {
+                      const IconComponent = option.icon;
+                      return (
+                        <SelectItem key={option.value} value={option.value}>
+                          <div className="flex items-center gap-2">
+                            <IconComponent className={`h-4 w-4 ${option.color}`} />
+                            <span>{option.label}</span>
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
                 <FormMessage />

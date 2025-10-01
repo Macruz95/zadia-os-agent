@@ -8,7 +8,7 @@ Lead → Prospecto → Cliente Activo
 
 ## Definiciones
 
-### 🎯 **Lead**
+### [TARGET] **Lead**
 **Definición**: Contacto inicial que ha mostrado interés en nuestros productos/servicios pero aún no ha sido calificado.
 
 **Características**:
@@ -19,7 +19,7 @@ Lead → Prospecto → Cliente Activo
 
 **Estados**: `new`, `contacted`, `qualifying`, `converted`, `disqualified`
 
-### 🎯 **Prospecto** (Cliente Prospecto)
+### [TARGET] **Prospecto** (Cliente Prospecto)
 **Definición**: Lead calificado que ha sido evaluado y tiene potencial real de conversión.
 
 **Características**:
@@ -30,7 +30,7 @@ Lead → Prospecto → Cliente Activo
 
 **Estados Cliente**: `Prospecto`, `Activo`, `Inactivo`
 
-### 🎯 **Cliente Activo**
+### [TARGET] **Cliente Activo**
 **Definición**: Prospecto que ha realizado una compra o contratado servicios.
 
 **Características**:
@@ -58,17 +58,17 @@ Lead → Prospecto → Cliente Activo
 
 ## Ventajas de esta Separación
 
-### 🔄 **Flujo Claro**
+### [FLOW] **Flujo Claro**
 - Proceso estructurado de conversión
 - Responsabilidades definidas por etapa
 - Métricas específicas por fase
 
-### 📊 **Análisis Preciso**
+### [ANALYTICS] **Análisis Preciso**
 - Tasas de conversión Lead → Prospecto
 - Tasas de conversión Prospecto → Cliente
 - ROI por canal de leads
 
-### 🎯 **Enfoque Especializado**
+### [TARGET] **Enfoque Especializado**
 - Estrategias diferenciadas por etapa
 - Recursos asignados según potencial
 - Seguimiento personalizado

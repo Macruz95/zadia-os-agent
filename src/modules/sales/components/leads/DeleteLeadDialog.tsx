@@ -1,21 +1,21 @@
 /**
  * ZADIA OS - Delete Lead Dialog Component
  * 
- * Confirmation dialog for deleting leads
+ * Confirmation dialog for deleting leads - following ShadCN AlertDialog pattern like clients
  */
 
 'use client';
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { AlertTriangle } from 'lucide-react';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface DeleteLeadDialogProps {
   open: boolean;
@@ -31,35 +31,25 @@ export function DeleteLeadDialog({
   leadName,
 }: DeleteLeadDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-            <DialogTitle>Eliminar Lead</DialogTitle>
-          </div>
-          <DialogDescription className="pt-2">
-            ¿Estás seguro de que deseas eliminar el lead <strong>{leadName}</strong>?
-            <br />
-            <br />
-            Esta acción no se puede deshacer. Se eliminarán permanentemente todos los datos relacionados con este lead.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="gap-2">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancelar
-          </Button>
-          <Button
-            variant="destructive"
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>¿Eliminar lead?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Esta acción eliminará permanentemente el lead <strong>{leadName}</strong>.
+            Esta acción no se puede deshacer.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
             onClick={onConfirm}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Eliminar Lead
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            Eliminar
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

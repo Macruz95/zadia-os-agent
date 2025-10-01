@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, Phone, Globe } from 'lucide-react';
+import { Plus, Search, Phone, Globe, CheckCircle } from 'lucide-react';
 import { usePhoneCodes } from '../hooks/use-phone-codes';
 import { PhoneCodesTable } from './PhoneCodesTable';
 import { PhoneCodesForm } from './PhoneCodesForm';
@@ -138,7 +138,7 @@ export function PhoneCodesDirectory({
             <CardContent className="p-6">
               <div className="flex items-center">
                 <Badge variant="secondary" className="h-8 w-8 p-0 flex items-center justify-center">
-                  ✓
+                  <CheckCircle className="h-4 w-4" />
                 </Badge>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-muted-foreground">Activos</p>

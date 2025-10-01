@@ -34,17 +34,21 @@ export const createLeadSchema = z.object({
   interests: z.string().optional(),
 }).refine(
   (data) => {
+    // Para persona natural: solo nombre completo
     if (data.entityType === 'person' && !data.fullName) {
       return false;
     }
-    if ((data.entityType === 'company' || data.entityType === 'institution') && !data.entityName) {
-      return false;
+    // Para empresa/institución: nombre de entidad Y nombre del representante Y cargo
+    if ((data.entityType === 'company' || data.entityType === 'institution')) {
+      if (!data.entityName || !data.fullName || !data.position) {
+        return false;
+      }
     }
     return true;
   },
   {
-    message: 'Nombre es requerido según el tipo de entidad',
-    path: ['fullName', 'entityName'],
+    message: 'Para persona: nombre completo requerido. Para empresa/institución: nombre de entidad, representante y cargo requeridos',
+    path: ['fullName', 'entityName', 'position'],
   }
 );
 

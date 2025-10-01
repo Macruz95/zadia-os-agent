@@ -17,39 +17,39 @@ const db = getFirestore(app);
 
 async function checkClientsInFirebase() {
   try {
-    console.log('🔍 Verificando clientes en Firebase...\n');
+    console.log('[SEARCH] Verificando clientes en Firebase...\n');
 
     // Get all clients
     const clientsRef = collection(db, 'clients');
     const clientsSnapshot = await getDocs(clientsRef);
 
-    console.log(`📊 Total de clientes encontrados: ${clientsSnapshot.size}\n`);
+    console.log(`[CHART] Total de clientes encontrados: ${clientsSnapshot.size}\n`);
 
     if (clientsSnapshot.empty) {
-      console.log('❌ No se encontraron clientes en la base de datos.');
+      console.log('[ERROR] No se encontraron clientes en la base de datos.');
       return;
     }
 
     // Display each client
     clientsSnapshot.forEach((doc) => {
       const clientData = doc.data();
-      console.log(`🆔 Cliente ID: ${doc.id}`);
-      console.log(`👤 Nombre: ${clientData.firstName || 'N/A'} ${clientData.lastName || 'N/A'}`);
-      console.log(`🏢 Tipo: ${clientData.clientType || 'N/A'}`);
-      console.log(`📧 Email: ${clientData.email || 'N/A'}`);
-      console.log(`📞 Teléfono: ${clientData.phone || 'N/A'}`);
-      console.log(`📍 País: ${clientData.address?.country || 'N/A'}`);
-      console.log(`🏛️ Estado: ${clientData.address?.state || 'N/A'}`);
-      console.log(`🏘️ Ciudad: ${clientData.address?.city || 'N/A'}`);
-      console.log(`🏠 Dirección: ${clientData.address?.street || 'N/A'}`);
-      console.log(`📮 Código Postal: ${clientData.address?.postalCode || 'N/A'}`);
-      console.log(`📅 Fecha de creación: ${clientData.createdAt?.toDate?.() || clientData.createdAt || 'N/A'}`);
-      console.log(`🔄 Última actualización: ${clientData.updatedAt?.toDate?.() || clientData.updatedAt || 'N/A'}`);
+      console.log(`[ID] Cliente ID: ${doc.id}`);
+      console.log(`[USER] Nombre: ${clientData.firstName || 'N/A'} ${clientData.lastName || 'N/A'}`);
+      console.log(`[BUILDING] Tipo: ${clientData.clientType || 'N/A'}`);
+      console.log(`[MAIL] Email: ${clientData.email || 'N/A'}`);
+      console.log(`[PHONE] Teléfono: ${clientData.phone || 'N/A'}`);
+      console.log(`[LOCATION] País: ${clientData.address?.country || 'N/A'}`);
+      console.log(`[STATE] Estado: ${clientData.address?.state || 'N/A'}`);
+      console.log(`[CITY] Ciudad: ${clientData.address?.city || 'N/A'}`);
+      console.log(`[HOME] Dirección: ${clientData.address?.street || 'N/A'}`);
+      console.log(`[POSTAL] Código Postal: ${clientData.address?.postalCode || 'N/A'}`);
+      console.log(`[CALENDAR] Fecha de creación: ${clientData.createdAt?.toDate?.() || clientData.createdAt || 'N/A'}`);
+      console.log(`[REFRESH] Última actualización: ${clientData.updatedAt?.toDate?.() || clientData.updatedAt || 'N/A'}`);
       console.log('─'.repeat(50));
     });
 
   } catch (error) {
-    console.error('❌ Error al verificar clientes:', error);
+    console.error('[ERROR] Error al verificar clientes:', error);
   }
 }
 

@@ -37,37 +37,52 @@ export function LeadsTableActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => onViewDetails(lead.id)}>
-          <Eye className="h-4 w-4 mr-2" />
+        <DropdownMenuItem onClick={(e) => {
+          e.stopPropagation();
+          onViewDetails(lead.id);
+        }}>
+          <Eye className="h-4 w-4 mr-2 text-blue-500" />
           Ver detalles
         </DropdownMenuItem>
         {onEditLead && (
-          <DropdownMenuItem onClick={() => onEditLead(lead)} className="text-blue-600 focus:text-blue-700">
-            <Edit className="h-4 w-4 mr-2" />
+          <DropdownMenuItem onClick={(e) => {
+            e.stopPropagation();
+            onEditLead(lead);
+          }}>
+            <Edit className="h-4 w-4 mr-2 text-blue-600" />
             Editar
           </DropdownMenuItem>
         )}
         {lead.status === 'qualifying' && (
-          <DropdownMenuItem onClick={() => onConvertLead(lead)}>
-            <UserCheck className="h-4 w-4 mr-2" />
+          <DropdownMenuItem onClick={(e) => {
+            e.stopPropagation();
+            onConvertLead(lead);
+          }}>
+            <UserCheck className="h-4 w-4 mr-2 text-green-600" />
             Convertir
           </DropdownMenuItem>
         )}
         {['new', 'contacted', 'qualifying'].includes(lead.status) && (
           <DropdownMenuItem 
-            onClick={() => onDisqualifyLead(lead)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDisqualifyLead(lead);
+            }}
             className="text-destructive"
           >
-            <UserX className="h-4 w-4 mr-2" />
+            <UserX className="h-4 w-4 mr-2 text-red-500" />
             Descalificar
           </DropdownMenuItem>
         )}
         {onDeleteLead && (
           <DropdownMenuItem 
-            onClick={() => onDeleteLead(lead)}
-            className="text-red-600 focus:text-red-700"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteLead(lead);
+            }}
+            className="text-destructive"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="h-4 w-4 mr-2 text-red-600" />
             Eliminar
           </DropdownMenuItem>
         )}
