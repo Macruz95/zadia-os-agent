@@ -79,3 +79,16 @@ export class LeadsService {
     return LeadsActionsService.getLeadInteractions(leadId);
   }
 }
+
+// Export individual functions for convenience
+export const createLead = LeadsService.createLead;
+export const updateLead = LeadsService.updateLead;
+export const getLeadById = LeadsService.getLeadById;
+export const deleteLead = LeadsService.deleteLead;
+export const searchLeads = LeadsService.searchLeads;
+export const getLeadsByUser = LeadsService.getLeadsByUser;
+export const convertLead = LeadsService.convertLead;
+export const disqualifyLead = LeadsService.disqualifyLead;
+export const updateLeadScore = LeadsService.updateLeadScore;
+export const addInteraction = LeadsService.addInteraction;
+export const getLeadInteractions = LeadsService.getLeadInteractions;

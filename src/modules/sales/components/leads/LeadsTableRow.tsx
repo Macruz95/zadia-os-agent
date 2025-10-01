@@ -12,13 +12,17 @@ interface LeadsTableRowProps {
   onConvertLead: (lead: Lead) => void;
   onDisqualifyLead: (lead: Lead) => void;
   onRowClick: (leadId: string) => void;
+  onEditLead?: (lead: Lead) => void;
+  onDeleteLead?: (lead: Lead) => void;
 }
 
 export function LeadsTableRow({ 
   lead, 
   onConvertLead, 
   onDisqualifyLead, 
-  onRowClick 
+  onRowClick,
+  onEditLead,
+  onDeleteLead
 }: LeadsTableRowProps) {
   return (
     <TableRow 
@@ -78,6 +82,8 @@ export function LeadsTableRow({
           onConvertLead={onConvertLead}
           onDisqualifyLead={onDisqualifyLead}
           onViewDetails={onRowClick}
+          onEditLead={onEditLead}
+          onDeleteLead={onDeleteLead}
         />
       </TableCell>
     </TableRow>

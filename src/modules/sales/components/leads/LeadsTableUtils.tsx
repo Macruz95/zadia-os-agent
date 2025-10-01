@@ -1,4 +1,5 @@
 import { LeadStatus, LeadPriority } from '../../types/sales.types';
+import { Flame, Thermometer, Snowflake } from 'lucide-react';
 
 export const LEAD_STATUS_LABELS = {
   new: 'Nuevo',
@@ -29,9 +30,9 @@ export function getStatusBadgeVariant(status: LeadStatus) {
 
 export function getPriorityIcon(priority: LeadPriority) {
   switch (priority) {
-    case 'hot': return '🔥';
-    case 'warm': return '🟡';
-    case 'cold': return '🧊';
-    default: return '🟡';
+    case 'hot': return <Flame className="h-4 w-4 text-red-500" />;
+    case 'warm': return <Thermometer className="h-4 w-4 text-yellow-500" />;
+    case 'cold': return <Snowflake className="h-4 w-4 text-blue-500" />;
+    default: return <Thermometer className="h-4 w-4 text-yellow-500" />;
   }
 }

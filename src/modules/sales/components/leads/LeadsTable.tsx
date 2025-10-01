@@ -24,6 +24,8 @@ interface LeadsTableProps {
   totalCount: number;
   onConvertLead: (lead: Lead) => void;
   onDisqualifyLead: (lead: Lead) => void;
+  onEditLead?: (lead: Lead) => void;
+  onDeleteLead?: (lead: Lead) => void;
 }
 
 export function LeadsTable({ 
@@ -31,7 +33,9 @@ export function LeadsTable({
   loading = false, 
   totalCount, 
   onConvertLead, 
-  onDisqualifyLead 
+  onDisqualifyLead,
+  onEditLead,
+  onDeleteLead
 }: LeadsTableProps) {
   const router = useRouter();
 
@@ -78,6 +82,8 @@ export function LeadsTable({
                     onConvertLead={onConvertLead}
                     onDisqualifyLead={onDisqualifyLead}
                     onRowClick={handleRowClick}
+                    onEditLead={onEditLead}
+                    onDeleteLead={onDeleteLead}
                   />
                 ))
               )}

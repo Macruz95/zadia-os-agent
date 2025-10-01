@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, UserCheck, UserX } from 'lucide-react';
+import { MoreHorizontal, UserCheck, UserX, Edit, Trash2 } from 'lucide-react';
 import { Lead } from '../../types/sales.types';
 
 interface LeadsTableActionsProps {
@@ -13,13 +13,17 @@ interface LeadsTableActionsProps {
   onConvertLead: (lead: Lead) => void;
   onDisqualifyLead: (lead: Lead) => void;
   onViewDetails: (leadId: string) => void;
+  onEditLead?: (lead: Lead) => void;
+  onDeleteLead?: (lead: Lead) => void;
 }
 
 export function LeadsTableActions({ 
   lead, 
   onConvertLead, 
   onDisqualifyLead, 
-  onViewDetails 
+  onViewDetails,
+  onEditLead,
+  onDeleteLead
 }: LeadsTableActionsProps) {
   return (
     <DropdownMenu>
@@ -36,6 +40,12 @@ export function LeadsTableActions({
         <DropdownMenuItem onClick={() => onViewDetails(lead.id)}>
           Ver detalles
         </DropdownMenuItem>
+        {onEditLead && (
+          <DropdownMenuItem onClick={() => onEditLead(lead)}>
+            <Edit className="h-4 w-4 mr-2" />
+            Editar
+          </DropdownMenuItem>
+        )}
         {lead.status === 'qualifying' && (
           <DropdownMenuItem onClick={() => onConvertLead(lead)}>
             <UserCheck className="h-4 w-4 mr-2" />
@@ -49,6 +59,15 @@ export function LeadsTableActions({
           >
             <UserX className="h-4 w-4 mr-2" />
             Descalificar
+          </DropdownMenuItem>
+        )}
+        {onDeleteLead && (
+          <DropdownMenuItem 
+            onClick={() => onDeleteLead(lead)}
+            className="text-destructive"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Eliminar
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

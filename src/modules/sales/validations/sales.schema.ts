@@ -199,6 +199,7 @@ export const LeadConversionSchema = z.object({
 
 // Type exports
 export type LeadFormData = z.infer<typeof LeadFormSchema>;
+export type CreateLeadFormData = z.infer<typeof createLeadSchema>;
 export type LeadInteractionData = z.infer<typeof LeadInteractionSchema>;
 export type OpportunityFormData = z.infer<typeof OpportunityFormSchema>;
 export type OpportunityInteractionData = z.infer<typeof OpportunityInteractionSchema>;
