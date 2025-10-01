@@ -25,10 +25,18 @@ import { PhoneCode, phoneCodeSchema } from '../types/phone-codes.types';
 // Real phone codes data for initialization (not mocks - real data to populate Firestore)
 const INITIAL_PHONE_CODES_DATA: Omit<PhoneCode, 'id'>[] = [
   {
+    countryId: 'SV',
+    code: '+503',
+    dialCode: '503',
+    priority: 100,
+    isActive: true,
+    example: '70123456'
+  },
+  {
     countryId: 'PE',
     code: '+51',
     dialCode: '51',
-    priority: 100,
+    priority: 90,
     isActive: true,
     example: '987654321'
   },
@@ -36,7 +44,7 @@ const INITIAL_PHONE_CODES_DATA: Omit<PhoneCode, 'id'>[] = [
     countryId: 'US',
     code: '+1',
     dialCode: '1',
-    priority: 90,
+    priority: 80,
     isActive: true,
     example: '5551234567'
   },
@@ -44,7 +52,7 @@ const INITIAL_PHONE_CODES_DATA: Omit<PhoneCode, 'id'>[] = [
     countryId: 'CO',
     code: '+57',
     dialCode: '57',
-    priority: 80,
+    priority: 70,
     isActive: true,
     example: '3001234567'
   }

@@ -49,7 +49,7 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
       entityType: 'person',
       email: '',
       phone: '',
-      phoneCountryId: 'PE', // Default a Perú
+      phoneCountryId: 'SV', // Default a El Salvador
       source: 'web',
       priority: 'warm'
     }
@@ -62,7 +62,7 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
       entityType: 'person',
       email: '',
       phone: '',
-      phoneCountryId: 'PE',
+      phoneCountryId: 'SV', // El Salvador
       source: 'web',
       priority: 'warm'
     });
