@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, UserCheck, UserX, Edit, Trash2 } from 'lucide-react';
+import { MoreHorizontal, UserCheck, UserX, Edit, Trash2, Eye } from 'lucide-react';
 import { Lead } from '../../types/sales.types';
 
 interface LeadsTableActionsProps {
@@ -38,10 +38,11 @@ export function LeadsTableActions({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => onViewDetails(lead.id)}>
+          <Eye className="h-4 w-4 mr-2" />
           Ver detalles
         </DropdownMenuItem>
         {onEditLead && (
-          <DropdownMenuItem onClick={() => onEditLead(lead)}>
+          <DropdownMenuItem onClick={() => onEditLead(lead)} className="text-blue-600 focus:text-blue-700">
             <Edit className="h-4 w-4 mr-2" />
             Editar
           </DropdownMenuItem>
@@ -64,7 +65,7 @@ export function LeadsTableActions({
         {onDeleteLead && (
           <DropdownMenuItem 
             onClick={() => onDeleteLead(lead)}
-            className="text-destructive"
+            className="text-red-600 focus:text-red-700"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Eliminar
