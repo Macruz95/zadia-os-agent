@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Package, Calendar, DollarSign, MapPin, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Package, Calendar, DollarSign, MapPin, AlertTriangle, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { RawMaterial, FinishedProduct } from '@/modules/inventory/types';
 import { MovementHistory } from '@/modules/inventory/components/MovementHistory';
 import { MovementForm } from '@/modules/inventory/components/MovementForm';
+import { EditInventoryItemDialog } from '@/modules/inventory/components/EditInventoryItemDialog';
 import { getRawMaterialById, getFinishedProductById } from '@/modules/inventory/services/inventory.service';
 import { logger } from '@/lib/logger';
 
@@ -23,6 +24,7 @@ export function InventoryDetailClient({ type, id }: InventoryDetailClientProps) 
   const [item, setItem] = useState<RawMaterial | FinishedProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editDialog, setEditDialog] = useState(false);
 
   useEffect(() => {
     const loadItem = async () => {
@@ -75,6 +77,11 @@ export function InventoryDetailClient({ type, id }: InventoryDetailClientProps) 
         metadata: { itemType: type, itemId: id }
       });
     }
+  };
+
+  const handleEditSuccess = () => {
+    setEditDialog(false);
+    refreshItem();
   };
 
   const getStockStatus = (currentStock: number, minimumStock: number) => {
@@ -146,6 +153,14 @@ export function InventoryDetailClient({ type, id }: InventoryDetailClientProps) 
         </div>
         
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setEditDialog(true)}
+            className="flex items-center gap-2"
+          >
+            <Edit className="h-4 w-4" />
+            Editar
+          </Button>
           <MovementForm
             item={item}
             itemType={type === 'raw-materials' ? 'raw-material' : 'finished-product'}
@@ -266,6 +281,17 @@ export function InventoryDetailClient({ type, id }: InventoryDetailClientProps) 
           />
         </div>
       </div>
+
+      {/* Edit Dialog */}
+      {item && (
+        <EditInventoryItemDialog
+          open={editDialog}
+          onOpenChange={setEditDialog}
+          item={item}
+          itemType={type}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 }
