@@ -6,6 +6,7 @@
 
 import { useState, useCallback } from 'react';
 import { InventoryMovement } from '../types/inventory.types';
+import { MovementFormData } from '../validations/inventory.schema';
 import { InventoryMovementsService } from '../services/entities/inventory-movements-entity.service';
 import { logger } from '@/lib/logger';
 
@@ -16,8 +17,17 @@ interface UseInventoryMovementsReturn {
   totalCount: number;
   getMovementsByItem: (itemId: string, itemType: 'raw-material' | 'finished-product') => Promise<void>;
   getRecentMovements: (limit?: number) => Promise<void>;
-  createMovement: (data: any) => Promise<InventoryMovement>;
+  createMovement: (data: MovementFormData) => Promise<InventoryMovement>;
   refresh: () => Promise<void>;
+}
+
+interface LastQuery {
+  type: string;
+  params: {
+    itemId?: string;
+    itemType?: 'raw-material' | 'finished-product';
+    limit?: number;
+  };
 }
 
 export function useInventoryMovements(): UseInventoryMovementsReturn {
@@ -25,7 +35,7 @@ export function useInventoryMovements(): UseInventoryMovementsReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [totalCount, setTotalCount] = useState(0);
-  const [lastQuery, setLastQuery] = useState<{ type: string; params: any }>();
+  const [lastQuery, setLastQuery] = useState<LastQuery>();
 
   const getMovementsByItem = useCallback(async (
     itemId: string,
@@ -67,7 +77,7 @@ export function useInventoryMovements(): UseInventoryMovementsReturn {
   }, []);
 
   const createMovement = useCallback(async (
-    data: any
+    data: MovementFormData
   ): Promise<InventoryMovement> => {
     try {
       setLoading(true);
@@ -93,7 +103,9 @@ export function useInventoryMovements(): UseInventoryMovementsReturn {
     if (lastQuery) {
       switch (lastQuery.type) {
         case 'byItem':
-          await getMovementsByItem(lastQuery.params.itemId, lastQuery.params.itemType);
+          if (lastQuery.params.itemId && lastQuery.params.itemType) {
+            await getMovementsByItem(lastQuery.params.itemId, lastQuery.params.itemType);
+          }
           break;
         case 'recent':
           await getRecentMovements(lastQuery.params.limit);

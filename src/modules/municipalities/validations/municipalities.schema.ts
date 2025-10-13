@@ -6,6 +6,10 @@ export const municipalityFormSchema = z.object({
     .string()
     .min(1, 'El nombre del municipio es requerido')
     .max(100, 'El nombre no puede exceder 100 caracteres'),
+  code: z
+    .string()
+    .max(10, 'El código no puede exceder 10 caracteres')
+    .optional(),
   departmentId: z
     .string()
     .min(1, 'Debe seleccionar un departamento'),
@@ -22,7 +26,8 @@ export const municipalityFormSchema = z.object({
     .number()
     .min(-180, 'La longitud debe estar entre -180 y 180')
     .max(180, 'La longitud debe estar entre -180 y 180')
-    .optional()
+    .optional(),
+  isActive: z.boolean()
 });
 
 // Municipality search validation schema

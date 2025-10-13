@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 import { RawMaterial, FinishedProduct } from '../types';
 import { RawMaterialFormSchema, FinishedProductFormSchema } from '../validations/inventory.schema';
 import { updateRawMaterial, updateFinishedProduct } from '../services/inventory.service';
-import { toast } from 'sonner';
 import { EditRawMaterialFormData, EditFinishedProductFormData } from '../components/types/form-data';
 
 interface UseEditInventoryFormProps {
@@ -25,6 +26,7 @@ export function useEditInventoryForm({
   onOpenChange
 }: UseEditInventoryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAuth();
   const isRawMaterial = itemType === 'raw-materials';
 
   // Formulario para materias primas
@@ -101,17 +103,19 @@ export function useEditInventoryForm({
   const handleSubmit = async (data: EditRawMaterialFormData | EditFinishedProductFormData) => {
     if (!item) return;
     
+    if (!user?.uid) {
+      toast.error('Usuario no autenticado');
+      return;
+    }
+    
     try {
       setIsSubmitting(true);
       
-      // TODO: Implementar AuthContext para obtener usuario actual
-      const updatedBy = 'system-user'; // Temporal hasta implementar auth context
-      
       if (isRawMaterial) {
-        await updateRawMaterial(item.id, data as EditRawMaterialFormData, updatedBy);
+        await updateRawMaterial(item.id, data as EditRawMaterialFormData, user.uid);
         toast.success('Materia prima actualizada correctamente');
       } else {
-        await updateFinishedProduct(item.id, data as EditFinishedProductFormData, updatedBy);
+        await updateFinishedProduct(item.id, data as EditFinishedProductFormData, user.uid);
         toast.success('Producto terminado actualizado correctamente');
       }
       

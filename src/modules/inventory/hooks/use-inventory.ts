@@ -15,9 +15,15 @@ export const useInventory = (initialParams: InventorySearchParams = {}) => {
   const currentParamsRef = useRef(state.searchParams);
   currentParamsRef.current = state.searchParams;
 
+  const activeTabRef = useRef(state.activeTab);
+  activeTabRef.current = state.activeTab;
+
+  // Ref para evitar múltiples cargas iniciales
+  const initialLoadDone = useRef(false);
+
   const fetchInventory = useCallback(async (params?: InventorySearchParams, tab?: 'raw-materials' | 'finished-products') => {
     const searchParams = params || currentParamsRef.current;
-    const activeTab = tab || state.activeTab;
+    const activeTab = tab || activeTabRef.current;
     
     setState(prev => ({ ...prev, loading: true, error: undefined }));
 
@@ -50,7 +56,7 @@ export const useInventory = (initialParams: InventorySearchParams = {}) => {
         error: error instanceof Error ? error.message : 'Error al cargar inventario',
       }));
     }
-  }, [state.activeTab]);
+  }, []);
 
   const updateSearchParams = useCallback((newParams: Partial<InventorySearchParams>) => {
     setState(prev => {
@@ -62,18 +68,20 @@ export const useInventory = (initialParams: InventorySearchParams = {}) => {
 
   const switchTab = useCallback((tab: 'raw-materials' | 'finished-products') => {
     setState(prev => ({ ...prev, activeTab: tab }));
-    fetchInventory(state.searchParams, tab);
-  }, [fetchInventory, state.searchParams]);
+    fetchInventory(currentParamsRef.current, tab);
+  }, [fetchInventory]);
 
   const refresh = useCallback(() => {
     fetchInventory();
   }, [fetchInventory]);
 
-  // Effect para cargar datos iniciales
+  // Effect para cargar datos iniciales solo una vez
   useEffect(() => {
-    fetchInventory(initialParams, state.activeTab);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Solo se ejecuta una vez al montar
+    if (!initialLoadDone.current) {
+      fetchInventory(initialParams, 'raw-materials');
+      initialLoadDone.current = true;
+    }
+  }, [fetchInventory, initialParams]);
 
   return {
     ...state,

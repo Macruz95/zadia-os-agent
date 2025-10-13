@@ -19,11 +19,11 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { countrySchema, Country } from '../types/countries.types';
+import { countrySchema, type Country } from '../types/countries.types';
 
 interface CountriesFormProps {
   initialData?: Partial<Country>;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: Omit<Country, 'id'>) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -46,7 +46,7 @@ export function CountriesForm({
     },
   });
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: Omit<Country, 'id'>) => {
     try {
       // Convert isoCode to uppercase
       const formattedData = {

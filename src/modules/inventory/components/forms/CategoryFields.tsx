@@ -11,6 +11,7 @@ import {
 } from '../../types/inventory.types';
 
 interface CategoryFieldsProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
   type: 'rawMaterial' | 'finishedProduct';
   showSupplier?: boolean;

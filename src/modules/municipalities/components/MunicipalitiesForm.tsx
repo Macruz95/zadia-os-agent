@@ -44,10 +44,12 @@ export function MunicipalitiesForm({
     resolver: zodResolver(municipalityFormSchema),
     defaultValues: {
       name: initialData?.name || '',
+      code: initialData?.code || '',
       departmentId: initialData?.departmentId || departmentId || '',
       postalCode: initialData?.postalCode || '',
       latitude: initialData?.latitude || undefined,
       longitude: initialData?.longitude || undefined,
+      isActive: initialData?.isActive !== undefined ? initialData.isActive : true,
     },
   });
 

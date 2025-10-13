@@ -6,6 +6,7 @@
 
 import { useState, useCallback } from 'react';
 import { Quote } from '../types/sales.types';
+import { QuoteFormData } from '../validations/sales.schema';
 import { QuotesService } from '../services/quotes.service';
 import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/lib/logger';
@@ -16,8 +17,8 @@ interface UseQuotesReturn {
   error?: string;
   totalCount: number;
   searchQuotes: () => Promise<void>;
-  createQuote: (data: any) => Promise<Quote>;
-  updateQuote: (id: string, data: any) => Promise<void>;
+  createQuote: (data: QuoteFormData) => Promise<Quote>;
+  updateQuote: (id: string, data: Partial<QuoteFormData>) => Promise<void>;
   deleteQuote: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -47,7 +48,7 @@ export function useQuotes(): UseQuotesReturn {
   }, []);
 
   const createQuote = useCallback(async (
-    data: any
+    data: QuoteFormData
   ): Promise<Quote> => {
     try {
       setLoading(true);
@@ -71,16 +72,15 @@ export function useQuotes(): UseQuotesReturn {
 
   const updateQuote = useCallback(async (
     id: string,
-    data: any
+    data: Partial<QuoteFormData>
   ) => {
     try {
       setError(undefined);
 
       await QuotesService.updateQuote(id, data);
       
-      setQuotes(prev => prev.map(quote => 
-        quote.id === id ? { ...quote, ...data } : quote
-      ));
+      // Refresh data after update
+      await searchQuotes();
 
       logger.info(`Quote updated: ${id}`);
     } catch (err) {
@@ -89,7 +89,7 @@ export function useQuotes(): UseQuotesReturn {
       logger.error('Error updating quote:', err as Error);
       throw err;
     }
-  }, []);
+  }, [searchQuotes]);
 
   const deleteQuote = useCallback(async (id: string) => {
     try {

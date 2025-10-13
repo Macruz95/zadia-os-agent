@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Save, X, AlertTriangle, Phone } from 'lucide-react';
+import { logger } from '@/lib/logger';
 import { phoneCodeFormSchema, PhoneCodeFormData } from '../validations/phone-codes.schema';
 import { usePhoneCodes } from '../hooks/use-phone-codes';
 import { useCountries } from '@/modules/countries/hooks/use-countries';
@@ -67,7 +68,10 @@ export function PhoneCodesForm({ phoneCode, onSuccess, onCancel }: PhoneCodesFor
 
       onSuccess();
     } catch (error) {
-      console.error('Error saving phone code', error);
+      logger.error('Error saving phone code', error as Error, { 
+        component: 'PhoneCodesForm', 
+        action: 'handleSubmit' 
+      });
       notificationService.error('Error al guardar el código telefónico');
     }
   };

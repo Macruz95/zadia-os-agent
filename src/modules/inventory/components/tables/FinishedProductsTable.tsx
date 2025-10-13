@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { logger } from '@/lib/logger';
 import { RawMaterial, FinishedProduct } from '../../types/inventory.types';
 import { InventoryTable } from '../InventoryTable';
 import { deleteFinishedProduct } from '../../services/inventory.service';
@@ -22,6 +22,7 @@ export function FinishedProductsTable({
   onRefresh 
 }: FinishedProductsTableProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; item: FinishedProduct | null }>({ open: false, item: null });
   const [editDialog, setEditDialog] = useState<{ open: boolean; item: FinishedProduct | null }>({ open: false, item: null });
   const [isDeleting, setIsDeleting] = useState(false);
@@ -42,12 +43,14 @@ export function FinishedProductsTable({
   const handleConfirmDelete = async () => {
     if (!deleteDialog.item) return;
     
+    if (!user?.uid) {
+      toast.error('Usuario no autenticado');
+      return;
+    }
+    
     setIsDeleting(true);
     try {
-      // TODO: Implementar AuthContext para obtener usuario actual
-      const deletedBy = 'system-user'; // Temporal hasta implementar auth context
-      
-      await deleteFinishedProduct(deleteDialog.item.id, deletedBy);
+      await deleteFinishedProduct(deleteDialog.item.id, user.uid);
       toast.success(`Producto terminado "${deleteDialog.item.name}" eliminado correctamente`);
       
       setDeleteDialog({ open: false, item: null });

@@ -141,8 +141,6 @@ export function EditLeadDialog({
               onPhoneChange={(value) => form.setValue('phone', value)}
               phoneCountryId={undefined}
               onPhoneCountryChange={undefined}
-              company={form.watch('company') || ''}
-              onCompanyChange={(value) => form.setValue('company', value)}
               position={form.watch('position') || ''}
               onPositionChange={(value) => form.setValue('position', value)}
             />

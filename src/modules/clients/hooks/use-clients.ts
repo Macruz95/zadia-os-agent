@@ -13,6 +13,9 @@ export const useClients = (initialParams: ClientSearchParams = {}) => {
   const currentParamsRef = useRef(state.searchParams);
   currentParamsRef.current = state.searchParams;
 
+  // Ref para evitar múltiples cargas iniciales
+  const initialLoadDone = useRef(false);
+
   const fetchClients = useCallback(async (params?: ClientSearchParams) => {
     const searchParams = params || currentParamsRef.current;
     setState(prev => ({ ...prev, loading: true, error: undefined }));
@@ -47,11 +50,13 @@ export const useClients = (initialParams: ClientSearchParams = {}) => {
     fetchClients();
   }, [fetchClients]);
 
-  // Effect para cargar datos iniciales
+  // Effect para cargar datos iniciales solo una vez
   useEffect(() => {
-    fetchClients(initialParams);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Solo se ejecuta una vez al montar
+    if (!initialLoadDone.current) {
+      fetchClients(initialParams);
+      initialLoadDone.current = true;
+    }
+  }, [fetchClients, initialParams]);
 
   return {
     ...state,

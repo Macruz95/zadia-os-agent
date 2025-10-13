@@ -14,8 +14,6 @@ interface LeadBasicInfoProps {
   onPhoneChange: (value: string) => void;
   phoneCountryId?: string;
   onPhoneCountryChange?: (countryId: string) => void;
-  company: string;
-  onCompanyChange: (value: string) => void;
   position: string;
   onPositionChange: (value: string) => void;
 }
@@ -32,8 +30,6 @@ export function LeadBasicInfo({
   onPhoneChange,
   phoneCountryId,
   onPhoneCountryChange,
-  company,
-  onCompanyChange,
   position,
   onPositionChange,
 }: LeadBasicInfoProps) {

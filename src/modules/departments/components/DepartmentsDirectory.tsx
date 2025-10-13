@@ -60,7 +60,7 @@ export function DepartmentsDirectory() {
     return matchesSearch && matchesCountry && department.isActive;
   });
 
-  const handleCreateDepartment = async (data: any) => {
+  const handleCreateDepartment = async (data: Omit<Department, 'id'>) => {
     try {
       await createDepartment(data);
       setIsCreateDialogOpen(false);
@@ -77,7 +77,7 @@ export function DepartmentsDirectory() {
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdateDepartment = async (data: any) => {
+  const handleUpdateDepartment = async (data: Omit<Department, 'id'>) => {
     if (!selectedDepartment) return;
     
     try {

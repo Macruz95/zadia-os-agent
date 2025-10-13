@@ -56,18 +56,21 @@ class Logger {
 
   debug(message: string, context?: LogContext): void {
     if (this.shouldLog('debug')) {
+      // eslint-disable-next-line no-console
       console.log(this.formatMessage('debug', message, context));
     }
   }
 
   info(message: string, context?: LogContext): void {
     if (this.shouldLog('info')) {
+      // eslint-disable-next-line no-console
       console.info(this.formatMessage('info', message, context));
     }
   }
 
   warn(message: string, context?: LogContext): void {
     if (this.shouldLog('warn')) {
+      // eslint-disable-next-line no-console
       console.warn(this.formatMessage('warn', message, context));
     }
   }
@@ -75,6 +78,7 @@ class Logger {
   error(message: string, error?: Error, context?: LogContext): void {
     if (this.shouldLog('error')) {
       const errorContext = error ? { ...context, error: error.message, stack: error.stack } : context;
+      // eslint-disable-next-line no-console
       console.error(this.formatMessage('error', message, errorContext));
     }
   }

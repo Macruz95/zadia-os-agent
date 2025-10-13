@@ -42,6 +42,7 @@ export function DepartmentsForm({
       name: initialData?.name || '',
       code: initialData?.code || '',
       countryId: initialData?.countryId || '',
+      isActive: initialData?.isActive !== undefined ? initialData.isActive : true,
     },
   });
 

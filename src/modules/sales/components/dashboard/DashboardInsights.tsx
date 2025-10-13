@@ -11,6 +11,7 @@ import {
   Users
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import type { SalesAnalyticsData } from '../../services/analytics.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { LeadsService } from '../../services/leads.service';
@@ -49,8 +50,8 @@ export function DashboardInsights({
             .slice(0, 3);
           
           setRecentOpportunities(recentWins);
-        } catch (oppError) {
-          console.warn('Could not fetch opportunities', oppError);
+        } catch {
+          logger.warn('Could not fetch opportunities', { component: 'DashboardInsights', action: 'fetchOpportunities' });
           setRecentOpportunities([]);
         }
 
@@ -68,12 +69,12 @@ export function DashboardInsights({
             .slice(0, 5);
           
           setHighPriorityLeads(urgentLeads);
-        } catch (leadsError) {
-          console.warn('Could not fetch leads, using empty state', leadsError);
+        } catch {
+          logger.warn('Could not fetch leads, using empty state', { component: 'DashboardInsights', action: 'fetchLeads' });
           setHighPriorityLeads([]);
         }
       } catch (error) {
-        console.error('Error fetching dashboard data', error);
+        logger.error('Error fetching dashboard data', error as Error, { component: 'DashboardInsights', action: 'fetchDashboardData' });
       } finally {
         setLoading(false);
       }

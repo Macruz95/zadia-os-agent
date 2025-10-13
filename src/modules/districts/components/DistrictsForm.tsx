@@ -45,6 +45,7 @@ export function DistrictsForm({
       name: initialData?.name || '',
       code: initialData?.code || '',
       municipalityId: initialData?.municipalityId || municipalityId || '',
+      isActive: initialData?.isActive !== undefined ? initialData.isActive : true,
     },
   });
 

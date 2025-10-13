@@ -55,8 +55,8 @@ service cloud.firestore {
     
     // Clients collection - secured with proper authentication
     match /clients/{clientId} {
-      allow read: if isAuthenticated() && (isOwnerData(clientId) || isManagerOrAdmin());
-      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidClientData();
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidClientData();
       allow update: if isAuthenticated() && (isOwnerData(clientId) || isManagerOrAdmin()) && isValidClientUpdate();
       allow delete: if isAuthenticated() && isAdmin();
       
@@ -67,7 +67,6 @@ service cloud.firestore {
       function isValidClientData() {
         let data = request.resource.data;
         return data.keys().hasAll(['name', 'documentId', 'clientType', 'status', 'createdBy', 'createdAt']) &&
-               data.createdBy == request.auth.uid &&
                data.clientType in ['PersonaNatural', 'Organización', 'Empresa'] &&
                data.status in ['Potencial', 'Activo', 'Inactivo'];
       }
@@ -82,8 +81,8 @@ service cloud.firestore {
 
     // Contacts collection - secured with client ownership validation
     match /contacts/{contactId} {
-      allow read: if isAuthenticated() && (isContactOwner(contactId) || isManagerOrAdmin());
-      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidContactData();
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidContactData();
       allow update: if isAuthenticated() && (isContactOwner(contactId) || isManagerOrAdmin());
       allow delete: if isAuthenticated() && (isContactOwner(contactId) || isAdmin());
       
@@ -103,8 +102,8 @@ service cloud.firestore {
 
     // Interactions collection - secured with client ownership validation
     match /interactions/{interactionId} {
-      allow read: if isAuthenticated() && (isInteractionOwner(interactionId) || isManagerOrAdmin());
-      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidInteractionData();
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidInteractionData();
       allow update: if isAuthenticated() && (isInteractionOwner(interactionId) || isManagerOrAdmin());
       allow delete: if isAuthenticated() && isAdmin();
       
@@ -117,15 +116,14 @@ service cloud.firestore {
       function isValidInteractionData() {
         let data = request.resource.data;
         return data.keys().hasAll(['clientId', 'type', 'createdBy']) &&
-               data.createdBy == request.auth.uid &&
                exists(/databases/$(database)/documents/clients/$(data.clientId));
       }
     }
 
     // Transactions collection - secured with authentication and validation
     match /transactions/{transactionId} {
-      allow read: if isAuthenticated() && (isTransactionOwner(transactionId) || isManagerOrAdmin());
-      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidTransactionData();
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidTransactionData();
       allow update: if isAuthenticated() && (isTransactionOwner(transactionId) || isManagerOrAdmin());
       allow delete: if isAuthenticated() && isAdmin();
       
@@ -136,15 +134,14 @@ service cloud.firestore {
       function isValidTransactionData() {
         let data = request.resource.data;
         return data.keys().hasAll(['clientId', 'amount', 'type', 'status', 'createdBy']) &&
-               data.createdBy == request.auth.uid &&
                data.amount is number && data.amount >= 0;
       }
     }
 
     // Projects collection - secured with authentication
     match /projects/{projectId} {
-      allow read: if isAuthenticated() && (isProjectOwner(projectId) || isManagerOrAdmin());
-      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidProjectData();
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidProjectData();
       allow update: if isAuthenticated() && (isProjectOwner(projectId) || isManagerOrAdmin());
       allow delete: if isAuthenticated() && isAdmin();
       
@@ -156,15 +153,14 @@ service cloud.firestore {
       function isValidProjectData() {
         let data = request.resource.data;
         return data.keys().hasAll(['name', 'clientId', 'status', 'createdBy']) &&
-               data.createdBy == request.auth.uid &&
                exists(/databases/$(database)/documents/clients/$(data.clientId));
       }
     }
 
     // Quotes collection - secured with authentication
     match /quotes/{quoteId} {
-      allow read: if isAuthenticated() && (isQuoteOwner(quoteId) || isManagerOrAdmin());
-      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidQuoteData();
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidQuoteData();
       allow update: if isAuthenticated() && (isQuoteOwner(quoteId) || isManagerOrAdmin());
       allow delete: if isAuthenticated() && isAdmin();
       
@@ -175,7 +171,6 @@ service cloud.firestore {
       function isValidQuoteData() {
         let data = request.resource.data;
         return data.keys().hasAll(['clientId', 'total', 'status', 'createdBy']) &&
-               data.createdBy == request.auth.uid &&
                data.total is number && data.total >= 0;
       }
     }
@@ -204,6 +199,124 @@ service cloud.firestore {
         (request.auth.uid == resource.data.assignedTo || 
          request.auth.uid == resource.data.createdBy ||
          isManagerOrAdmin());
+    }
+
+    // ====================================================================
+    // INVENTORY MODULE - Raw Materials, Finished Products, BOM, Movements
+    // ====================================================================
+    
+    // Raw Materials collection - authenticated users with manager/admin access
+    match /raw-materials/{materialId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidInventoryData();
+      allow update: if isAuthenticated() && isManagerOrAdmin();
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isValidInventoryData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['name', 'sku', 'category', 'unitOfMeasure', 'currentStock', 'createdBy', 'createdAt']) &&
+               data.currentStock is number && data.currentStock >= 0 &&
+               data.unitCost is number && data.unitCost >= 0;
+      }
+    }
+
+    // Finished Products collection - authenticated users with manager/admin access
+    match /finished-products/{productId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidProductData();
+      allow update: if isAuthenticated() && isManagerOrAdmin();
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isValidProductData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['name', 'sku', 'category', 'unitOfMeasure', 'currentStock', 'createdBy', 'createdAt']) &&
+               data.currentStock is number && data.currentStock >= 0 &&
+               data.unitCost is number && data.unitCost >= 0 &&
+               data.sellingPrice is number && data.sellingPrice >= 0;
+      }
+    }
+
+    // Bill of Materials (BOM) collection - manage product recipes
+    match /bill-of-materials/{bomId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidBOMData();
+      allow update: if isAuthenticated() && isManagerOrAdmin();
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isValidBOMData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['finishedProductId', 'materials', 'createdBy', 'createdAt']) &&
+               data.materials is list &&
+               data.version is number && data.version > 0;
+      }
+    }
+
+    // Inventory Movements collection - track all stock changes
+    match /inventory-movements/{movementId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidMovementData();
+      allow update: if isAuthenticated() && isAdmin(); // Only admins can modify movements
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isValidMovementData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['itemId', 'itemType', 'type', 'quantity', 'createdBy', 'createdAt']) &&
+               data.quantity is number && data.quantity > 0 &&
+               data.itemType in ['raw-material', 'finished-product'] &&
+               data.type in ['entrada', 'salida', 'ajuste', 'produccion', 'devolucion', 'merma'];
+      }
+    }
+
+    // Inventory Alerts collection - low stock and other notifications
+    match /inventory-alerts/{alertId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isManagerOrAdmin();
+      allow update: if isAuthenticated() && isManagerOrAdmin();
+      allow delete: if isAuthenticated() && isManagerOrAdmin();
+    }
+
+    // ====================================================================
+    // SALES MODULE - Leads, Opportunities, Conversion Pipeline
+    // ====================================================================
+    
+    // Leads collection - manage sales leads
+    match /leads/{leadId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidLeadData();
+      allow update: if isAuthenticated() && (isLeadOwner(leadId) || isManagerOrAdmin());
+      allow delete: if isAuthenticated() && (isLeadOwner(leadId) || isAdmin());
+      
+      function isLeadOwner(leadId) {
+        return resource.data.createdBy == request.auth.uid ||
+               (resource.data.assignedTo != null && resource.data.assignedTo == request.auth.uid);
+      }
+      
+      function isValidLeadData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['firstName', 'email', 'status', 'source', 'priority', 'createdBy', 'createdAt']) &&
+               data.status in ['nuevo', 'contactado', 'calificado', 'no-calificado', 'convertido'] &&
+               data.priority in ['baja', 'media', 'alta', 'urgente'];
+      }
+    }
+
+    // Opportunities collection - converted leads and sales pipeline
+    match /opportunities/{opportunityId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidOpportunityData();
+      allow update: if isAuthenticated() && (isOpportunityOwner(opportunityId) || isManagerOrAdmin());
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isOpportunityOwner(opportunityId) {
+        return resource.data.createdBy == request.auth.uid ||
+               (resource.data.assignedTo != null && resource.data.assignedTo == request.auth.uid);
+      }
+      
+      function isValidOpportunityData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['name', 'stage', 'value', 'createdBy', 'createdAt']) &&
+               data.stage in ['prospecto', 'calificacion', 'propuesta', 'negociacion', 'cierre', 'ganada', 'perdida'] &&
+               data.value is number && data.value >= 0;
+      }
     }
     
     // Analytics collection - admin only

@@ -68,7 +68,7 @@ export function MunicipalitiesDirectory({ departmentId, departmentName }: Munici
     return matchesSearch && municipality.isActive;
   });
 
-  const handleCreateMunicipality = async (data: any) => {
+  const handleCreateMunicipality = async (data: Omit<Municipality, 'id'>) => {
     try {
       await createMunicipality(data);
       setIsCreateDialogOpen(false);
@@ -85,7 +85,7 @@ export function MunicipalitiesDirectory({ departmentId, departmentName }: Munici
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdateMunicipality = async (data: any) => {
+  const handleUpdateMunicipality = async (data: Omit<Municipality, 'id'>) => {
     if (!selectedMunicipality) return;
     
     try {

@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { logger } from '@/lib/logger';
 import { RawMaterial, FinishedProduct } from '../../types/inventory.types';
 import { InventoryTable } from '../InventoryTable';
 import { deleteRawMaterial } from '../../services/inventory.service';

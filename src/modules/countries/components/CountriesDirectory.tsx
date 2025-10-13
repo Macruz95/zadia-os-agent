@@ -55,7 +55,7 @@ export function CountriesDirectory() {
     country.phoneCode.includes(searchTerm)
   );
 
-  const handleCreateCountry = async (data: any) => {
+  const handleCreateCountry = async (data: Omit<Country, 'id'>) => {
     try {
       await createCountry(data);
       setIsCreateDialogOpen(false);
@@ -72,7 +72,7 @@ export function CountriesDirectory() {
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdateCountry = async (data: any) => {
+  const handleUpdateCountry = async (data: Omit<Country, 'id'>) => {
     if (!selectedCountry) return;
     
     try {

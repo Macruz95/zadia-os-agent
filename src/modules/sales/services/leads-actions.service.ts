@@ -7,7 +7,6 @@
 
 import { 
   collection, 
-  doc, 
   getDocs, 
   addDoc, 
   query, 
@@ -18,7 +17,6 @@ import {
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
 import { 
-  Lead, 
   LeadInteraction 
 } from '../types/sales.types';
 import { LeadInteractionData } from '../validations/sales.schema';

@@ -28,7 +28,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { RawMaterialCategoryEnum, FinishedProductCategoryEnum, UnitOfMeasureEnum, ProductStatusEnum } from '../types/inventory.types';
+import { 
+  RawMaterialCategoryEnum, 
+  FinishedProductCategoryEnum, 
+  UnitOfMeasureEnum, 
+  ProductStatusEnum,
+  type RawMaterialCategory,
+  type FinishedProductCategory,
+  type ProductStatus 
+} from '../types/inventory.types';
 import { inventoryUtils } from '../utils/inventory.utils';
 
 // Form schemas
@@ -97,7 +105,7 @@ export function InventoryForm({
     },
   });
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: RawMaterialFormData | FinishedProductFormData) => {
     try {
       await onSubmit(data);
     } catch (error) {
@@ -114,8 +122,8 @@ export function InventoryForm({
 
   const getCategoryIcon = (category: string) => {
     return isRawMaterial 
-      ? inventoryUtils.getRawMaterialCategoryIcon(category as any)
-      : inventoryUtils.getFinishedProductCategoryIcon(category as any);
+      ? inventoryUtils.getRawMaterialCategoryIcon(category as RawMaterialCategory)
+      : inventoryUtils.getFinishedProductCategoryIcon(category as FinishedProductCategory);
   };
 
   return (
@@ -228,7 +236,7 @@ export function InventoryForm({
                         <SelectItem key={status} value={status}>
                           <div className="flex items-center gap-2">
                             <div 
-                              className={`w-2 h-2 rounded-full bg-${inventoryUtils.getStatusColor(status as any)}-500`}
+                              className={`w-2 h-2 rounded-full bg-${inventoryUtils.getStatusColor(status as ProductStatus)}-500`}
                             />
                             <span>{status}</span>
                           </div>

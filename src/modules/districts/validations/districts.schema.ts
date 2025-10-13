@@ -12,7 +12,8 @@ export const districtFormSchema = z.object({
   code: z
     .string()
     .max(10, 'El código no puede exceder 10 caracteres')
-    .optional()
+    .optional(),
+  isActive: z.boolean()
 });
 
 // District search validation schema

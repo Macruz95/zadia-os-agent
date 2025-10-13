@@ -6,6 +6,7 @@
 
 import { useState, useCallback } from 'react';
 import { Opportunity } from '../types/sales.types';
+import { OpportunityFormData } from '../validations/sales.schema';
 import { OpportunitiesService } from '../services/opportunities.service';
 import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/lib/logger';
@@ -16,8 +17,8 @@ interface UseOpportunitiesReturn {
   error?: string;
   totalCount: number;
   searchOpportunities: () => Promise<void>;
-  createOpportunity: (data: any) => Promise<Opportunity>;
-  updateOpportunity: (id: string, data: any) => Promise<void>;
+  createOpportunity: (data: OpportunityFormData) => Promise<Opportunity>;
+  updateOpportunity: (id: string, data: Partial<OpportunityFormData>) => Promise<void>;
   deleteOpportunity: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
 }
@@ -47,7 +48,7 @@ export function useOpportunities(): UseOpportunitiesReturn {
   }, []);
 
   const createOpportunity = useCallback(async (
-    data: any
+    data: OpportunityFormData
   ): Promise<Opportunity> => {
     try {
       setLoading(true);
@@ -71,16 +72,15 @@ export function useOpportunities(): UseOpportunitiesReturn {
 
   const updateOpportunity = useCallback(async (
     id: string,
-    data: any
+    data: Partial<OpportunityFormData>
   ) => {
     try {
       setError(undefined);
 
       await OpportunitiesService.updateOpportunity(id, data);
       
-      setOpportunities(prev => prev.map(opportunity => 
-        opportunity.id === id ? { ...opportunity, ...data } : opportunity
-      ));
+      // Refresh data after update
+      await searchOpportunities();
 
       logger.info(`Opportunity updated: ${id}`);
     } catch (err) {
@@ -89,7 +89,7 @@ export function useOpportunities(): UseOpportunitiesReturn {
       logger.error('Error updating opportunity:', err as Error);
       throw err;
     }
-  }, []);
+  }, [searchOpportunities]);
 
   const deleteOpportunity = useCallback(async (id: string) => {
     try {

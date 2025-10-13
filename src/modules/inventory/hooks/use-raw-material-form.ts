@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 import { RawMaterialFormData, RawMaterialFormSchema } from '../validations/inventory.schema';
 import { createRawMaterial, updateRawMaterial } from '../services/inventory.service';
 import { RawMaterial } from '../types/inventory.types';
@@ -18,6 +19,7 @@ export const useRawMaterialForm = ({
   onCancel 
 }: UseRawMaterialFormProps = {}) => {
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const isEditing = Boolean(initialData);
 
   const form = useForm<RawMaterialFormData>({
@@ -74,15 +76,15 @@ export const useRawMaterialForm = ({
 
       let result: RawMaterial;
       
+      if (!user?.uid) {
+        throw new Error('Usuario no autenticado');
+      }
+      
       if (isEditing && initialData) {
-        // TODO: Implementar AuthContext para obtener usuario actual
-        const currentUser = 'system-user'; // Temporal hasta implementar auth context
-        result = await updateRawMaterial(initialData.id, cleanData as RawMaterialFormData, currentUser);
+        result = await updateRawMaterial(initialData.id, cleanData as RawMaterialFormData, user.uid);
         toast.success('Materia prima actualizada exitosamente');
       } else {
-        // TODO: Implementar AuthContext para obtener usuario actual
-        const currentUser = 'system-user'; // Temporal hasta implementar auth context
-        result = await createRawMaterial(cleanData as RawMaterialFormData, currentUser);
+        result = await createRawMaterial(cleanData as RawMaterialFormData, user.uid);
         toast.success('Materia prima creada exitosamente');
       }
 

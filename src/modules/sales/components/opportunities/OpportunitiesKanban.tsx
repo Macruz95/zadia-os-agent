@@ -10,6 +10,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { logger } from '@/lib/logger';
 import { Opportunity, OpportunityStage, OpportunityStatus, OpportunityPriority } from '../../types/sales.types';
 import { OpportunitiesService } from '../../services/opportunities.service';
 
@@ -34,7 +35,7 @@ export function OpportunitiesKanban() {
       setOpportunities(data);
       setLoading(false);
     } catch (error) {
-      console.error('Error loading opportunities', error);
+      logger.error('Error loading opportunities', error as Error);
       toast.error('Error al cargar oportunidades');
       setLoading(false);
     }
@@ -86,7 +87,7 @@ export function OpportunitiesKanban() {
       );
       toast.success('Etapa actualizada correctamente');
     } catch (error) {
-      console.error('Error updating opportunity stage', error);
+      logger.error('Error updating opportunity stage', error as Error);
       toast.error('Error al actualizar la etapa');
     }
   };

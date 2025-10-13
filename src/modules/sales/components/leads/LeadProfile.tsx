@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 import { Lead } from '../../types/sales.types';
 import { getLeadById } from '../../services/leads.service';
 import { useLeads } from '../../hooks/use-leads';
@@ -52,7 +53,11 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
           setError('Lead no encontrado');
         }
       } catch (err) {
-        console.error('Error loading lead:', err);
+        logger.error('Error loading lead', err as Error, { 
+          component: 'LeadProfile', 
+          action: 'loadLead',
+          metadata: { leadId } 
+        });
         setError('Error al cargar el lead');
       } finally {
         setLoading(false);
@@ -71,7 +76,11 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
       toast.success('Lead convertido exitosamente');
       router.push('/sales/leads');
     } catch (error) {
-      console.error('Error converting lead:', error);
+      logger.error('Error converting lead', error as Error, { 
+        component: 'LeadProfile', 
+        action: 'convertLead',
+        metadata: { leadId: lead.id } 
+      });
       toast.error('Error al convertir lead');
     }
   };
@@ -84,7 +93,11 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
       setDisqualifyDialog(false);
       router.push('/sales/leads');
     } catch (error) {
-      console.error('Error disqualifying lead:', error);
+      logger.error('Error disqualifying lead', error as Error, { 
+        component: 'LeadProfile', 
+        action: 'disqualifyLead',
+        metadata: { leadId: lead.id, reason } 
+      });
       toast.error('Error al descalificar lead');
     }
   };
@@ -98,7 +111,11 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
       setDeleteDialog(false);
       router.push('/sales/leads');
     } catch (error) {
-      console.error('Error deleting lead:', error);
+      logger.error('Error deleting lead', error as Error, { 
+        component: 'LeadProfile', 
+        action: 'deleteLead',
+        metadata: { leadId: lead.id } 
+      });
       toast.error('Error al eliminar lead');
     }
   };
@@ -112,7 +129,11 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
           const leadData = await getLeadById(leadId);
           if (leadData) setLead(leadData);
         } catch (err) {
-          console.error('Error reloading lead:', err);
+          logger.error('Error reloading lead', err as Error, { 
+            component: 'LeadProfile', 
+            action: 'reloadLead',
+            metadata: { leadId } 
+          });
         }
       };
       loadLead();

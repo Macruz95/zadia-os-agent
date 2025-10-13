@@ -6,6 +6,7 @@
 
 import { useState, useCallback } from 'react';
 import { FinishedProduct } from '../types/inventory.types';
+import { FinishedProductFormData } from '../validations/inventory.schema';
 import { FinishedProductsService } from '../services/entities/finished-products-entity.service';
 import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/lib/logger';
@@ -16,8 +17,8 @@ interface UseFinishedProductsReturn {
   error?: string;
   totalCount: number;
   searchFinishedProducts: () => Promise<void>;
-  createFinishedProduct: (data: Omit<FinishedProduct, 'id' | 'createdAt' | 'updatedAt'>) => Promise<FinishedProduct>;
-  updateFinishedProduct: (id: string, data: Partial<Omit<FinishedProduct, 'id' | 'createdAt' | 'updatedAt'>>) => Promise<void>;
+  createFinishedProduct: (data: FinishedProductFormData) => Promise<FinishedProduct>;
+  updateFinishedProduct: (id: string, data: Partial<FinishedProductFormData>) => Promise<void>;
   updateStock: (id: string, newStock: number) => Promise<void>;
   updateUnitCost: (id: string, newCost: number) => Promise<void>;
   deleteFinishedProduct: (id: string) => Promise<void>;
@@ -52,7 +53,7 @@ export function useFinishedProducts(): UseFinishedProductsReturn {
   }, []);
 
   const createFinishedProduct = useCallback(async (
-    data: any
+    data: FinishedProductFormData
   ): Promise<FinishedProduct> => {
     try {
       setLoading(true);
@@ -76,16 +77,15 @@ export function useFinishedProducts(): UseFinishedProductsReturn {
 
   const updateFinishedProduct = useCallback(async (
     id: string,
-    data: any
+    data: Partial<FinishedProductFormData>
   ) => {
     try {
       setError(undefined);
 
       await FinishedProductsService.updateFinishedProduct(id, data, user?.uid || '');
       
-      setFinishedProducts(prev => prev.map(product => 
-        product.id === id ? { ...product, ...data } : product
-      ));
+      // Refresh data after update
+      await searchFinishedProducts();
 
       logger.info(`Finished product updated: ${id}`);
     } catch (err) {
@@ -94,7 +94,7 @@ export function useFinishedProducts(): UseFinishedProductsReturn {
       logger.error('Error updating finished product:', err as Error);
       throw err;
     }
-  }, [user?.uid]);
+  }, [user?.uid, searchFinishedProducts]);
 
   const updateStock = useCallback(async (
     id: string,

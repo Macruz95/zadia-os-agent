@@ -62,7 +62,7 @@ export function DistrictsDirectory({ municipalityId, municipalityName }: Distric
     return matchesSearch && district.isActive;
   });
 
-  const handleCreateDistrict = async (data: any) => {
+  const handleCreateDistrict = async (data: Omit<District, 'id'>) => {
     try {
       await createDistrict(data);
       setIsCreateDialogOpen(false);
@@ -79,7 +79,7 @@ export function DistrictsDirectory({ municipalityId, municipalityName }: Distric
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdateDistrict = async (data: any) => {
+  const handleUpdateDistrict = async (data: Omit<District, 'id'>) => {
     if (!selectedDistrict) return;
     
     try {

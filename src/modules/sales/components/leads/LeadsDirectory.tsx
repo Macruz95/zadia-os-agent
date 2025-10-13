@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 import { useLeads } from '../../hooks/use-leads';
 import { useAuth } from '@/contexts/AuthContext';
 import { deleteLead } from '../../services/leads.service';
@@ -75,7 +76,11 @@ export function LeadsDirectory() {
       toast.success('Lead convertido exitosamente');
       // TODO: Redirect to conversion wizard
     } catch (error) {
-      console.error('Error converting lead', error);
+      logger.error('Error converting lead', error as Error, { 
+        component: 'LeadsDirectory', 
+        action: 'convertLead',
+        metadata: { leadId: lead.id } 
+      });
       toast.error('Error al convertir lead');
     }
   };
@@ -92,7 +97,11 @@ export function LeadsDirectory() {
       toast.success('Lead descalificado');
       refresh();
     } catch (error) {
-      console.error('Error disqualifying lead', error);
+      logger.error('Error disqualifying lead', error as Error, { 
+        component: 'LeadsDirectory', 
+        action: 'disqualifyLead',
+        metadata: { leadId: disqualifyDialog.lead.id, reason } 
+      });
       toast.error('Error al descalificar lead');
     } finally {
       setDisqualifyDialog({ open: false, lead: null });
@@ -115,7 +124,11 @@ export function LeadsDirectory() {
       toast.success('Lead eliminado exitosamente');
       refresh();
     } catch (error) {
-      console.error('Error deleting lead', error);
+      logger.error('Error deleting lead', error as Error, { 
+        component: 'LeadsDirectory', 
+        action: 'deleteLead',
+        metadata: { leadId: deleteDialog.lead.id } 
+      });
       toast.error('Error al eliminar lead');
     } finally {
       setDeleteDialog({ open: false, lead: null });

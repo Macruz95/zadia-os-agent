@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 import { FinishedProductFormData, FinishedProductFormSchema } from '../validations/inventory.schema';
 import { createFinishedProduct, updateFinishedProduct } from '../services/inventory.service';
 import { FinishedProduct } from '../types';
@@ -18,6 +19,7 @@ export const useFinishedProductForm = ({
   onCancel 
 }: UseFinishedProductFormProps = {}) => {
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
   const isEditing = Boolean(initialData);
 
   const form = useForm<FinishedProductFormData>({
@@ -84,15 +86,15 @@ export const useFinishedProductForm = ({
 
       let result: FinishedProduct;
       
+      if (!user?.uid) {
+        throw new Error('Usuario no autenticado');
+      }
+      
       if (isEditing && initialData) {
-        // TODO: Implementar AuthContext para obtener usuario actual
-        const currentUser = 'system-user'; // Temporal hasta implementar auth context
-        result = await updateFinishedProduct(initialData.id, cleanData as FinishedProductFormData, currentUser);
+        result = await updateFinishedProduct(initialData.id, cleanData as FinishedProductFormData, user.uid);
         toast.success('Producto terminado actualizado exitosamente');
       } else {
-        // TODO: Implementar AuthContext para obtener usuario actual
-        const currentUser = 'system-user'; // Temporal hasta implementar auth context
-        result = await createFinishedProduct(cleanData as FinishedProductFormData, currentUser);
+        result = await createFinishedProduct(cleanData as FinishedProductFormData, user.uid);
         toast.success('Producto terminado creado exitosamente');
       }
 

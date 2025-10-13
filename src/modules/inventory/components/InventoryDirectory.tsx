@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 
@@ -35,32 +35,38 @@ export function InventoryDirectory() {
 
   const [searchQuery, setSearchQuery] = useState(searchParams.query || '');
 
-  // Load all inventory data for KPIs
+  // Ref para evitar múltiples cargas de KPIs
+  const kpisLoadedRef = useRef(false);
+
+  // Load all inventory data for KPIs - solo una vez
   useEffect(() => {
     const loadAllInventoryData = async () => {
-      if (!loading) {
-        try {
-          // Load both raw materials and finished products for KPIs
-          const [rmResult, fpResult] = await Promise.all([
-            import('../services/inventory.service').then(service => 
-              service.searchRawMaterials({})
-            ),
-            import('../services/inventory.service').then(service => 
-              service.searchFinishedProducts({})
-            )
-          ]);
-          
-          // Calculate KPIs with all data
-          refreshKPIs(rmResult.rawMaterials, fpResult.finishedProducts);
-          checkStockLevels(rmResult.rawMaterials, fpResult.finishedProducts);
-        } catch (error) {
-          logger.error('Error loading inventory data for KPIs:', error as Error);
-        }
+      if (kpisLoadedRef.current) return;
+      
+      try {
+        kpisLoadedRef.current = true;
+        
+        // Load both raw materials and finished products for KPIs
+        const [rmResult, fpResult] = await Promise.all([
+          import('../services/inventory.service').then(service => 
+            service.searchRawMaterials({})
+          ),
+          import('../services/inventory.service').then(service => 
+            service.searchFinishedProducts({})
+          )
+        ]);
+        
+        // Calculate KPIs with all data
+        refreshKPIs(rmResult.rawMaterials, fpResult.finishedProducts);
+        checkStockLevels(rmResult.rawMaterials, fpResult.finishedProducts);
+      } catch (error) {
+        logger.error('Error loading inventory data for KPIs:', error as Error);
+        kpisLoadedRef.current = false; // Permitir reintento en caso de error
       }
     };
 
     loadAllInventoryData();
-  }, [loading, refreshKPIs, checkStockLevels]);
+  }, [refreshKPIs, checkStockLevels]);
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
     item: RawMaterial | FinishedProduct | null;

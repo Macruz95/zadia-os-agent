@@ -6,6 +6,7 @@
 
 import { useState, useCallback } from 'react';
 import { RawMaterial } from '../types/inventory.types';
+import { RawMaterialFormData } from '../validations/inventory.schema';
 import { RawMaterialsService } from '../services/entities/raw-materials-entity.service';
 import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/lib/logger';
@@ -16,8 +17,8 @@ interface UseRawMaterialsReturn {
   error?: string;
   totalCount: number;
   searchRawMaterials: () => Promise<void>;
-  createRawMaterial: (data: any) => Promise<RawMaterial>;
-  updateRawMaterial: (id: string, data: any) => Promise<void>;
+  createRawMaterial: (data: RawMaterialFormData) => Promise<RawMaterial>;
+  updateRawMaterial: (id: string, data: Partial<RawMaterialFormData>) => Promise<void>;
   updateStock: (id: string, newStock: number) => Promise<void>;
   deleteRawMaterial: (id: string) => Promise<void>;
   getLowStockMaterials: () => Promise<void>;
@@ -51,7 +52,7 @@ export function useRawMaterials(): UseRawMaterialsReturn {
   }, []);
 
   const createRawMaterial = useCallback(async (
-    data: any
+    data: RawMaterialFormData
   ): Promise<RawMaterial> => {
     try {
       setLoading(true);
@@ -75,16 +76,15 @@ export function useRawMaterials(): UseRawMaterialsReturn {
 
   const updateRawMaterial = useCallback(async (
     id: string,
-    data: any
+    data: Partial<RawMaterialFormData>
   ) => {
     try {
       setError(undefined);
 
       await RawMaterialsService.updateRawMaterial(id, data, user?.uid || '');
       
-      setRawMaterials(prev => prev.map(material => 
-        material.id === id ? { ...material, ...data } : material
-      ));
+      // Refresh data after update
+      await searchRawMaterials();
 
       logger.info(`Raw material updated: ${id}`);
     } catch (err) {
@@ -93,7 +93,7 @@ export function useRawMaterials(): UseRawMaterialsReturn {
       logger.error('Error updating raw material:', err as Error);
       throw err;
     }
-  }, [user?.uid]);
+  }, [user?.uid, searchRawMaterials]);
 
   const updateStock = useCallback(async (
     id: string,
