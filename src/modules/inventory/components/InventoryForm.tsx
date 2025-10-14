@@ -2,6 +2,7 @@
  * ZADIA OS - Inventory Form Component
  * 
  * Generic form component for inventory items (raw materials and finished products)
+ * Refactored: 418 lines → 135 lines (modular field components)
  */
 
 import React from 'react';
@@ -10,34 +11,16 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Form } from '@/components/ui/form';
 import { 
   RawMaterialCategoryEnum, 
   FinishedProductCategoryEnum, 
   UnitOfMeasureEnum, 
   ProductStatusEnum,
-  type RawMaterialCategory,
-  type FinishedProductCategory,
-  type ProductStatus 
 } from '../types/inventory.types';
-import { inventoryUtils } from '../utils/inventory.utils';
+import { BasicInfoFields } from './forms/BasicInfoFields';
+import { StockCostFields } from './forms/StockCostFields';
+import { PricingSupplierFields } from './forms/PricingSupplierFields';
 
 // Form schemas
 const rawMaterialFormSchema = z.object({
@@ -116,286 +99,21 @@ export function InventoryForm({
     }
   };
 
-  const categoryOptions = isRawMaterial 
-    ? RawMaterialCategoryEnum.options
-    : FinishedProductCategoryEnum.options;
-
-  const getCategoryIcon = (category: string) => {
-    return isRawMaterial 
-      ? inventoryUtils.getRawMaterialCategoryIcon(category as RawMaterialCategory)
-      : inventoryUtils.getFinishedProductCategoryIcon(category as FinishedProductCategory);
-  };
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Información básica */}
+          {/* Basic Information */}
+          <BasicInfoFields form={form} type={type} />
+
+          {/* Stock, Costs, and Pricing */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Información Básica</h3>
-            
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nombre *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nombre del producto" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descripción</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Descripción del producto"
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categoría *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categoryOptions.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          <div className="flex items-center gap-2">
-                            <span>{getCategoryIcon(category)}</span>
-                            <span>{category}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="unitOfMeasure"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Unidad de Medida *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar unidad" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {UnitOfMeasureEnum.options.map((unit) => (
-                        <SelectItem key={unit} value={unit}>
-                          {unit}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Estado *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar estado" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {ProductStatusEnum.options.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          <div className="flex items-center gap-2">
-                            <div 
-                              className={`w-2 h-2 rounded-full bg-${inventoryUtils.getStatusColor(status as ProductStatus)}-500`}
-                            />
-                            <span>{status}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Información de stock y costos */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Stock y Costos</h3>
-            
-            <FormField
-              control={form.control}
-              name="currentStock"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Stock Actual *</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      step="0.01"
-                      placeholder="0"
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="minStock"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stock Mínimo *</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.01"
-                        placeholder="0"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="maxStock"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stock Máximo *</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.01"
-                        placeholder="100"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="unitCost"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Costo Unitario *</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      step="0.01"
-                      placeholder="0.00"
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {form.watch('unitCost') > 0 && form.watch('currentStock') > 0 && (
-                      <span className="text-sm text-muted-foreground">
-                        Valor total: {inventoryUtils.formatTotalValue(
-                          form.watch('currentStock'), 
-                          form.watch('unitCost')
-                        )}
-                      </span>
-                    )}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {!isRawMaterial && (
-              <FormField
-                control={form.control}
-                name="sellingPrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Precio de Venta *</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.01"
-                        placeholder="0.00"
-                        {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {form.watch('sellingPrice') > 0 && form.watch('unitCost') > 0 && (
-                        <span className="text-sm text-muted-foreground">
-                          Margen: {(
-                            ((form.watch('sellingPrice') - form.watch('unitCost')) / form.watch('sellingPrice')) * 100
-                          ).toFixed(1)}%
-                        </span>
-                      )}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {isRawMaterial && (
-              <FormField
-                control={form.control}
-                name="supplier"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Proveedor</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nombre del proveedor" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            <StockCostFields form={form} />
+            <PricingSupplierFields form={form} type={type} />
           </div>
         </div>
 
-        {/* Botones de acción */}
+        {/* Action Buttons */}
         <div className="flex justify-end gap-4 pt-6 border-t">
           <Button
             type="button"
