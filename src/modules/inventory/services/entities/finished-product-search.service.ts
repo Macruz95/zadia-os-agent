@@ -38,18 +38,22 @@ export class FinishedProductSearchService {
         constraints.push(where('status', '==', searchParams.filters.status));
       }
 
-      // Apply sorting
-      const sortField = searchParams.sortBy || 'name';
-      const sortDirection = searchParams.sortOrder || 'asc';
-      constraints.push(orderBy(sortField, sortDirection));
+      // Only add orderBy if we have other constraints (to avoid index requirement)
+      if (constraints.length > 0) {
+        const sortField = searchParams.sortBy || 'name';
+        const sortDirection = searchParams.sortOrder || 'asc';
+        constraints.push(orderBy(sortField, sortDirection));
+      }
 
       // Apply pagination
       const pageSize = searchParams.pageSize || 50;
-      constraints.push(limit(pageSize));
+      if (constraints.length > 0) {
+        constraints.push(limit(pageSize));
+      }
 
       const q = constraints.length > 0 
         ? query(collection(db, COLLECTION_NAME), ...constraints)
-        : collection(db, COLLECTION_NAME);
+        : query(collection(db, COLLECTION_NAME), limit(pageSize));
 
       const querySnapshot = await getDocs(q);
       let finishedProducts: FinishedProduct[] = querySnapshot.docs.map(doc => {
@@ -78,6 +82,25 @@ export class FinishedProductSearchService {
         finishedProducts = finishedProducts.filter(product =>
           product.currentStock <= product.minimumStock
         );
+      }
+
+      // Client-side sorting if no server-side orderBy was applied
+      if (constraints.length === 0 || !searchParams.sortBy) {
+        const sortField = (searchParams.sortBy || 'name') as keyof FinishedProduct;
+        const sortDirection = searchParams.sortOrder || 'asc';
+        finishedProducts.sort((a, b) => {
+          const aVal = a[sortField];
+          const bVal = b[sortField];
+          if (typeof aVal === 'string' && typeof bVal === 'string') {
+            return sortDirection === 'asc' 
+              ? aVal.localeCompare(bVal) 
+              : bVal.localeCompare(aVal);
+          }
+          if (typeof aVal === 'number' && typeof bVal === 'number') {
+            return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+          }
+          return 0;
+        });
       }
 
       return {

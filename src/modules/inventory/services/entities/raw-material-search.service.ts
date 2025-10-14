@@ -38,23 +38,22 @@ export class RawMaterialSearchService {
         constraints.push(where('supplierId', '==', searchParams.filters.supplier));
       }
 
-      if (searchParams.filters?.lowStock) {
-        // This would need to be handled at application level due to Firestore limitations
-        // We'll filter after fetching data
+      // Only add orderBy if we have other constraints (to avoid index requirement)
+      if (constraints.length > 0) {
+        const sortField = searchParams.sortBy || 'name';
+        const sortDirection = searchParams.sortOrder || 'asc';
+        constraints.push(orderBy(sortField, sortDirection));
       }
-
-      // Apply sorting
-      const sortField = searchParams.sortBy || 'name';
-      const sortDirection = searchParams.sortOrder || 'asc';
-      constraints.push(orderBy(sortField, sortDirection));
 
       // Apply pagination
       const pageSize = searchParams.pageSize || 50;
-      constraints.push(limit(pageSize));
+      if (constraints.length > 0) {
+        constraints.push(limit(pageSize));
+      }
 
       const q = constraints.length > 0 
         ? query(collection(db, COLLECTION_NAME), ...constraints)
-        : collection(db, COLLECTION_NAME);
+        : query(collection(db, COLLECTION_NAME), limit(pageSize));
 
       const querySnapshot = await getDocs(q);
       let rawMaterials: RawMaterial[] = querySnapshot.docs.map(doc => {
@@ -83,6 +82,25 @@ export class RawMaterialSearchService {
         rawMaterials = rawMaterials.filter(material =>
           material.currentStock <= material.minimumStock
         );
+      }
+
+      // Client-side sorting if no server-side orderBy was applied
+      if (constraints.length === 0 || !searchParams.sortBy) {
+        const sortField = (searchParams.sortBy || 'name') as keyof RawMaterial;
+        const sortDirection = searchParams.sortOrder || 'asc';
+        rawMaterials.sort((a, b) => {
+          const aVal = a[sortField];
+          const bVal = b[sortField];
+          if (typeof aVal === 'string' && typeof bVal === 'string') {
+            return sortDirection === 'asc' 
+              ? aVal.localeCompare(bVal) 
+              : bVal.localeCompare(aVal);
+          }
+          if (typeof aVal === 'number' && typeof bVal === 'number') {
+            return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+          }
+          return 0;
+        });
       }
 
       return {

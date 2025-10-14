@@ -21,6 +21,7 @@ import { useLeads } from '../../hooks/use-leads';
 import { EditLeadDialog } from './EditLeadDialog';
 import { DeleteLeadDialog } from './DeleteLeadDialog';
 import { DisqualifyLeadDialog } from './DisqualifyLeadDialog';
+import { LeadConversionWizard } from './LeadConversionWizard';
 import { LEAD_STATUS_LABELS, LEAD_SOURCE_LABELS, getStatusBadgeVariant, getPriorityIcon } from './LeadsTableUtils';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -31,7 +32,7 @@ interface LeadProfileProps {
 
 export function LeadProfile({ leadId }: LeadProfileProps) {
   const router = useRouter();
-  const { convertLead, disqualifyLead } = useLeads();
+  const { disqualifyLead } = useLeads();
   
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,6 +42,7 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
   const [editDialog, setEditDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [disqualifyDialog, setDisqualifyDialog] = useState(false);
+  const [conversionWizard, setConversionWizard] = useState(false);
 
   useEffect(() => {
     const loadLead = async () => {
@@ -68,22 +70,6 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
       loadLead();
     }
   }, [leadId]);
-
-  const handleConvertLead = async () => {
-    if (!lead) return;
-    try {
-      await convertLead(lead.id);
-      toast.success('Lead convertido exitosamente');
-      router.push('/sales/leads');
-    } catch (error) {
-      logger.error('Error converting lead', error as Error, { 
-        component: 'LeadProfile', 
-        action: 'convertLead',
-        metadata: { leadId: lead.id } 
-      });
-      toast.error('Error al convertir lead');
-    }
-  };
 
   const handleDisqualifyLead = async (reason: string) => {
     if (!lead) return;
@@ -201,7 +187,7 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
             <Button
               variant="default"
               size="sm"
-              onClick={handleConvertLead}
+              onClick={() => setConversionWizard(true)}
             >
               <UserCheck className="h-4 w-4 mr-2" />
               Convertir
@@ -381,6 +367,12 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
       {/* Dialogs */}
       {lead && (
         <>
+          <LeadConversionWizard
+            lead={lead}
+            open={conversionWizard}
+            onClose={() => setConversionWizard(false)}
+          />
+
           <EditLeadDialog
             open={editDialog}
             onOpenChange={setEditDialog}
