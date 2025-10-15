@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import { useInventory } from '../hooks/use-inventory';
@@ -28,6 +28,8 @@ export function InventoryDirectory() {
     switchTab,
     refresh
   } = useInventory();
+
+  const { user } = useAuth();
 
   // Alerts and KPIs hooks
   const { alerts, refreshAlerts, checkStockLevels } = useInventoryAlerts();
@@ -85,18 +87,18 @@ export function InventoryDirectory() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!deleteDialog.item) return;
+    if (!deleteDialog.item || !user) {
+      if (!user) toast.error('Usuario no autenticado');
+      return;
+    }
     
     setIsDeleting(true);
     try {
-      // TODO: Implementar AuthContext para obtener usuario actual
-      const deletedBy = 'system-user'; // Temporal hasta implementar auth context
-      
       if (deleteDialog.itemType === 'raw-materials') {
-        await RawMaterialsService.deleteRawMaterial(deleteDialog.item.id, deletedBy);
+        await RawMaterialsService.deleteRawMaterial(deleteDialog.item.id, user.uid);
         toast.success(`Materia prima "${deleteDialog.item.name}" eliminada correctamente`);
       } else {
-        await FinishedProductsService.deleteFinishedProduct(deleteDialog.item.id, deletedBy);
+        await FinishedProductsService.deleteFinishedProduct(deleteDialog.item.id, user.uid);
         toast.success(`Producto terminado "${deleteDialog.item.name}" eliminado correctamente`);
       }
       

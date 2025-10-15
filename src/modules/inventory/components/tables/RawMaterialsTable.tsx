@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { RawMaterial, FinishedProduct } from '../../types/inventory.types';
 import { InventoryTable } from '../InventoryTable';
@@ -21,6 +22,7 @@ export function RawMaterialsTable({
   onRefresh 
 }: RawMaterialsTableProps) {
   const router = useRouter();
+  const { user } = useAuth();
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; item: RawMaterial | null }>({ open: false, item: null });
   const [editDialog, setEditDialog] = useState<{ open: boolean; item: RawMaterial | null }>({ open: false, item: null });
   const [isDeleting, setIsDeleting] = useState(false);
@@ -39,14 +41,14 @@ export function RawMaterialsTable({
   };
 
   const handleConfirmDelete = async () => {
-    if (!deleteDialog.item) return;
+    if (!deleteDialog.item || !user) {
+      if (!user) toast.error('Usuario no autenticado');
+      return;
+    }
     
     setIsDeleting(true);
     try {
-      // TODO: Implementar AuthContext para obtener usuario actual
-      const deletedBy = 'system-user'; // Temporal hasta implementar auth context
-      
-      await RawMaterialsService.deleteRawMaterial(deleteDialog.item.id, deletedBy);
+      await RawMaterialsService.deleteRawMaterial(deleteDialog.item.id, user.uid);
       toast.success(`Materia prima "${deleteDialog.item.name}" eliminada correctamente`);
       
       setDeleteDialog({ open: false, item: null });
