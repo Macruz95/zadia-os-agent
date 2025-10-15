@@ -2,8 +2,8 @@ import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ClientFormData, ClientFormSchema } from '../validations/clients.schema';
-import { createClient, updateClient } from '../services/clients.service';
-import { createContact } from '../services/clients.service';
+import { ClientsService } from '../services/clients.service';
+import { ContactsService } from '../services/entities/contacts-entity.service';
 import { showToast } from '../../../lib/toast';
 
 interface UseClientFormOptions {
@@ -52,7 +52,7 @@ export const useClientForm = ({ clientId, onSuccess, onError }: UseClientFormOpt
 
       if (!clientId) {
         // Create new client
-        clientIdToUse = await createClient({
+        clientIdToUse = await ClientsService.createClient({
           name: data.name,
           documentId: data.documentId,
           clientType: data.clientType,
@@ -66,7 +66,7 @@ export const useClientForm = ({ clientId, onSuccess, onError }: UseClientFormOpt
         });
       } else {
         // Update existing client
-        await updateClient(clientId, {
+        await ClientsService.updateClient(clientId, {
           name: data.name,
           documentId: data.documentId,
           clientType: data.clientType,
@@ -82,7 +82,7 @@ export const useClientForm = ({ clientId, onSuccess, onError }: UseClientFormOpt
 
       // Create/update contacts
       for (const contact of data.contacts) {
-        await createContact({
+        await ContactsService.createContact({
           clientId: clientIdToUse!,
           name: contact.name || '',
           role: contact.role || '',

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ClientSearchParams, ClientDirectoryState } from '../types/clients.types';
-import { searchClients } from '../services/clients.service';
+import { ClientsService } from '../services/clients.service';
 
 export const useClients = (initialParams: ClientSearchParams = {}) => {
   const [state, setState] = useState<ClientDirectoryState>({
@@ -21,7 +21,7 @@ export const useClients = (initialParams: ClientSearchParams = {}) => {
     setState(prev => ({ ...prev, loading: true, error: undefined }));
 
     try {
-      const result = await searchClients(searchParams);
+      const result = await ClientsService.searchClients(searchParams);
       setState(prev => ({
         ...prev,
         clients: result.clients,

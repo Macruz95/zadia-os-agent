@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Form } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
 import { Client } from '../types/clients.types';
-import { updateClient } from '../services/clients.service';
+import { ClientsService } from '../services/clients.service';
 import { notificationService } from '@/lib/notifications';
 import { ClientFormSchema } from '../validations/clients.schema';
 import { BasicInfoStep } from './form-steps/BasicInfoStep';
@@ -94,7 +94,7 @@ export function EditClientDialog({
         updateData.source = data.source.trim();
       }
 
-      await updateClient(client.id, updateData);
+      await ClientsService.updateClient(client.id, updateData);
 
       notificationService.success('Cliente actualizado exitosamente');
       onSuccess?.();

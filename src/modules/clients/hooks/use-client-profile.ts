@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { logger } from '@/lib/logger';
 import { ClientProfileState } from '../types/clients.types';
-import {
-  getClient,
-  getContactsByClient,
-  getInteractionsByClient,
-} from '../services/clients.service';
+import { ClientsService } from '../services/clients.service';
+import { ContactsService } from '../services/entities/contacts-entity.service';
+import { InteractionsService } from '../services/entities/interactions-entity.service';
 
 export const useClientProfile = (clientId: string | null) => {
   const [state, setState] = useState<ClientProfileState>({
@@ -30,9 +28,9 @@ export const useClientProfile = (clientId: string | null) => {
         contacts,
         interactions,
       ] = await Promise.all([
-        getClient(id),
-        getContactsByClient(id),
-        getInteractionsByClient(id),
+        ClientsService.getClientById(id),
+        ContactsService.getContactsByClient(id),
+        InteractionsService.getInteractionsByClient(id),
       ]);
 
       setState({

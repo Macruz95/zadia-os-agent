@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { useClients } from '../hooks/use-clients';
 import { Client, ClientType, ClientStatus } from '../types/clients.types';
-import { deleteClient } from '../services/clients.service';
+import { ClientsService } from '../services/clients.service';
 import { notificationService } from '@/lib/notifications';
 import { ClientHeader } from './ClientHeader';
 import { ClientFilters } from './ClientFilters';
@@ -103,7 +103,7 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
     if (!deleteDialog.client) return;
     
     try {
-      await deleteClient(deleteDialog.client.id);
+      await ClientsService.deleteClient(deleteDialog.client.id);
       notificationService.success('Cliente eliminado exitosamente');
       updateSearchParams({});
     } catch (err) {

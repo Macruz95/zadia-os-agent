@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ClientFormData, ClientFormSchema } from '../validations/clients.schema';
-import { createClientWithContacts } from '../services/clients.service';
+import { ClientsService } from '../services/clients.service';
 import { notificationService } from '@/lib/notifications';
 import { getDefaultFormValues } from './ClientFormConstants';
 
@@ -36,7 +36,7 @@ export function useClientForm({ onSuccess }: UseClientFormProps) {
       const formData = form.getValues();
       
       // Create client with contacts using new function
-      await createClientWithContacts(formData);
+      await ClientsService.createClientWithContacts(formData);
       
       notificationService.success('Cliente y contactos creados exitosamente');
       onSuccess?.();
