@@ -60,6 +60,7 @@ export const leadSchema = z.object({
   position: z.string().max(50, 'Puesto muy largo').optional(),
   email: z.string().email('Email inválido'),
   phone: z.string().min(8, 'Teléfono muy corto').max(20, 'Teléfono muy largo'),
+  phoneCountryId: z.string().optional(), // Country ID for international phone format
   company: z.string().max(100, 'Empresa muy larga').optional(),
   source: LeadSourceSchema,
   priority: LeadPrioritySchema,

@@ -47,6 +47,7 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
       entityName: '',
       email: '',
       phone: '',
+      phoneCountryId: 'SV', // El Salvador por defecto
       company: '',
       position: '',
       source: 'web',

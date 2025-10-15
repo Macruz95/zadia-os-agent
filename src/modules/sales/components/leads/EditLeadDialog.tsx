@@ -61,7 +61,7 @@ export function EditLeadDialog({
         entityName: lead.entityName || '',
         email: lead.email,
         phone: lead.phone,
-        // phoneCountryId: lead.phoneCountryId, // TODO: Add to Lead type
+        phoneCountryId: lead.phoneCountryId || 'SV', // El Salvador por defecto
         company: lead.company || '',
         position: lead.position || '',
         source: lead.source,
@@ -78,7 +78,7 @@ export function EditLeadDialog({
       entityName: '',
       email: '',
       phone: '',
-      // phoneCountryId: 'SV', // El Salvador por defecto
+      phoneCountryId: 'SV', // El Salvador por defecto
       company: '',
       position: '',
       source: 'web',

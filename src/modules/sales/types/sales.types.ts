@@ -27,6 +27,7 @@ export interface Lead {
   position?: string; // Job title if applicable
   email: string;
   phone: string;
+  phoneCountryId?: string; // Country ID for phone code reference
   company?: string; // Company name for person leads
   source: LeadSource;
   status: LeadStatus;
