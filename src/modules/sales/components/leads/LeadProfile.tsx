@@ -1,18 +1,13 @@
 /**
  * ZADIA OS - Lead Profile Component
  * 
- * Complete lead details view
+ * Complete lead details view (refactored to use modular components)
  */
 
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Edit, Trash2, UserCheck, UserX, Mail, Phone, Building, Calendar, Target, TrendingUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import { Lead } from '../../types/sales.types';
@@ -22,9 +17,10 @@ import { EditLeadDialog } from './EditLeadDialog';
 import { DeleteLeadDialog } from './DeleteLeadDialog';
 import { DisqualifyLeadDialog } from './DisqualifyLeadDialog';
 import { LeadConversionWizard } from './LeadConversionWizard';
-import { LEAD_STATUS_LABELS, LEAD_SOURCE_LABELS, getStatusBadgeVariant, getPriorityIcon } from './LeadsTableUtils';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { LeadProfileHeader } from './profile/LeadProfileHeader';
+import { LeadContactInfo } from './profile/LeadContactInfo';
+import { LeadMetrics } from './profile/LeadMetrics';
+import { LeadDatesInfo } from './profile/LeadDatesInfo';
 
 interface LeadProfileProps {
   leadId: string;
@@ -142,259 +138,64 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-destructive mb-4">{error || 'Lead no encontrado'}</p>
-          <Button onClick={() => router.push('/sales/leads')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Volver a Leads
-          </Button>
         </div>
       </div>
     );
   }
 
-  const leadName = lead.fullName || lead.entityName || 'Sin nombre';
-  const priorityIcon = getPriorityIcon(lead.priority);
-
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push('/sales/leads')}
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Volver a Leads
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">{leadName}</h1>
-            <p className="text-muted-foreground">Detalles del lead</p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setEditDialog(true)}
-          >
-            <Edit className="h-4 w-4 mr-2" />
-            Editar
-          </Button>
-          
-          {lead.status === 'qualifying' && (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setConversionWizard(true)}
-            >
-              <UserCheck className="h-4 w-4 mr-2" />
-              Convertir
-            </Button>
-          )}
-          
-          {['new', 'contacted', 'qualifying'].includes(lead.status) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setDisqualifyDialog(true)}
-            >
-              <UserX className="h-4 w-4 mr-2" />
-              Descalificar
-            </Button>
-          )}
-          
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => setDeleteDialog(true)}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Eliminar
-          </Button>
-        </div>
-      </div>
-
-      {/* Status and Priority */}
-      <div className="flex items-center gap-4">
-        <Badge className={getStatusBadgeVariant(lead.status)}>
-          {LEAD_STATUS_LABELS[lead.status]}
-        </Badge>
-        <div className="flex items-center gap-2">
-          {priorityIcon}
-          <span className="text-sm font-medium capitalize">{lead.priority}</span>
-        </div>
-        <Badge variant="outline">
-          {LEAD_SOURCE_LABELS[lead.source]}
-        </Badge>
-      </div>
+      {/* Header with Actions */}
+      <LeadProfileHeader
+        lead={lead}
+        onBack={() => router.push('/sales/leads')}
+        onEdit={() => setEditDialog(true)}
+        onConvert={() => setConversionWizard(true)}
+        onDisqualify={() => setDisqualifyDialog(true)}
+        onDelete={() => setDeleteDialog(true)}
+      />
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Contact Information */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building className="h-5 w-5" />
-                Información Básica
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Nombre/Entidad</label>
-                  <p className="text-sm">{leadName}</p>
-                </div>
-                
-                {lead.email && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Email</label>
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-blue-500" />
-                      <p className="text-sm">{lead.email}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {lead.phone && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Teléfono</label>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-green-500" />
-                      <p className="text-sm">{lead.phone}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {lead.entityType && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Tipo</label>
-                    <p className="text-sm capitalize">{lead.entityType}</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Notes */}
-          {lead.notes && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Notas</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm whitespace-pre-wrap">{lead.notes}</p>
-              </CardContent>
-            </Card>
-          )}
+        <div className="lg:col-span-2">
+          <LeadContactInfo lead={lead} />
         </div>
 
         {/* Right Column - Metrics and Dates */}
         <div className="space-y-6">
-          {/* Lead Score */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Puntuación
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">
-                  {lead.score || 0}
-                </div>
-                <p className="text-sm text-muted-foreground">Puntos</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Important Dates */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Fechas Importantes
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Fecha de creación</label>
-                <p className="text-sm">
-                  {format(lead.createdAt.toDate(), 'dd/MM/yyyy HH:mm', { locale: es })}
-                </p>
-              </div>
-              
-              <Separator />
-              
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Última actualización</label>
-                <p className="text-sm">
-                  {format(lead.updatedAt.toDate(), 'dd/MM/yyyy HH:mm', { locale: es })}
-                </p>
-              </div>
-              
-              {/* TODO: Add lastContactDate field to Lead type if needed */}
-            </CardContent>
-          </Card>
-
-          {/* Additional Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                Información Adicional
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">ID del Lead</label>
-                <p className="text-xs font-mono bg-muted p-2 rounded">{lead.id}</p>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Creado por</label>
-                <p className="text-sm">{lead.createdBy}</p>
-              </div>
-            </CardContent>
-          </Card>
+          <LeadMetrics lead={lead} />
+          <LeadDatesInfo lead={lead} />
         </div>
       </div>
 
       {/* Dialogs */}
-      {lead && (
-        <>
-          <LeadConversionWizard
-            lead={lead}
-            open={conversionWizard}
-            onClose={() => setConversionWizard(false)}
-          />
+      <LeadConversionWizard
+        lead={lead}
+        open={conversionWizard}
+        onClose={() => setConversionWizard(false)}
+      />
 
-          <EditLeadDialog
-            open={editDialog}
-            onOpenChange={setEditDialog}
-            lead={lead}
-            onSuccess={handleEditSuccess}
-          />
+      <EditLeadDialog
+        open={editDialog}
+        onOpenChange={setEditDialog}
+        lead={lead}
+        onSuccess={handleEditSuccess}
+      />
 
-          <DeleteLeadDialog
-            open={deleteDialog}
-            onOpenChange={setDeleteDialog}
-            onConfirm={handleDeleteLead}
-            leadName={leadName}
-          />
+      <DeleteLeadDialog
+        open={deleteDialog}
+        onOpenChange={setDeleteDialog}
+        onConfirm={handleDeleteLead}
+        leadName={lead.fullName || lead.entityName || 'Sin nombre'}
+      />
 
-          <DisqualifyLeadDialog
-            open={disqualifyDialog}
-            onOpenChange={setDisqualifyDialog}
-            onConfirm={handleDisqualifyLead}
-            leadName={leadName}
-          />
-        </>
-      )}
+      <DisqualifyLeadDialog
+        open={disqualifyDialog}
+        onOpenChange={setDisqualifyDialog}
+        onConfirm={handleDisqualifyLead}
+        leadName={lead.fullName || lead.entityName || 'Sin nombre'}
+      />
     </div>
   );
 }
