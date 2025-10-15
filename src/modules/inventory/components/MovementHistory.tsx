@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Table, TableBody } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InventoryMovement } from '../types';
-import { getMovementsByItem, getRecentMovements } from '../services/inventory.service';
+import { InventoryMovementsService } from '../services/entities/inventory-movements-entity.service';
 import { MovementRow } from './movement-history/MovementRow';
 import { MovementTableHeader } from './movement-history/MovementTableHeader';
 import { MovementHistoryStates } from './movement-history/MovementHistoryStates';
@@ -36,9 +36,9 @@ export function MovementHistory({
         let data: InventoryMovement[];
         
         if (showAll) {
-          data = await getRecentMovements(limit);
+          data = await InventoryMovementsService.getRecentMovements(limit);
         } else if (itemId) {
-          data = await getMovementsByItem(itemId, itemType, limit);
+          data = await InventoryMovementsService.getMovementsByItem(itemId, itemType, limit);
         } else {
           data = [];
         }

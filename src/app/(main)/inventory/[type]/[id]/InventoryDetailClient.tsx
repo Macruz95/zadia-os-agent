@@ -11,7 +11,7 @@ import { RawMaterial, FinishedProduct } from '@/modules/inventory/types';
 import { MovementHistory } from '@/modules/inventory/components/MovementHistory';
 import { MovementForm } from '@/modules/inventory/components/MovementForm';
 import { EditInventoryItemDialog } from '@/modules/inventory/components/EditInventoryItemDialog';
-import { getRawMaterialById, getFinishedProductById } from '@/modules/inventory/services/inventory.service';
+import { RawMaterialsService, FinishedProductsService } from '@/modules/inventory/services/inventory.service';
 import { logger } from '@/lib/logger';
 
 interface InventoryDetailClientProps {
@@ -35,9 +35,9 @@ export function InventoryDetailClient({ type, id }: InventoryDetailClientProps) 
         let data: RawMaterial | FinishedProduct | null = null;
         
         if (type === 'raw-materials') {
-          data = await getRawMaterialById(id);
+          data = await RawMaterialsService.getRawMaterialById(id);
         } else {
-          data = await getFinishedProductById(id);
+          data = await FinishedProductsService.getFinishedProductById(id);
         }
         
         if (!data) {
@@ -63,9 +63,9 @@ export function InventoryDetailClient({ type, id }: InventoryDetailClientProps) 
       let updatedItem: RawMaterial | FinishedProduct | null = null;
       
       if (type === 'raw-materials') {
-        updatedItem = await getRawMaterialById(id);
+        updatedItem = await RawMaterialsService.getRawMaterialById(id);
       } else {
-        updatedItem = await getFinishedProductById(id);
+        updatedItem = await FinishedProductsService.getFinishedProductById(id);
       }
       
       if (updatedItem) {

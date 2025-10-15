@@ -14,7 +14,7 @@ import { InventoryDashboard } from './InventoryDashboard';
 import { InventoryTabsContent } from './InventoryTabsContent';
 import { InventoryDialogs } from './InventoryDialogs';
 import { RawMaterial, FinishedProduct } from '../types';
-import { deleteRawMaterial, deleteFinishedProduct } from '../services/inventory.service';
+import { RawMaterialsService, FinishedProductsService } from '../services/inventory.service';
 
 export function InventoryDirectory() {
   const {
@@ -48,12 +48,8 @@ export function InventoryDirectory() {
         
         // Load both raw materials and finished products for KPIs
         const [rmResult, fpResult] = await Promise.all([
-          import('../services/inventory.service').then(service => 
-            service.searchRawMaterials({})
-          ),
-          import('../services/inventory.service').then(service => 
-            service.searchFinishedProducts({})
-          )
+          RawMaterialsService.searchRawMaterials({}),
+          FinishedProductsService.searchFinishedProducts({})
         ]);
         
         // Calculate KPIs with all data
@@ -97,10 +93,10 @@ export function InventoryDirectory() {
       const deletedBy = 'system-user'; // Temporal hasta implementar auth context
       
       if (deleteDialog.itemType === 'raw-materials') {
-        await deleteRawMaterial(deleteDialog.item.id, deletedBy);
+        await RawMaterialsService.deleteRawMaterial(deleteDialog.item.id, deletedBy);
         toast.success(`Materia prima "${deleteDialog.item.name}" eliminada correctamente`);
       } else {
-        await deleteFinishedProduct(deleteDialog.item.id, deletedBy);
+        await FinishedProductsService.deleteFinishedProduct(deleteDialog.item.id, deletedBy);
         toast.success(`Producto terminado "${deleteDialog.item.name}" eliminado correctamente`);
       }
       

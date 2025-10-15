@@ -11,7 +11,7 @@ import { BOMActiveTab } from './BOMActiveTab';
 import { BOMHistoryTab } from './BOMHistoryTab';
 import { useBOM } from '../../hooks/use-bom';
 import { BillOfMaterials, FinishedProduct } from '../../types/inventory.types';
-import { getFinishedProductById } from '../../services/inventory.service';
+import { FinishedProductsService } from '../../services/entities/finished-products-entity.service';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 
@@ -42,7 +42,7 @@ export function BOMManagementPage({ productId }: BOMManagementPageProps) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const productData = await getFinishedProductById(productId);
+        const productData = await FinishedProductsService.getFinishedProductById(productId);
         if (!productData) {
           toast.error('Producto no encontrado');
           router.push('/inventory');

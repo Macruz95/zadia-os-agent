@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Textarea } from '@/components/ui/textarea';
 import { BillOfMaterialsSchema, BillOfMaterialsFormData } from '../../validations/inventory.schema';
 import { RawMaterial } from '../../types/inventory.types';
-import { getAllRawMaterials } from '../../services/inventory.service';
+import { RawMaterialsService } from '../../services/entities/raw-materials-entity.service';
 import { logger } from '@/lib/logger';
 import { BOMHeader } from './BOMHeader';
 import { BOMBasicInfo } from './BOMBasicInfo';
@@ -59,7 +59,7 @@ export function BOMBuilder({
   useEffect(() => {
     const loadRawMaterials = async () => {
       try {
-        const materialsResult = await getAllRawMaterials();
+        const materialsResult = await RawMaterialsService.getAllRawMaterials();
         setRawMaterials(materialsResult.rawMaterials.filter((m: RawMaterial) => m.isActive));
       } catch (error) {
         logger.error('Error loading raw materials:', error as Error);

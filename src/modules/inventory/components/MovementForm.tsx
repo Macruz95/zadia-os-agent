@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Plus } from 'lucide-react';
-import { createMovement } from '../services/inventory.service';
+import { InventoryMovementsService } from '../services/entities/inventory-movements-entity.service';
 import { RawMaterial, FinishedProduct } from '../types';
 import { MovementTypeSelector } from './movement-form/MovementTypeSelector';
 import { MovementFormFields } from './movement-form/MovementFormFields';
@@ -77,7 +77,7 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
     setLoading(true);
     
     try {
-      await createMovement({
+      await InventoryMovementsService.createMovement({
         itemId: data.itemId,
         itemType: data.itemType,
         movementType: data.movementType,
