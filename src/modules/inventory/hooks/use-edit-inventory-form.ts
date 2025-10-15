@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { RawMaterial, FinishedProduct } from '../types';
 import { RawMaterialFormSchema, FinishedProductFormSchema } from '../validations/inventory.schema';
-import { updateRawMaterial, updateFinishedProduct } from '../services/inventory.service';
+import { RawMaterialsService, FinishedProductsService } from '../services/inventory.service';
 import { EditRawMaterialFormData, EditFinishedProductFormData } from '../components/types/form-data';
 
 interface UseEditInventoryFormProps {
@@ -112,10 +112,10 @@ export function useEditInventoryForm({
       setIsSubmitting(true);
       
       if (isRawMaterial) {
-        await updateRawMaterial(item.id, data as EditRawMaterialFormData, user.uid);
+        await RawMaterialsService.updateRawMaterial(item.id, data as EditRawMaterialFormData, user.uid);
         toast.success('Materia prima actualizada correctamente');
       } else {
-        await updateFinishedProduct(item.id, data as EditFinishedProductFormData, user.uid);
+        await FinishedProductsService.updateFinishedProduct(item.id, data as EditFinishedProductFormData, user.uid);
         toast.success('Producto terminado actualizado correctamente');
       }
       

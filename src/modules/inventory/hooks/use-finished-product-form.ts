@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { FinishedProductFormData, FinishedProductFormSchema } from '../validations/inventory.schema';
-import { createFinishedProduct, updateFinishedProduct } from '../services/inventory.service';
+import { FinishedProductsService } from '../services/entities/finished-products-entity.service';
 import { FinishedProduct } from '../types';
 
 interface UseFinishedProductFormProps {
@@ -91,10 +91,10 @@ export const useFinishedProductForm = ({
       }
       
       if (isEditing && initialData) {
-        result = await updateFinishedProduct(initialData.id, cleanData as FinishedProductFormData, user.uid);
+        result = await FinishedProductsService.updateFinishedProduct(initialData.id, cleanData as FinishedProductFormData, user.uid);
         toast.success('Producto terminado actualizado exitosamente');
       } else {
-        result = await createFinishedProduct(cleanData as FinishedProductFormData, user.uid);
+        result = await FinishedProductsService.createFinishedProduct(cleanData as FinishedProductFormData, user.uid);
         toast.success('Producto terminado creado exitosamente');
       }
 

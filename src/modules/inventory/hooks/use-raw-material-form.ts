@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { RawMaterialFormData, RawMaterialFormSchema } from '../validations/inventory.schema';
-import { createRawMaterial, updateRawMaterial } from '../services/inventory.service';
+import { RawMaterialsService } from '../services/entities/raw-materials-entity.service';
 import { RawMaterial } from '../types/inventory.types';
 
 interface UseRawMaterialFormProps {
@@ -81,10 +81,10 @@ export const useRawMaterialForm = ({
       }
       
       if (isEditing && initialData) {
-        result = await updateRawMaterial(initialData.id, cleanData as RawMaterialFormData, user.uid);
+        result = await RawMaterialsService.updateRawMaterial(initialData.id, cleanData as RawMaterialFormData, user.uid);
         toast.success('Materia prima actualizada exitosamente');
       } else {
-        result = await createRawMaterial(cleanData as RawMaterialFormData, user.uid);
+        result = await RawMaterialsService.createRawMaterial(cleanData as RawMaterialFormData, user.uid);
         toast.success('Materia prima creada exitosamente');
       }
 

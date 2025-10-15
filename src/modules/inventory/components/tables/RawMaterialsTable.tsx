@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { RawMaterial, FinishedProduct } from '../../types/inventory.types';
 import { InventoryTable } from '../InventoryTable';
-import { deleteRawMaterial } from '../../services/inventory.service';
+import { RawMaterialsService } from '../../services/entities/raw-materials-entity.service';
 import { EditInventoryItemDialog } from '../EditInventoryItemDialog';
 
 interface RawMaterialsTableProps {
@@ -46,7 +46,7 @@ export function RawMaterialsTable({
       // TODO: Implementar AuthContext para obtener usuario actual
       const deletedBy = 'system-user'; // Temporal hasta implementar auth context
       
-      await deleteRawMaterial(deleteDialog.item.id, deletedBy);
+      await RawMaterialsService.deleteRawMaterial(deleteDialog.item.id, deletedBy);
       toast.success(`Materia prima "${deleteDialog.item.name}" eliminada correctamente`);
       
       setDeleteDialog({ open: false, item: null });

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { InventorySearchParams, InventoryDirectoryState } from '../types';
-import { searchRawMaterials, searchFinishedProducts } from '../services/inventory.service';
+import { RawMaterialsService, FinishedProductsService } from '../services/inventory.service';
 
 export const useInventory = (initialParams: InventorySearchParams = {}) => {
   const [state, setState] = useState<InventoryDirectoryState>({
@@ -29,7 +29,7 @@ export const useInventory = (initialParams: InventorySearchParams = {}) => {
 
     try {
       if (activeTab === 'raw-materials') {
-        const result = await searchRawMaterials(searchParams);
+        const result = await RawMaterialsService.searchRawMaterials(searchParams);
         setState(prev => ({
           ...prev,
           rawMaterials: result.rawMaterials,
@@ -39,7 +39,7 @@ export const useInventory = (initialParams: InventorySearchParams = {}) => {
           activeTab,
         }));
       } else {
-        const result = await searchFinishedProducts(searchParams);
+        const result = await FinishedProductsService.searchFinishedProducts(searchParams);
         setState(prev => ({
           ...prev,
           finishedProducts: result.finishedProducts,

@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { RawMaterial, FinishedProduct } from '../../types/inventory.types';
 import { InventoryTable } from '../InventoryTable';
-import { deleteFinishedProduct } from '../../services/inventory.service';
+import { FinishedProductsService } from '../../services/entities/finished-products-entity.service';
 import { EditInventoryItemDialog } from '../EditInventoryItemDialog';
 
 interface FinishedProductsTableProps {
@@ -50,7 +50,7 @@ export function FinishedProductsTable({
     
     setIsDeleting(true);
     try {
-      await deleteFinishedProduct(deleteDialog.item.id, user.uid);
+      await FinishedProductsService.deleteFinishedProduct(deleteDialog.item.id, user.uid);
       toast.success(`Producto terminado "${deleteDialog.item.name}" eliminado correctamente`);
       
       setDeleteDialog({ open: false, item: null });
