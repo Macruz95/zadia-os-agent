@@ -17,8 +17,10 @@ export {
   ClientSearchParamsSchema,
 } from './validations/clients.schema';
 
-// Services
-export * from './services/clients.service';
+// Services (Entity-specific services - clients.service.ts exports class)
+export { ClientsService } from './services/clients.service';
+export { ContactsService } from './services/entities/contacts-entity.service';
+export { InteractionsService } from './services/entities/interactions-entity.service';
 
 // Hooks
 export * from './hooks/use-clients';

@@ -14,8 +14,8 @@ export {
   DimensionsSchema,
 } from './validations/inventory.schema';
 
-// Services
-export * from './services/inventory.service';
+// Services (Entity-specific services - inventory.service.ts deprecated)
+export { RawMaterialsService, FinishedProductsService, InventoryMovementsService } from './services/inventory.service';
 
 // Hooks
 export * from './hooks/use-inventory';
