@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { Timestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/lib/logger';
@@ -75,16 +76,61 @@ export function OpportunitiesKanban() {
     sum + (opp.estimatedValue * opp.probability / 100), 0);
   const highPriorityCount = opportunities.filter(opp => opp.priority === 'high').length;
 
+  /**
+   * Validate stage transition based on business rules
+   */
+  const isValidStageTransition = (currentStage: OpportunityStage, newStage: OpportunityStage): boolean => {
+    // Can't move backwards to qualified from other stages
+    if (newStage === 'qualified' && currentStage !== 'qualified') {
+      return false;
+    }
+
+    // Can always move to closed-won or closed-lost from any stage
+    if (newStage === 'closed-won' || newStage === 'closed-lost') {
+      return true;
+    }
+
+    // Valid forward transitions
+    const validTransitions: Record<OpportunityStage, OpportunityStage[]> = {
+      'qualified': ['proposal-sent', 'closed-won', 'closed-lost'],
+      'proposal-sent': ['negotiation', 'closed-won', 'closed-lost'],
+      'negotiation': ['closed-won', 'closed-lost'],
+      'closed-won': [], // Final state
+      'closed-lost': [], // Final state
+    };
+
+    return validTransitions[currentStage]?.includes(newStage) ?? false;
+  };
+
   const handleStageChange = async (opportunityId: string, newStage: OpportunityStage) => {
+    if (!user) {
+      toast.error('Usuario no autenticado');
+      return;
+    }
+
+    const opportunity = opportunities.find(opp => opp.id === opportunityId);
+    if (!opportunity) {
+      toast.error('Oportunidad no encontrada');
+      return;
+    }
+
+    // Validate stage transition
+    if (!isValidStageTransition(opportunity.stage, newStage)) {
+      toast.error(`No se puede cambiar de "${opportunity.stage}" a "${newStage}". Transición no válida.`);
+      return;
+    }
+
     try {
-      // TODO: Implement stage change service call
+      await OpportunitiesService.updateOpportunityStage(opportunityId, newStage, user.uid);
+      
       setOpportunities(prev => 
         prev.map(opp => 
           opp.id === opportunityId 
-            ? { ...opp, stage: newStage }
+            ? { ...opp, stage: newStage, updatedAt: Timestamp.fromDate(new Date()) }
             : opp
         )
       );
+      
       toast.success('Etapa actualizada correctamente');
     } catch (error) {
       logger.error('Error updating opportunity stage', error as Error);
