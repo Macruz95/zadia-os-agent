@@ -18,6 +18,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { formatUSD } from '@/lib/currency.utils';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import { OpportunitiesService } from '@/modules/sales/services/opportunities.service';
@@ -69,14 +70,6 @@ export default function OpportunityProfilePage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PY', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-    }).format(value);
   };
 
   const formatDate = (timestamp: Timestamp | Date | undefined, formatString: string) => {
@@ -179,7 +172,7 @@ export default function OpportunityProfilePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{formatCurrency(opportunity.estimatedValue)}</p>
+            <p className="text-2xl font-bold">{formatUSD(opportunity.estimatedValue, { minimumFractionDigits: 0 })}</p>
             <p className="text-xs text-muted-foreground mt-1">{opportunity.currency}</p>
           </CardContent>
         </Card>

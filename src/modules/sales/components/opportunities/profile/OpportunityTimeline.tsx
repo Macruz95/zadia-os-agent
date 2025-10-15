@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
+import { formatUSD } from '@/lib/currency.utils';
 import { OpportunityInteractionsService } from '@/modules/sales/services/opportunity-interactions.service';
 import { QuotesService } from '@/modules/sales/services/quotes.service';
 import type { OpportunityInteraction, Quote } from '@/modules/sales/types/sales.types';
@@ -112,7 +113,7 @@ export function OpportunityTimeline({ opportunityId }: OpportunityTimelineProps)
           icon: FileCheck,
           iconColor: 'text-cyan-500',
           title: `Cotización ${quote.number}`,
-          description: `Total: ${formatCurrency(quote.total)}`,
+          description: `Total: ${formatUSD(quote.total, { minimumFractionDigits: 0 })}`,
           badge: { label: statusLabels[quote.status], variant: statusVariants[quote.status] },
           data: quote,
         });
@@ -128,14 +129,6 @@ export function OpportunityTimeline({ opportunityId }: OpportunityTimelineProps)
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PY', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-    }).format(value);
   };
 
   if (loading) {

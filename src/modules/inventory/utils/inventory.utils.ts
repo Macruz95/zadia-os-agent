@@ -5,6 +5,7 @@
  */
 
 import { RawMaterialCategory, FinishedProductCategory, UnitOfMeasure, ProductStatus, MovementType } from '../types/inventory.types';
+import { formatCurrency, type CurrencyCode } from '@/lib/currency.utils';
 
 /**
  * Formatting utilities
@@ -26,11 +27,11 @@ export const inventoryUtils = {
    * Format unit cost with currency
    */
   formatUnitCost: (cost: number, currency: string = 'GTQ'): string => {
-    return new Intl.NumberFormat('es-GT', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2
-    }).format(cost);
+    return formatCurrency(cost, { 
+      currency: currency as CurrencyCode,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   },
 
   /**
@@ -45,7 +46,11 @@ export const inventoryUtils = {
    */
   formatTotalValue: (quantity: number, unitCost: number, currency: string = 'GTQ'): string => {
     const total = inventoryUtils.calculateTotalValue(quantity, unitCost);
-    return inventoryUtils.formatUnitCost(total, currency);
+    return formatCurrency(total, { 
+      currency: currency as CurrencyCode,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   },
 
   /**

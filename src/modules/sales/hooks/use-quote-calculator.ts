@@ -8,6 +8,7 @@
 
 import { useMemo } from 'react';
 import type { QuoteItem } from '@/modules/sales/types/sales.types';
+import { formatCurrency as formatCurrencyUtil, type CurrencyCode } from '@/lib/currency.utils';
 
 export interface QuoteCalculatorInput {
   items: Omit<QuoteItem, 'id'>[];
@@ -62,13 +63,14 @@ export function useQuoteCalculator({
 
 /**
  * Helper function to format currency
+ * @deprecated Use formatCurrency from @/lib/currency.utils instead
  */
 export function formatCurrency(value: number, currency: string = 'USD'): string {
-  return new Intl.NumberFormat('es-PY', {
-    style: 'currency',
-    currency,
+  return formatCurrencyUtil(value, { 
+    currency: currency as CurrencyCode,
     minimumFractionDigits: 2,
-  }).format(value);
+    maximumFractionDigits: 2
+  });
 }
 
 /**

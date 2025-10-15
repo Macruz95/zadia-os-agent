@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { logger } from '@/lib/logger';
+import { formatUSD } from '@/lib/currency.utils';
 import type { SalesAnalyticsData } from '../../services/analytics.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { LeadsService } from '../../services/leads.service';
@@ -82,14 +83,6 @@ export function DashboardInsights({
 
     fetchDashboardData();
   }, []);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-PY', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-    }).format(value);
-  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -170,7 +163,7 @@ export function DashboardInsights({
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-sm">
-                      {formatCurrency(performer.revenue)}
+                      {formatUSD(performer.revenue, { minimumFractionDigits: 0 })}
                     </p>
                   </div>
                 </div>
@@ -264,7 +257,7 @@ export function DashboardInsights({
                   </div>
                   <div className="text-right">
                     <p className="font-medium text-sm text-green-600">
-                      {formatCurrency(win.amount)}
+                      {formatUSD(win.amount, { minimumFractionDigits: 0 })}
                     </p>
                   </div>
                 </div>

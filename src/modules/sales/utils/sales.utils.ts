@@ -6,17 +6,14 @@
 
 import { Lead, Opportunity } from '../types/sales.types';
 import { LeadStatus, OpportunityStage, QuoteStatus } from '../types/sales.types';
+import { formatCurrency as formatCurrencyUtil, type CurrencyCode } from '@/lib/currency.utils';
 
 /**
  * Format currency values for display
+ * @deprecated Use formatCurrency from @/lib/currency.utils instead
  */
 export function formatCurrency(amount: number, currency: string = 'COP'): string {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+  return formatCurrencyUtil(amount, { currency: currency as CurrencyCode });
 }
 
 /**
