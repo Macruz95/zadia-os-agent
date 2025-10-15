@@ -34,6 +34,7 @@ export interface Lead {
   score: number; // 1-100
   assignedTo: string; // User ID
   notes?: string;
+  lastContactDate?: Timestamp; // Last interaction date with lead
   createdAt: Timestamp;
   updatedAt: Timestamp;
   createdBy: string;

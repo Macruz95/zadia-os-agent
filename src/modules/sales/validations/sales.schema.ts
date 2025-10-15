@@ -66,6 +66,7 @@ export const leadSchema = z.object({
   score: z.number().int().min(1).max(100),
   assignedTo: z.string().min(1, 'Vendedor asignado requerido'),
   notes: z.string().max(1000, 'Notas muy largas').optional(),
+  lastContactDate: z.any().optional(), // Timestamp from Firestore
 }).refine((data) => {
   // Validate based on entity type
   if (data.entityType === 'person') {

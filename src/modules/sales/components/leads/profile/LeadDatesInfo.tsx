@@ -45,7 +45,18 @@ export function LeadDatesInfo({ lead }: LeadDatesInfoProps) {
             </p>
           </div>
 
-          {/* TODO: Add lastContactDate field to Lead type if needed */}
+          {lead.lastContactDate && (
+            <>
+              <Separator />
+              
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Último contacto</label>
+                <p className="text-sm">
+                  {format(lead.lastContactDate.toDate(), 'dd/MM/yyyy HH:mm', { locale: es })}
+                </p>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
