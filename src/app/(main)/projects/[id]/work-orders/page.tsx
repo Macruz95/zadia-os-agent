@@ -21,6 +21,8 @@ import { useWorkOrders } from '@/modules/projects/hooks/use-work-orders';
 import { useAuth } from '@/contexts/AuthContext';
 import { WorkOrdersList } from '@/modules/projects/components/WorkOrdersList';
 import { WorkOrderFormDialog } from '@/modules/projects/components/WorkOrderFormDialog';
+import { RecordMaterialDialog } from '@/modules/projects/components/RecordMaterialDialog';
+import { RecordHoursDialog } from '@/modules/projects/components/RecordHoursDialog';
 
 export default function ProjectWorkOrdersPage() {
   const params = useParams();
@@ -35,9 +37,21 @@ export default function ProjectWorkOrdersPage() {
     stats,
     refreshWorkOrders,
     changeStatus,
+    recordMaterial,
+    recordHours,
   } = useWorkOrders(projectId);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [materialDialogWorkOrder, setMaterialDialogWorkOrder] = useState<string | null>(null);
+  const [hoursDialogWorkOrder, setHoursDialogWorkOrder] = useState<string | null>(null);
+
+  const selectedWorkOrderForMaterial = workOrders.find(
+    (wo) => wo.id === materialDialogWorkOrder
+  );
+
+  const selectedWorkOrderForHours = workOrders.find(
+    (wo) => wo.id === hoursDialogWorkOrder
+  );
 
   const handleStatusChange = async (
     workOrderId: string,
@@ -54,18 +68,38 @@ export default function ProjectWorkOrdersPage() {
   };
 
   const handleRecordMaterial = (workOrderId: string) => {
-    // TODO: Abrir dialog para registrar material
-    void workOrderId;
+    setMaterialDialogWorkOrder(workOrderId);
   };
 
   const handleRecordHours = (workOrderId: string) => {
-    // TODO: Abrir dialog para registrar horas
-    void workOrderId;
+    setHoursDialogWorkOrder(workOrderId);
   };
 
   const handleViewDetails = (workOrderId: string) => {
     // TODO: Navegar a página de detalles
     void workOrderId;
+  };
+
+  const handleMaterialRecord = async (materialId: string, quantity: number) => {
+    if (!user) return;
+    await recordMaterial(
+      materialDialogWorkOrder!,
+      materialId,
+      quantity,
+      user.uid,
+      user.displayName || 'Usuario'
+    );
+  };
+
+  const handleHoursRecord = async (hours: number, notes?: string) => {
+    if (!user) return;
+    await recordHours(
+      hoursDialogWorkOrder!,
+      hours,
+      user.uid,
+      user.displayName || 'Usuario',
+      notes
+    );
   };
 
   if (isLoading) {
@@ -185,6 +219,22 @@ export default function ProjectWorkOrdersPage() {
           onSuccess={refreshWorkOrders}
         />
       )}
+
+      {/* Material Record Dialog */}
+      <RecordMaterialDialog
+        workOrder={selectedWorkOrderForMaterial || null}
+        open={!!materialDialogWorkOrder}
+        onOpenChange={(open) => !open && setMaterialDialogWorkOrder(null)}
+        onRecord={handleMaterialRecord}
+      />
+
+      {/* Hours Record Dialog */}
+      <RecordHoursDialog
+        workOrder={selectedWorkOrderForHours || null}
+        open={!!hoursDialogWorkOrder}
+        onOpenChange={(open) => !open && setHoursDialogWorkOrder(null)}
+        onRecord={handleHoursRecord}
+      />
     </div>
   );
 }
