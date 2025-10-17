@@ -11,8 +11,9 @@
 'use client';
 
 import { use, useRef } from 'react';
-import { Loader2, AlertCircle, Rocket } from 'lucide-react';
+import { Loader2, AlertCircle, Rocket, FileText } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuote } from '@/modules/sales/hooks/use-quote';
@@ -34,6 +35,7 @@ export default function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
   const resolvedParams = use(params);
   const quoteId = resolvedParams.id;
   const { user } = useAuth();
+  const router = useRouter();
 
   const {
     quote,
@@ -145,20 +147,40 @@ export default function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
               </div>
             </div>
 
-            {/* Conversion Card */}
+            {/* Actions Card */}
             {quote.status === 'accepted' && (
-              <div className="border rounded-lg p-6 bg-primary/5">
-                <h3 className="font-semibold mb-2">Crear Proyecto</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Esta cotización fue aceptada. Puede convertirla en un proyecto.
-                </p>
-                <Button 
-                  onClick={() => setShowConversionDialog(true)}
-                  className="w-full"
-                >
-                  <Rocket className="mr-2 h-4 w-4" />
-                  Lanzar Proyecto
-                </Button>
+              <div className="border rounded-lg p-6 bg-primary/5 space-y-3">
+                <div>
+                  <h3 className="font-semibold mb-2">Generar Factura</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Crear factura a partir de esta cotización aceptada.
+                  </p>
+                  <Button
+                    onClick={() =>
+                      router.push(`/finance/invoices/new?quoteId=${quote.id}`)
+                    }
+                    className="w-full"
+                    variant="default"
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    Generar Factura
+                  </Button>
+                </div>
+                
+                <div className="pt-3 border-t">
+                  <h3 className="font-semibold mb-2">Crear Proyecto</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Convertir esta cotización en un proyecto ejecutable.
+                  </p>
+                  <Button
+                    onClick={() => setShowConversionDialog(true)}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <Rocket className="mr-2 h-4 w-4" />
+                    Lanzar Proyecto
+                  </Button>
+                </div>
               </div>
             )}
           </div>
