@@ -232,11 +232,14 @@ export default function ProjectDetailPage() {
 
         <TabsContent value="work-orders" className="space-y-4 mt-6">
           <div className="text-center py-12">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Órdenes de Trabajo</h3>
-            <p className="text-sm text-muted-foreground">
-              Esta funcionalidad estará disponible en Phase 5
+            <p className="text-sm text-muted-foreground mb-4">
+              Gestiona las fases de producción del proyecto
             </p>
+            <Button onClick={() => router.push(`/projects/${projectId}/work-orders`)}>
+              Ver Órdenes de Trabajo
+            </Button>
           </div>
         </TabsContent>
 
