@@ -59,7 +59,7 @@ export function BOMBuilder({
   useEffect(() => {
     const loadRawMaterials = async () => {
       try {
-        const materialsResult = await RawMaterialsService.searchRawMaterials({ pageSize: 1000, isActive: true });
+        const materialsResult = await RawMaterialsService.searchRawMaterials({ pageSize: 1000 });
         setRawMaterials(materialsResult.rawMaterials.filter((m: RawMaterial) => m.isActive));
       } catch (error) {
         logger.error('Error loading raw materials:', error as Error);

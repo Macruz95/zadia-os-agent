@@ -9,6 +9,8 @@ import { InventoryAlert } from '../types/inventory-extended.types';
 import { RawMaterial, FinishedProduct } from '../types/inventory.types';
 import { InventoryAlertsService } from '../services/entities/inventory-alerts.service';
 import { logger } from '@/lib/logger';
+import { useAuth } from '@/contexts/AuthContext';
+import { auth } from '@/lib/firebase';
 
 interface UseInventoryAlertsReturn {
   alerts: InventoryAlert[];
@@ -24,11 +26,26 @@ interface UseInventoryAlertsReturn {
 }
 
 export function useInventoryAlerts(): UseInventoryAlertsReturn {
+  const { firebaseUser, loading: authLoading } = useAuth();
   const [alerts, setAlerts] = useState<InventoryAlert[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
 
   const refreshAlerts = useCallback(async () => {
+    // 🔥 CRITICAL: Don't fetch if user is not authenticated
+    if (!firebaseUser || authLoading) {
+      return;
+    }
+
+    // 🔥 CRITICAL: Ensure Firebase Auth token is ready
+    try {
+      await auth.currentUser?.getIdToken(true); // Force token refresh
+      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for token propagation
+    } catch {
+      // Auth token refresh failed, return early
+      return;
+    }
+
     try {
       setLoading(true);
       setError(undefined);
@@ -42,7 +59,7 @@ export function useInventoryAlerts(): UseInventoryAlertsReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [firebaseUser, authLoading]);
 
   const markAsRead = useCallback(async (alertId: string, readBy: string) => {
     try {

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { auth } from '@/lib/firebase';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import { useInventory } from '../hooks/use-inventory';
@@ -29,7 +30,7 @@ export function InventoryDirectory() {
     refresh
   } = useInventory();
 
-  const { user } = useAuth();
+  const { user, firebaseUser, loading: authLoading } = useAuth();
 
   // Alerts and KPIs hooks
   const { alerts, refreshAlerts, checkStockLevels } = useInventoryAlerts();
@@ -44,6 +45,20 @@ export function InventoryDirectory() {
   useEffect(() => {
     const loadAllInventoryData = async () => {
       if (kpisLoadedRef.current) return;
+      
+      // 🔥 CRITICAL: Don't fetch if user is not authenticated
+      if (!firebaseUser || authLoading) {
+        return;
+      }
+
+      // 🔥 CRITICAL: Ensure Firebase Auth token is ready
+      try {
+        await auth.currentUser?.getIdToken(true); // Force token refresh
+        await new Promise(resolve => setTimeout(resolve, 500)); // Wait for token propagation
+      } catch {
+        // Auth token refresh failed, return early
+        return;
+      }
       
       try {
         kpisLoadedRef.current = true;
@@ -64,7 +79,7 @@ export function InventoryDirectory() {
     };
 
     loadAllInventoryData();
-  }, [refreshKPIs, checkStockLevels]);
+  }, [firebaseUser, authLoading, refreshKPIs, checkStockLevels]);
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
     item: RawMaterial | FinishedProduct | null;

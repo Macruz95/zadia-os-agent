@@ -13,7 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle2, FileText, Settings, Package, Wrench, Rocket } from 'lucide-react';
 import { Quote } from '../../types/sales.types';
 import { useQuoteAcceptance } from '../../hooks/use-quote-acceptance';
-import { QuoteReviewStep } from './QuoteReviewStep';
+import { QuoteAcceptanceReviewStep } from './QuoteAcceptanceReviewStep';
 import { ProjectConfigStep } from './ProjectConfigStep';
 import { InventoryReservationStep } from './InventoryReservationStep';
 import { WorkOrdersStep } from './WorkOrdersStep';
@@ -111,7 +111,7 @@ export function QuoteAcceptanceWizard({ quote, open, onClose }: QuoteAcceptanceW
             {/* Step Content */}
             <div className="py-6">
               {currentStep === 0 && (
-                <QuoteReviewStep
+                <QuoteAcceptanceReviewStep
                   quote={quote}
                   onNext={nextStep}
                   onAcceptanceData={setAcceptanceData}

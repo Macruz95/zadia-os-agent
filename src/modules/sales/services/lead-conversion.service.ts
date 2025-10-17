@@ -95,7 +95,7 @@ export class LeadConversionService {
           phone: validatedInput.clientData.phone,
           phoneCountryId: validatedInput.clientData.phoneCountryId,
           isPrimary: true,
-          role: validatedInput.clientData.position || 'Contacto Principal',
+          role: 'Contacto Principal',
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           createdBy: userId,

@@ -1,8 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { InventorySearchParams, InventoryDirectoryState } from '../types';
 import { RawMaterialsService, FinishedProductsService } from '../services/inventory.service';
+import { useAuth } from '@/contexts/AuthContext';
+import { auth } from '@/lib/firebase';
 
 export const useInventory = (initialParams: InventorySearchParams = {}) => {
+  const { firebaseUser, loading: authLoading } = useAuth();
   const [state, setState] = useState<InventoryDirectoryState>({
     rawMaterials: [],
     finishedProducts: [],
@@ -22,6 +25,20 @@ export const useInventory = (initialParams: InventorySearchParams = {}) => {
   const initialLoadDone = useRef(false);
 
   const fetchInventory = useCallback(async (params?: InventorySearchParams, tab?: 'raw-materials' | 'finished-products') => {
+    // 🔥 CRITICAL: Don't fetch if user is not authenticated
+    if (!firebaseUser || authLoading) {
+      return;
+    }
+
+    // 🔥 CRITICAL: Ensure Firebase Auth token is ready
+    try {
+      await auth.currentUser?.getIdToken(true); // Force token refresh
+      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for token propagation
+    } catch {
+      // Auth token refresh failed, return early
+      return;
+    }
+
     const searchParams = params || currentParamsRef.current;
     const activeTab = tab || activeTabRef.current;
     
@@ -56,7 +73,7 @@ export const useInventory = (initialParams: InventorySearchParams = {}) => {
         error: error instanceof Error ? error.message : 'Error al cargar inventario',
       }));
     }
-  }, []);
+  }, [firebaseUser, authLoading]);
 
   const updateSearchParams = useCallback((newParams: Partial<InventorySearchParams>) => {
     setState(prev => {

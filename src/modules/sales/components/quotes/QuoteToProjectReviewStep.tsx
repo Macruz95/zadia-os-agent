@@ -7,19 +7,9 @@
 
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { CheckCircle, FileText, Calendar, DollarSign } from 'lucide-react';
+import { FileText, Calendar, DollarSign, User, Building2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useQuoteCalculator } from '../../hooks/use-quote-calculator';
@@ -44,35 +34,18 @@ interface QuoteReviewStepProps {
 }
 
 export function QuoteReviewStep({ formData }: QuoteReviewStepProps) {
-  const calculation = useQuoteCalculator({
+  const { subtotal, totalTaxes, discounts, total } = useQuoteCalculator({
     items: formData.items,
     taxes: formData.taxes,
     additionalDiscounts: formData.additionalDiscounts,
   });
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<QuoteAcceptanceInput>({
-    resolver: zodResolver(quoteAcceptanceSchema),
-    defaultValues: {
-      quoteId: quote.id,
-      acceptedBy: user?.uid || '',
-    },
-  });
-
-  const onSubmit = (data: QuoteAcceptanceInput) => {
-    onAcceptanceData(data);
-    onNext();
-  };
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <div className="space-y-6">
       <Alert>
         <FileText className="h-4 w-4" />
         <AlertDescription>
-          Revise los detalles de la cotización antes de convertirla a proyecto.
+          Revise los detalles de la cotización antes de crearla.
         </AlertDescription>
       </Alert>
 
@@ -83,7 +56,7 @@ export function QuoteReviewStep({ formData }: QuoteReviewStepProps) {
             <FileText className="h-5 w-5" />
             Detalles de la Cotización
           </CardTitle>
-          <CardDescription>Cotización #{quote.number}</CardDescription>
+          <CardDescription>Resumen de la información ingresada</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -93,7 +66,7 @@ export function QuoteReviewStep({ formData }: QuoteReviewStepProps) {
                 <span>Valor Total</span>
               </div>
               <p className="text-lg font-semibold">
-                ${quote.total.toLocaleString()} {quote.currency}
+                ${total.toLocaleString()} {formData.currency}
               </p>
             </div>
 
@@ -103,33 +76,37 @@ export function QuoteReviewStep({ formData }: QuoteReviewStepProps) {
                 <span>Válida Hasta</span>
               </div>
               <p className="text-lg font-semibold">
-                {format(quote.validUntil.toDate(), 'dd MMM yyyy', { locale: es })}
+                {format(formData.validUntil, 'dd MMM yyyy', { locale: es })}
               </p>
             </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <User className="h-4 w-4" />
-                <span>Cliente</span>
+            {formData.clientName && (
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <User className="h-4 w-4" />
+                  <span>Cliente</span>
+                </div>
+                <p className="text-lg font-semibold">{formData.clientName}</p>
               </div>
-              <p className="text-lg font-semibold">{quote.clientId}</p>
-            </div>
+            )}
 
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Building2 className="h-4 w-4" />
-                <span>Estado</span>
+            {formData.opportunityName && (
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Building2 className="h-4 w-4" />
+                  <span>Oportunidad</span>
+                </div>
+                <p className="text-lg font-semibold">{formData.opportunityName}</p>
               </div>
-              <p className="text-lg font-semibold capitalize">{quote.status}</p>
-            </div>
+            )}
           </div>
 
           {/* Items Summary */}
           <div className="border-t pt-4">
-            <h4 className="font-semibold mb-2">Productos/Servicios ({quote.items.length})</h4>
+            <h4 className="font-semibold mb-2">Productos/Servicios ({formData.items.length})</h4>
             <div className="space-y-2 max-h-40 overflow-y-auto">
-              {quote.items.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm">
+              {formData.items.map((item, index) => (
+                <div key={index} className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
                     {item.quantity} {item.unitOfMeasure} - {item.description}
                   </span>
@@ -145,67 +122,49 @@ export function QuoteReviewStep({ formData }: QuoteReviewStepProps) {
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span>Subtotal:</span>
-              <span className="font-semibold">${quote.subtotal.toLocaleString()}</span>
+              <span className="font-semibold">${subtotal.toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span>Impuestos:</span>
-              <span className="font-semibold">${quote.totalTaxes.toLocaleString()}</span>
+              <span className="font-semibold">${totalTaxes.toLocaleString()}</span>
             </div>
-            {quote.discounts > 0 && (
+            {discounts > 0 && (
               <div className="flex justify-between text-sm text-green-600">
                 <span>Descuentos:</span>
-                <span className="font-semibold">-${quote.discounts.toLocaleString()}</span>
+                <span className="font-semibold">-${discounts.toLocaleString()}</span>
               </div>
             )}
             <div className="flex justify-between text-lg font-bold border-t pt-2">
               <span>Total:</span>
-              <span>${quote.total.toLocaleString()} {quote.currency}</span>
+              <span>${total.toLocaleString()} {formData.currency}</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Acceptance Data */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Datos de Aceptación</CardTitle>
-          <CardDescription>Información adicional sobre la aceptación</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="customerPO">Orden de Compra del Cliente (Opcional)</Label>
-            <Input
-              id="customerPO"
-              {...register('customerPO')}
-              placeholder="PO-2025-001"
-            />
-            {errors.customerPO && (
-              <p className="text-sm text-destructive">{errors.customerPO.message}</p>
-            )}
-          </div>
+      {/* Payment Terms */}
+      {formData.paymentTerms && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Términos de Pago</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">{formData.paymentTerms}</p>
+          </CardContent>
+        </Card>
+      )}
 
-          <div className="space-y-2">
-            <Label htmlFor="acceptanceNotes">Notas de Aceptación (Opcional)</Label>
-            <Textarea
-              id="acceptanceNotes"
-              {...register('acceptanceNotes')}
-              placeholder="Condiciones especiales, acuerdos adicionales, etc."
-              rows={4}
-            />
-            {errors.acceptanceNotes && (
-              <p className="text-sm text-destructive">{errors.acceptanceNotes.message}</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Actions */}
-      <div className="flex justify-end">
-        <Button type="submit" size="lg">
-          Continuar
-          <ChevronRight className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
-    </form>
+      {/* Notes */}
+      {formData.notes && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Notas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground whitespace-pre-line">{formData.notes}</p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }
