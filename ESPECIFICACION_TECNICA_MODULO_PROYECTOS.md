@@ -14,76 +14,265 @@
 - ❌ **Proyecto → Ejecución/Finanzas** = 0% implementado
 
 ### Solución Propuesta
-Implementar el **Módulo de Proyectos completo** siguiendo la arquitectura y patrones ya establecidos en Ventas e Inventario.
+Implementar el **Módulo de Proyectos completo como módulo independiente de primer nivel**, con la misma importancia y complejidad que Clientes, Ventas e Inventario.
+
+### Posición en la Arquitectura
+**Proyectos NO es submódulo de Ventas**, es un **módulo autónomo** que:
+- Recibe input de Ventas (cotizaciones aceptadas)
+- Consume recursos de Inventario (materia prima, productos)
+- Asigna personal de RRHH (empleados, horas trabajadas)
+- Genera transacciones en Finanzas (costos, ingresos, facturación)
+- Entrega valor al Cliente (ejecución de lo vendido)
 
 ### Beneficio Esperado
-- ✅ Flujo end-to-end completo
-- ✅ Trazabilidad total desde Lead hasta entrega
-- ✅ Control real de costos y rentabilidad
+- ✅ Flujo end-to-end completo: Lead → Cliente → Oportunidad → Cotización → **PROYECTO** → Facturación
+- ✅ Trazabilidad total desde prospecto hasta entrega
+- ✅ Control real de costos, materiales, mano de obra y rentabilidad
+- ✅ Gestión profesional de producción en carpintería
 - ✅ ZADIA OS alcanza **88%+ de la especificación**
+
+---
+
+## 🏗️ FILOSOFÍA DEL MÓDULO DE PROYECTOS
+
+### Proyectos como Módulo de Primer Nivel
+
+**Proyectos NO es parte de Ventas**, es un **módulo independiente** porque:
+
+1. **Complejidad equivalente a Clientes o Inventario**
+   - Tiene submódulos propios (Órdenes de Trabajo, BOM, Calidad, Finanzas, Documentos)
+   - Gestiona ciclo de vida completo (Planificación → Ejecución → Cierre)
+   - Integra múltiples áreas (Ventas, Inventario, RRHH, Finanzas)
+
+2. **Diferentes usuarios y permisos**
+   - Ventas: crea proyectos desde cotizaciones
+   - Producción: ejecuta órdenes de trabajo
+   - Finanzas: controla costos y facturación
+   - PM (Project Manager): coordina todo el proyecto
+   - Cliente: puede tener visibilidad (portal opcional)
+
+3. **Datos y operaciones independientes**
+   - Tiene sus propias colecciones (projects, workOrders, projectTasks, workSessions)
+   - Lógica de negocio propia (BOM, consumo de materiales, control de calidad)
+   - Reportes y KPIs específicos (rentabilidad, eficiencia, retrasos)
+
+4. **Navegación autónoma**
+   ```
+   /projects              → Listado de proyectos
+   /projects/new          → Crear proyecto
+   /projects/:id          → Detalles del proyecto
+   /projects/:id/work-orders     → Órdenes de trabajo
+   /projects/:id/inventory       → BOM y materiales
+   /projects/:id/finance         → Finanzas del proyecto
+   /projects/:id/quality         → Control de calidad
+   /projects/:id/tasks           → Tareas y cronograma
+   /projects/:id/documents       → Documentación
+   /projects/:id/close           → Cierre del proyecto
+   ```
+
+### Conexiones con Otros Módulos (Orquestación)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    MÓDULO DE PROYECTOS                      │
+│                  (Módulo Independiente)                     │
+└─────────────────────────────────────────────────────────────┘
+         ↑                ↑                ↑                ↑
+         │                │                │                │
+    ┌────┴────┐     ┌────┴────┐     ┌────┴────┐     ┌────┴────┐
+    │ VENTAS  │     │INVENTARIO│     │  RRHH   │     │FINANZAS │
+    └─────────┘     └─────────┘     └─────────┘     └─────────┘
+         │                │                │                │
+         ↓                ↓                ↓                ↓
+   Cotización      Materia Prima    Empleados         Costos
+   Aceptada        Productos        Horas             Ingresos
+                   BOM              Nómina            Facturación
+```
+
+**Flujo de Datos:**
+- **Ventas → Proyectos**: Cotización aceptada crea proyecto
+- **Proyectos → Inventario**: Reserva y consume materiales
+- **Proyectos → RRHH**: Asigna empleados y registra horas
+- **Proyectos → Finanzas**: Genera costos y facturas
+- **Proyectos → Clientes**: Actualiza historial y seguimiento
 
 ---
 
 ## 🎯 ARQUITECTURA Y ESTRUCTURA
 
-### Ubicación en el Proyecto
+### Ubicación en el Proyecto (Módulo Independiente)
 
 ```
-src/modules/projects/
+src/modules/projects/                    ← MÓDULO RAÍZ (mismo nivel que clients, sales, inventory)
 ├── components/
-│   ├── ProjectsDirectory.tsx          ← Página principal
-│   ├── ProjectsHeader.tsx             ← Header con acciones
-│   ├── ProjectsKPICards.tsx           ← KPIs globales
-│   ├── ProjectsTable.tsx              ← Vista tabla
-│   ├── ProjectsKanban.tsx             ← Vista Kanban
-│   ├── ProjectFilters.tsx             ← Filtros avanzados
-│   ├── CreateProjectWizard.tsx        ← Wizard de creación
-│   ├── ProjectProfile.tsx             ← Página de detalles
-│   ├── ProjectProfileHeader.tsx       ← Header del detalle
-│   ├── ProjectKPIsRow.tsx             ← KPIs del proyecto
-│   ├── ProjectTimeline.tsx            ← Timeline unificado
-│   ├── ProjectFinancialSummary.tsx    ← Resumen financiero
-│   ├── ProjectBOMCard.tsx             ← BOM y materiales
-│   ├── ProjectTeamCard.tsx            ← Equipo asignado
-│   ├── work-orders/
-│   │   ├── WorkOrdersList.tsx         ← Lista de órdenes
-│   │   ├── WorkOrderCard.tsx          ← Tarjeta individual
-│   │   ├── CreateWorkOrderDialog.tsx  ← Crear orden
-│   │   └── WorkOrderDetails.tsx       ← Detalles de orden
-│   ├── tasks/
-│   │   ├── TasksKanban.tsx            ← Kanban de tareas
-│   │   ├── TasksList.tsx              ← Lista de tareas
-│   │   └── CreateTaskDialog.tsx       ← Crear tarea
-│   └── quality/
-│       ├── QualityChecklist.tsx       ← Checklist de calidad
-│       └── QualityReport.tsx          ← Reporte de calidad
+│   ├── ProjectsDirectory.tsx            ← Página principal (/projects)
+│   ├── ProjectsHeader.tsx               ← Header con acciones globales
+│   ├── ProjectsKPICards.tsx             ← KPIs globales del módulo
+│   ├── ProjectsTable.tsx                ← Vista tabla de proyectos
+│   ├── ProjectsKanban.tsx               ← Vista Kanban por estado
+│   ├── ProjectFilters.tsx               ← Filtros avanzados
+│   ├── CreateProjectWizard.tsx          ← Wizard de creación
+│   ├── ProjectProfile.tsx               ← Página de detalles (/projects/:id)
+│   ├── ProjectProfileHeader.tsx         ← Header del detalle
+│   ├── ProjectKPIsRow.tsx               ← KPIs del proyecto específico
+│   ├── ProjectTimeline.tsx              ← Timeline unificado
+│   ├── ProjectFinancialSummary.tsx      ← Resumen financiero
+│   ├── ProjectBOMCard.tsx               ← BOM y materiales
+│   ├── ProjectTeamCard.tsx              ← Equipo asignado
+│   │
+│   ├── work-orders/                     ← SUBMÓDULO: Órdenes de Trabajo
+│   │   ├── WorkOrdersDirectory.tsx      ← Listado de órdenes (/projects/:id/work-orders)
+│   │   ├── WorkOrderCard.tsx            ← Tarjeta individual
+│   │   ├── CreateWorkOrderDialog.tsx    ← Crear orden
+│   │   ├── WorkOrderDetails.tsx         ← Detalles de orden (/projects/:id/work-orders/:woId)
+│   │   ├── WorkOrderMaterialsTable.tsx  ← Materiales consumidos
+│   │   ├── WorkOrderLaborTable.tsx      ← Horas trabajadas
+│   │   └── WorkOrderQualityChecks.tsx   ← Checklist de calidad
+│   │
+│   ├── inventory/                       ← SUBMÓDULO: BOM e Inventario del Proyecto
+│   │   ├── ProjectBOMDirectory.tsx      ← Vista BOM (/projects/:id/inventory)
+│   │   ├── BOMTable.tsx                 ← Tabla de materiales
+│   │   ├── MaterialConsumptionLog.tsx   ← Registro de consumos
+│   │   ├── MaterialReservations.tsx     ← Reservas de stock
+│   │   └── MaterialAlerts.tsx           ← Alertas de faltantes
+│   │
+│   ├── tasks/                           ← SUBMÓDULO: Tareas y Cronograma
+│   │   ├── TasksDirectory.tsx           ← Vista principal (/projects/:id/tasks)
+│   │   ├── TasksKanban.tsx              ← Kanban de tareas
+│   │   ├── TasksList.tsx                ← Lista de tareas
+│   │   ├── TasksGantt.tsx               ← Vista Gantt (opcional)
+│   │   ├── CreateTaskDialog.tsx         ← Crear tarea
+│   │   └── TaskDetails.tsx              ← Detalles de tarea
+│   │
+│   ├── quality/                         ← SUBMÓDULO: Control de Calidad
+│   │   ├── QualityDirectory.tsx         ← Vista principal (/projects/:id/quality)
+│   │   ├── QualityChecklist.tsx         ← Checklist de calidad
+│   │   ├── QualityInspection.tsx        ← Registro de inspecciones
+│   │   ├── QualityReport.tsx            ← Reporte de calidad
+│   │   └── QualityEvidence.tsx          ← Evidencias (fotos, firmas)
+│   │
+│   ├── finance/                         ← SUBMÓDULO: Finanzas del Proyecto
+│   │   ├── ProjectFinanceDirectory.tsx  ← Vista principal (/projects/:id/finance)
+│   │   ├── FinancialSummary.tsx         ← Resumen financiero
+│   │   ├── TransactionsTable.tsx        ← Ingresos/egresos
+│   │   ├── BudgetVsActual.tsx           ← Presupuesto vs Real
+│   │   ├── ProfitabilityChart.tsx       ← Gráfica de rentabilidad
+│   │   └── InvoicingActions.tsx         ← Generar facturas
+│   │
+│   ├── documents/                       ← SUBMÓDULO: Documentación
+│   │   ├── DocumentsDirectory.tsx       ← Vista principal (/projects/:id/documents)
+│   │   ├── DocumentsTable.tsx           ← Tabla de documentos
+│   │   ├── DocumentUpload.tsx           ← Subir documentos
+│   │   ├── DocumentPreview.tsx          ← Vista previa
+│   │   └── DocumentVersioning.tsx       ← Control de versiones
+│   │
+│   └── closure/                         ← SUBMÓDULO: Cierre del Proyecto
+│       ├── ProjectClosureWizard.tsx     ← Wizard de cierre (/projects/:id/close)
+│       ├── ClosureSummary.tsx           ← Resumen final
+│       ├── ClosureChecklist.tsx         ← Checklist de cierre
+│       └── ClosureReport.tsx            ← Reporte de cierre
+│
 ├── hooks/
-│   ├── use-projects.ts                ← Hook principal
-│   ├── use-project-profile.ts         ← Hook de detalles
-│   ├── use-work-orders.ts             ← Hook de órdenes
-│   ├── use-project-tasks.ts           ← Hook de tareas
-│   └── use-project-conversion.ts      ← Hook conversión cotización
+│   ├── use-projects.ts                  ← Hook principal (listado, filtros)
+│   ├── use-project-profile.ts           ← Hook de detalles del proyecto
+│   ├── use-work-orders.ts               ← Hook de órdenes de trabajo
+│   ├── use-project-tasks.ts             ← Hook de tareas
+│   ├── use-project-inventory.ts         ← Hook BOM y materiales
+│   ├── use-project-finance.ts           ← Hook finanzas del proyecto
+│   ├── use-project-quality.ts           ← Hook control de calidad
+│   ├── use-work-sessions.ts             ← Hook time tracking
+│   └── use-project-conversion.ts        ← Hook conversión cotización → proyecto
+│
 ├── services/
-│   ├── projects.service.ts            ← Servicio principal
-│   ├── work-orders.service.ts         ← Servicio órdenes
-│   └── project-conversion.service.ts  ← Servicio conversión
+│   ├── projects.service.ts              ← Servicio principal (CRUD proyectos)
+│   ├── work-orders.service.ts           ← Servicio órdenes de trabajo
+│   ├── project-tasks.service.ts         ← Servicio tareas
+│   ├── work-sessions.service.ts         ← Servicio time tracking
+│   ├── project-inventory.service.ts     ← Servicio BOM y consumo de materiales
+│   ├── project-finance.service.ts       ← Servicio finanzas del proyecto
+│   ├── project-quality.service.ts       ← Servicio control de calidad
+│   └── project-conversion.service.ts    ← Servicio conversión cotización → proyecto
+│
 ├── types/
-│   └── projects.types.ts              ← Tipos TypeScript
+│   └── projects.types.ts                ← Tipos TypeScript (✅ YA IMPLEMENTADO)
+│
 ├── validations/
-│   └── projects.validation.ts         ← Validaciones Zod
+│   ├── projects.validation.ts           ← Validaciones Zod para proyectos
+│   ├── work-orders.validation.ts        ← Validaciones para órdenes
+│   └── tasks.validation.ts              ← Validaciones para tareas
+│
 └── utils/
-    └── projects.utils.ts              ← Utilidades
+    ├── projects.utils.ts                ← Utilidades generales
+    ├── financial-calculations.ts        ← Cálculos financieros
+    └── progress-calculations.ts         ← Cálculos de progreso
 
-src/app/(main)/projects/
-├── page.tsx                           ← /projects (listado)
+src/app/(main)/projects/                 ← RUTAS DEL MÓDULO (mismo nivel que /clients, /sales, /inventory)
+├── page.tsx                             ← /projects (listado)
 ├── create/
-│   └── page.tsx                       ← /projects/create
+│   └── page.tsx                         ← /projects/create (wizard creación)
 └── [id]/
-    ├── page.tsx                       ← /projects/:id (detalles)
+    ├── page.tsx                         ← /projects/:id (detalles)
     ├── work-orders/
-    │   └── page.tsx                   ← /projects/:id/work-orders
-    └── tasks/
-        └── page.tsx                   ← /projects/:id/tasks
+    │   ├── page.tsx                     ← /projects/:id/work-orders
+    │   └── [woId]/
+    │       └── page.tsx                 ← /projects/:id/work-orders/:woId
+    ├── inventory/
+    │   └── page.tsx                     ← /projects/:id/inventory
+    ├── tasks/
+    │   ├── page.tsx                     ← /projects/:id/tasks
+    │   └── [taskId]/
+    │       └── page.tsx                 ← /projects/:id/tasks/:taskId
+    ├── quality/
+    │   └── page.tsx                     ← /projects/:id/quality
+    ├── finance/
+    │   └── page.tsx                     ← /projects/:id/finance
+    ├── documents/
+    │   └── page.tsx                     ← /projects/:id/documents
+    └── close/
+        └── page.tsx                     ← /projects/:id/close
+```
+
+### Navegación Global de ZADIA OS (Arquitectura Actualizada)
+
+```
+ZADIA OS
+├── /dashboard                           → Dashboard global
+│
+├── /clients                             → MÓDULO CLIENTES (70% implementado)
+│   ├── /clients/new
+│   └── /clients/:id
+│
+├── /sales                               → MÓDULO VENTAS (92% implementado)
+│   ├── /sales/leads
+│   ├── /sales/opportunities
+│   └── /sales/quotes
+│
+├── /inventory                           → MÓDULO INVENTARIO (85% implementado)
+│   ├── /inventory/raw-materials
+│   ├── /inventory/finished-products
+│   └── /inventory/bom
+│
+├── /projects                            → MÓDULO PROYECTOS (5% → 95%)
+│   ├── /projects                        ← Listado de proyectos
+│   ├── /projects/create                 ← Crear proyecto
+│   └── /projects/:id                    ← Hub del proyecto
+│       ├── /projects/:id/work-orders    ← Producción
+│       ├── /projects/:id/inventory      ← BOM y materiales
+│       ├── /projects/:id/tasks          ← Tareas y cronograma
+│       ├── /projects/:id/quality        ← Control de calidad
+│       ├── /projects/:id/finance        ← Finanzas del proyecto
+│       ├── /projects/:id/documents      ← Documentación
+│       └── /projects/:id/close          ← Cierre del proyecto
+│
+├── /finance                             → MÓDULO FINANZAS (futuro)
+│   ├── /finance/invoices
+│   ├── /finance/payments
+│   └── /finance/reports
+│
+└── /hr                                  → MÓDULO RRHH (futuro)
+    ├── /hr/employees
+    ├── /hr/attendance
+    └── /hr/payroll
 ```
 
 ---
