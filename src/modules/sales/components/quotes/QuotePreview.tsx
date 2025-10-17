@@ -31,12 +31,12 @@ interface QuotePreviewProps {
 
 export function QuotePreview({ quote, clientName, opportunityName }: QuotePreviewProps) {
   return (
-    <Card>
-      <CardContent className="p-8">
+    <Card className="print:shadow-none print:border-0">
+      <CardContent className="p-8 print:p-12">
         {/* Header */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold">ZADIA OS</h2>
-          <p className="text-sm text-muted-foreground">Sistema de Gestión Empresarial</p>
+        <div className="mb-8 pb-4 border-b-2 border-primary print:border-gray-800">
+          <h2 className="text-3xl font-bold text-primary print:text-gray-900">ZADIA OS</h2>
+          <p className="text-sm text-muted-foreground print:text-gray-600">Sistema de Gestión Empresarial</p>
         </div>
 
         {/* Quote Info */}

@@ -10,7 +10,7 @@
 
 'use client';
 
-import { use } from 'react';
+import { use, useRef } from 'react';
 import { Loader2, AlertCircle, Rocket } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,7 @@ import { QuoteConversionDialog } from '@/modules/projects/components/QuoteConver
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useReactToPrint } from 'react-to-print';
 
 interface QuoteDetailsPageProps {
   params: Promise<{
@@ -44,11 +45,18 @@ export default function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
   } = useQuote(quoteId);
 
   const [showConversionDialog, setShowConversionDialog] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
 
-  const handleDownloadPDF = () => {
-    toast.info('Función de descarga PDF en desarrollo');
-    // TODO: Implementar generación de PDF
-  };
+  const handleDownloadPDF = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Cotizacion_${quote?.number || quoteId}`,
+    onAfterPrint: () => {
+      toast.success('PDF generado correctamente');
+    },
+    onPrintError: () => {
+      toast.error('Error al generar PDF');
+    },
+  });
 
   // Loading state
   if (loading) {
@@ -99,7 +107,9 @@ export default function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
               </TabsList>
               
               <TabsContent value="preview" className="mt-6">
-                <QuotePreview quote={quote} />
+                <div ref={printRef}>
+                  <QuotePreview quote={quote} />
+                </div>
               </TabsContent>
               
               <TabsContent value="history" className="mt-6">

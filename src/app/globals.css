@@ -120,3 +120,47 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Print styles for PDF generation */
+@media print {
+  @page {
+    size: A4;
+    margin: 2cm;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Hide unnecessary elements */
+  nav,
+  button,
+  [role="navigation"],
+  [data-radix-scroll-area-viewport] {
+    display: none !important;
+  }
+
+  /* Ensure content fits on page */
+  .print\:break-inside-avoid {
+    break-inside: avoid;
+  }
+
+  /* Optimize table printing */
+  table {
+    break-inside: auto;
+  }
+
+  tr {
+    break-inside: avoid;
+    break-after: auto;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+}
