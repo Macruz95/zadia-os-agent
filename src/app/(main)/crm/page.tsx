@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,8 +11,66 @@ import {
   TrendingUp,
   ArrowRight 
 } from 'lucide-react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
+interface CRMStats {
+  activeLeads: number;
+  totalClients: number;
+  activeOpportunities: number;
+  conversionRate: number;
+}
 
 export default function CRMPage() {
+  const [stats, setStats] = useState<CRMStats>({
+    activeLeads: 0,
+    totalClients: 0,
+    activeOpportunities: 0,
+    conversionRate: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      setLoading(true);
+      
+      // Contar leads activos (no converted, no lost)
+      const leadsSnapshot = await getDocs(
+        query(collection(db, 'leads'), where('status', 'in', ['new', 'contacted', 'qualified']))
+      );
+      const activeLeads = leadsSnapshot.size;
+      
+      // Contar total de clientes
+      const clientsSnapshot = await getDocs(collection(db, 'clients'));
+      const totalClients = clientsSnapshot.size;
+      
+      // Contar oportunidades activas (no won, no lost)
+      const oppsSnapshot = await getDocs(
+        query(collection(db, 'opportunities'), where('status', 'in', ['prospecting', 'qualification', 'proposal', 'negotiation']))
+      );
+      const activeOpportunities = oppsSnapshot.size;
+      
+      // Calcular tasa de conversión (leads totales vs clientes)
+      const allLeadsSnapshot = await getDocs(collection(db, 'leads'));
+      const totalLeads = allLeadsSnapshot.size;
+      const conversionRate = totalLeads > 0 
+        ? Math.round((totalClients / totalLeads) * 100)
+        : 0;
+      
+      setStats({
+        activeLeads,
+        totalClients,
+        activeOpportunities,
+        conversionRate,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   const modules = [
     {
       title: 'Leads',
@@ -69,7 +128,9 @@ export default function CRMPage() {
             <UserPlus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : stats.activeLeads}
+            </div>
             <p className="text-xs text-muted-foreground">
               En proceso de calificación
             </p>
@@ -81,7 +142,9 @@ export default function CRMPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : stats.totalClients}
+            </div>
             <p className="text-xs text-muted-foreground">
               Cartera total
             </p>
@@ -93,7 +156,9 @@ export default function CRMPage() {
             <Lightbulb className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : stats.activeOpportunities}
+            </div>
             <p className="text-xs text-muted-foreground">
               En pipeline
             </p>
@@ -105,7 +170,9 @@ export default function CRMPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-%</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : `${stats.conversionRate}%`}
+            </div>
             <p className="text-xs text-muted-foreground">
               Lead → Cliente
             </p>

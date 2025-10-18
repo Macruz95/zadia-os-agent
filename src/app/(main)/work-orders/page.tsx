@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,8 +11,67 @@ import {
   DollarSign,
   ArrowRight 
 } from 'lucide-react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
+interface WorkOrdersStats {
+  openOrders: number;
+  materialsUsed: number;
+  totalHours: number;
+  efficiency: number;
+}
 
 export default function WorkOrdersPage() {
+  const [stats, setStats] = useState<WorkOrdersStats>({
+    openOrders: 0,
+    materialsUsed: 0,
+    totalHours: 0,
+    efficiency: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      setLoading(true);
+      
+      // Contar órdenes abiertas (no completed, no cancelled)
+      const ordersSnapshot = await getDocs(
+        query(collection(db, 'work-orders'), where('status', 'in', ['pending', 'in-progress']))
+      );
+      const openOrders = ordersSnapshot.size;
+      
+      // Contar materiales usados este mes (simplificado)
+      const allOrdersSnapshot = await getDocs(collection(db, 'work-orders'));
+      let materialsUsed = 0;
+      let totalHours = 0;
+      let estimatedHours = 0;
+      
+      allOrdersSnapshot.docs.forEach((doc) => {
+        const data = doc.data();
+        materialsUsed += data.materials?.length || 0;
+        totalHours += data.actualHours || 0;
+        estimatedHours += data.estimatedHours || 0;
+      });
+      
+      // Calcular eficiencia (real vs estimado)
+      const efficiency = estimatedHours > 0 
+        ? Math.round((estimatedHours / (totalHours || 1)) * 100)
+        : 0;
+      
+      setStats({
+        openOrders,
+        materialsUsed,
+        totalHours,
+        efficiency,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   const modules = [
     {
       title: 'Órdenes Activas',
@@ -69,7 +129,9 @@ export default function WorkOrdersPage() {
             <Wrench className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : stats.openOrders}
+            </div>
             <p className="text-xs text-muted-foreground">
               En ejecución
             </p>
@@ -81,9 +143,11 @@ export default function WorkOrdersPage() {
             <ClipboardList className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : stats.materialsUsed}
+            </div>
             <p className="text-xs text-muted-foreground">
-              Este mes
+              Total registrados
             </p>
           </CardContent>
         </Card>
@@ -93,9 +157,11 @@ export default function WorkOrdersPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : Math.round(stats.totalHours)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              Este mes
+              Horas trabajadas
             </p>
           </CardContent>
         </Card>
@@ -105,9 +171,11 @@ export default function WorkOrdersPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-%</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : `${stats.efficiency}%`}
+            </div>
             <p className="text-xs text-muted-foreground">
-              Costo vs presupuesto
+              Estimado vs real
             </p>
           </CardContent>
         </Card>

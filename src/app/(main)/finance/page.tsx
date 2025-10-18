@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,8 +11,58 @@ import {
   TrendingUp,
   ArrowRight 
 } from 'lucide-react';
+import { InvoicesService } from '@/modules/finance/services/invoices.service';
+import { formatCurrency } from '@/lib/utils';
+
+interface FinanceStats {
+  activeInvoices: number;
+  totalDue: number;
+  collectedThisMonth: number;
+  collectionRate: number;
+}
 
 export default function FinancePage() {
+  const [stats, setStats] = useState<FinanceStats>({
+    activeInvoices: 0,
+    totalDue: 0,
+    collectedThisMonth: 0,
+    collectionRate: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      setLoading(true);
+      const invoiceStats = await InvoicesService.getInvoiceStats();
+      
+      // Calcular facturas activas (total - canceladas, considerando overdueInvoices)
+      const activeInvoices = invoiceStats.totalInvoices + invoiceStats.overdueInvoices;
+      
+      // Total por cobrar
+      const totalDue = invoiceStats.totalDue;
+      
+      // Cobrado (total pagado)
+      const collectedThisMonth = invoiceStats.totalPaid;
+      
+      // Tasa de cobro (totalPaid / totalBilled * 100)
+      const collectionRate = invoiceStats.totalBilled > 0 
+        ? Math.round((invoiceStats.totalPaid / invoiceStats.totalBilled) * 100)
+        : 0;
+      
+      setStats({
+        activeInvoices,
+        totalDue,
+        collectedThisMonth,
+        collectionRate,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   const modules = [
     {
       title: 'Facturas',
@@ -69,7 +120,9 @@ export default function FinancePage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : stats.activeInvoices}
+            </div>
             <p className="text-xs text-muted-foreground">
               Pendientes de pago
             </p>
@@ -81,7 +134,9 @@ export default function FinancePage() {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : formatCurrency(stats.totalDue)}
+            </div>
             <p className="text-xs text-muted-foreground">
               Monto pendiente total
             </p>
@@ -89,11 +144,13 @@ export default function FinancePage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cobrado Este Mes</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Cobrado</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$-</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : formatCurrency(stats.collectedThisMonth)}
+            </div>
             <p className="text-xs text-muted-foreground">
               Pagos recibidos
             </p>
@@ -105,7 +162,9 @@ export default function FinancePage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-%</div>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : `${stats.collectionRate}%`}
+            </div>
             <p className="text-xs text-muted-foreground">
               Efectividad de cobro
             </p>
