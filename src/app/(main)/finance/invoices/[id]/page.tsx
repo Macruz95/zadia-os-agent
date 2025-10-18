@@ -2,8 +2,9 @@
 
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useReactToPrint } from 'react-to-print';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -33,6 +34,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { PaymentFormDialog } from '@/modules/finance/components/PaymentFormDialog';
+import { InvoicePDF } from '@/modules/finance/components/InvoicePDF';
 import { InvoicesService } from '@/modules/finance/services/invoices.service';
 import { usePayments } from '@/modules/finance/hooks/use-payments';
 import { useAuth } from '@/contexts/AuthContext';
@@ -60,8 +62,14 @@ export default function InvoiceDetailsPage({ params }: PageProps) {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
 
   const { payments, loading: paymentsLoading, fetchPaymentsByInvoice, createPayment } = usePayments(id);
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: `Factura-${invoice?.number || 'N/A'}`,
+  });
 
   useEffect(() => {
     loadInvoice();
@@ -166,11 +174,16 @@ export default function InvoiceDetailsPage({ params }: PageProps) {
               Registrar Pago
             </Button>
           )}
-          <Button variant="outline">
+          <Button variant="outline" onClick={handlePrint}>
             <Download className="h-4 w-4 mr-2" />
             Descargar PDF
           </Button>
         </div>
+      </div>
+
+      {/* Hidden PDF Component */}
+      <div style={{ display: 'none' }}>
+        <InvoicePDF ref={printRef} invoice={invoice} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
