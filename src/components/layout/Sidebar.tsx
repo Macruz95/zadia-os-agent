@@ -22,6 +22,10 @@ import {
   Users,
   Package,
   TrendingUp,
+  UserCheck,
+  Briefcase,
+  Wrench,
+  DollarSign,
 } from 'lucide-react';
 
 const sidebarNavItems = [
@@ -29,6 +33,36 @@ const sidebarNavItems = [
     title: 'navigation.dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
+    roles: ['admin', 'manager', 'user']
+  },
+  {
+    title: 'CRM',
+    href: '/crm',
+    icon: UserCheck,
+    roles: ['admin', 'manager', 'user']
+  },
+  {
+    title: 'Ventas',
+    href: '/sales',
+    icon: TrendingUp,
+    roles: ['admin', 'manager', 'user']
+  },
+  {
+    title: 'Proyectos',
+    href: '/projects',
+    icon: Briefcase,
+    roles: ['admin', 'manager', 'user']
+  },
+  {
+    title: 'Work Orders',
+    href: '/work-orders',
+    icon: Wrench,
+    roles: ['admin', 'manager', 'user']
+  },
+  {
+    title: 'Finanzas',
+    href: '/finance',
+    icon: DollarSign,
     roles: ['admin', 'manager', 'user']
   },
   {
@@ -41,12 +75,6 @@ const sidebarNavItems = [
     title: 'navigation.inventory',
     href: '/inventory',
     icon: Package,
-    roles: ['admin', 'manager', 'user']
-  },
-  {
-    title: 'navigation.sales',
-    href: '/sales',
-    icon: TrendingUp,
     roles: ['admin', 'manager', 'user']
   },
   {
