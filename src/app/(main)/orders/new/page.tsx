@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm, useFieldArray } from 'react-hook-form';
 import {
@@ -35,14 +35,18 @@ import { useAuthState } from '@/hooks/use-auth-state';
 import { OrdersService } from '@/modules/orders/services/orders.service';
 import type { OrderFormData } from '@/modules/orders/validations/orders.validation';
 import { SHIPPING_METHOD_CONFIG } from '@/modules/orders/types/orders.types';
+import { QuotesService } from '@/modules/sales/services/quotes.service';
 import { Timestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 
 export default function NewOrderPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const quoteId = searchParams.get('quoteId');
   const { user } = useAuthState();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
+  const [loadingQuote, setLoadingQuote] = useState(false);
 
   const {
     register,
@@ -102,6 +106,60 @@ export default function NewOrderPage() {
     };
     generateNumber();
   }, []);
+
+  /**
+   * Cargar cotización si viene de una quote
+   */
+  useEffect(() => {
+    const loadQuote = async () => {
+      if (!quoteId) return;
+
+      setLoadingQuote(true);
+      try {
+        const quote = await QuotesService.getQuoteById(quoteId);
+        if (!quote) {
+          toast.error('Cotización no encontrada');
+          return;
+        }
+
+        // Pre-llenar formulario desde la cotización
+        setValue('clientId', quote.clientId);
+        setValue('clientName', quote.clientName);
+        setValue('quoteId', quote.id);
+        setValue('quoteNumber', quote.number);
+        
+        // Convertir items de cotización a items de pedido
+        const orderItems = quote.items.map((item) => ({
+          productName: item.productName,
+          description: item.description,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discount: item.discount,
+          subtotal: item.subtotal,
+          unitOfMeasure: item.unitOfMeasure || 'pza',
+        }));
+        
+        setValue('items', orderItems);
+        setValue('subtotal', quote.subtotal);
+        setValue('taxes', quote.taxes);
+        setValue('discounts', quote.discounts);
+        setValue('total', quote.total);
+        setValue('currency', quote.currency);
+        
+        if (quote.notes) {
+          setValue('notes', quote.notes);
+        }
+
+        toast.success('Cotización cargada exitosamente');
+      } catch {
+        toast.error('Error al cargar cotización');
+      } finally {
+        setLoadingQuote(false);
+      }
+    };
+
+    loadQuote();
+  }, [quoteId, setValue]);
 
   /**
    * Calcular totales
@@ -178,6 +236,17 @@ export default function NewOrderPage() {
   const taxAmount = (subtotal * 16) / 100;
   const total = subtotal + taxAmount + shippingCost - discounts;
 
+  if (loadingQuote) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Cargando cotización...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -191,6 +260,11 @@ export default function NewOrderPage() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
               Nuevo Pedido
+              {quoteId && (
+                <span className="text-sm font-normal text-muted-foreground ml-2">
+                  (desde cotización)
+                </span>
+              )}
             </h1>
             <p className="text-muted-foreground">
               {orderNumber || 'Generando número...'}

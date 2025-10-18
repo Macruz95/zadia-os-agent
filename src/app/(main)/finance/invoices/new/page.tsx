@@ -35,6 +35,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { InvoicesService } from '@/modules/finance/services/invoices.service';
 import { QuotesService } from '@/modules/sales/services/quotes.service';
+import { OrdersService } from '@/modules/orders/services/orders.service';
 import { useAuth } from '@/contexts/AuthContext';
 import type { InvoiceItem } from '@/modules/finance/types/finance.types';
 
@@ -43,6 +44,8 @@ interface InvoiceFormData {
   clientName: string;
   quoteId?: string;
   quoteNumber?: string;
+  orderId?: string;
+  orderNumber?: string;
   projectId?: string;
   items: InvoiceItem[];
   currency: string;
@@ -62,6 +65,7 @@ export default function NewInvoicePage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [loadingQuote, setLoadingQuote] = useState(false);
+  const [loadingOrder, setLoadingOrder] = useState(false);
 
   const [formData, setFormData] = useState<InvoiceFormData>({
     clientId: '',
@@ -87,11 +91,15 @@ export default function NewInvoicePage() {
     IVA: 16,
   });
 
-  // Cargar cotización si viene en URL
+  // Cargar cotización o pedido si viene en URL
   useEffect(() => {
     const quoteId = searchParams.get('quoteId');
+    const orderId = searchParams.get('orderId');
+    
     if (quoteId) {
       loadQuoteData(quoteId);
+    } else if (orderId) {
+      loadOrderData(orderId);
     }
   }, [searchParams]);
 
@@ -131,6 +139,46 @@ export default function NewInvoicePage() {
       toast.error('Error al cargar la cotización');
     } finally {
       setLoadingQuote(false);
+    }
+  };
+
+  const loadOrderData = async (orderId: string) => {
+    try {
+      setLoadingOrder(true);
+      const order = await OrdersService.getOrderById(orderId);
+
+      if (!order) {
+        toast.error('Pedido no encontrado');
+        return;
+      }
+
+      setFormData({
+        clientId: order.clientId,
+        clientName: order.clientName,
+        orderId: order.id,
+        orderNumber: order.number,
+        quoteId: order.quoteId,
+        quoteNumber: order.quoteNumber,
+        items: order.items.map((item) => ({
+          description: item.description,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discount: item.discount || 0,
+          subtotal: item.subtotal,
+          unitOfMeasure: item.unitOfMeasure || 'pza',
+        })),
+        currency: order.currency,
+        issueDate: format(new Date(), 'yyyy-MM-dd'),
+        dueDate: format(new Date(Date.now() + 30 * 86400000), 'yyyy-MM-dd'),
+        paymentTerms: '30 días',
+        notes: order.notes || '',
+      });
+
+      toast.success('Datos cargados desde pedido');
+    } catch {
+      toast.error('Error al cargar el pedido');
+    } finally {
+      setLoadingOrder(false);
     }
   };
 
@@ -247,6 +295,8 @@ export default function NewInvoicePage() {
         clientName: formData.clientName,
         quoteId: formData.quoteId,
         quoteNumber: formData.quoteNumber,
+        orderId: formData.orderId,
+        orderNumber: formData.orderNumber,
         projectId: formData.projectId,
         items: formData.items.map((item) => ({
           description: item.description,
@@ -286,12 +336,14 @@ export default function NewInvoicePage() {
     }).format(amount);
   };
 
-  if (loadingQuote) {
+  if (loadingQuote || loadingOrder) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Cargando cotización...</p>
+          <p className="text-muted-foreground">
+            {loadingQuote ? 'Cargando cotización...' : 'Cargando pedido...'}
+          </p>
         </div>
       </div>
     );
@@ -312,9 +364,11 @@ export default function NewInvoicePage() {
           <div>
             <h1 className="text-3xl font-bold">Nueva Factura</h1>
             <p className="text-muted-foreground">
-              {formData.quoteId
-                ? `Desde cotización ${formData.quoteNumber}`
-                : 'Crear factura manualmente'}
+              {formData.orderId
+                ? `Desde pedido ${formData.orderNumber}`
+                : formData.quoteId
+                  ? `Desde cotización ${formData.quoteNumber}`
+                  : 'Crear factura manualmente'}
             </p>
           </div>
         </div>

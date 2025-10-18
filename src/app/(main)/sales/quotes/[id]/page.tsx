@@ -11,7 +11,7 @@
 'use client';
 
 import { use, useRef } from 'react';
-import { Loader2, AlertCircle, Rocket, FileText } from 'lucide-react';
+import { Loader2, AlertCircle, Rocket, FileText, Package } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -151,6 +151,23 @@ export default function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
             {quote.status === 'accepted' && (
               <div className="border rounded-lg p-6 bg-primary/5 space-y-3">
                 <div>
+                  <h3 className="font-semibold mb-2">Crear Pedido</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Generar un pedido a partir de esta cotización aceptada.
+                  </p>
+                  <Button
+                    onClick={() =>
+                      router.push(`/orders/new?quoteId=${quote.id}`)
+                    }
+                    className="w-full"
+                    variant="default"
+                  >
+                    <Package className="mr-2 h-4 w-4" />
+                    Crear Pedido
+                  </Button>
+                </div>
+
+                <div className="pt-3 border-t">
                   <h3 className="font-semibold mb-2">Generar Factura</h3>
                   <p className="text-sm text-muted-foreground mb-3">
                     Crear factura a partir de esta cotización aceptada.
@@ -160,7 +177,7 @@ export default function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
                       router.push(`/finance/invoices/new?quoteId=${quote.id}`)
                     }
                     className="w-full"
-                    variant="default"
+                    variant="outline"
                   >
                     <FileText className="mr-2 h-4 w-4" />
                     Generar Factura

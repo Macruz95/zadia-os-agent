@@ -61,6 +61,8 @@ export interface Invoice {
   clientName: string;
   quoteId?: string;                  // Cotización origen (opcional)
   quoteNumber?: string;
+  orderId?: string;                  // Pedido origen (opcional)
+  orderNumber?: string;
   projectId?: string;                // Proyecto relacionado (opcional)
   
   // Ítems
