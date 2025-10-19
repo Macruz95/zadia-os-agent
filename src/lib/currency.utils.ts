@@ -1,33 +1,63 @@
-/**
- * ZADIA OS - Currency Formatting Utilities
- * 
- * Centralized currency formatting functions for consistent display across the application.
- * Supports multiple currencies and locales commonly used in Latin America.
+/**/**
+
+ * ZADIA OS - Currency Utilities (Facade) * ZADIA OS - Currency Formatting Utilities
+
+ * Centralized currency formatting functions * 
+
+ * Rule #5: Max 200 lines per file * Centralized currency formatting functions for consistent display across the application.
+
+ */ * Supports multiple currencies and locales commonly used in Latin America.
+
  */
 
-/**
- * Supported currency codes
- */
-export type CurrencyCode = 
-  | 'USD'  // US Dollar
+// Types & Constants
+
+export type {/**
+
+  CurrencyCode, * Supported currency codes
+
+  LocaleCode, */
+
+  CurrencyFormatOptionsexport type CurrencyCode = 
+
+} from './currency/currency-types';  | 'USD'  // US Dollar
+
   | 'COP'  // Colombian Peso
-  | 'GTQ'  // Guatemalan Quetzal
-  | 'PYG'  // Paraguayan Guaraní
-  | 'EUR'  // Euro
-  | 'MXN'  // Mexican Peso
-  | 'PEN'  // Peruvian Sol
-  | 'CLP'  // Chilean Peso
-  | 'ARS'; // Argentine Peso
 
-/**
- * Supported locale codes
- */
-export type LocaleCode =
+export { CURRENCY_DEFAULTS } from './currency/currency-types';  | 'GTQ'  // Guatemalan Quetzal
+
+  | 'PYG'  // Paraguayan Guaraní
+
+// Formatters  | 'EUR'  // Euro
+
+export {  | 'MXN'  // Mexican Peso
+
+  formatCurrency,  | 'PEN'  // Peruvian Sol
+
+  formatCOP,  | 'CLP'  // Chilean Peso
+
+  formatGTQ,  | 'ARS'; // Argentine Peso
+
+  formatPYG,
+
+  formatUSD,/**
+
+  formatCompactCurrency, * Supported locale codes
+
+  formatPercentage */
+
+} from './currency/currency-formatters';export type LocaleCode =
+
   | 'es-CO' // Colombia
-  | 'es-GT' // Guatemala
-  | 'es-PY' // Paraguay
-  | 'es-MX' // Mexico
-  | 'es-PE' // Peru
+
+// Parser  | 'es-GT' // Guatemala
+
+export {  | 'es-PY' // Paraguay
+
+  parseCurrency  | 'es-MX' // Mexico
+
+} from './currency/currency-parser';  | 'es-PE' // Peru
+
   | 'es-CL' // Chile
   | 'es-AR' // Argentina
   | 'en-US'; // United States

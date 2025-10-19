@@ -13,7 +13,7 @@ import {
   FileText,
   Truck,
   RefreshCw,
-  FileInvoice,
+  Receipt,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -162,7 +162,7 @@ export default function OrderDetailsPage() {
           {order.status === 'delivered' && !order.invoiceId && (
             <Button asChild>
               <Link href={`/finance/invoices/new?orderId=${order.id}`}>
-                <FileInvoice className="mr-2 h-4 w-4" />
+                <Receipt className="mr-2 h-4 w-4" />
                 Generar Factura
               </Link>
             </Button>

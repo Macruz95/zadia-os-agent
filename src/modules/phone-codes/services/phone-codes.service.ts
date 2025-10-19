@@ -1,44 +1,85 @@
-import {
-  collection,
-  doc,
-  getDocs,
-  getDoc,
+/**import {
+
+ * ZADIA OS - Phone Codes Service (Facade)  collection,
+
+ * Punto de entrada unificado para operaciones de códigos telefónicos  doc,
+
+ * Rule #5: Max 200 lines per file  getDocs,
+
+ */  getDoc,
+
   addDoc,
-  updateDoc,
-  query,
-  where,
-  orderBy,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+
+// CRUD Operations  updateDoc,
+
+export {  query,
+
+  getPhoneCodeById,  where,
+
+  createPhoneCode,  orderBy,
+
+  updatePhoneCode,  Timestamp
+
+  deletePhoneCode} from 'firebase/firestore';
+
+} from './helpers/phone-code-crud.service';import { db } from '@/lib/firebase';
+
 import { logger } from '@/lib/logger';
-import { PhoneCode, phoneCodeSchema } from '../types/phone-codes.types';
 
-/**
- * Phone Codes Service
- * Handles phone code CRUD operations with Firebase Firestore
- * 
+// Search Operationsimport { PhoneCode, phoneCodeSchema } from '../types/phone-codes.types';
+
+export {
+
+  getPhoneCodes,/**
+
+  getPhoneCodesByCountry, * Phone Codes Service
+
+  findByDialCode * Handles phone code CRUD operations with Firebase Firestore
+
+} from './helpers/phone-code-search.service'; * 
+
  * Following ZADIA OS Rule 1: No mocks, only real data from Firestore
- * Implements auto-initialization system for empty collections
- */
 
-// Real phone codes data for initialization (not mocks - real data to populate Firestore)
+// Initialization * Implements auto-initialization system for empty collections
+
+export { */
+
+  initializePhoneCodes
+
+} from './helpers/phone-code-init.service';// Real phone codes data for initialization (not mocks - real data to populate Firestore)
+
 const INITIAL_PHONE_CODES_DATA: Omit<PhoneCode, 'id'>[] = [
-  {
-    countryId: 'SV',
-    code: '+503',
-    dialCode: '503',
-    priority: 100,
+
+/**  {
+
+ * PhoneCodesService Class - Backward Compatibility    countryId: 'SV',
+
+ */    code: '+503',
+
+import * as PhoneCodeCRUD from './helpers/phone-code-crud.service';    dialCode: '503',
+
+import * as PhoneCodeSearch from './helpers/phone-code-search.service';    priority: 100,
+
     isActive: true,
-    example: '70123456'
-  },
-  {
-    countryId: 'PE',
-    code: '+51',
-    dialCode: '51',
-    priority: 90,
-    isActive: true,
-    example: '987654321'
+
+export class PhoneCodesService {    example: '70123456'
+
+  static getPhoneCodes = PhoneCodeSearch.getPhoneCodes;  },
+
+  static getPhoneCodesByCountry = PhoneCodeSearch.getPhoneCodesByCountry;  {
+
+  static getPhoneCodeById = PhoneCodeCRUD.getPhoneCodeById;    countryId: 'PE',
+
+  static createPhoneCode = PhoneCodeCRUD.createPhoneCode;    code: '+51',
+
+  static updatePhoneCode = PhoneCodeCRUD.updatePhoneCode;    dialCode: '51',
+
+  static deletePhoneCode = PhoneCodeCRUD.deletePhoneCode;    priority: 90,
+
+  static findByDialCode = PhoneCodeSearch.findByDialCode;    isActive: true,
+
+}    example: '987654321'
+
   },
   {
     countryId: 'US',

@@ -1,73 +1,197 @@
+/**/**/**
+
+ * ZADIA OS - Quotes Service (Facade)
+
+ * Punto de entrada unificado para operaciones de cotizaciones * ZADIA OS - Quotes Service (Facade) * ZADIA OS - Quotes Service
+
+ * Rule #5: Max 200 lines per file
+
+ */ * Punto de entrada unificado para operaciones de cotizaciones * 
+
+
+
+// CRUD Operations * Rule #5: Max 200 lines per file * Handles all quote operations with Firebase integration
+
+export {
+
+  createQuote, *  */
+
+  getQuoteById,
+
+  updateQuote, * Arquitectura modular:
+
+  deleteQuote
+
+} from './helpers/quote-crud.service'; * - quote-utils: Utilidades y cálculosimport { 
+
+
+
+// Search Operations * - quote-crud: Operaciones CRUD básicas  collection, 
+
+export {
+
+  getAllQuotes, * - quote-search: Búsqueda y filtrado  doc, 
+
+  getQuotesByOpportunity,
+
+  getQuotesByStatus * - quote-status: Gestión de estados  getDocs, 
+
+} from './helpers/quote-search.service';
+
+ */  getDoc, 
+
+// Status Management
+
+export {  addDoc, 
+
+  updateQuoteStatus
+
+} from './helpers/quote-status.service';// CRUD Operations  updateDoc, 
+
+
+
+// Utilitiesexport {  deleteDoc, 
+
+export {
+
+  generateQuoteNumber,  createQuote,  query, 
+
+  addIdsToItems,
+
+  calculateTotals  getQuoteById,  where, 
+
+} from './helpers/quote-utils.service';
+
+  updateQuote,  orderBy,
+
 /**
- * ZADIA OS - Quotes Service
- * 
- * Handles all quote operations with Firebase integration
+
+ * QuotesService Class - Backward Compatibility  deleteQuote  Timestamp
+
  */
 
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { logger } from '@/lib/logger';
-import { Quote } from '../types/sales.types';
-import { QuoteFormData } from '../validations/sales.schema';
+import * as QuoteCRUD from './helpers/quote-crud.service';} from './helpers/quote-crud.service';} from 'firebase/firestore';
 
-const QUOTES_COLLECTION = 'quotes';
+import * as QuoteSearch from './helpers/quote-search.service';
+
+import * as QuoteStatus from './helpers/quote-status.service';import { db } from '@/lib/firebase';
+
+import * as QuoteUtils from './helpers/quote-utils.service';
+
+// Search Operationsimport { logger } from '@/lib/logger';
 
 export class QuotesService {
-  /**
-   * Generate quote number
-   */
-  private static generateQuoteNumber(): string {
+
+  static createQuote = QuoteCRUD.createQuote;export {import { Quote } from '../types/sales.types';
+
+  static getQuoteById = QuoteCRUD.getQuoteById;
+
+  static updateQuote = QuoteCRUD.updateQuote;  getAllQuotes,import { QuoteFormData } from '../validations/sales.schema';
+
+  static deleteQuote = QuoteCRUD.deleteQuote;
+
+  static getQuotes = QuoteSearch.getAllQuotes;  getQuotesByOpportunity,
+
+  static getQuotesByOpportunity = QuoteSearch.getQuotesByOpportunity;
+
+  static getQuotesByStatus = QuoteSearch.getQuotesByStatus;  getQuotesByStatusconst QUOTES_COLLECTION = 'quotes';
+
+  static updateQuoteStatus = QuoteStatus.updateQuoteStatus;
+
+  static generateQuoteNumber = QuoteUtils.generateQuoteNumber;} from './helpers/quote-search.service';
+
+  static addIdsToItems = QuoteUtils.addIdsToItems;
+
+  static calculateTotals = QuoteUtils.calculateTotals;export class QuotesService {
+
+}
+
+// Status Management  /**
+
+export {   * Generate quote number
+
+  updateQuoteStatus   */
+
+} from './helpers/quote-status.service';  private static generateQuoteNumber(): string {
+
     const year = new Date().getFullYear();
-    const month = String(new Date().getMonth() + 1).padStart(2, '0');
-    const timestamp = Date.now().toString().slice(-6);
-    return `COT-${year}-${month}-${timestamp}`;
-  }
 
-  /**
+// Utilities    const month = String(new Date().getMonth() + 1).padStart(2, '0');
+
+export {    const timestamp = Date.now().toString().slice(-6);
+
+  generateQuoteNumber,    return `COT-${year}-${month}-${timestamp}`;
+
+  addIdsToItems,  }
+
+  calculateTotals
+
+} from './helpers/quote-utils.service';  /**
+
    * Add IDs to quote items
-   */
-  private static addIdsToItems(items: Omit<Quote['items'][0], 'id'>[]): Quote['items'] {
-    return items.map((item, index) => ({
-      ...item,
-      id: `item-${Date.now()}-${index}`
-    }));
-  }
 
-  /**
-   * Calculate quote totals
+/**   */
+
+ * QuotesService Class (Backward Compatibility)  private static addIdsToItems(items: Omit<Quote['items'][0], 'id'>[]): Quote['items'] {
+
+ *     return items.map((item, index) => ({
+
+ * Esta clase mantiene la interfaz pública original para no romper      ...item,
+
+ * código existente que use QuotesService.metodo()      id: `item-${Date.now()}-${index}`
+
+ */    }));
+
+import * as QuoteCRUD from './helpers/quote-crud.service';  }
+
+import * as QuoteSearch from './helpers/quote-search.service';
+
+import * as QuoteStatus from './helpers/quote-status.service';  /**
+
+import * as QuoteUtils from './helpers/quote-utils.service';   * Calculate quote totals
+
    */
-  private static calculateTotals(items: Quote['items'] | Omit<Quote['items'][0], 'id'>[], taxes: Record<string, number>, discounts: number) {
-    const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
-    const totalTaxes = Object.values(taxes).reduce((sum, rate) => sum + (subtotal * rate / 100), 0);
-    const total = subtotal + totalTaxes - discounts;
-    
-    return {
+
+export class QuotesService {  private static calculateTotals(items: Quote['items'] | Omit<Quote['items'][0], 'id'>[], taxes: Record<string, number>, discounts: number) {
+
+  // CRUD Operations    const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
+
+  static createQuote = QuoteCRUD.createQuote;    const totalTaxes = Object.values(taxes).reduce((sum, rate) => sum + (subtotal * rate / 100), 0);
+
+  static getQuoteById = QuoteCRUD.getQuoteById;    const total = subtotal + totalTaxes - discounts;
+
+  static updateQuote = QuoteCRUD.updateQuote;    
+
+  static deleteQuote = QuoteCRUD.deleteQuote;    return {
+
       subtotal,
-      totalTaxes,
-      total
-    };
-  }
 
-  /**
-   * Create a new quote
+  // Search Operations      totalTaxes,
+
+  static getQuotes = QuoteSearch.getAllQuotes;      total
+
+  static getQuotesByOpportunity = QuoteSearch.getQuotesByOpportunity;    };
+
+  static getQuotesByStatus = QuoteSearch.getQuotesByStatus;  }
+
+
+
+  // Status Management  /**
+
+  static updateQuoteStatus = QuoteStatus.updateQuoteStatus;   * Create a new quote
+
    */
-  static async createQuote(data: QuoteFormData, createdBy: string): Promise<Quote> {
-    try {
-      const now = Timestamp.fromDate(new Date());
-      const quoteNumber = this.generateQuoteNumber();
-      const itemsWithIds = this.addIdsToItems(data.items);
+
+  // Utilities (private in original, exposed for flexibility)  static async createQuote(data: QuoteFormData, createdBy: string): Promise<Quote> {
+
+  static generateQuoteNumber = QuoteUtils.generateQuoteNumber;    try {
+
+  static addIdsToItems = QuoteUtils.addIdsToItems;      const now = Timestamp.fromDate(new Date());
+
+  static calculateTotals = QuoteUtils.calculateTotals;      const quoteNumber = this.generateQuoteNumber();
+
+}      const itemsWithIds = this.addIdsToItems(data.items);
+
       
       const totals = this.calculateTotals(itemsWithIds, data.taxes || {}, data.discounts || 0);
       

@@ -1,54 +1,105 @@
-// src/modules/finance/services/invoices.service.ts
+/**// src/modules/finance/services/invoices.service.ts
 
-import {
-  collection,
-  doc,
+ * ZADIA OS - Invoices Service (Facade)
+
+ * Punto de entrada unificado para operaciones de facturasimport {
+
+ * Rule #5: Max 200 lines per file  collection,
+
+ */  doc,
+
   getDoc,
-  getDocs,
-  addDoc,
-  updateDoc,
-  query,
-  where,
-  orderBy,
+
+// CRUD Operations  getDocs,
+
+export {  addDoc,
+
+  createInvoice,  updateDoc,
+
+  getInvoiceById,  query,
+
+  updateInvoice  where,
+
+} from './helpers/invoice-crud.service';  orderBy,
+
   limit,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { logger } from '@/lib/logger';
+
+// Search Operations  Timestamp,
+
+export {} from 'firebase/firestore';
+
+  searchInvoicesimport { db } from '@/lib/firebase';
+
+} from './helpers/invoice-search.service';import { logger } from '@/lib/logger';
+
 import type {
-  Invoice,
-  InvoiceFilters,
-  InvoiceStats,
-} from '../types/finance.types';
+
+// Payment Operations  Invoice,
+
+export {  InvoiceFilters,
+
+  applyPayment  InvoiceStats,
+
+} from './helpers/invoice-payments.service';} from '../types/finance.types';
+
 import type {
-  CreateInvoiceInput,
-  UpdateInvoiceInput,
-} from '../validations/finance.validation';
+
+// Statistics  CreateInvoiceInput,
+
+export {  UpdateInvoiceInput,
+
+  getInvoiceStats} from '../validations/finance.validation';
+
+} from './helpers/invoice-stats.service';
 
 /**
- * Servicio de Facturas
- * Maneja todas las operaciones CRUD con Firebase Firestore
- * NO usa mocks ni datos hardcodeados
- */
-export const InvoicesService = {
-  /**
-   * Crear una nueva factura
-   * @param invoiceData - Datos validados con Zod
-   * @returns ID de la factura creada
-   */
-  async createInvoice(invoiceData: CreateInvoiceInput): Promise<string> {
-    try {
-      const invoicesRef = collection(db, 'invoices');
 
-      const newInvoice = {
-        ...invoiceData,
-        // Valores iniciales
-        amountPaid: 0,
-        amountDue: invoiceData.total,
-        paidDate: null,
-        // Timestamps
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
+// Utilities * Servicio de Facturas
+
+export { * Maneja todas las operaciones CRUD con Firebase Firestore
+
+  generateInvoiceNumber * NO usa mocks ni datos hardcodeados
+
+} from './helpers/invoice-utils.service'; */
+
+export const InvoicesService = {
+
+/**  /**
+
+ * InvoicesService Object - Backward Compatibility   * Crear una nueva factura
+
+ */   * @param invoiceData - Datos validados con Zod
+
+import * as InvoiceCRUD from './helpers/invoice-crud.service';   * @returns ID de la factura creada
+
+import * as InvoiceSearch from './helpers/invoice-search.service';   */
+
+import * as InvoicePayments from './helpers/invoice-payments.service';  async createInvoice(invoiceData: CreateInvoiceInput): Promise<string> {
+
+import * as InvoiceStats from './helpers/invoice-stats.service';    try {
+
+import * as InvoiceUtils from './helpers/invoice-utils.service';      const invoicesRef = collection(db, 'invoices');
+
+
+
+export const InvoicesService = {      const newInvoice = {
+
+  createInvoice: InvoiceCRUD.createInvoice,        ...invoiceData,
+
+  getInvoiceById: InvoiceCRUD.getInvoiceById,        // Valores iniciales
+
+  updateInvoice: InvoiceCRUD.updateInvoice,        amountPaid: 0,
+
+  searchInvoices: InvoiceSearch.searchInvoices,        amountDue: invoiceData.total,
+
+  applyPayment: InvoicePayments.applyPayment,        paidDate: null,
+
+  getInvoiceStats: InvoiceStats.getInvoiceStats,        // Timestamps
+
+  generateInvoiceNumber: InvoiceUtils.generateInvoiceNumber,        createdAt: Timestamp.now(),
+
+};        updatedAt: Timestamp.now(),
+
       };
 
       const docRef = await addDoc(invoicesRef, newInvoice);

@@ -1,61 +1,119 @@
-/**
- * BOM Service - Refactored and Optimized
- * Manages Bill of Materials CRUD operations with proper separation of concerns
+/**/**
+
+ * ZADIA OS - BOM Service (Facade) * BOM Service - Refactored and Optimized
+
+ * Manages Bill of Materials with proper separation of concerns * Manages Bill of Materials CRUD operations with proper separation of concerns
+
+ * Rule #5: Max 200 lines per file */
+
  */
 
 import { 
-  collection, 
-  doc, 
-  getDocs, 
-  addDoc, 
-  updateDoc,
-  getDoc,
-  query, 
+
+// CRUD Operations  collection, 
+
+export {  doc, 
+
+  createBOM,  getDocs, 
+
+  getBOMById,  addDoc, 
+
+  updateBOM,  updateDoc,
+
+  deleteBOM  getDoc,
+
+} from './helpers/bom-crud.service';  query, 
+
   where, 
-  orderBy,
-  Timestamp 
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { logger } from '@/lib/logger';
-import { BillOfMaterials } from '../../types/inventory.types';
+
+// Search Operations  orderBy,
+
+export {  Timestamp 
+
+  getBOMsByProductId,} from 'firebase/firestore';
+
+  getAllBOMs,import { db } from '@/lib/firebase';
+
+  getActiveBOMForProductimport { logger } from '@/lib/logger';
+
+} from './helpers/bom-search.service';import { BillOfMaterials } from '../../types/inventory.types';
+
 import { BOMCostCalculator } from './bom-cost-calculator.service';
-import { BOMProductionValidator, ProductionFeasibility } from './bom-production-validator.service';
 
-const COLLECTION_NAME = 'bill-of-materials';
+// Validation & Feasibilityimport { BOMProductionValidator, ProductionFeasibility } from './bom-production-validator.service';
 
-export class BOMService {
+export {
+
+  getProductionFeasibility,const COLLECTION_NAME = 'bill-of-materials';
+
+  validateBOMItems
+
+} from './helpers/bom-validation.service';export class BOMService {
+
   /**
-   * Create new BOM for finished product
-   */
-  static async createBOM(
-    bomData: Omit<BillOfMaterials, 'id' | 'createdAt' | 'updatedAt'>,
+
+// Re-export helper services for direct access   * Create new BOM for finished product
+
+export { BOMCostCalculator } from './bom-cost-calculator.service';   */
+
+export { BOMProductionValidator } from './bom-production-validator.service';  static async createBOM(
+
+export type { ProductionFeasibility } from './bom-production-validator.service';    bomData: Omit<BillOfMaterials, 'id' | 'createdAt' | 'updatedAt'>,
+
     createdBy: string
-  ): Promise<BillOfMaterials> {
-    try {
-      // Validate BOM structure
-      const validation = BOMProductionValidator.validateBOMStructure(bomData as BillOfMaterials);
-      if (!validation.isValid) {
-        throw new Error(`Invalid BOM structure: ${validation.errors.join(', ')}`);
+
+/**  ): Promise<BillOfMaterials> {
+
+ * BOMService Class - Backward Compatibility    try {
+
+ */      // Validate BOM structure
+
+import * as BOMCRUD from './helpers/bom-crud.service';      const validation = BOMProductionValidator.validateBOMStructure(bomData as BillOfMaterials);
+
+import * as BOMSearch from './helpers/bom-search.service';      if (!validation.isValid) {
+
+import * as BOMValidation from './helpers/bom-validation.service';        throw new Error(`Invalid BOM structure: ${validation.errors.join(', ')}`);
+
       }
 
-      // Calculate costs
-      const tempBOM = {
-        ...bomData,
-        id: 'temp',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      } as BillOfMaterials;
-      
-      const costs = await BOMCostCalculator.calculateBOMCosts(tempBOM);
+export class BOMService {
 
-      // Create BOM document
-      const bomToCreate = {
+  // CRUD Operations      // Calculate costs
+
+  static createBOM = BOMCRUD.createBOM;      const tempBOM = {
+
+  static getBOMById = BOMCRUD.getBOMById;        ...bomData,
+
+  static updateBOM = BOMCRUD.updateBOM;        id: 'temp',
+
+  static deleteBOM = BOMCRUD.deleteBOM;        createdAt: new Date(),
+
+  static deactivateBOM = BOMCRUD.deleteBOM; // Alias        updatedAt: new Date()
+
+      } as BillOfMaterials;
+
+  // Search Operations      
+
+  static getBOMsByProductId = BOMSearch.getBOMsByProductId;      const costs = await BOMCostCalculator.calculateBOMCosts(tempBOM);
+
+  static getAllBOMs = BOMSearch.getAllBOMs;
+
+  static getActiveBOMForProduct = BOMSearch.getActiveBOMForProduct;      // Create BOM document
+
+  static getBOMsForProduct = BOMSearch.getBOMsByProductId; // Alias      const bomToCreate = {
+
         ...bomData,
-        ...costs,
-        createdBy,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
-      };
+
+  // Validation & Feasibility        ...costs,
+
+  static getProductionFeasibility = BOMValidation.getProductionFeasibility;        createdBy,
+
+  static calculateProductionFeasibility = BOMValidation.getProductionFeasibility; // Alias        createdAt: Timestamp.now(),
+
+  static validateBOMItems = BOMValidation.validateBOMItems;        updatedAt: Timestamp.now()
+
+}      };
+
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), bomToCreate);
       

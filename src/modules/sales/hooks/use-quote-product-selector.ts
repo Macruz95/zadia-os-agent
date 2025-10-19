@@ -51,14 +51,14 @@ export function useQuoteProductSelector(): UseQuoteProductSelectorReturn {
 
       // Buscar productos en inventario
       const result = await FinishedProductsService.searchFinishedProducts({
-        searchTerm: term,
-        limit: 50,
+        query: term,
+        pageSize: 50,
       });
 
       setProducts(result.finishedProducts);
       logger.info('Products loaded for quote', { 
         component: 'useQuoteProductSelector',
-        count: result.totalCount 
+        metadata: { count: result.totalCount }
       });
     } catch (err) {
       const errorMessage = 'Error al cargar productos';
