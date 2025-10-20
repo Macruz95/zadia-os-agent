@@ -20,14 +20,15 @@ export interface BOMValidationResult {
  */
 export interface ProductionFeasibility {
   canProduce: boolean;
-  maxQuantityPossible: number;
+  maxQuantity: number;
   missingMaterials: Array<{
-    materialId: string;
-    materialName: string;
+    rawMaterialId: string;
+    rawMaterialName: string;
     required: number;
     available: number;
-    missing: number;
+    shortage: number;
   }>;
+  warnings: string[];
 }
 
 /**

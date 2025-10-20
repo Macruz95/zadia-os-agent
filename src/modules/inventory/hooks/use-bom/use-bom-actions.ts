@@ -218,17 +218,7 @@ export function useBOMActions(params: UseBOMActionsParams): UseBOMActions {
           bomId,
           quantity
         );
-        setProductionFeasibility(feasibility as {
-          canProduce: boolean;
-          maxQuantityPossible: number;
-          missingMaterials: {
-            materialId: string;
-            materialName: string;
-            required: number;
-            available: number;
-            missing: number;
-          }[];
-        });
+        setProductionFeasibility(feasibility);
       } catch (err) {
         const errorMessage =
           err instanceof Error

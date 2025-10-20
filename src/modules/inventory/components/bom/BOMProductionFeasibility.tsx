@@ -5,15 +5,7 @@
  */
 
 import { CheckCircle, AlertTriangle } from 'lucide-react';
-
-interface ProductionFeasibility {
-  canProduce: boolean;
-  maxQuantityPossible: number;
-  missingMaterials: Array<{
-    materialName: string;
-    missing: number;
-  }>;
-}
+import { ProductionFeasibility } from '../../services/entities/bom-production-validator.service';
 
 interface BOMProductionFeasibilityProps {
   feasibility: ProductionFeasibility;
@@ -42,7 +34,7 @@ export function BOMProductionFeasibility({ feasibility }: BOMProductionFeasibili
           </span>
         </div>
         <p className="text-sm mb-2">
-          Cantidad máxima posible: {feasibility.maxQuantityPossible} unidades
+          Cantidad máxima posible: {feasibility.maxQuantity} unidades
         </p>
         
         {feasibility.missingMaterials.length > 0 && (
@@ -51,7 +43,7 @@ export function BOMProductionFeasibility({ feasibility }: BOMProductionFeasibili
             <div className="space-y-1">
               {feasibility.missingMaterials.map((missing, index) => (
                 <p key={index} className="text-xs text-red-600">
-                  • {missing.materialName}: faltan {missing.missing} unidades
+                  • {missing.rawMaterialName}: faltan {missing.shortage} unidades
                 </p>
               ))}
             </div>

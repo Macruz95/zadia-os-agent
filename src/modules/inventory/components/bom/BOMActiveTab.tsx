@@ -11,18 +11,7 @@ import { BillOfMaterials } from '../../types/inventory.types';
 import { BOMSummaryCards } from './BOMSummaryCards';
 import { BOMMaterialsList } from './BOMMaterialsList';
 import { BOMProductionFeasibility } from './BOMProductionFeasibility';
-
-interface ProductionFeasibility {
-  canProduce: boolean;
-  maxQuantityPossible: number;
-  missingMaterials: Array<{
-    materialId: string;
-    materialName: string;
-    required: number;
-    available: number;
-    missing: number;
-  }>;
-}
+import { ProductionFeasibility } from '../../services/entities/bom-production-validator.service';
 
 interface BOMActiveTabProps {
   activeBOM: BillOfMaterials | null;
