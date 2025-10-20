@@ -100,6 +100,40 @@ service cloud.firestore {
       }
     }
 
+    // Interactions collection - client activity tracking
+    match /interactions/{interactionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidInteractionData();
+      allow update: if isAuthenticated() && (isInteractionOwner(interactionId) || isManagerOrAdmin());
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isInteractionOwner(interactionId) {
+        return resource.data.createdBy == request.auth.uid;
+      }
+      
+      function isValidInteractionData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['clientId', 'type', 'createdBy', 'createdAt']) &&
+               data.type in ['call', 'email', 'meeting', 'note', 'task'] &&
+               exists(/databases/$(database)/documents/clients/$(data.clientId));
+      }
+    }
+
+    // Transactions collection - financial transactions
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidTransactionData();
+      allow update: if isAuthenticated() && isManagerOrAdmin();
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isValidTransactionData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['type', 'amount', 'createdBy', 'createdAt']) &&
+               data.amount is number && data.amount >= 0 &&
+               data.type in ['income', 'expense', 'transfer'];
+      }
+    }
+
     // Interactions collection - secured with client ownership validation
     match /interactions/{interactionId} {
       allow read: if isAuthenticated();
@@ -172,6 +206,59 @@ service cloud.firestore {
         let data = request.resource.data;
         return data.keys().hasAll(['clientId', 'total', 'status', 'createdBy']) &&
                data.total is number && data.total >= 0;
+      }
+    }
+
+    // Orders collection - secured with authentication
+    match /orders/{orderId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidOrderData();
+      allow update: if isAuthenticated() && (isOrderOwner(orderId) || isManagerOrAdmin());
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isOrderOwner(orderId) {
+        return resource.data.createdBy == request.auth.uid;
+      }
+      
+      function isValidOrderData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['clientId', 'total', 'status', 'createdBy', 'createdAt']) &&
+               data.total is number && data.total >= 0 &&
+               data.status in ['pending', 'confirmed', 'in-production', 'completed', 'cancelled', 'on-hold'];
+      }
+    }
+
+    // Invoices collection - secured with authentication
+    match /invoices/{invoiceId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidInvoiceData();
+      allow update: if isAuthenticated() && (isInvoiceOwner(invoiceId) || isManagerOrAdmin());
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isInvoiceOwner(invoiceId) {
+        return resource.data.createdBy == request.auth.uid;
+      }
+      
+      function isValidInvoiceData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['clientId', 'total', 'status', 'createdBy', 'createdAt']) &&
+               data.total is number && data.total >= 0 &&
+               data.status in ['draft', 'pending', 'paid', 'overdue', 'cancelled'];
+      }
+    }
+
+    // Payments collection - secured with authentication
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidPaymentData();
+      allow update: if isAuthenticated() && isManagerOrAdmin();
+      allow delete: if isAuthenticated() && isAdmin();
+      
+      function isValidPaymentData() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['invoiceId', 'amount', 'paymentMethod', 'createdBy', 'createdAt']) &&
+               data.amount is number && data.amount > 0 &&
+               data.paymentMethod in ['cash', 'transfer', 'check', 'card', 'other'];
       }
     }
 
