@@ -10,7 +10,7 @@
 
 'use client';
 
-import { use, useRef } from 'react';
+import { use, useRef, useState } from 'react';
 import { Loader2, AlertCircle, Rocket, FileText, Package } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
@@ -20,10 +20,10 @@ import { useQuote } from '@/modules/sales/hooks/use-quote';
 import { QuoteHeader } from '@/modules/sales/components/quotes/QuoteHeader';
 import { QuotePreview } from '@/modules/sales/components/quotes/QuotePreview';
 import { QuoteConversionDialog } from '@/modules/projects/components/QuoteConversionDialog';
-import { useState } from 'react';
+import { SendQuoteEmailDialog } from '@/modules/sales/components/quotes/SendQuoteEmailDialog';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { useReactToPrint } from 'react-to-print';
+import { QuotesPDFService } from '@/modules/sales/services/quotes-pdf.service';
 
 interface QuoteDetailsPageProps {
   params: Promise<{
@@ -47,18 +47,25 @@ export default function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
   } = useQuote(quoteId);
 
   const [showConversionDialog, setShowConversionDialog] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  const handleDownloadPDF = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `Cotizacion_${quote?.number || quoteId}`,
-    onAfterPrint: () => {
-      toast.success('PDF generado correctamente');
-    },
-    onPrintError: () => {
+  // PDF Download Handler
+  const handleDownloadPDF = async () => {
+    if (!quote) return;
+    
+    try {
+      await QuotesPDFService.downloadQuotePDF(quote);
+      toast.success('PDF descargado correctamente');
+    } catch {
       toast.error('Error al generar PDF');
-    },
-  });
+    }
+  };
+
+  // Email Handler
+  const handleSendEmail = () => {
+    setEmailDialogOpen(true);
+  };
 
   // Loading state
   if (loading) {
@@ -95,6 +102,7 @@ export default function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
         onMarkAsAccepted={markAsAccepted}
         onMarkAsRejected={markAsRejected}
         onDownloadPDF={handleDownloadPDF}
+        onSendEmail={handleSendEmail}
       />
 
       {/* Content */}
@@ -213,6 +221,17 @@ export default function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
           userId={user.uid}
         />
       )}
+
+      {/* Email Dialog */}
+      <SendQuoteEmailDialog
+        quote={quote}
+        open={emailDialogOpen}
+        onClose={() => setEmailDialogOpen(false)}
+        onSuccess={() => {
+          // Refresh quote to show 'sent' status
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

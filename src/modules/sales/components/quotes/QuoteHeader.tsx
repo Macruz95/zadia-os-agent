@@ -9,7 +9,7 @@
 
 'use client';
 
-import { ArrowLeft, FileText, Send, CheckCircle2, XCircle, Download } from 'lucide-react';
+import { ArrowLeft, FileText, Send, CheckCircle2, XCircle, Download, Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +30,7 @@ interface QuoteHeaderProps {
   onMarkAsAccepted: () => void;
   onMarkAsRejected: () => void;
   onDownloadPDF: () => void;
+  onSendEmail: () => void;
 }
 
 const STATUS_CONFIG: Record<QuoteStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -46,6 +47,7 @@ export function QuoteHeader({
   onMarkAsAccepted,
   onMarkAsRejected,
   onDownloadPDF,
+  onSendEmail,
 }: QuoteHeaderProps) {
   const router = useRouter();
   const statusConfig = STATUS_CONFIG[quote.status];
@@ -97,6 +99,14 @@ export function QuoteHeader({
             >
               <Download className="mr-2 h-4 w-4" />
               Descargar PDF
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={onSendEmail}
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              Enviar Email
             </Button>
 
             {quote.status === 'draft' && (
