@@ -2,9 +2,8 @@
 
 'use client';
 
-import { use, useEffect, useState, useRef } from 'react';
+import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useReactToPrint } from 'react-to-print';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -14,6 +13,7 @@ import {
   DollarSign,
   Download,
   History,
+  Mail,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,10 +34,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { PaymentFormDialog } from '@/modules/finance/components/PaymentFormDialog';
-import { InvoicePDF } from '@/modules/finance/components/InvoicePDF';
+import { SendInvoiceEmailDialog } from '@/modules/finance/components/invoices/SendInvoiceEmailDialog';
 import { InvoicesService } from '@/modules/finance/services/invoices.service';
+import { InvoicesPDFService } from '@/modules/finance/services/invoices-pdf.service';
 import { usePayments } from '@/modules/finance/hooks/use-payments';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 import {
   INVOICE_STATUS_CONFIG,
   PAYMENT_METHOD_CONFIG,
@@ -62,14 +64,26 @@ export default function InvoiceDetailsPage({ params }: PageProps) {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
-  const printRef = useRef<HTMLDivElement>(null);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
 
   const { payments, loading: paymentsLoading, fetchPaymentsByInvoice, createPayment } = usePayments(id);
 
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `Factura-${invoice?.number || 'N/A'}`,
-  });
+  // PDF Download Handler
+  const handleDownloadPDF = async () => {
+    if (!invoice) return;
+    
+    try {
+      await InvoicesPDFService.downloadInvoicePDF(invoice);
+      toast.success('PDF descargado correctamente');
+    } catch {
+      toast.error('Error al generar PDF');
+    }
+  };
+
+  // Email Handler
+  const handleSendEmail = () => {
+    setEmailDialogOpen(true);
+  };
 
   useEffect(() => {
     loadInvoice();
@@ -174,16 +188,15 @@ export default function InvoiceDetailsPage({ params }: PageProps) {
               Registrar Pago
             </Button>
           )}
-          <Button variant="outline" onClick={handlePrint}>
+          <Button variant="outline" onClick={handleDownloadPDF}>
             <Download className="h-4 w-4 mr-2" />
             Descargar PDF
           </Button>
+          <Button variant="outline" onClick={handleSendEmail}>
+            <Mail className="h-4 w-4 mr-2" />
+            Enviar Email
+          </Button>
         </div>
-      </div>
-
-      {/* Hidden PDF Component */}
-      <div style={{ display: 'none' }}>
-        <InvoicePDF ref={printRef} invoice={invoice} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -433,6 +446,17 @@ export default function InvoiceDetailsPage({ params }: PageProps) {
         open={paymentDialogOpen}
         onOpenChange={setPaymentDialogOpen}
         onSubmit={handlePaymentSubmit}
+      />
+
+      {/* Email Dialog */}
+      <SendInvoiceEmailDialog
+        invoice={invoice}
+        open={emailDialogOpen}
+        onClose={() => setEmailDialogOpen(false)}
+        onSuccess={() => {
+          // Refresh invoice to show 'sent' status
+          loadInvoice();
+        }}
       />
     </div>
   );
