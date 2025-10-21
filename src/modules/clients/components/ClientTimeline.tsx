@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
-import { Calendar, MessageSquare, Briefcase, FileText, Users } from 'lucide-react';
+import { Button } from '../../../components/ui/button';
+import { Calendar, MessageSquare, Briefcase, FileText, Users, ChevronDown } from 'lucide-react';
 import { TimelineItem } from './timeline/TimelineItem';
 import { Interaction, Transaction, Project, Quote, Meeting, Task } from '../types/clients.types';
 import { processTimelineItems } from '../utils/timeline.utils';
@@ -25,7 +27,9 @@ export const ClientTimeline = ({
   meetings,
   tasks
 }: ClientTimelineProps) => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('timeline');
+  const [visibleItems, setVisibleItems] = useState(10);
 
   const allTimelineItems = processTimelineItems(
     interactions,
@@ -34,8 +38,38 @@ export const ClientTimeline = ({
     quotes,
     meetings,
     tasks,
-    10
+    visibleItems
   );
+
+  const handleItemClick = (item: Interaction | Transaction | Project | Quote | Meeting | Task, type: string) => {
+    const itemWithId = item as { id: string };
+    switch (type) {
+      case 'interaction':
+        // Stay on current page, could scroll to interaction in future
+        break;
+      case 'transaction':
+        router.push(`/finance/invoices/${itemWithId.id}`);
+        break;
+      case 'project':
+        router.push(`/projects/${itemWithId.id}`);
+        break;
+      case 'quote':
+        router.push(`/quotes/${itemWithId.id}`);
+        break;
+      case 'meeting':
+        router.push(`/calendar?meetingId=${itemWithId.id}`);
+        break;
+      case 'task':
+        router.push(`/tasks/${itemWithId.id}`);
+        break;
+    }
+  };
+
+  const loadMore = () => {
+    setVisibleItems(prev => prev + 10);
+  };
+
+  const hasMore = allTimelineItems.length >= visibleItems;
 
   return (
     <Card className="w-full">
@@ -56,11 +90,27 @@ export const ClientTimeline = ({
           <div className="min-h-[400px] max-h-[600px] overflow-y-auto">
             <TabsContent value="timeline" className="mt-0">
               {allTimelineItems.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {allTimelineItems.map((item, index) => (
-                    <TimelineItem key={`${item.type}-${item.id || index}`} item={item as unknown as Interaction | Transaction | Project | Quote | Meeting | Task} type={item.type} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {allTimelineItems.map((item, index) => (
+                      <div
+                        key={`${item.type}-${item.id || index}`}
+                        onClick={() => handleItemClick(item as unknown as Interaction | Transaction | Project | Quote | Meeting | Task, item.type)}
+                        className="cursor-pointer transition-transform hover:scale-[1.02]"
+                      >
+                        <TimelineItem item={item as unknown as Interaction | Transaction | Project | Quote | Meeting | Task} type={item.type} />
+                      </div>
+                    ))}
+                  </div>
+                  {hasMore && (
+                    <div className="text-center mt-6">
+                      <Button variant="outline" onClick={loadMore}>
+                        <ChevronDown className="w-4 h-4 mr-2" />
+                        Cargar más actividades
+                      </Button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <div className="mb-4">
@@ -75,8 +125,14 @@ export const ClientTimeline = ({
             <TabsContent value="interactions" className="mt-0">
               {interactions.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {interactions.map((interaction) => (
-                    <TimelineItem key={interaction.id} item={interaction} type="interaction" />
+                  {interactions.slice(0, visibleItems).map((interaction) => (
+                    <div
+                      key={interaction.id}
+                      onClick={() => handleItemClick(interaction, 'interaction')}
+                      className="cursor-pointer transition-transform hover:scale-[1.02]"
+                    >
+                      <TimelineItem item={interaction} type="interaction" />
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -93,8 +149,14 @@ export const ClientTimeline = ({
             <TabsContent value="projects" className="mt-0">
               {projects.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {projects.map((project) => (
-                    <TimelineItem key={project.id} item={project} type="project" />
+                  {projects.slice(0, visibleItems).map((project) => (
+                    <div
+                      key={project.id}
+                      onClick={() => handleItemClick(project, 'project')}
+                      className="cursor-pointer transition-transform hover:scale-[1.02]"
+                    >
+                      <TimelineItem item={project} type="project" />
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -111,8 +173,14 @@ export const ClientTimeline = ({
             <TabsContent value="transactions" className="mt-0">
               {transactions.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {transactions.map((transaction) => (
-                    <TimelineItem key={transaction.id} item={transaction} type="transaction" />
+                  {transactions.slice(0, visibleItems).map((transaction) => (
+                    <div
+                      key={transaction.id}
+                      onClick={() => handleItemClick(transaction, 'transaction')}
+                      className="cursor-pointer transition-transform hover:scale-[1.02]"
+                    >
+                      <TimelineItem item={transaction} type="transaction" />
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -129,8 +197,14 @@ export const ClientTimeline = ({
             <TabsContent value="quotes" className="mt-0">
               {quotes.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {quotes.map((quote) => (
-                    <TimelineItem key={quote.id} item={quote} type="quote" />
+                  {quotes.slice(0, visibleItems).map((quote) => (
+                    <div
+                      key={quote.id}
+                      onClick={() => handleItemClick(quote, 'quote')}
+                      className="cursor-pointer transition-transform hover:scale-[1.02]"
+                    >
+                      <TimelineItem item={quote} type="quote" />
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -147,8 +221,14 @@ export const ClientTimeline = ({
             <TabsContent value="meetings" className="mt-0">
               {meetings.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {meetings.map((meeting) => (
-                    <TimelineItem key={meeting.id} item={meeting} type="meeting" />
+                  {meetings.slice(0, visibleItems).map((meeting) => (
+                    <div
+                      key={meeting.id}
+                      onClick={() => handleItemClick(meeting, 'meeting')}
+                      className="cursor-pointer transition-transform hover:scale-[1.02]"
+                    >
+                      <TimelineItem item={meeting} type="meeting" />
+                    </div>
                   ))}
                 </div>
               ) : (

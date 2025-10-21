@@ -58,7 +58,8 @@ export const PDFGeneratorService = {
       logger.info('Generando PDF', { fileName: options.fileName });
 
       // Generar blob desde componente React-PDF
-      const blob = await pdf(component).toBlob();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const blob = await pdf(component as React.ReactElement<any>).toBlob();
 
       // Si no se requiere guardar en Storage, retornar solo el blob
       if (!options.saveToStorage) {
@@ -74,10 +75,11 @@ export const PDFGeneratorService = {
       return result;
 
     } catch (error) {
-      logger.error('Error generando PDF', error);
+      const err = error instanceof Error ? error : new Error('Error generando PDF');
+      logger.error('Error generando PDF', err);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error desconocido',
+        error: err.message,
       };
     }
   },
@@ -114,7 +116,7 @@ export const PDFGeneratorService = {
       // Obtener URL de descarga
       const downloadURL = await getDownloadURL(storageRef);
 
-      logger.info('PDF guardado en Storage', { path: fullPath, url: downloadURL });
+      logger.info('PDF guardado en Storage', { path: fullPath, metadata: { url: downloadURL } });
 
       return {
         success: true,
@@ -124,10 +126,11 @@ export const PDFGeneratorService = {
       };
 
     } catch (error) {
-      logger.error('Error guardando PDF en Storage', error);
+      const err = error instanceof Error ? error : new Error('Error guardando PDF en Storage');
+      logger.error('Error guardando PDF en Storage', err);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Error al guardar PDF',
+        error: err.message,
       };
     }
   },
@@ -151,8 +154,9 @@ export const PDFGeneratorService = {
 
       logger.info('PDF descargado en navegador', { fileName });
     } catch (error) {
-      logger.error('Error descargando PDF', error);
-      throw error;
+      const err = error instanceof Error ? error : new Error('Error descargando PDF');
+      logger.error('Error descargando PDF', err);
+      throw err;
     }
   },
 
@@ -171,8 +175,9 @@ export const PDFGeneratorService = {
 
       logger.info('PDF abierto en nueva pestaña');
     } catch (error) {
-      logger.error('Error abriendo PDF', error);
-      throw error;
+      const err = error instanceof Error ? error : new Error('Error abriendo PDF');
+      logger.error('Error abriendo PDF', err);
+      throw err;
     }
   },
 };

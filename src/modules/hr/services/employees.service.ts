@@ -59,10 +59,9 @@ export class EmployeesService {
         ...employeeData,
       } as Employee;
     } catch (error) {
-      logger.error('Error creating employee', {
-        metadata: { error: error instanceof Error ? error.message : 'Unknown' },
-      });
-      throw error;
+      const err = error instanceof Error ? error : new Error('Error creating employee');
+      logger.error('Error creating employee', err);
+      throw err;
     }
   }
 
@@ -83,10 +82,9 @@ export class EmployeesService {
         ...docSnap.data(),
       } as Employee;
     } catch (error) {
-      logger.error('Error fetching employee', {
-        metadata: { employeeId: id },
-      });
-      throw error;
+      const err = error instanceof Error ? error : new Error('Error fetching employee');
+      logger.error('Error fetching employee', err, { employeeId: id });
+      throw err;
     }
   }
 
@@ -132,10 +130,9 @@ export class EmployeesService {
         ...doc.data(),
       })) as Employee[];
     } catch (error) {
-      logger.error('Error fetching employees by status', {
-        metadata: { status },
-      });
-      throw error;
+      const err = error instanceof Error ? error : new Error('Error fetching employees by status');
+      logger.error('Error fetching employees by status', err, { status });
+      throw err;
     }
   }
 
@@ -167,14 +164,11 @@ export class EmployeesService {
 
       await updateDoc(docRef, updateData);
       
-      logger.info('Employee updated', {
-        metadata: { employeeId: id },
-      });
+      logger.info('Employee updated', { employeeId: id });
     } catch (error) {
-      logger.error('Error updating employee', {
-        metadata: { employeeId: id },
-      });
-      throw error;
+      const err = error instanceof Error ? error : new Error('Error updating employee');
+      logger.error('Error updating employee', err, { employeeId: id });
+      throw err;
     }
   }
 
@@ -191,14 +185,11 @@ export class EmployeesService {
         updatedAt: Timestamp.now(),
       });
       
-      logger.info('Employee deactivated', {
-        metadata: { employeeId: id },
-      });
+      logger.info('Employee deactivated', { employeeId: id });
     } catch (error) {
-      logger.error('Error deactivating employee', {
-        metadata: { employeeId: id },
-      });
-      throw error;
+      const err = error instanceof Error ? error : new Error('Error deactivating employee');
+      logger.error('Error deactivating employee', err, { employeeId: id });
+      throw err;
     }
   }
 
@@ -210,14 +201,11 @@ export class EmployeesService {
       const docRef = doc(db, COLLECTION, id);
       await deleteDoc(docRef);
       
-      logger.info('Employee permanently deleted', {
-        metadata: { employeeId: id },
-      });
+      logger.info('Employee permanently deleted', { employeeId: id });
     } catch (error) {
-      logger.error('Error deleting employee', {
-        metadata: { employeeId: id },
-      });
-      throw error;
+      const err = error instanceof Error ? error : new Error('Error deleting employee');
+      logger.error('Error deleting employee', err, { employeeId: id });
+      throw err;
     }
   }
 
@@ -236,14 +224,11 @@ export class EmployeesService {
         updatedAt: Timestamp.now(),
       });
       
-      logger.info('Employee status changed', {
-        metadata: { employeeId: id, status },
-      });
+      logger.info('Employee status changed', { employeeId: id, status });
     } catch (error) {
-      logger.error('Error changing employee status', {
-        metadata: { employeeId: id },
-      });
-      throw error;
+      const err = error instanceof Error ? error : new Error('Error changing employee status');
+      logger.error('Error changing employee status', err, { employeeId: id, status });
+      throw err;
     }
   }
 }

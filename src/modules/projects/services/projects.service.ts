@@ -43,6 +43,7 @@ export const ProjectsService = {
 
   // Status & Progress
   updateProjectStatus,
+  changeStatus: updateProjectStatus, // Alias para compatibilidad
   updateProgress,
 
   // Costs

@@ -100,10 +100,11 @@ export class InvoicesEmailService {
         messageId: emailResult.messageId,
       };
     } catch (error) {
-      logger.error('Error sending invoice email', {
+      const err = error instanceof Error ? error : new Error('Error sending invoice email');
+      logger.error('Error sending invoice email', err, {
+        invoiceId: invoice.id,
         metadata: {
-          invoiceId: invoice.id,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          invoiceNumber: invoice.number,
         },
       });
 
@@ -356,11 +357,9 @@ export class InvoicesEmailService {
         },
       });
     } catch (error) {
-      logger.error('Error updating invoice status', {
-        metadata: {
-          invoiceId,
-          error: error instanceof Error ? error.message : 'Unknown error',
-        },
+      const err = error instanceof Error ? error : new Error('Error updating invoice status');
+      logger.error('Error updating invoice status', err, {
+        invoiceId,
       });
       // Don't throw - email was sent successfully
     }

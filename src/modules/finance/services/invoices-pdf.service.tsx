@@ -85,13 +85,14 @@ export class InvoicesPDFService {
 
       return result;
     } catch (error) {
-      logger.error('Error generating invoice PDF', {
+      const err = error instanceof Error ? error : new Error('Error generating invoice PDF');
+      logger.error('Error generating invoice PDF', err, {
+        invoiceId: invoice.id,
         metadata: {
-          invoiceId: invoice.id,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          invoiceNumber: invoice.number,
         },
       });
-      throw error;
+      throw err;
     }
   }
 
@@ -113,13 +114,14 @@ export class InvoicesPDFService {
 
       return result;
     } catch (error) {
-      logger.error('Error downloading invoice PDF', {
+      const err = error instanceof Error ? error : new Error('Error downloading invoice PDF');
+      logger.error('Error downloading invoice PDF', err, {
+        invoiceId: invoice.id,
         metadata: {
-          invoiceId: invoice.id,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          invoiceNumber: invoice.number,
         },
       });
-      throw error;
+      throw err;
     }
   }
 
@@ -138,13 +140,14 @@ export class InvoicesPDFService {
 
       return result;
     } catch (error) {
-      logger.error('Error previewing invoice PDF', {
+      const err = error instanceof Error ? error : new Error('Error previewing invoice PDF');
+      logger.error('Error previewing invoice PDF', err, {
+        invoiceId: invoice.id,
         metadata: {
-          invoiceId: invoice.id,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          invoiceNumber: invoice.number,
         },
       });
-      throw error;
+      throw err;
     }
   }
 
@@ -172,13 +175,14 @@ export class InvoicesPDFService {
 
       return result;
     } catch (error) {
-      logger.error('Error saving invoice PDF to storage', {
+      const err = error instanceof Error ? error : new Error('Error saving invoice PDF to storage');
+      logger.error('Error saving invoice PDF to storage', err, {
+        invoiceId: invoice.id,
         metadata: {
-          invoiceId: invoice.id,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          invoiceNumber: invoice.number,
         },
       });
-      throw error;
+      throw err;
     }
   }
 }

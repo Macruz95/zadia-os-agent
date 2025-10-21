@@ -1,6 +1,6 @@
 'use client';
 
-import { Trash2, Edit } from 'lucide-react';
+import { Trash2, Edit, Phone, Mail, FolderKanban } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,18 @@ interface ClientTableProps {
 }
 
 export function ClientTable({ clients, loading, onClientSelect, onDeleteClient, onEditClient }: ClientTableProps) {
+  // Click-to-call handler
+  const handleCall = (e: React.MouseEvent, phone: string) => {
+    e.stopPropagation();
+    window.location.href = `tel:${phone}`;
+  };
+
+  // Click-to-email handler
+  const handleEmail = (e: React.MouseEvent, email: string) => {
+    e.stopPropagation();
+    window.location.href = `mailto:${email}`;
+  };
+
   if (loading) {
     return (
       <Card>
@@ -54,8 +66,10 @@ export function ClientTable({ clients, loading, onClientSelect, onDeleteClient, 
               <TableHead>Documento</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead>Estado</TableHead>
-              <TableHead>Última Interacción</TableHead>
-              <TableHead>Fecha de Nacimiento</TableHead>
+              <TableHead>Contacto</TableHead>
+              <TableHead>Vendedor</TableHead>
+              <TableHead>Proyectos</TableHead>
+              <TableHead>Creado</TableHead>
               <TableHead className="w-20">Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -79,16 +93,50 @@ export function ClientTable({ clients, loading, onClientSelect, onDeleteClient, 
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {client.lastInteractionDate
-                    ? formatDate(client.lastInteractionDate)
-                    : 'Sin interacciones'
-                  }
+                  <div className="flex gap-2">
+                    {client.address?.country && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => handleCall(e, client.address.country)}
+                        className="text-blue-600 hover:text-blue-700 p-1 h-auto"
+                        title="Llamar"
+                      >
+                        <Phone className="h-3 w-3" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => handleEmail(e, `cliente-${client.id}@placeholder.com`)}
+                      className="text-blue-600 hover:text-blue-700 p-1 h-auto"
+                      title="Enviar email"
+                    >
+                      <Mail className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </TableCell>
                 <TableCell>
-                  {client.birthDate && client.clientType === 'PersonaNatural'
-                    ? formatDate(client.birthDate)
-                    : '-'
-                  }
+                  {client.owner ? (
+                    <span className="text-sm">{client.owner}</span>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">Sin asignar</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {client.activeProjectsCount && client.activeProjectsCount > 0 ? (
+                    <Badge variant="secondary" className="gap-1">
+                      <FolderKanban className="h-3 w-3" />
+                      {client.activeProjectsCount}
+                    </Badge>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">-</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <span className="text-sm text-muted-foreground">
+                    {formatDate(client.createdAt)}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">

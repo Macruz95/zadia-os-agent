@@ -290,76 +290,217 @@ service cloud.firestore {
 
     // ====================================================================
     // INVENTORY MODULE - Raw Materials, Finished Products, BOM, Movements
+    // Enhanced security rules with granular access control
     // ====================================================================
     
-    // Raw Materials collection - authenticated users with manager/admin access
+    // Helper function to check warehouse/inventory roles
+    function hasInventoryAccess() {
+      return isAuthenticated() && 
+             (hasRole('admin') || hasRole('manager') || hasRole('warehouse') || hasRole('production'));
+    }
+    
+    // Helper function to check if user can modify inventory
+    function canModifyInventory() {
+      return isAuthenticated() && (hasRole('admin') || hasRole('manager') || hasRole('warehouse'));
+    }
+    
+    // Raw Materials collection - granular access control
     match /raw-materials/{materialId} {
+      // Read: Any authenticated user can view inventory
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidInventoryData();
-      allow update: if isAuthenticated() && isManagerOrAdmin();
-      allow delete: if isAuthenticated() && isAdmin();
       
-      function isValidInventoryData() {
+      // Create: Managers, admins, and warehouse staff can create materials
+      allow create: if canModifyInventory() && isValidRawMaterialCreate();
+      
+      // Update: Managers, admins, and warehouse can update (but not stock directly)
+      allow update: if canModifyInventory() && isValidRawMaterialUpdate();
+      
+      // Delete: Only admins can soft-delete (mark as inactive)
+      allow delete: if isAdmin();
+      
+      function isValidRawMaterialCreate() {
         let data = request.resource.data;
-        return data.keys().hasAll(['name', 'sku', 'category', 'unitOfMeasure', 'currentStock', 'createdBy', 'createdAt']) &&
+        return data.keys().hasAll(['name', 'sku', 'category', 'unitOfMeasure', 'currentStock', 'minimumStock', 'unitCost', 'averageCost', 'createdBy', 'createdAt', 'isActive']) &&
+               data.name is string && data.name.size() > 0 &&
+               data.sku is string && data.sku.size() > 0 &&
+               data.category in ['Maderas', 'Acabados', 'Adhesivos', 'Herrajes', 'Químicos', 'Textiles', 'Herramientas', 'Otros'] &&
                data.currentStock is number && data.currentStock >= 0 &&
-               data.unitCost is number && data.unitCost >= 0;
+               data.minimumStock is number && data.minimumStock >= 0 &&
+               data.unitCost is number && data.unitCost >= 0 &&
+               data.averageCost is number && data.averageCost >= 0 &&
+               data.createdBy == request.auth.uid &&
+               data.isActive == true;
+      }
+      
+      function isValidRawMaterialUpdate() {
+        let data = request.resource.data;
+        let existing = resource.data;
+        let changedKeys = data.diff(existing).affectedKeys();
+        
+        // Prevent direct stock updates (must use inventory-movements)
+        return !changedKeys.hasAny(['currentStock', 'createdBy', 'createdAt', 'sku']) &&
+               data.isActive is bool;
       }
     }
 
-    // Finished Products collection - authenticated users with manager/admin access
+    // Finished Products collection - granular access control
     match /finished-products/{productId} {
+      // Read: Any authenticated user can view products
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidProductData();
-      allow update: if isAuthenticated() && isManagerOrAdmin();
-      allow delete: if isAuthenticated() && isAdmin();
       
-      function isValidProductData() {
+      // Create: Managers, admins, and production staff can create products
+      allow create: if canModifyInventory() && isValidFinishedProductCreate();
+      
+      // Update: Managers, admins, and production can update (but not stock directly)
+      allow update: if canModifyInventory() && isValidFinishedProductUpdate();
+      
+      // Delete: Only admins can soft-delete
+      allow delete: if isAdmin();
+      
+      function isValidFinishedProductCreate() {
         let data = request.resource.data;
-        return data.keys().hasAll(['name', 'sku', 'category', 'unitOfMeasure', 'currentStock', 'createdBy', 'createdAt']) &&
+        return data.keys().hasAll(['name', 'sku', 'category', 'currentStock', 'minimumStock', 'unitCost', 'laborCost', 'overheadCost', 'totalCost', 'suggestedPrice', 'sellingPrice', 'status', 'createdBy', 'createdAt', 'isActive']) &&
+               data.name is string && data.name.size() > 0 &&
+               data.sku is string && data.sku.size() > 0 &&
+               data.category in ['Dormitorio', 'Oficina', 'Sala', 'Cocina', 'Comedor', 'Baño', 'Infantil', 'Exterior', 'Otros'] &&
                data.currentStock is number && data.currentStock >= 0 &&
+               data.minimumStock is number && data.minimumStock >= 0 &&
                data.unitCost is number && data.unitCost >= 0 &&
-               data.sellingPrice is number && data.sellingPrice >= 0;
+               data.laborCost is number && data.laborCost >= 0 &&
+               data.overheadCost is number && data.overheadCost >= 0 &&
+               data.totalCost is number && data.totalCost >= 0 &&
+               data.suggestedPrice is number && data.suggestedPrice >= 0 &&
+               data.sellingPrice is number && data.sellingPrice >= 0 &&
+               data.status in ['Disponible', 'Reservado', 'Vendido', 'FueraDeCatalogo', 'EnProduccion'] &&
+               data.createdBy == request.auth.uid &&
+               data.isActive == true;
+      }
+      
+      function isValidFinishedProductUpdate() {
+        let data = request.resource.data;
+        let existing = resource.data;
+        let changedKeys = data.diff(existing).affectedKeys();
+        
+        // Prevent direct stock updates and cost changes without proper authorization
+        return !changedKeys.hasAny(['currentStock', 'createdBy', 'createdAt', 'sku']) &&
+               data.isActive is bool &&
+               data.status in ['Disponible', 'Reservado', 'Vendido', 'FueraDeCatalogo', 'EnProduccion'];
       }
     }
 
     // Bill of Materials (BOM) collection - manage product recipes
     match /bill-of-materials/{bomId} {
+      // Read: Any authenticated user can view BOMs
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidBOMData();
-      allow update: if isAuthenticated() && isManagerOrAdmin();
-      allow delete: if isAuthenticated() && isAdmin();
       
-      function isValidBOMData() {
+      // Create: Only managers, admins, and production can create BOMs
+      allow create: if hasInventoryAccess() && isValidBOMCreate();
+      
+      // Update: Only managers and admins can update BOMs
+      allow update: if isManagerOrAdmin() && isValidBOMUpdate();
+      
+      // Delete: Only admins can deactivate BOMs
+      allow delete: if isAdmin();
+      
+      function isValidBOMCreate() {
         let data = request.resource.data;
-        return data.keys().hasAll(['finishedProductId', 'materials', 'createdBy', 'createdAt']) &&
-               data.materials is list &&
-               data.version is number && data.version > 0;
+        return data.keys().hasAll(['finishedProductId', 'finishedProductName', 'version', 'items', 'totalMaterialCost', 'estimatedLaborHours', 'laborCostPerHour', 'totalLaborCost', 'overheadPercentage', 'totalOverheadCost', 'totalCost', 'isActive', 'createdBy', 'createdAt']) &&
+               data.finishedProductId is string &&
+               data.version is number && data.version > 0 &&
+               data.items is list && data.items.size() > 0 &&
+               data.totalMaterialCost is number && data.totalMaterialCost >= 0 &&
+               data.estimatedLaborHours is number && data.estimatedLaborHours >= 0 &&
+               data.laborCostPerHour is number && data.laborCostPerHour >= 0 &&
+               data.totalLaborCost is number && data.totalLaborCost >= 0 &&
+               data.overheadPercentage is number && data.overheadPercentage >= 0 &&
+               data.totalOverheadCost is number && data.totalOverheadCost >= 0 &&
+               data.totalCost is number && data.totalCost >= 0 &&
+               data.createdBy == request.auth.uid &&
+               data.isActive == true;
+      }
+      
+      function isValidBOMUpdate() {
+        let data = request.resource.data;
+        let existing = resource.data;
+        let changedKeys = data.diff(existing).affectedKeys();
+        
+        // Cannot change finishedProductId or version after creation
+        return !changedKeys.hasAny(['finishedProductId', 'version', 'createdBy', 'createdAt']) &&
+               data.isActive is bool;
       }
     }
 
-    // Inventory Movements collection - track all stock changes
+    // Inventory Movements collection - immutable audit trail
     match /inventory-movements/{movementId} {
+      // Read: Any authenticated user can view movements
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isManagerOrAdmin() && isValidMovementData();
-      allow update: if isAuthenticated() && isAdmin(); // Only admins can modify movements
-      allow delete: if isAuthenticated() && isAdmin();
       
-      function isValidMovementData() {
+      // Create: Warehouse, production, managers, and admins can register movements
+      allow create: if hasInventoryAccess() && isValidMovementCreate();
+      
+      // Update: Movements are IMMUTABLE (audit trail) - only admins for corrections
+      allow update: if isAdmin() && isValidMovementCorrection();
+      
+      // Delete: Only admins can delete movements (should be rare)
+      allow delete: if isAdmin();
+      
+      function isValidMovementCreate() {
         let data = request.resource.data;
-        return data.keys().hasAll(['itemId', 'itemType', 'type', 'quantity', 'createdBy', 'createdAt']) &&
-               data.quantity is number && data.quantity > 0 &&
+        return data.keys().hasAll(['itemId', 'itemType', 'itemName', 'itemSku', 'movementType', 'quantity', 'unitCost', 'totalCost', 'previousStock', 'newStock', 'performedBy', 'performedAt']) &&
+               data.itemId is string &&
                data.itemType in ['raw-material', 'finished-product'] &&
-               data.type in ['entrada', 'salida', 'ajuste', 'produccion', 'devolucion', 'merma'];
+               data.movementType in ['Entrada', 'Salida', 'Ajuste', 'Merma', 'Produccion', 'Venta', 'Devolucion'] &&
+               data.quantity is number && data.quantity != 0 &&
+               data.unitCost is number && data.unitCost >= 0 &&
+               data.totalCost is number &&
+               data.previousStock is number && data.previousStock >= 0 &&
+               data.newStock is number && data.newStock >= 0 &&
+               data.performedBy == request.auth.uid;
+      }
+      
+      function isValidMovementCorrection() {
+        let data = request.resource.data;
+        let existing = resource.data;
+        let changedKeys = data.diff(existing).affectedKeys();
+        
+        // Only reason/notes can be updated for corrections
+        return changedKeys.hasOnly(['reason', 'notes']) &&
+               isAdmin();
       }
     }
 
-    // Inventory Alerts collection - low stock and other notifications
+    // Inventory Alerts collection - low stock and critical notifications
     match /inventory-alerts/{alertId} {
+      // Read: Any authenticated user can view alerts
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && isManagerOrAdmin();
-      allow update: if isAuthenticated() && isManagerOrAdmin();
-      allow delete: if isAuthenticated() && isManagerOrAdmin();
+      
+      // Create: System-generated or managers/admins
+      allow create: if hasInventoryAccess() && isValidAlertCreate();
+      
+      // Update: Mark as read or resolve alerts
+      allow update: if isAuthenticated() && isValidAlertUpdate();
+      
+      // Delete: Only admins can delete alerts
+      allow delete: if isAdmin();
+      
+      function isValidAlertCreate() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['itemId', 'itemType', 'itemName', 'alertType', 'currentStock', 'minimumStock', 'priority', 'isRead', 'createdAt']) &&
+               data.itemType in ['raw-material', 'finished-product'] &&
+               data.alertType in ['low-stock', 'out-of-stock', 'obsolete', 'reorder'] &&
+               data.priority in ['low', 'medium', 'high', 'critical'] &&
+               data.isRead == false;
+      }
+      
+      function isValidAlertUpdate() {
+        let data = request.resource.data;
+        let existing = resource.data;
+        let changedKeys = data.diff(existing).affectedKeys();
+        
+        // Only allow marking as read or adding readBy info
+        return changedKeys.hasOnly(['isRead', 'readBy', 'readAt']) &&
+               data.isRead is bool;
+      }
     }
 
     // ====================================================================

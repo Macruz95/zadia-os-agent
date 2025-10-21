@@ -1,6 +1,6 @@
 'use client';
 
-import { Tag, Plus, FileText, Calendar, Clock } from 'lucide-react';
+import { Tag, Phone, Mail, FileText, FolderPlus, Calendar, Edit } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Card, CardContent } from '../../../components/ui/card';
 import { Badge } from '../../../components/ui/badge';
@@ -12,9 +12,32 @@ import { calculateAge } from '../utils/age.utils';
 interface ClientProfileHeaderProps {
   client: Client;
   onBack?: () => void;
+  onEdit?: () => void;
+  onCreateQuote?: () => void;
+  onCreateProject?: () => void;
+  onScheduleMeeting?: () => void;
 }
 
-export const ClientProfileHeader = ({ client }: ClientProfileHeaderProps) => {
+export const ClientProfileHeader = ({
+  client,
+  onEdit,
+  onCreateQuote,
+  onCreateProject,
+  onScheduleMeeting,
+}: ClientProfileHeaderProps) => {
+  // Click-to-call handler - TODO: Integrar con sistema CTI cuando esté disponible
+  const handleCall = () => {
+    if (client.address?.country) {
+      window.location.href = `tel:${client.address.country}`;
+    }
+  };
+
+  // Click-to-email handler - TODO: Obtener email del contacto principal
+  const handleEmail = () => {
+    // Por ahora usa el ID como placeholder - en producción obtener email del contacto
+    const email = `cliente-${client.id}@placeholder.com`;
+    window.location.href = `mailto:${email}`;
+  };
   return (
     <Card>
       <CardContent className="p-6">
@@ -52,21 +75,29 @@ export const ClientProfileHeader = ({ client }: ClientProfileHeaderProps) => {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              Añadir Interacción
+            <Button variant="outline" size="sm" onClick={handleCall}>
+              <Phone className="w-4 h-4 mr-2" />
+              Llamar
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleEmail}>
+              <Mail className="w-4 h-4 mr-2" />
+              Email
+            </Button>
+            <Button variant="outline" size="sm" onClick={onCreateQuote}>
               <FileText className="w-4 h-4 mr-2" />
-              Crear Cotización
+              Cotización
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={onCreateProject}>
+              <FolderPlus className="w-4 h-4 mr-2" />
+              Proyecto
+            </Button>
+            <Button variant="outline" size="sm" onClick={onScheduleMeeting}>
               <Calendar className="w-4 h-4 mr-2" />
-              Agendar Reunión
+              Reunión
             </Button>
-            <Button variant="outline" size="sm">
-              <Clock className="w-4 h-4 mr-2" />
-              Nueva Tarea
+            <Button variant="outline" size="sm" onClick={onEdit}>
+              <Edit className="w-4 h-4 mr-2" />
+              Editar
             </Button>
           </div>
         </div>

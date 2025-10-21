@@ -67,11 +67,13 @@ export interface Client {
   status: ClientStatus;
   tags: string[];
   source?: string;
+  owner?: string; // Vendedor/Usuario asignado
   communicationOptIn: boolean;
   address: Address;
   createdAt: Date;
   updatedAt: Date;
   lastInteractionDate?: Date;
+  activeProjectsCount?: number; // Contador de proyectos activos
 }
 
 export interface Interaction {
@@ -164,6 +166,7 @@ export interface ClientFormData {
   status: ClientStatus;
   tags: string[];
   source?: string;
+  owner?: string;
   communicationOptIn: boolean;
   address: Address;
   contacts: Omit<Contact, 'id' | 'clientId' | 'createdAt' | 'updatedAt'>[];

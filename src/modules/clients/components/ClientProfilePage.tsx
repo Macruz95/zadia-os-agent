@@ -11,9 +11,20 @@ import { ClientSummaryCards } from './ClientSummaryCards';
 interface ClientProfilePageProps {
   clientId: string;
   onBack?: () => void;
+  onEdit?: () => void;
+  onCreateQuote?: () => void;
+  onCreateProject?: () => void;
+  onScheduleMeeting?: () => void;
 }
 
-export const ClientProfilePage = ({ clientId, onBack }: ClientProfilePageProps) => {
+export const ClientProfilePage = ({
+  clientId,
+  onBack,
+  onEdit,
+  onCreateQuote,
+  onCreateProject,
+  onScheduleMeeting,
+}: ClientProfilePageProps) => {
   const { client, contacts, interactions, transactions, projects, quotes, meetings, tasks, loading, error } = useClientProfile(clientId);
 
   if (loading) {
@@ -41,14 +52,26 @@ export const ClientProfilePage = ({ clientId, onBack }: ClientProfilePageProps) 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <ClientProfileHeader client={client} onBack={onBack} />
+      <ClientProfileHeader
+        client={client}
+        onBack={onBack}
+        onEdit={onEdit}
+        onCreateQuote={onCreateQuote}
+        onCreateProject={onCreateProject}
+        onScheduleMeeting={onScheduleMeeting}
+      />
 
       {/* Main Content Grid - 2 Rows Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column - Info and KPIs */}
         <div className="space-y-6">
           <ClientInfoCard client={client} contacts={contacts} />
-          <ClientKPIsCard transactions={transactions} />
+          <ClientKPIsCard 
+            client={client}
+            transactions={transactions}
+            projects={projects}
+            quotes={quotes}
+          />
         </div>
 
         {/* Right Column - Contacts and Summary */}

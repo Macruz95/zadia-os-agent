@@ -7,38 +7,55 @@
 import type { ProjectStatus, ProjectPriority } from '../entities/project.types';
 import type { WorkOrderStatus } from '../entities/work-order.types';
 import type { TaskStatus } from '../entities/task.types';
+import { 
+  ClipboardList, 
+  PlayCircle, 
+  PauseCircle, 
+  CheckCircle2, 
+  XCircle,
+  AlertCircle,
+  ArrowUp,
+  Minus,
+  AlertTriangle
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 /**
  * Mapeo de estados a colores para UI
  */
 export const PROJECT_STATUS_CONFIG: Record<
   ProjectStatus,
-  { label: string; color: string; variant: string }
+  { label: string; color: string; variant: string; icon: LucideIcon }
 > = {
   planning: {
     label: 'Planificación',
-    color: 'bg-blue-500',
+    color: '#3b82f6',
     variant: 'default',
+    icon: ClipboardList,
   },
   'in-progress': {
     label: 'En Progreso',
-    color: 'bg-yellow-500',
+    color: '#eab308',
     variant: 'secondary',
+    icon: PlayCircle,
   },
   'on-hold': {
     label: 'En Espera',
-    color: 'bg-orange-500',
+    color: '#f97316',
     variant: 'outline',
+    icon: PauseCircle,
   },
   completed: {
     label: 'Completado',
-    color: 'bg-green-500',
+    color: '#22c55e',
     variant: 'success',
+    icon: CheckCircle2,
   },
   cancelled: {
     label: 'Cancelado',
-    color: 'bg-red-500',
+    color: '#ef4444',
     variant: 'destructive',
+    icon: XCircle,
   },
 };
 
@@ -47,23 +64,27 @@ export const PROJECT_STATUS_CONFIG: Record<
  */
 export const PROJECT_PRIORITY_CONFIG: Record<
   ProjectPriority,
-  { label: string; color: string }
+  { label: string; color: string; icon: LucideIcon }
 > = {
   low: {
     label: 'Baja',
-    color: 'text-gray-500',
+    color: '#6b7280',
+    icon: Minus,
   },
   medium: {
     label: 'Media',
-    color: 'text-blue-500',
+    color: '#3b82f6',
+    icon: AlertCircle,
   },
   high: {
     label: 'Alta',
-    color: 'text-orange-500',
+    color: '#f97316',
+    icon: ArrowUp,
   },
   urgent: {
     label: 'Urgente',
-    color: 'text-red-500',
+    color: '#ef4444',
+    icon: AlertTriangle,
   },
 };
 

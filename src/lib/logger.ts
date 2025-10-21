@@ -9,6 +9,16 @@ interface LogContext {
   component?: string;
   action?: string;
   userId?: string;
+  fileName?: string;
+  path?: string;
+  projectId?: string;
+  employeeId?: string;
+  invoiceId?: string;
+  quoteId?: string;
+  clientId?: string;
+  newStatus?: string;
+  status?: string;
+  url?: string;
   metadata?: Record<string, unknown>;
 }
 

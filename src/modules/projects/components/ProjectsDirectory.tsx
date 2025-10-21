@@ -7,6 +7,7 @@ import { ProjectsHeader } from './ProjectsHeader';
 import { ProjectsKPICards } from './ProjectsKPICards';
 import { ProjectFilters as ProjectFiltersComponent } from './ProjectFilters';
 import { ProjectsTable } from './ProjectsTable';
+import { ProjectFormDialog } from './forms/ProjectFormDialog';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { ProjectsService } from '../services/projects.service';
@@ -22,6 +23,7 @@ import { logger } from '@/lib/logger';
 export function ProjectsDirectory() {
   const router = useRouter();
   const [filters, setFilters] = useState<ProjectFilters>({});
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   
   // Real Firebase data with realtime updates
   const { projects, loading, error, totalCount } = useProjects({
@@ -37,9 +39,11 @@ export function ProjectsDirectory() {
 
   // Handlers
   const handleNewProject = () => {
-    // TODO: Open create project dialog/modal or navigate to form
-    toast.info('Funcionalidad de crear proyecto en desarrollo');
-    // router.push('/projects/new');
+    setShowCreateDialog(true);
+  };
+
+  const handleProjectCreated = (projectId: string) => {
+    router.push(`/projects/${projectId}`);
   };
 
   const handleViewProject = (projectId: string) => {
@@ -129,6 +133,13 @@ export function ProjectsDirectory() {
         onViewProject={handleViewProject}
         onEditProject={handleEditProject}
         onDeleteProject={handleDeleteProject}
+      />
+
+      {/* Create Project Dialog */}
+      <ProjectFormDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onSuccess={handleProjectCreated}
       />
     </div>
   );

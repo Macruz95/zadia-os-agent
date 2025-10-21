@@ -10,6 +10,7 @@ import { notificationService } from '@/lib/notifications';
 import { ClientHeader } from './ClientHeader';
 import { ClientFilters } from './ClientFilters';
 import { ClientTable } from './ClientTable';
+import { ClientCards } from './ClientCards';
 import { DeleteClientDialog } from './DeleteClientDialog';
 import { EditClientDialog } from './EditClientDialog';
 
@@ -29,6 +30,7 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<ClientType | 'all'>('all');
   const [selectedStatus, setSelectedStatus] = useState<ClientStatus | 'all'>('all');
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; client: Client | null }>({
     open: false,
     client: null,
@@ -133,7 +135,11 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
 
   return (
     <div className="space-y-6">
-      <ClientHeader onCreateClient={handleCreateClientClick} />
+      <ClientHeader 
+        onCreateClient={handleCreateClientClick}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
       
       <ClientFilters
         searchQuery={searchQuery}
@@ -144,13 +150,21 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
         onStatusChange={handleStatusFilter}
       />
       
-      <ClientTable
-        clients={clients}
-        loading={loading}
-        onClientSelect={handleClientSelect}
-        onDeleteClient={handleDeleteClient}
-        onEditClient={handleEditClient}
-      />
+      {viewMode === 'table' ? (
+        <ClientTable
+          clients={clients}
+          loading={loading}
+          onClientSelect={handleClientSelect}
+          onDeleteClient={handleDeleteClient}
+          onEditClient={handleEditClient}
+        />
+      ) : (
+        <ClientCards
+          clients={clients}
+          loading={loading}
+          onClientSelect={handleClientSelect}
+        />
+      )}
       
       <DeleteClientDialog
         open={deleteDialog.open}

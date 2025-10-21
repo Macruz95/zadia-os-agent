@@ -108,7 +108,7 @@ export const QuotesPDFService = {
       const clientDoc = await getDoc(doc(db, 'clients', clientId));
       
       if (!clientDoc.exists()) {
-        logger.error('Cliente no encontrado', { metadata: { clientId } });
+        logger.error('Cliente no encontrado', new Error('Cliente no encontrado'), { clientId });
         return {
           name: 'Cliente no encontrado',
         };

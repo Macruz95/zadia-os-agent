@@ -147,3 +147,13 @@ export async function updateWorkOrder(
     throw new Error('Error al actualizar la orden de trabajo');
   }
 }
+
+/**
+ * Export service object for consistency
+ */
+export const WorkOrdersService = {
+  createWorkOrder,
+  getWorkOrderById,
+  getWorkOrdersByProject,
+  updateWorkOrder,
+};
