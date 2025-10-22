@@ -19,6 +19,7 @@ import { KanbanHeader } from './KanbanHeader';
 import { KanbanKPIs } from './KanbanKPIs';
 import { KanbanColumn } from './KanbanColumn';
 import { STAGE_CONFIG } from './KanbanConfig';
+import { OpportunityFormDialog } from './OpportunityFormDialog';
 
 export function OpportunitiesKanban() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export function OpportunitiesKanban() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<OpportunityStatus | 'all'>('all');
   const [priorityFilter, setPriorityFilter] = useState<OpportunityPriority | 'all'>('all');
+  const [showNewOpportunityDialog, setShowNewOpportunityDialog] = useState(false);
 
   const loadOpportunities = useCallback(async () => {
     try {
@@ -147,34 +149,43 @@ export function OpportunitiesKanban() {
   }
 
   return (
-    <div className="space-y-6">
-      <KanbanHeader
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        statusFilter={statusFilter}
-        onStatusFilterChange={(value) => setStatusFilter(value as OpportunityStatus | 'all')}
-        priorityFilter={priorityFilter}
-        onPriorityFilterChange={(value) => setPriorityFilter(value as OpportunityPriority | 'all')}
-      />
+    <>
+      <div className="space-y-6">
+        <KanbanHeader
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          statusFilter={statusFilter}
+          onStatusFilterChange={(value) => setStatusFilter(value as OpportunityStatus | 'all')}
+          priorityFilter={priorityFilter}
+          onPriorityFilterChange={(value) => setPriorityFilter(value as OpportunityPriority | 'all')}
+          onNewOpportunity={() => setShowNewOpportunityDialog(true)}
+        />
 
-      <KanbanKPIs
-        totalValue={totalValue}
-        avgDealSize={avgDealSize}
-        weightedValue={weightedValue}
-        highPriorityCount={highPriorityCount}
-      />
+        <KanbanKPIs
+          totalValue={totalValue}
+          avgDealSize={avgDealSize}
+          weightedValue={weightedValue}
+          highPriorityCount={highPriorityCount}
+        />
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 min-h-[600px]">
-        {(Object.keys(STAGE_CONFIG) as OpportunityStage[]).map((stage) => (
-          <KanbanColumn
-            key={stage}
-            stage={stage}
-            opportunities={opportunitiesByStage[stage] || []}
-            onStageChange={handleStageChange}
-            onCardClick={(id) => router.push(`/sales/opportunities/${id}`)}
-          />
-        ))}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 min-h-[600px]">
+          {(Object.keys(STAGE_CONFIG) as OpportunityStage[]).map((stage) => (
+            <KanbanColumn
+              key={stage}
+              stage={stage}
+              opportunities={opportunitiesByStage[stage] || []}
+              onStageChange={handleStageChange}
+              onCardClick={(id) => router.push(`/sales/opportunities/${id}`)}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+
+      <OpportunityFormDialog
+        open={showNewOpportunityDialog}
+        onOpenChange={setShowNewOpportunityDialog}
+        onSuccess={loadOpportunities}
+      />
+    </>
   );
 }

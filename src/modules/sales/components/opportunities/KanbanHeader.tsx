@@ -11,6 +11,7 @@ interface KanbanHeaderProps {
   onStatusFilterChange: (value: OpportunityStatus | 'all') => void;
   priorityFilter: OpportunityPriority | 'all';
   onPriorityFilterChange: (value: OpportunityPriority | 'all') => void;
+  onNewOpportunity: () => void;
 }
 
 export function KanbanHeader({
@@ -20,6 +21,7 @@ export function KanbanHeader({
   onStatusFilterChange,
   priorityFilter,
   onPriorityFilterChange,
+  onNewOpportunity,
 }: KanbanHeaderProps) {
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -67,7 +69,7 @@ export function KanbanHeader({
           Más filtros
         </Button>
         
-        <Button>
+        <Button onClick={onNewOpportunity}>
           <Plus className="h-4 w-4 mr-2" />
           Nueva Oportunidad
         </Button>

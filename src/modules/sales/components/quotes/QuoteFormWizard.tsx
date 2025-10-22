@@ -15,6 +15,7 @@ import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, ArrowRight, Check, Save } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { QuoteBasicInfoStep } from './QuoteBasicInfoStep';
+import { QuoteCalculatorStep } from './QuoteCalculatorStep';
 import { QuoteItemsStep } from './QuoteItemsStep';
 import { QuoteTermsStep } from './QuoteTermsStep';
 import { QuoteReviewStep } from './QuoteReviewStep';
@@ -47,9 +48,10 @@ interface QuoteFormWizardProps {
 
 const STEPS = [
   { number: 1, title: 'Información Básica', description: 'Oportunidad y términos' },
-  { number: 2, title: 'Items', description: 'Productos y servicios' },
-  { number: 3, title: 'Cálculos', description: 'Impuestos y descuentos' },
-  { number: 4, title: 'Revisión', description: 'Verificar y crear' },
+  { number: 2, title: 'Calculadora', description: 'Calcular costos y precios' },
+  { number: 3, title: 'Items', description: 'Revisar productos y servicios' },
+  { number: 4, title: 'Términos', description: 'Impuestos y descuentos' },
+  { number: 5, title: 'Revisión', description: 'Verificar y crear' },
 ];
 
 export function QuoteFormWizard({
@@ -160,10 +162,12 @@ export function QuoteFormWizard({
       case 1:
         return formData.opportunityId && formData.validUntil && formData.paymentTerms;
       case 2:
-        return formData.items.length > 0;
+        return true; // Calculator step is optional
       case 3:
-        return true; // Taxes y discounts son opcionales
+        return formData.items.length > 0;
       case 4:
+        return true; // Taxes y discounts son opcionales
+      case 5:
         return true;
       default:
         return false;
@@ -214,12 +218,18 @@ export function QuoteFormWizard({
             <QuoteBasicInfoStep formData={formData} updateFormData={updateFormData} />
           )}
           {currentStep === 2 && (
-            <QuoteItemsStep formData={formData} updateFormData={updateFormData} />
+            <QuoteCalculatorStep
+              onItemsChange={(items) => updateFormData({ items })}
+              currency={formData.currency}
+            />
           )}
           {currentStep === 3 && (
+            <QuoteItemsStep formData={formData} updateFormData={updateFormData} />
+          )}
+          {currentStep === 4 && (
             <QuoteTermsStep formData={formData} updateFormData={updateFormData} />
           )}
-          {currentStep === 4 && <QuoteReviewStep formData={formData} />}
+          {currentStep === 5 && <QuoteReviewStep formData={formData} />}
         </div>
 
         {/* Navigation buttons */}
