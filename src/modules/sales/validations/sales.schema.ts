@@ -129,7 +129,7 @@ export const QuoteItemSchema = z.object({
 });
 
 export const QuoteSchema = z.object({
-  opportunityId: z.string().min(1, 'Oportunidad requerida'),
+  opportunityId: z.string().min(1, 'Oportunidad requerida').optional(),
   clientId: z.string().min(1, 'Cliente requerido'),
   contactId: z.string().min(1, 'Contacto requerido'),
   items: z.array(QuoteItemSchema).min(1, 'Al menos un ítem requerido'),

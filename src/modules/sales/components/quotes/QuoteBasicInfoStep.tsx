@@ -16,18 +16,20 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CalendarIcon, AlertCircle } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { ClientsService } from '@/modules/clients/services/clients.service';
 import type { Opportunity } from '../../types/sales.types';
+import type { Client } from '@/modules/clients/types/clients.types';
 
 interface QuoteFormData {
-  opportunityId: string;
+  opportunityId?: string;
   opportunityName?: string;
-  clientId?: string;
+  clientId: string;
   clientName?: string;
-  contactId?: string;
+  contactId: string;
   contactName?: string;
   currency: string;
   validUntil: Date;
@@ -40,27 +42,60 @@ interface QuoteBasicInfoStepProps {
 }
 
 export function QuoteBasicInfoStep({ formData, updateFormData }: QuoteBasicInfoStepProps) {
+  const [mode, setMode] = useState<'opportunity' | 'direct'>(
+    formData.opportunityId ? 'opportunity' : 'direct'
+  );
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [contacts, setContacts] = useState<Array<{ id: string; name: string; position?: string }>>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
     loadOpportunities();
+    loadClients();
   }, []);
 
   const loadOpportunities = async () => {
     try {
       setLoading(true);
       const opportunities = await OpportunitiesService.getOpportunities();
-      // Filtrar solo oportunidades en etapas apropiadas para cotización
+      // Filtrar solo oportunidades con status 'open'
       const filteredOpps = opportunities.filter(
-        (opp) => opp.stage === 'proposal-sent' || opp.stage === 'negotiation'
+        (opp) => opp.status === 'open'
       );
       setOpportunities(filteredOpps);
     } catch {
       setError('Error al cargar oportunidades');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadClients = async () => {
+    try {
+      const clientsList = await ClientsService.getClients();
+      setClients(clientsList);
+    } catch {
+      setError('Error al cargar clientes');
+    }
+  };
+
+  const handleModeChange = (newMode: 'opportunity' | 'direct') => {
+    setMode(newMode);
+    // Reset fields when switching modes
+    if (newMode === 'direct') {
+      updateFormData({
+        opportunityId: undefined,
+        opportunityName: undefined,
+        clientId: '',
+        contactId: '',
+      });
+    } else {
+      updateFormData({
+        clientId: '',
+        contactId: '',
+      });
     }
   };
 
@@ -76,18 +111,35 @@ export function QuoteBasicInfoStep({ formData, updateFormData }: QuoteBasicInfoS
         return;
       }
 
-      // Solo actualizar formData con lo que tenemos
       updateFormData({
         opportunityId,
         opportunityName: opportunity.name,
         clientId: opportunity.clientId,
         clientName: client.name,
         contactId: opportunity.contactId,
-        contactName: opportunity.contactId || undefined,
+        contactName: opportunity.contactId,
         currency: opportunity.currency,
       });
     } catch {
       setError('Error al cargar datos de la oportunidad');
+    }
+  };
+
+  const handleClientChange = async (clientId: string) => {
+    try {
+      const client = clients.find((c) => c.id === clientId);
+      if (!client) return;
+
+      // Load client contacts (simplified - using placeholder for now)
+      setContacts([{ id: 'placeholder', name: 'Contacto Principal' }]);
+
+      updateFormData({
+        clientId,
+        clientName: client.name,
+        contactId: '',
+      });
+    } catch {
+      setError('Error al cargar datos del cliente');
     }
   };
 
@@ -100,52 +152,115 @@ export function QuoteBasicInfoStep({ formData, updateFormData }: QuoteBasicInfoS
         </Alert>
       )}
 
-      {/* Oportunidad */}
-      <div className="space-y-2">
-        <Label htmlFor="opportunity">Oportunidad *</Label>
-        <Select value={formData.opportunityId} onValueChange={handleOpportunityChange}>
-          <SelectTrigger id="opportunity">
-            <SelectValue placeholder="Seleccionar oportunidad..." />
-          </SelectTrigger>
-          <SelectContent>
-            {loading ? (
-              <div className="p-2 text-sm text-muted-foreground">Cargando...</div>
-            ) : opportunities.length === 0 ? (
-              <div className="p-2 text-sm text-muted-foreground">
-                No hay oportunidades disponibles
-              </div>
-            ) : (
-              opportunities.map((opp) => (
-                <SelectItem key={opp.id} value={opp.id}>
-                  <div className="flex items-center gap-2">
-                    <span>{opp.name}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {opp.stage}
-                    </Badge>
-                  </div>
-                </SelectItem>
-              ))
-            )}
-          </SelectContent>
-        </Select>
+      {/* Mode Selection */}
+      <div className="space-y-3">
+        <Label>¿Cómo desea crear la cotización?</Label>
+        <RadioGroup value={mode} onValueChange={(v) => handleModeChange(v as 'opportunity' | 'direct')}>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="opportunity" id="opportunity" />
+            <Label htmlFor="opportunity" className="font-normal cursor-pointer">
+              Desde una oportunidad existente
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="direct" id="direct" />
+            <Label htmlFor="direct" className="font-normal cursor-pointer">
+              Directamente con un cliente
+            </Label>
+          </div>
+        </RadioGroup>
       </div>
 
-      {/* Cliente (read-only) */}
-      {formData.clientName && (
+      {/* Opportunity Mode */}
+      {mode === 'opportunity' && (
+        <div className="space-y-2">
+          <Label htmlFor="opportunity-select">Oportunidad *</Label>
+          <Select value={formData.opportunityId} onValueChange={handleOpportunityChange}>
+            <SelectTrigger id="opportunity-select">
+              <SelectValue placeholder="Seleccionar oportunidad..." />
+            </SelectTrigger>
+            <SelectContent>
+              {loading ? (
+                <div className="p-2 text-sm text-muted-foreground">Cargando...</div>
+              ) : opportunities.length === 0 ? (
+                <div className="p-2 text-sm text-muted-foreground">
+                  No hay oportunidades disponibles
+                </div>
+              ) : (
+                opportunities.map((opp) => (
+                  <SelectItem key={opp.id} value={opp.id}>
+                    <div className="flex items-center gap-2">
+                      <span>{opp.name}</span>
+                      <Badge variant="outline" className="text-xs">
+                        {opp.stage}
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Direct Mode - Client Selection */}
+      {mode === 'direct' && (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="client-select">Cliente *</Label>
+            <Select value={formData.clientId} onValueChange={handleClientChange}>
+              <SelectTrigger id="client-select">
+                <SelectValue placeholder="Seleccionar cliente..." />
+              </SelectTrigger>
+              <SelectContent>
+                {clients.length === 0 ? (
+                  <div className="p-2 text-sm text-muted-foreground">
+                    No hay clientes disponibles
+                  </div>
+                ) : (
+                  clients.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {formData.clientId && (
+            <div className="space-y-2">
+              <Label htmlFor="contact-select">Contacto *</Label>
+              <Select value={formData.contactId} onValueChange={(v) => updateFormData({ contactId: v })}>
+                <SelectTrigger id="contact-select">
+                  <SelectValue placeholder="Seleccionar contacto..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {contacts.length === 0 ? (
+                    <div className="p-2 text-sm text-muted-foreground">
+                      No hay contactos disponibles
+                    </div>
+                  ) : (
+                    contacts.map((contact) => (
+                      <SelectItem key={contact.id} value={contact.id}>
+                        {contact.name}
+                        {contact.position && ` - ${contact.position}`}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Cliente (read-only when from opportunity) */}
+      {mode === 'opportunity' && formData.clientName && (
         <div className="space-y-2">
           <Label>Cliente</Label>
           <div className="flex h-10 items-center rounded-md border border-input bg-muted px-3 py-2 text-sm">
             {formData.clientName}
-          </div>
-        </div>
-      )}
-
-      {/* Contacto (read-only) */}
-      {formData.contactName && (
-        <div className="space-y-2">
-          <Label>Contacto</Label>
-          <div className="flex h-10 items-center rounded-md border border-input bg-muted px-3 py-2 text-sm">
-            {formData.contactName}
           </div>
         </div>
       )}

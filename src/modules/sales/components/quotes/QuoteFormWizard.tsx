@@ -23,11 +23,11 @@ import { QuotesService } from '../../services/quotes.service';
 import type { QuoteItem } from '../../types/sales.types';
 
 interface QuoteFormData {
-  opportunityId: string;
+  opportunityId?: string; // Optional now
   opportunityName?: string;
-  clientId?: string;
+  clientId: string;
   clientName?: string;
-  contactId?: string;
+  contactId: string;
   contactName?: string;
   currency: string;
   validUntil: Date;
@@ -65,7 +65,9 @@ export function QuoteFormWizard({
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<QuoteFormData>({
-    opportunityId: opportunityId || '',
+    opportunityId: opportunityId,
+    clientId: '',
+    contactId: '',
     currency: 'USD',
     validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 días
     paymentTerms: '30 días netos',
@@ -160,7 +162,10 @@ export function QuoteFormWizard({
   const canProceed = () => {
     switch (currentStep) {
       case 1:
-        return formData.opportunityId && formData.validUntil && formData.paymentTerms;
+        // Either opportunity OR direct client selection required
+        const hasOpportunity = formData.opportunityId;
+        const hasDirectClient = formData.clientId && formData.contactId;
+        return (hasOpportunity || hasDirectClient) && formData.validUntil && formData.paymentTerms;
       case 2:
         return true; // Calculator step is optional
       case 3:

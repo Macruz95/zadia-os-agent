@@ -124,9 +124,12 @@ export interface QuoteItem {
 export interface Quote {
   id: string;
   number: string; // Auto-generated (COT-2025-001)
-  opportunityId: string;
+  opportunityId?: string; // Optional - quote can be created directly
+  opportunityName?: string; // For display when created from opportunity
   clientId: string;
+  clientName?: string; // For display
   contactId: string;
+  contactName?: string; // For display
   items: QuoteItem[];
   subtotal: number;
   taxes: Record<string, number>; // {iva: 13, isr: 2}
