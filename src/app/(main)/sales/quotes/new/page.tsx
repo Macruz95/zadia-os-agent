@@ -53,6 +53,7 @@ export default function NewQuotePage() {
           onSuccess={(quoteId) => {
             router.push(`/sales/quotes/${quoteId}`);
           }}
+          asPage={true}
         />
       </div>
     </div>

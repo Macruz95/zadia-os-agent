@@ -44,6 +44,7 @@ interface QuoteFormWizardProps {
   onOpenChange: (open: boolean) => void;
   opportunityId?: string;
   onSuccess?: (quoteId: string) => void;
+  asPage?: boolean; // New prop to render without Dialog
 }
 
 const STEPS = [
@@ -59,6 +60,7 @@ export function QuoteFormWizard({
   onOpenChange,
   opportunityId,
   onSuccess,
+  asPage = false,
 }: QuoteFormWizardProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -179,89 +181,108 @@ export function QuoteFormWizard({
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+  // Render content without Dialog wrapper when asPage={true}
+  const wizardContent = (
+    <>
+      {/* Header - only show in dialog mode */}
+      {!asPage && (
         <DialogHeader>
           <DialogTitle>Nueva Cotización</DialogTitle>
           <DialogDescription>
             {STEPS[currentStep - 1].description}
           </DialogDescription>
         </DialogHeader>
+      )}
 
-        {/* Progress bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            {STEPS.map((step) => (
+      {/* Progress bar */}
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
+          {STEPS.map((step) => (
+            <div
+              key={step.number}
+              className={`flex items-center gap-2 ${
+                currentStep === step.number ? 'text-primary font-medium' : 'text-muted-foreground'
+              }`}
+            >
               <div
-                key={step.number}
-                className={`flex items-center gap-2 ${
-                  currentStep === step.number ? 'text-primary font-medium' : 'text-muted-foreground'
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                  currentStep > step.number
+                    ? 'bg-primary text-primary-foreground'
+                    : currentStep === step.number
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted'
                 }`}
               >
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
-                    currentStep > step.number
-                      ? 'bg-primary text-primary-foreground'
-                      : currentStep === step.number
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
-                  }`}
-                >
-                  {currentStep > step.number ? <Check className="w-3 h-3" /> : step.number}
-                </div>
-                <span className="hidden sm:inline">{step.title}</span>
+                {currentStep > step.number ? <Check className="w-3 h-3" /> : step.number}
               </div>
-            ))}
-          </div>
-          <Progress value={progress} />
+              <span className="hidden sm:inline">{step.title}</span>
+            </div>
+          ))}
         </div>
+        <Progress value={progress} />
+      </div>
 
-        {/* Step content */}
-        <div className="py-4">
-          {currentStep === 1 && (
-            <QuoteBasicInfoStep formData={formData} updateFormData={updateFormData} />
-          )}
-          {currentStep === 2 && (
-            <QuoteCalculatorStep
-              onItemsChange={(items) => updateFormData({ items })}
-              currency={formData.currency}
-            />
-          )}
-          {currentStep === 3 && (
-            <QuoteItemsStep formData={formData} updateFormData={updateFormData} />
-          )}
-          {currentStep === 4 && (
-            <QuoteTermsStep formData={formData} updateFormData={updateFormData} />
-          )}
-          {currentStep === 5 && <QuoteReviewStep formData={formData} />}
-        </div>
+      {/* Step content */}
+      <div className="py-4">
+        {currentStep === 1 && (
+          <QuoteBasicInfoStep formData={formData} updateFormData={updateFormData} />
+        )}
+        {currentStep === 2 && (
+          <QuoteCalculatorStep
+            onItemsChange={(items) => updateFormData({ items })}
+            currency={formData.currency}
+          />
+        )}
+        {currentStep === 3 && (
+          <QuoteItemsStep formData={formData} updateFormData={updateFormData} />
+        )}
+        {currentStep === 4 && (
+          <QuoteTermsStep formData={formData} updateFormData={updateFormData} />
+        )}
+        {currentStep === 5 && <QuoteReviewStep formData={formData} />}
+      </div>
 
-        {/* Navigation buttons */}
-        <div className="flex justify-between pt-4 border-t">
-          <Button variant="outline" onClick={handleBack} disabled={currentStep === 1}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Anterior
+      {/* Navigation buttons */}
+      <div className="flex justify-between pt-4 border-t">
+        <Button variant="outline" onClick={handleBack} disabled={currentStep === 1}>
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Anterior
+        </Button>
+
+        {currentStep < STEPS.length ? (
+          <Button onClick={handleNext} disabled={!canProceed()}>
+            Siguiente
+            <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
+        ) : (
+          <Button onClick={handleSubmit} disabled={isSubmitting || !canProceed()}>
+            {isSubmitting ? (
+              <>Guardando...</>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Crear Cotización
+              </>
+            )}
+          </Button>
+        )}
+      </div>
+    </>
+  );
 
-          {currentStep < STEPS.length ? (
-            <Button onClick={handleNext} disabled={!canProceed()}>
-              Siguiente
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          ) : (
-            <Button onClick={handleSubmit} disabled={isSubmitting || !canProceed()}>
-              {isSubmitting ? (
-                <>Guardando...</>
-              ) : (
-                <>
-                  <Save className="w-4 h-4 mr-2" />
-                  Crear Cotización
-                </>
-              )}
-            </Button>
-          )}
-        </div>
+  // Return as page or dialog
+  if (asPage) {
+    return (
+      <div className="border rounded-lg p-6 bg-card">
+        {wizardContent}
+      </div>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        {wizardContent}
       </DialogContent>
     </Dialog>
   );
