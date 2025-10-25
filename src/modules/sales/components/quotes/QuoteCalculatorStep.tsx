@@ -142,7 +142,8 @@ export function QuoteCalculatorStep({
     calculator.state.materials,
     calculator.state.labor,
     calculator.breakdown.additionalCosts,
-    onItemsChange,
+    // onItemsChange is intentionally excluded to prevent infinite loops
+    // It's a callback from parent and recreated on every render
   ]);
 
   if (isLoadingInventory) {

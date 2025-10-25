@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import {
@@ -80,9 +80,9 @@ export function QuoteFormWizard({
 
   const progress = (currentStep / STEPS.length) * 100;
 
-  const updateFormData = (updates: Partial<QuoteFormData>) => {
+  const updateFormData = useCallback((updates: Partial<QuoteFormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
-  };
+  }, []);
 
   const handleNext = () => {
     if (currentStep < STEPS.length) {
