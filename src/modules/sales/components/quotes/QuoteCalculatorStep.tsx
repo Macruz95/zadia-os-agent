@@ -33,6 +33,7 @@ interface InventoryItem {
   unitPrice: number;
   unit: string;
   availableQuantity?: number;
+  type: 'raw' | 'finished';
 }
 
 interface QuoteCalculatorStepProps {
@@ -78,6 +79,7 @@ export function QuoteCalculatorStep({
             unitPrice: item.unitCost || 0,
             unit: item.unitOfMeasure || 'Unidad',
             availableQuantity: item.currentStock || 0,
+            type: 'raw' as const,
           })),
           ...productsData.finishedProducts.map((item) => ({
             id: item.id,
@@ -85,6 +87,7 @@ export function QuoteCalculatorStep({
             unitPrice: item.sellingPrice || 0,
             unit: 'Unidad',
             availableQuantity: item.currentStock || 0,
+            type: 'finished' as const,
           })),
         ];
 
