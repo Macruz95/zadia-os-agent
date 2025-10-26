@@ -16,6 +16,7 @@ export interface CalculatorMaterial {
   unit: string;
   quantity: number;
   subtotal: number;
+  type?: 'raw' | 'finished';
 }
 
 /**

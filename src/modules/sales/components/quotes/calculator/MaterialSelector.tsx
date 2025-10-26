@@ -88,6 +88,7 @@ export function MaterialSelector({
       unitPrice: material.unitPrice,
       unit: material.unit,
       quantity: qty,
+      type: material.type,
     });
 
     setQuantity('');
