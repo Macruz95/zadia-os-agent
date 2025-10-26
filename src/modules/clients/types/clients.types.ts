@@ -62,8 +62,20 @@ export interface Client {
   name: string;
   documentId: string;
   clientType: ClientType;
+  
+  // Datos adicionales para empresas/organizaciones
+  legalName?: string; // Razón social
+  taxId?: string; // NIT, RUC, RFC (Registro fiscal)
+  
+  // Datos para personas naturales
   birthDate?: Date;
   gender?: Gender;
+  
+  // Información de contacto principal
+  email?: string;
+  phone?: string;
+  phoneCountryId?: string;
+  
   status: ClientStatus;
   tags: string[];
   source?: string;
