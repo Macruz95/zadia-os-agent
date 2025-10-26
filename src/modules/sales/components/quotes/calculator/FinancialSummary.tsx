@@ -13,7 +13,18 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { DollarSign, TrendingUp, Calculator, FileText } from 'lucide-react';
+import { 
+  DollarSign, 
+  TrendingUp, 
+  Calculator, 
+  FileText, 
+  Package, 
+  HardHat,
+  Settings,
+  Percent,
+  Receipt,
+  Sparkles
+} from 'lucide-react';
 import type { FinancialBreakdown } from '../../../types/calculator.types';
 
 interface FinancialSummaryProps {
@@ -65,12 +76,18 @@ export function FinancialSummary({
               Costos Primarios
             </h3>
             <div className="space-y-1 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Mano de Obra:</span>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground flex items-center gap-1">
+                  <HardHat className="w-3 h-3" />
+                  Mano de Obra:
+                </span>
                 <span className="font-medium">{formatAmount(breakdown.laborCost)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Materiales:</span>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground flex items-center gap-1">
+                  <Package className="w-3 h-3" />
+                  Materiales:
+                </span>
                 <span className="font-medium">{formatAmount(breakdown.materialsCost)}</span>
               </div>
               <Separator className="my-2" />
@@ -85,7 +102,8 @@ export function FinancialSummary({
         {/* Additional Costs */}
         {showDetails && breakdown.additionalCosts > 0 && (
           <div className="space-y-2 bg-white rounded-lg p-4">
-            <h3 className="font-semibold text-sm text-gray-700">
+            <h3 className="font-semibold text-sm text-gray-700 flex items-center gap-1">
+              <Settings className="w-4 h-4" />
               Costos Adicionales
             </h3>
             <div className="flex justify-between text-sm">
@@ -112,13 +130,14 @@ export function FinancialSummary({
         {/* Commercial Margin */}
         <div className="space-y-2 bg-white rounded-lg p-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <TrendingUp className="w-4 h-4 mr-2 text-purple-600" />
+            <div className="flex items-center gap-1">
+              <Percent className="w-4 h-4 text-purple-600" />
               <span className="font-semibold text-sm text-gray-700">
                 Margen Comercial
               </span>
             </div>
-            <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+            <Badge variant="secondary" className="bg-purple-100 text-purple-800 gap-1">
+              <TrendingUp className="w-3 h-3" />
               {breakdown.commercialMarginPercent}%
             </Badge>
           </div>
@@ -145,7 +164,10 @@ export function FinancialSummary({
         {/* Taxes */}
         {breakdown.taxes.length > 0 && (
           <div className="space-y-2 bg-white rounded-lg p-4">
-            <h3 className="font-semibold text-sm text-gray-700">Impuestos</h3>
+            <h3 className="font-semibold text-sm text-gray-700 flex items-center gap-1">
+              <Receipt className="w-4 h-4" />
+              Impuestos
+            </h3>
             {breakdown.taxes.map((tax) => (
               <div key={tax.name} className="flex justify-between text-sm">
                 <span className="text-gray-600">
@@ -189,8 +211,9 @@ export function FinancialSummary({
         </div>
 
         {/* Info Message */}
-        <div className="text-xs text-gray-500 text-center bg-white rounded p-2">
-          💡 Este precio garantiza rentabilidad y cubre todos los costos de producción
+        <div className="text-xs text-muted-foreground text-center bg-white rounded-lg p-3 flex items-center justify-center gap-2">
+          <Sparkles className="w-4 h-4 text-yellow-500" />
+          <span>Este precio garantiza rentabilidad y cubre todos los costos de producción</span>
         </div>
       </CardContent>
     </Card>

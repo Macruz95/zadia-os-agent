@@ -13,7 +13,8 @@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clock, DollarSign, HardHat } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Clock, DollarSign, HardHat, Info } from 'lucide-react';
 import type { LaborCostConfig } from '../../../types/calculator.types';
 
 interface LaborCostInputProps {
@@ -33,7 +34,7 @@ export function LaborCostInput({ labor, onChange }: LaborCostInputProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center text-lg">
-          <HardHat className="w-5 h-5 mr-2 text-green-600" />
+          <HardHat className="w-5 h-5 mr-2 text-primary" />
           Costo de Mano de Obra
         </CardTitle>
         <CardDescription>
@@ -43,12 +44,12 @@ export function LaborCostInput({ labor, onChange }: LaborCostInputProps) {
       <CardContent className="space-y-4">
         {/* Hourly Rate */}
         <div className="space-y-2">
-          <Label htmlFor="hourlyRate" className="text-sm font-medium flex items-center">
-            <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
+          <Label htmlFor="hourlyRate" className="text-sm font-medium flex items-center gap-1">
+            <DollarSign className="w-4 h-4 text-muted-foreground" />
             Costo por Hora
           </Label>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">$</span>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
             <Input
               id="hourlyRate"
               type="number"
@@ -58,23 +59,24 @@ export function LaborCostInput({ labor, onChange }: LaborCostInputProps) {
               }
               min="0"
               step="0.01"
-              className="flex-grow"
+              className="pl-7 pr-14"
               placeholder="3.75"
             />
-            <span className="text-sm text-gray-500">/ hora</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">/ hora</span>
           </div>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <Info className="w-3 h-3" />
             Costo promedio por hora de trabajo (incluye salario y beneficios)
           </p>
         </div>
 
         {/* Hours Estimated */}
         <div className="space-y-2">
-          <Label htmlFor="hours" className="text-sm font-medium flex items-center">
-            <Clock className="w-4 h-4 mr-2 text-gray-500" />
+          <Label htmlFor="hours" className="text-sm font-medium flex items-center gap-1">
+            <Clock className="w-4 h-4 text-muted-foreground" />
             Horas Estimadas
           </Label>
-          <div className="flex items-center gap-2">
+          <div className="relative">
             <Input
               id="hours"
               type="number"
@@ -84,38 +86,41 @@ export function LaborCostInput({ labor, onChange }: LaborCostInputProps) {
               }
               min="0"
               step="0.5"
-              className="flex-grow"
+              className="pr-14"
               placeholder="0"
             />
-            <span className="text-sm text-gray-500">horas</span>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">horas</span>
           </div>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <Info className="w-3 h-3" />
             Tiempo total estimado para completar el trabajo
           </p>
         </div>
 
         {/* Calculation Display */}
-        <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-600">Cálculo:</span>
-            <span className="text-sm font-mono text-gray-700">
-              {labor.hours} hrs × ${labor.hourlyRate.toFixed(2)}/hr
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="font-semibold text-gray-700">
-              Costo Total Mano de Obra:
-            </span>
-            <span className="text-xl font-bold text-green-700">
-              ${labor.total.toFixed(2)}
-            </span>
-          </div>
-        </div>
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Cálculo:</span>
+              <Badge variant="secondary" className="font-mono">
+                {labor.hours} hrs × ${labor.hourlyRate.toFixed(2)}/hr
+              </Badge>
+            </div>
+            <div className="h-px bg-border" />
+            <div className="flex items-center justify-between">
+              <span className="font-semibold">Costo Total Mano de Obra:</span>
+              <span className="text-2xl font-bold text-primary">
+                ${labor.total.toFixed(2)}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Info Tips */}
-        <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200">
+          <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-blue-800">
-            <strong>💡 Consejo:</strong> Considere el tiempo de preparación, 
+            <strong>Consejo:</strong> Considere el tiempo de preparación, 
             ejecución, limpieza y retrabajos al estimar las horas.
           </p>
         </div>
