@@ -42,6 +42,7 @@ function getInitialFormData(employee?: Employee): EmployeeFormData {
       lastName: '',
       email: '',
       phone: '',
+      phoneCountryId: 'SV', // El Salvador por defecto
       address: '',
       birthDate: new Date(),
       nationalId: '',
@@ -56,6 +57,7 @@ function getInitialFormData(employee?: Employee): EmployeeFormData {
       paymentFrequency: 'monthly',
       emergencyContactName: '',
       emergencyContactPhone: '',
+      emergencyContactPhoneCountryId: 'SV',
       emergencyContactRelation: '',
     };
   }
@@ -65,6 +67,7 @@ function getInitialFormData(employee?: Employee): EmployeeFormData {
     lastName: employee.lastName,
     email: employee.email,
     phone: employee.phone,
+    phoneCountryId: employee.phoneCountryId || 'SV',
     address: employee.address,
     birthDate: employee.birthDate.toDate(),
     nationalId: employee.nationalId,
@@ -79,6 +82,7 @@ function getInitialFormData(employee?: Employee): EmployeeFormData {
     paymentFrequency: employee.paymentFrequency,
     emergencyContactName: employee.emergencyContactName || '',
     emergencyContactPhone: employee.emergencyContactPhone || '',
+    emergencyContactPhoneCountryId: employee.emergencyContactPhoneCountryId || 'SV',
     emergencyContactRelation: employee.emergencyContactRelation || '',
   };
 }

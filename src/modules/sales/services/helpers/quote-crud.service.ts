@@ -39,10 +39,10 @@ export async function createQuote(
       data.discounts || 0
     );
 
-    const quoteData = {
-      ...data,
-      items: itemsWithIds,
+    // Construir el objeto para Firestore sin campos undefined
+    const quoteData: Partial<Quote> = {
       number: quoteNumber,
+      items: itemsWithIds,
       ...totals,
       status: 'draft' as const,
       validUntil: data.validUntil
@@ -51,12 +51,24 @@ export async function createQuote(
       createdAt: now,
       updatedAt: now,
       assignedTo: createdBy,
+      clientId: data.clientId,
+      contactId: data.contactId,
+      currency: data.currency,
+      taxes: data.taxes || {},
+      paymentTerms: data.paymentTerms || '',
+      discounts: data.discounts || 0,
     };
+
+    // Agregar campos opcionales solo si tienen valor
+    if (data.opportunityId) quoteData.opportunityId = data.opportunityId;
+    if (data.notes) quoteData.notes = data.notes;
+    if (data.internalNotes) quoteData.internalNotes = data.internalNotes;
+    if (data.attachments) quoteData.attachments = data.attachments;
 
     const docRef = await addDoc(collection(db, QUOTES_COLLECTION), quoteData);
 
     const newQuote: Quote = {
-      ...quoteData,
+      ...(quoteData as Quote),
       id: docRef.id,
     };
 

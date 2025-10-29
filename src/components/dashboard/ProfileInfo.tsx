@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import { CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Building2, Target, Globe, Calendar } from 'lucide-react';
 import { UserProfile } from '@/validations/auth.schema';
 
@@ -39,28 +38,9 @@ export function ProfileInfo({ profile }: ProfileInfoProps) {
     }
   };
 
-  const getRoleColor = (role: string) => {
-    const colors = {
-      admin: 'bg-red-100 text-red-800',
-      manager: 'bg-blue-100 text-blue-800',
-      analyst: 'bg-green-100 text-green-800',
-      user: 'bg-gray-100 text-gray-800'
-    };
-    return colors[role as keyof typeof colors] || colors.user;
-  };
-
   return (
     <CardContent className="space-y-4">
       <div className="grid grid-cols-2 gap-4 text-sm">
-        <div>
-          <div className="font-medium text-muted-foreground mb-1">
-            {t('userProfile.fields.role')}
-          </div>
-          <Badge variant="secondary" className={getRoleColor(profile.role)}>
-            {t(`auth.roles.${profile.role}`)}
-          </Badge>
-        </div>
-        
         <div>
           <div className="font-medium text-muted-foreground mb-1">
             {t('userProfile.fields.language')}

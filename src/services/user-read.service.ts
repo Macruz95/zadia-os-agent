@@ -3,9 +3,11 @@ import {
   getDoc, 
   Timestamp 
 } from 'firebase/firestore';
+import { FirebaseError } from 'firebase/app';
 import { db } from '@/lib/firebase';
 import { UserProfile, userProfileSchema } from '@/validations/auth.schema';
 import { handleUserError } from './user.utils';
+import { logger } from '@/lib/logger';
 
 /**
  * User Read Service
@@ -41,6 +43,16 @@ export class UserReadService {
       // Validate data structure with Zod
       return userProfileSchema.parse(profile);
     } catch (error) {
+      if (error instanceof FirebaseError && error.code === 'permission-denied') {
+        // Expected when the user is pending role assignment; avoid noisy error logging
+        logger.warn('Firestore blocked user profile read - likely missing custom claims', {
+          component: 'UserReadService',
+          action: 'getUserProfile',
+          metadata: { uid }
+        });
+        return null;
+      }
+
       throw handleUserError(error);
     }
   }

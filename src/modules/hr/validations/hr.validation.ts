@@ -15,15 +15,16 @@ export const employeeFormSchema = z.object({
   // Personal Info
   firstName: z.string().min(2, 'Mínimo 2 caracteres').max(50),
   lastName: z.string().min(2, 'Mínimo 2 caracteres').max(50),
-  email: z.string().email('Email inválido'),
+  email: z.string().email('Email inválido').optional().or(z.literal('')),
   phone: z.string().min(8, 'Teléfono inválido').max(20),
+  phoneCountryId: z.string().optional(),
   address: z.string().min(5, 'Dirección inválida'),
   birthDate: z.date({
     message: 'Fecha de nacimiento requerida',
   }),
   
-  // Identification
-  nationalId: z.string().min(5, 'Identificación inválida'),
+  // Identification - Opcional para empleados temporales de otros países
+  nationalId: z.string().optional(),
   taxId: z.string().optional(),
   socialSecurityNumber: z.string().optional(),
   
@@ -57,6 +58,7 @@ export const employeeFormSchema = z.object({
   // Emergency Contact
   emergencyContactName: z.string().optional(),
   emergencyContactPhone: z.string().optional(),
+  emergencyContactPhoneCountryId: z.string().optional(),
   emergencyContactRelation: z.string().optional(),
 });
 

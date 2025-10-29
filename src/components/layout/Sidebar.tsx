@@ -26,6 +26,7 @@ import {
   Briefcase,
   Wrench,
   DollarSign,
+  UserCog,
 } from 'lucide-react';
 
 const sidebarNavItems = [
@@ -64,6 +65,12 @@ const sidebarNavItems = [
     href: '/finance',
     icon: DollarSign,
     roles: ['admin', 'manager', 'user']
+  },
+  {
+    title: 'Recursos Humanos',
+    href: '/hr/employees',
+    icon: UserCog,
+    roles: ['admin', 'manager']
   },
   {
     title: 'navigation.clients',
@@ -126,9 +133,8 @@ export function Sidebar() {
 
   if (!user) return null;
 
-  const filteredItems = sidebarNavItems.filter(item =>
-    item.roles.includes(user.role)
-  );
+  // Mostrar todos los elementos del sidebar (no filtrar por roles)
+  const filteredItems = sidebarNavItems;
 
   return (
     <SidebarComponent>

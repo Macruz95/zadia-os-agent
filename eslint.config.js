@@ -40,6 +40,14 @@ const eslintConfig = [
       'no-useless-escape': 'off'
     },
   },
+  {
+    files: ['**/diagnostic/**/*.{js,jsx,ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-console': 'off',
+    },
+  },
 ];
 
 export default eslintConfig;

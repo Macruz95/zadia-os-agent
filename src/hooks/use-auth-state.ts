@@ -5,6 +5,7 @@ import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { UserService } from '@/services/user.service';
 import { UserProfile } from '@/validations/auth.schema';
+import { logger } from '@/lib/logger';
 
 /**
  * Hook that manages authentication state
@@ -20,8 +21,12 @@ export const useAuthState = () => {
         const userProfile = await UserService.getUserProfile(firebaseUser.uid);
         setUser(userProfile);
       }
-    } catch {
-      // Error silencioso - la aplicación puede continuar sin perfil actualizado
+    } catch (error) {
+      logger.error(
+        'Error refreshing user profile',
+        error instanceof Error ? error : new Error('Unknown error'),
+        { component: 'useAuthState' }
+      );
     }
   };
 
@@ -32,17 +37,37 @@ export const useAuthState = () => {
         setFirebaseUser(firebaseUser);
         
         if (firebaseUser) {
+          // Force token refresh to get latest security rules
+          await firebaseUser.getIdToken(true);
+          
           // Update last login
           await UserService.updateLastLogin(firebaseUser.uid);
           
-          // Get user profile from Firestore
-          const userProfile = await UserService.getUserProfile(firebaseUser.uid);
-          setUser(userProfile);
+          // Try to get user profile
+          try {
+            const userProfile = await UserService.getUserProfile(firebaseUser.uid);
+            setUser(userProfile);
+          } catch {
+            // If permission denied, user might not have custom claims yet
+            logger.warn('Could not load user profile - user may not have role assigned yet', {
+              component: 'useAuthState',
+              metadata: {
+                userId: firebaseUser.uid,
+                email: firebaseUser.email || 'unknown'
+              }
+            });
+            setUser(null);
+          }
         } else {
           setUser(null);
         }
-      } catch {
-        // Error silencioso - setUser(null) maneja el estado fallback
+      } catch (error) {
+        // Log error but allow app to continue
+        logger.error(
+          'Error in auth state change',
+          error instanceof Error ? error : new Error('Unknown auth error'),
+          { component: 'useAuthState' }
+        );
         setUser(null);
       } finally {
         setLoading(false);

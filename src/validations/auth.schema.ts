@@ -1,8 +1,5 @@
 import { z } from 'zod';
 
-// User role validation
-export const userRoleSchema = z.enum(['admin', 'manager', 'user']);
-
 // Language validation
 export const languageSchema = z.enum(['es', 'en']);
 
@@ -78,7 +75,7 @@ export const userProfileSchema = z.object({
   uid: z.string(),
   email: z.string().email(),
   displayName: z.string(),
-  role: userRoleSchema,
+  role: z.string().optional(), // Role is now optional
   language: languageSchema,
   organization: z.string().optional(),
   objective: userObjectiveSchema.optional(),

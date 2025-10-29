@@ -77,16 +77,13 @@ export function SendInvoiceEmailDialog({
     try {
       setIsSending(true);
 
-      const result = await InvoicesEmailService.sendInvoiceEmail(invoice, {
-        to: data.to,
-        cc: data.cc || undefined,
-        subject: data.subject,
+      await InvoicesEmailService.sendInvoiceEmail({
+        invoiceId: invoice.id,
+        recipientEmail: data.to,
         customMessage: data.message || undefined,
+        sendCopy: !!data.cc,
+        copyEmail: data.cc || undefined,
       });
-
-      if (!result.success) {
-        throw new Error(result.error || 'Error al enviar email');
-      }
 
       toast.success('Email enviado correctamente', {
         description: `Factura ${invoice.number} enviada a ${data.to}`,

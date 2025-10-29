@@ -15,6 +15,11 @@ export const PROTECTED_ROUTES = [
   '/sales',
   '/inventory',
   '/projects',
+  '/crm',
+  '/finance',
+  '/hr',
+  '/orders',
+  '/work-orders',
 ] as const;
 
 /**

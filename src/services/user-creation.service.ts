@@ -20,7 +20,6 @@ export class UserCreationService {
   static async createUserProfile(
     user: User,
     additionalData: {
-      role: UserProfile['role'];
       language: UserProfile['language'];
       organization?: string;
       objective?: UserProfile['objective'];
@@ -33,7 +32,6 @@ export class UserCreationService {
         uid: user.uid,
         email: user.email!,
         displayName: user.displayName || user.email!.split('@')[0],
-        role: additionalData.role,
         language: additionalData.language,
         organization: additionalData.organization,
         objective: additionalData.objective,

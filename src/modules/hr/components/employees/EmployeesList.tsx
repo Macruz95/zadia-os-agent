@@ -78,7 +78,7 @@ export function EmployeesList({
       search === '' ||
       emp.firstName.toLowerCase().includes(search.toLowerCase()) ||
       emp.lastName.toLowerCase().includes(search.toLowerCase()) ||
-      emp.email.toLowerCase().includes(search.toLowerCase());
+      (emp.email && emp.email.toLowerCase().includes(search.toLowerCase()));
 
     const matchesStatus =
       statusFilter === 'all' || emp.status === statusFilter;
@@ -163,7 +163,7 @@ export function EmployeesList({
                     <TableCell className="font-medium">
                       {employee.firstName} {employee.lastName}
                     </TableCell>
-                    <TableCell>{employee.email}</TableCell>
+                    <TableCell>{employee.email || '-'}</TableCell>
                     <TableCell>
                       <span className="flex items-center gap-1">
                         {positionConfig.icon}

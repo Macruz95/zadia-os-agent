@@ -12,6 +12,7 @@ import { User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { PhoneInput } from '@/modules/clients/components/form/PhoneInput';
 import type { EmployeeFormData } from '../../../validations/hr.validation';
 
 interface PersonalInfoSectionProps {
@@ -58,11 +59,12 @@ export function PersonalInfoSection({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email *</Label>
+          <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             type="email"
-            value={formData.email}
+            placeholder="correo@ejemplo.com (opcional)"
+            value={formData.email || ''}
             onChange={(e) => updateField('email', e.target.value)}
           />
           {errors.email && (
@@ -71,22 +73,25 @@ export function PersonalInfoSection({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Teléfono *</Label>
-          <Input
-            id="phone"
+          <PhoneInput
             value={formData.phone}
-            onChange={(e) => updateField('phone', e.target.value)}
+            countryCode={formData.phoneCountryId || 'SV'}
+            onChange={(phone, countryCode) => {
+              updateField('phone', phone);
+              updateField('phoneCountryId', countryCode);
+            }}
+            label="Teléfono"
+            required
+            error={errors.phone}
           />
-          {errors.phone && (
-            <p className="text-sm text-destructive">{errors.phone}</p>
-          )}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="nationalId">DUI *</Label>
+          <Label htmlFor="nationalId">DUI / Cédula</Label>
           <Input
             id="nationalId"
-            value={formData.nationalId}
+            placeholder="Opcional para empleados extranjeros"
+            value={formData.nationalId || ''}
             onChange={(e) => updateField('nationalId', e.target.value)}
           />
           {errors.nationalId && (

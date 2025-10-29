@@ -11,6 +11,7 @@
 import { Phone } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PhoneInput } from '@/modules/clients/components/form/PhoneInput';
 import type { EmployeeFormData } from '../../../validations/hr.validation';
 
 interface EmergencyContactSectionProps {
@@ -34,17 +35,21 @@ export function EmergencyContactSection({
           <Label htmlFor="emergencyContactName">Nombre</Label>
           <Input
             id="emergencyContactName"
-            value={formData.emergencyContactName}
+            value={formData.emergencyContactName || ''}
             onChange={(e) => updateField('emergencyContactName', e.target.value)}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="emergencyContactPhone">Teléfono</Label>
-          <Input
-            id="emergencyContactPhone"
-            value={formData.emergencyContactPhone}
-            onChange={(e) => updateField('emergencyContactPhone', e.target.value)}
+          <PhoneInput
+            value={formData.emergencyContactPhone || ''}
+            countryCode={formData.emergencyContactPhoneCountryId || 'SV'}
+            onChange={(phone, countryCode) => {
+              updateField('emergencyContactPhone', phone);
+              updateField('emergencyContactPhoneCountryId', countryCode);
+            }}
+            label="Teléfono"
+            required={false}
           />
         </div>
 
@@ -52,7 +57,7 @@ export function EmergencyContactSection({
           <Label htmlFor="emergencyContactRelation">Relación</Label>
           <Input
             id="emergencyContactRelation"
-            value={formData.emergencyContactRelation}
+            value={formData.emergencyContactRelation || ''}
             onChange={(e) => updateField('emergencyContactRelation', e.target.value)}
           />
         </div>

@@ -1,28 +1,38 @@
 'use client';
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/layout/Header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { RouteGuard } from "@/components/auth/RouteGuard";
 
 export default function MainLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user, loading } = useAuth();
+  const { user, firebaseUser, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      // If user is not authenticated, redirect to landing page
-      router.push('/');
+    if (loading) {
+      return;
     }
-  }, [user, loading, router]);
 
+    if (!firebaseUser) {
+      router.replace('/login');
+      return;
+    }
+
+    // TEMPORARILY DISABLED: Pending activation check
+    // Allow users without complete profiles to access the system
+  }, [loading, firebaseUser, user, router]);
+
+  // Show loading skeleton while checking authentication
+  // Middleware handles redirects for unauthenticated users
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -41,11 +51,6 @@ export default function MainLayout({
             <div className="space-y-4">
               <Skeleton className="h-8 w-64" />
               <Skeleton className="h-4 w-96" />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Skeleton className="h-48" />
-                <Skeleton className="h-48" />
-                <Skeleton className="h-48" />
-              </div>
             </div>
           </main>
         </div>
@@ -53,22 +58,31 @@ export default function MainLayout({
     );
   }
 
-  if (!user) {
-    // This will be handled by the useEffect redirect, but provide fallback
-    return null;
+  // If auth state resolved but no session, await redirect
+  if (!firebaseUser) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="space-y-3 text-center">
+          <Skeleton className="h-6 w-48" />
+          <p className="text-sm text-muted-foreground">Redirigiendo...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <Sidebar />
-        <SidebarInset>
-          <Header />
-          <main className="flex-1 p-6">
-            {children}
-          </main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
+    <RouteGuard>
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full">
+          <Sidebar />
+          <SidebarInset>
+            <Header />
+            <main className="flex-1 p-6">
+              {children}
+            </main>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+    </RouteGuard>
   );
 }

@@ -20,6 +20,7 @@ import {
   orderBy,
   Timestamp,
 } from 'firebase/firestore';
+import { FirebaseError } from 'firebase/app';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
 import type { Employee, EmployeeStatus } from '../types/hr.types';
@@ -100,13 +101,49 @@ export class EmployeesService {
       
       const snapshot = await getDocs(q);
       
+      if (snapshot.empty) {
+        logger.info('No employees found in database', {
+          component: 'EmployeesService',
+        });
+        return [];
+      }
+      
       return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Employee[];
     } catch (error) {
-      logger.error('Error fetching employees');
-      throw error;
+      const err = error instanceof Error ? error : new Error('Unknown error');
+      
+      // Only retry for Firestore index errors (failed-precondition)
+      if (
+        error instanceof FirebaseError &&
+        (error.code === 'failed-precondition' || err.message?.includes('index'))
+      ) {
+        logger.warn('Index missing, retrying without orderBy', { 
+          component: 'EmployeesService',
+          metadata: { errorMessage: err.message }
+        });
+        
+        try {
+          const snapshot = await getDocs(collection(db, COLLECTION));
+          return snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as Employee[];
+        } catch (retryError) {
+          logger.error(
+            'Retry without orderBy failed',
+            retryError instanceof Error ? retryError : new Error('Unknown retry error'),
+            { component: 'EmployeesService' }
+          );
+          throw retryError; // Throw retry error for more context
+        }
+      }
+      
+      // For other errors (permissions, network, etc), don't retry
+      logger.error('Error fetching employees', err, { component: 'EmployeesService' });
+      throw err;
     }
   }
 

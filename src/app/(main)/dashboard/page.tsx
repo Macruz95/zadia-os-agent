@@ -1,8 +1,8 @@
 ﻿'use client';
 
-import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardData } from '@/modules/dashboard/hooks/use-dashboard-data';
+import { useDashboardRevenue } from '@/modules/dashboard/hooks/use-dashboard-revenue';
 import {
   DashboardStatsCards,
   DashboardSecondaryStats,
@@ -12,25 +12,12 @@ import {
   DashboardLoading,
 } from '@/modules/dashboard/components';
 
-interface MonthlyRevenue {
-  month: string;
-  revenue: number;
-}
-
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { stats, projectStatus, loading } = useDashboardData(user?.uid);
+  const { monthlyRevenue, loading: revenueLoading } = useDashboardRevenue(6);
 
-  const [monthlyRevenue] = useState<MonthlyRevenue[]>([
-    { month: 'Ene', revenue: 12000 },
-    { month: 'Feb', revenue: 15000 },
-    { month: 'Mar', revenue: 18000 },
-    { month: 'Abr', revenue: 22000 },
-    { month: 'May', revenue: 25000 },
-    { month: 'Jun', revenue: 28000 },
-  ]);
-
-  if (authLoading || loading) {
+  if (authLoading || loading || revenueLoading) {
     return <DashboardLoading />;
   }
 

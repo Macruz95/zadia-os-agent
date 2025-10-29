@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
@@ -45,19 +44,6 @@ export function UserProfileCard() {
     });
   };
 
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return 'destructive' as const;
-      case 'manager':
-        return 'default' as const;
-      case 'user':
-        return 'secondary' as const;
-      default:
-        return 'outline' as const;
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -74,13 +60,6 @@ export function UserProfileCard() {
           <div>
             <p className="text-sm font-medium text-muted-foreground">Email</p>
             <p className="text-base">{user.email}</p>
-          </div>
-          
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Rol</p>
-            <Badge variant={getRoleBadgeVariant(user.role)}>
-              {t(`auth.roles.${user.role}`)}
-            </Badge>
           </div>
           
           <div>
@@ -114,9 +93,9 @@ export function UserProfileCard() {
           
           <div>
             <p className="text-sm font-medium text-muted-foreground">Estado</p>
-            <Badge variant={user.isActive ? 'default' : 'secondary'}>
+            <p className="text-base">
               {user.isActive ? 'Activo' : 'Inactivo'}
-            </Badge>
+            </p>
           </div>
           
           <div>

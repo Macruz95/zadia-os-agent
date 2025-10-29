@@ -57,13 +57,14 @@ export interface Employee {
   // Personal Info
   firstName: string;
   lastName: string;
-  email: string;
+  email?: string;              // Opcional para empleados temporales
   phone: string;
+  phoneCountryId?: string;     // Código de país para el teléfono (SV, NI, etc.)
   address: string;
   birthDate: Timestamp;
   
-  // Identification
-  nationalId: string;          // DUI, Cédula, etc.
+  // Identification - Opcional para empleados extranjeros temporales
+  nationalId?: string;          // DUI (SV), Cédula (NI), etc.
   taxId?: string;               // NIT
   socialSecurityNumber?: string;
   
@@ -85,6 +86,7 @@ export interface Employee {
   // Emergency Contact
   emergencyContactName?: string;
   emergencyContactPhone?: string;
+  emergencyContactPhoneCountryId?: string;
   emergencyContactRelation?: string;
   
   // Metadata

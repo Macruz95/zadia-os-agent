@@ -21,7 +21,6 @@ export const useAuthActions = () => {
       
       // Create user profile in Firestore
       await UserService.createUserProfile(firebaseUser, {
-        role: 'user', // Default role assigned server-side
         language: data.language,
         organization: data.organization,
         objective: data.objective
@@ -77,7 +76,6 @@ export const useAuthActions = () => {
       
       // Create user profile in Firestore
       await UserService.createUserProfile(firebaseUser, {
-        role: 'user', // Default role assigned server-side
         language: data.language,
         organization: data.organization,
         objective: data.objective
