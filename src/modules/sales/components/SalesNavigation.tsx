@@ -8,7 +8,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, TrendingUp, FileText, Briefcase, BarChart3 } from 'lucide-react';
+import { Users, TrendingUp, FileText, BarChart3 } from 'lucide-react';
 
 const SALES_TABS = [
   {
@@ -36,12 +36,6 @@ const SALES_TABS = [
     icon: FileText,
   },
   {
-    value: 'projects',
-    label: 'Proyectos',
-    href: '/sales/projects',
-    icon: Briefcase,
-  },
-  {
     value: 'analytics',
     label: 'Analytics',
     href: '/sales/analytics',
@@ -58,7 +52,6 @@ export function SalesNavigation() {
     if (pathname.includes('/leads')) return 'leads';
     if (pathname.includes('/opportunities')) return 'opportunities';
     if (pathname.includes('/quotes')) return 'quotes';
-    if (pathname.includes('/projects')) return 'projects';
     if (pathname.includes('/analytics')) return 'analytics';
     return 'dashboard'; // default
   };
@@ -73,7 +66,7 @@ export function SalesNavigation() {
   return (
     <div className="border-b">
       <Tabs value={getCurrentTab()} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-5">
           {SALES_TABS.map((tab) => {
             const Icon = tab.icon;
             return (

@@ -39,7 +39,11 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { EmployeesService } from '@/modules/hr/services/employees.service';
+import { TimeTrackingService } from '@/modules/hr/services/time-tracking.service';
+import { TimeTrackingWidget } from '@/modules/hr/components/time-tracking/TimeTrackingWidget';
+import { WorkSessionsList } from '@/modules/hr/components/time-tracking/WorkSessionsList';
 import type { Employee } from '@/modules/hr/types/hr.types';
+import type { WorkSession } from '@/modules/hr/types/time-tracking.types';
 import { STATUS_CONFIG, POSITION_CONFIG, CONTRACT_TYPE_CONFIG } from '@/modules/hr/types/hr.types';
 import { toast } from 'sonner';
 
@@ -51,18 +55,37 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
   const resolvedParams = use(params);
   const router = useRouter();
   const [employee, setEmployee] = useState<Employee | null>(null);
+  const [workSessions, setWorkSessions] = useState<WorkSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
 
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
         const data = await EmployeesService.getEmployeeById(resolvedParams.id);
         setEmployee(data);
+        
+        // Load work sessions
+        fetchWorkSessions();
       } catch {
         toast.error('Error al cargar empleado');
         router.push('/hr/employees');
       } finally {
         setLoading(false);
+      }
+    };
+
+    const fetchWorkSessions = async () => {
+      setSessionsLoading(true);
+      try {
+        const sessions = await TimeTrackingService.getSessions({
+          employeeId: resolvedParams.id,
+        });
+        setWorkSessions(sessions);
+      } catch {
+        toast.error('Error al cargar sesiones');
+      } finally {
+        setSessionsLoading(false);
       }
     };
 
@@ -276,6 +299,21 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
           </Card>
         )}
       </div>
+
+      {/* Time Tracking Section */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <TimeTrackingWidget
+          employeeId={employee.id}
+          employeeName={`${employee.firstName} ${employee.lastName}`}
+          hourlyRate={employee.salary}
+        />
+      </div>
+
+      {/* Work Sessions History */}
+      <WorkSessionsList
+        sessions={workSessions}
+        loading={sessionsLoading}
+      />
     </div>
   );
 }

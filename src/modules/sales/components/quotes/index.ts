@@ -10,3 +10,4 @@ export { ProjectConfigStep } from './ProjectConfigStep';
 export { InventoryReservationStep } from './InventoryReservationStep';
 export { WorkOrdersStep } from './WorkOrdersStep';
 export { ProjectConversionSummary } from './ProjectConversionSummary';
+export { QuoteTemplatesDialog } from './QuoteTemplatesDialog';

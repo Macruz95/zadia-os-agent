@@ -83,7 +83,7 @@ export function useDashboardData(userId?: string) {
       // Work Orders en progreso
       const workOrdersSnapshot = await getDocs(
         query(
-          collection(db, 'work-orders'),
+          collection(db, 'workOrders'),
           where('status', 'in', ['pending', 'in-progress'])
         )
       );

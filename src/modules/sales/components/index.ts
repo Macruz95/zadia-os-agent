@@ -17,9 +17,6 @@ export { OpportunitiesKanban } from './opportunities/OpportunitiesKanban';
 // Quotes components
 export { QuotesDirectory } from './quotes/QuotesDirectory';
 
-// Projects components
-export { ProjectsDirectory } from './projects/ProjectsDirectory';
-
 // Analytics components
 export { SalesAnalytics } from './analytics/SalesAnalytics';
 

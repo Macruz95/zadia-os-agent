@@ -13,6 +13,7 @@ import { QuotesPageHeader } from './QuotesPageHeader';
 import { QuotesKPICards } from './QuotesKPICards';
 import { QuotesFilters } from './QuotesFilters';
 import { QuotesTable } from './QuotesTable';
+import { QuoteTemplatesDialog } from './QuoteTemplatesDialog';
 import { QuotesService } from '../../services/quotes.service';
 import { Quote } from '../../types/sales.types';
 import { toast } from 'sonner';
@@ -22,6 +23,7 @@ export function QuotesDirectory() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<Quote['status'] | 'all'>('all');
+  const [templatesDialogOpen, setTemplatesDialogOpen] = useState(false);
 
   // Load quotes
   useEffect(() => {
@@ -57,7 +59,8 @@ export function QuotesDirectory() {
   return (
     <div className="space-y-6">
       <QuotesPageHeader 
-        onNewQuote={() => router.push('/sales/quotes/new')} 
+        onNewQuote={() => router.push('/sales/quotes/new')}
+        onTemplatesClick={() => setTemplatesDialogOpen(true)}
       />
       
       <QuotesKPICards quotes={quotes} />
@@ -72,6 +75,16 @@ export function QuotesDirectory() {
       <QuotesTable 
         quotes={filteredQuotes}
         onQuoteClick={(quoteId) => router.push(`/sales/quotes/${quoteId}`)}
+      />
+
+      <QuoteTemplatesDialog
+        open={templatesDialogOpen}
+        onOpenChange={setTemplatesDialogOpen}
+        onSelectTemplate={(template) => {
+          toast.info(`Plantilla "${template.name}" seleccionada. Redirigiendo...`);
+          // TODO: Pre-fill quote form with template data
+          router.push('/sales/quotes/new');
+        }}
       />
     </div>
   );

@@ -3,9 +3,10 @@ import { Plus, FileText } from 'lucide-react';
 
 interface QuotesPageHeaderProps {
   onNewQuote: () => void;
+  onTemplatesClick: () => void;
 }
 
-export function QuotesPageHeader({ onNewQuote }: QuotesPageHeaderProps) {
+export function QuotesPageHeader({ onNewQuote, onTemplatesClick }: QuotesPageHeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -15,7 +16,7 @@ export function QuotesPageHeader({ onNewQuote }: QuotesPageHeaderProps) {
         </p>
       </div>
       <div className="flex gap-2">
-        <Button variant="outline">
+        <Button variant="outline" onClick={onTemplatesClick}>
           <FileText className="h-4 w-4 mr-2" />
           Plantillas
         </Button>

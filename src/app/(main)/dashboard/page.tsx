@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardData } from '@/modules/dashboard/hooks/use-dashboard-data';
 import { useDashboardRevenue } from '@/modules/dashboard/hooks/use-dashboard-revenue';
+import { useAIDashboardInsights } from '@/modules/dashboard/hooks/use-ai-dashboard-insights';
 import {
   DashboardStatsCards,
   DashboardSecondaryStats,
@@ -11,11 +12,22 @@ import {
   MetricsBarChart,
   DashboardLoading,
 } from '@/modules/dashboard/components';
+import { AIInsightsPanel } from '@/modules/dashboard/components/AIInsightsPanel';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { stats, projectStatus, loading } = useDashboardData(user?.uid);
-  const { monthlyRevenue, loading: revenueLoading } = useDashboardRevenue(6);
+  const { data: revenueData, monthlyRevenue, loading: revenueLoading } = useDashboardRevenue(6);
+
+  // AI Insights
+  const aiInsights = useAIDashboardInsights(
+    revenueData?.totalRevenue || 0,
+    0, // TODO: Get expenses from stats
+    revenueData?.totalRevenue || 0, // TODO: Calculate profit
+    monthlyRevenue,
+    stats?.pendingInvoices,
+    stats?.activeOpportunities
+  );
 
   if (authLoading || loading || revenueLoading) {
     return <DashboardLoading />;
@@ -38,6 +50,14 @@ export default function DashboardPage() {
 
       <DashboardStatsCards stats={stats} />
       <DashboardSecondaryStats stats={stats} />
+
+      {/* AI Insights Panel */}
+      <AIInsightsPanel
+        insights={aiInsights.insights}
+        healthScore={aiInsights.healthScore}
+        loading={aiInsights.loading}
+        error={aiInsights.error}
+      />
 
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
         <RevenueChart data={monthlyRevenue} />

@@ -27,6 +27,7 @@ import {
   Wrench,
   DollarSign,
   UserCog,
+  Bot,
 } from 'lucide-react';
 
 const sidebarNavItems = [
@@ -34,6 +35,12 @@ const sidebarNavItems = [
     title: 'navigation.dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
+    roles: ['admin', 'manager', 'user']
+  },
+  {
+    title: 'Asistente AI',
+    href: '/ai-assistant',
+    icon: Bot,
     roles: ['admin', 'manager', 'user']
   },
   {

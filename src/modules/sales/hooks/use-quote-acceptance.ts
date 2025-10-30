@@ -121,7 +121,7 @@ export function useQuoteAcceptance(): UseQuoteAcceptanceReturn {
       
       // Redirect to project page after short delay
       setTimeout(() => {
-        router.push(`/sales/projects/${result.projectId}`);
+        router.push(`/projects/${result.projectId}`);
       }, 2000);
       
     } catch (err) {

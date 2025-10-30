@@ -3,9 +3,345 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // TEMPORARY: Allow all authenticated users full access
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    // ===========================
+    // HELPER FUNCTIONS
+    // ===========================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserId() {
+      return request.auth.uid;
+    }
+    
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() in ['admin', 'super-admin'];
+    }
+    
+    function isOwner(ownerId) {
+      return isAuthenticated() && getUserId() == ownerId;
+    }
+    
+    function isOwnerOrAdmin(ownerId) {
+      return isOwner(ownerId) || isAdmin();
+    }
+    
+    // ===========================
+    // USERS COLLECTION
+    // ===========================
+    match /users/{userId} {
+      // Users can read their own profile, admins can read all
+      allow read: if isOwner(userId) || isAdmin();
+      // Users can update their own profile, admins can update all
+      allow update: if isOwner(userId) || isAdmin();
+      // Only admins can create users
+      allow create: if isAdmin();
+      // Only admins can delete users
+      allow delete: if isAdmin();
+    }
+    
+    // ===========================
+    // CLIENTS MODULE
+    // ===========================
+    match /clients/{clientId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+      
+      // Client contacts subcollection
+      match /contacts/{contactId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+    }
+    
+    // ===========================
+    // SALES MODULE
+    // ===========================
+    
+    // Leads
+    match /leads/{leadId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+      
+      // Lead interactions subcollection
+      match /interactions/{interactionId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+    }
+    
+    // Opportunities
+    match /opportunities/{opportunityId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+      
+      // Opportunity interactions subcollection
+      match /interactions/{interactionId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+    }
+    
+    // Quotes
+    match /quotes/{quoteId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Quote Templates
+    match /quote-templates/{templateId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Sales Targets
+    match /sales-targets/{targetId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    // ===========================
+    // PROJECTS MODULE
+    // ===========================
+    match /projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+      
+      // Project tasks subcollection
+      match /tasks/{taskId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+      
+      // Project timeline subcollection
+      match /timeline/{timelineId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+      
+      // Project documents subcollection
+      match /documents/{documentId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+    }
+    
+    // ===========================
+    // FINANCE MODULE
+    // ===========================
+    
+    // Invoices
+    match /invoices/{invoiceId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Payments
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // ===========================
+    // INVENTORY MODULE
+    // ===========================
+    
+    // Raw Materials
+    match /raw-materials/{materialId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Finished Products
+    match /finished-products/{productId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Bill of Materials
+    match /bill-of-materials/{bomId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Inventory Alerts
+    match /inventory-alerts/{alertId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+    
+    // Products (legacy)
+    match /products/{productId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Materials (legacy)
+    match /materials/{materialId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Inventory Movements
+    match /inventory-movements/{movementId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    // BOMs (Bill of Materials - legacy)
+    match /boms/{bomId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+    
+    // ===========================
+    // ORDERS MODULE
+    // ===========================
+    match /orders/{orderId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Work Orders (camelCase - estandarizado)
+    match /workOrders/{workOrderId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Work Orders (kebab-case - compatibilidad legacy)
+    match /work-orders/{workOrderId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // ===========================
+    // HR MODULE
+    // ===========================
+    match /employees/{employeeId} {
+      // Employees can read their own data, admins can read all
+      allow read: if isOwner(employeeId) || isAdmin();
+      allow write: if isAdmin();
+    }
+    
+    // Work Sessions - Time Tracking
+    match /workSessions/{sessionId} {
+      // Employees can read their own sessions, admins can read all
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Payroll Records
+    match /payroll/{payrollId} {
+      // Only admins can access payroll
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+    
+    // ===========================
+    // GEOGRAPHICAL DATA
+    // ===========================
+    match /countries/{countryId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    match /departments/{departmentId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    match /municipalities/{municipalityId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    match /districts/{districtId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    match /phone-codes/{phoneCodeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    // ===========================
+    // SYSTEM CONFIGURATION
+    // ===========================
+    match /system-config/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    // ===========================
+    // ANALYTICS & REPORTS
+    // ===========================
+    match /analytics/{analyticsId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    // ===========================
+    // NOTIFICATIONS
+    // ===========================
+    match /notifications/{notificationId} {
+      allow read: if isOwner(resource.data.userId);
+      allow create: if isAuthenticated();
+      allow update: if isOwner(resource.data.userId);
+      allow delete: if isOwner(resource.data.userId);
+    }
+
+    // ===========================
+    // AI CONVERSATIONS
+    // ===========================
+    match /ai-conversations/{conversationId} {
+      allow read: if isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+      allow update: if isOwner(resource.data.userId);
+      allow delete: if isOwner(resource.data.userId);
     }
   }
 }

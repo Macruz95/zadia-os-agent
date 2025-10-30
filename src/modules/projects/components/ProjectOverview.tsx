@@ -15,6 +15,7 @@ import {
 import type { Project } from '../types/projects.types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { ProjectLaborCostCard } from './stats/ProjectLaborCostCard';
 
 // Rule #2: ShadCN UI + Lucide Icons only
 
@@ -132,7 +133,7 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
       </Card>
 
       {/* Financial Summary */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         {/* Revenue & Costs */}
         <Card>
           <CardHeader>
@@ -208,6 +209,9 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
             </div>
           </CardContent>
         </Card>
+
+        {/* Real-Time Labor Costs from Work Sessions */}
+        <ProjectLaborCostCard projectId={project.id} />
       </div>
 
       {/* Additional Info */}

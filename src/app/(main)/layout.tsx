@@ -8,6 +8,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RouteGuard } from "@/components/auth/RouteGuard";
+import { CommandBar } from "@/components/CommandBar";
 
 export default function MainLayout({
   children,
@@ -82,6 +83,7 @@ export default function MainLayout({
             </main>
           </SidebarInset>
         </div>
+        <CommandBar />
       </SidebarProvider>
     </RouteGuard>
   );

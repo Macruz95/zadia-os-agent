@@ -40,6 +40,5 @@ export { LeadsDirectory } from './components/leads/LeadsDirectory';
 export { CreateLeadDialog } from './components/leads/CreateLeadDialog';
 export { OpportunitiesKanban } from './components/opportunities/OpportunitiesKanban';
 export { QuotesDirectory } from './components/quotes/QuotesDirectory';
-export { ProjectsDirectory } from './components/projects/ProjectsDirectory';
 export { SalesAnalytics } from './components/analytics/SalesAnalytics';
 export { ExecutiveDashboard } from './components/dashboard/ExecutiveDashboard';
