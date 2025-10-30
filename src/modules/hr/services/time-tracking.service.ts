@@ -22,6 +22,7 @@ import {
   Timestamp,
   serverTimestamp,
   DocumentSnapshot,
+  QueryConstraint,
 } from 'firebase/firestore';
 import { WorkSession, WorkSessionDoc, WorkSessionFilters, TimeTrackingStats } from '../types/time-tracking.types';
 import { CreateWorkSessionSchema } from '../validations/time-tracking.validation';
@@ -138,21 +139,26 @@ export const TimeTrackingService = {
    */
   async getSessions(filters: WorkSessionFilters = {}): Promise<WorkSession[]> {
     try {
-      let q = query(collection(db, COLLECTION), orderBy('startTime', 'desc'));
+      // Build query with where clauses first, then orderBy
+      const constraints: QueryConstraint[] = [];
 
       if (filters.employeeId) {
-        q = query(q, where('employeeId', '==', filters.employeeId));
+        constraints.push(where('employeeId', '==', filters.employeeId));
       }
       if (filters.projectId) {
-        q = query(q, where('projectId', '==', filters.projectId));
+        constraints.push(where('projectId', '==', filters.projectId));
       }
       if (filters.status) {
-        q = query(q, where('status', '==', filters.status));
+        constraints.push(where('status', '==', filters.status));
       }
       if (filters.isBillable !== undefined) {
-        q = query(q, where('isBillable', '==', filters.isBillable));
+        constraints.push(where('isBillable', '==', filters.isBillable));
       }
 
+      // Add orderBy at the end
+      constraints.push(orderBy('startTime', 'desc'));
+
+      const q = query(collection(db, COLLECTION), ...constraints);
       const snapshot = await getDocs(q);
       return snapshot.docs.map(docToWorkSession);
     } catch (error) {
