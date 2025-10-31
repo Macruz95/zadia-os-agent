@@ -36,6 +36,24 @@ export type {
   UpdateTaskData,
 } from './entities/task.types';
 
+// Expenses
+export type {
+  ExpenseCategory,
+  ExpenseStatus,
+  ProjectExpense,
+  CreateExpenseInput,
+  UpdateExpenseInput,
+  ApproveExpenseInput,
+} from './entities/expense.types';
+
+// Documents
+export type {
+  DocumentType,
+  ProjectDocument,
+  CreateDocumentInput,
+  UpdateDocumentInput,
+} from './entities/document.types';
+
 // Timeline & Tracking
 export type {
   ProjectTimelineEventType,
