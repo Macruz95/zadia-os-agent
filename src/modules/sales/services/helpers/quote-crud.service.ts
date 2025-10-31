@@ -21,6 +21,30 @@ import { generateQuoteNumber, addIdsToItems, calculateTotals } from './quote-uti
 
 const QUOTES_COLLECTION = 'quotes';
 
+function removeUndefinedDeep<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value
+      .map(item => removeUndefinedDeep(item))
+      .filter(item => item !== undefined) as unknown as T;
+  }
+
+  if (value && typeof value === 'object') {
+    const result: Record<string, unknown> = {};
+    Object.entries(value as Record<string, unknown>).forEach(([key, val]) => {
+      if (val === undefined) {
+        return;
+      }
+      const cleaned = removeUndefinedDeep(val);
+      if (cleaned !== undefined) {
+        result[key] = cleaned;
+      }
+    });
+    return result as T;
+  }
+
+  return value;
+}
+
 /**
  * Crear nueva cotización
  */
@@ -65,10 +89,12 @@ export async function createQuote(
     if (data.internalNotes) quoteData.internalNotes = data.internalNotes;
     if (data.attachments) quoteData.attachments = data.attachments;
 
-    const docRef = await addDoc(collection(db, QUOTES_COLLECTION), quoteData);
+    const sanitizedQuoteData = removeUndefinedDeep(quoteData);
+
+    const docRef = await addDoc(collection(db, QUOTES_COLLECTION), sanitizedQuoteData);
 
     const newQuote: Quote = {
-      ...(quoteData as Quote),
+      ...(sanitizedQuoteData as Quote),
       id: docRef.id,
     };
 

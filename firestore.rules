@@ -60,6 +60,14 @@ service cloud.firestore {
         allow write: if isAuthenticated();
       }
     }
+
+    // Root contacts collection (legacy compatibility)
+    match /contacts/{contactId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
     
     // ===========================
     // SALES MODULE
