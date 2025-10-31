@@ -425,13 +425,13 @@ export const AIAssistantService = {
           timestamp: Timestamp;
           metadata?: Record<string, unknown>;
         } = {
-          id: m.id,
-          role: m.role,
-          content: m.content,
-          timestamp: Timestamp.fromDate(m.timestamp),
+          id: m.id || '',
+          role: m.role || 'user',
+          content: m.content || '',
+          timestamp: m.timestamp ? Timestamp.fromDate(m.timestamp) : Timestamp.now(),
         };
-        // Only add metadata if it exists (Firestore doesn't accept undefined)
-        if (m.metadata) {
+        // Only add metadata if it exists and is not empty (Firestore doesn't accept undefined)
+        if (m.metadata && Object.keys(m.metadata).length > 0) {
           msg.metadata = m.metadata;
         }
         return msg;
@@ -440,8 +440,8 @@ export const AIAssistantService = {
       if (conversation.id) {
         // Update existing conversation
         const conversationData = {
-          userId: conversation.userId,
-          title: conversation.title,
+          userId: conversation.userId || '',
+          title: conversation.title || 'Nueva Conversación',
           messages,
           updatedAt: serverTimestamp() as Timestamp,
           archived: conversation.archived ?? false,
@@ -452,8 +452,8 @@ export const AIAssistantService = {
       } else {
         // Create new conversation
         const conversationData = {
-          userId: conversation.userId,
-          title: conversation.title,
+          userId: conversation.userId || '',
+          title: conversation.title || 'Nueva Conversación',
           messages,
           createdAt: serverTimestamp() as Timestamp,
           updatedAt: serverTimestamp() as Timestamp,
