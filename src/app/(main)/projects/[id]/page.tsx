@@ -2,6 +2,8 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useProject } from '@/modules/projects/hooks/use-projects';
+import { useProjectTasks } from '@/modules/projects/hooks/use-project-tasks';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,9 +28,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ProjectOverview } from '@/modules/projects/components/ProjectOverview';
 import { ProjectTimeline } from '@/modules/projects/components/ProjectTimeline';
-import type { ProjectStatus } from '@/modules/projects/types/projects.types';
+import { WorkSessionsTab } from '@/modules/projects/components/WorkSessionsTab';
+import { ProjectTasksTab } from '@/modules/projects/components/ProjectTasksTab';
+import { ProjectExpensesTab } from '@/modules/projects/components/ProjectExpensesTab';
+import { ProjectDocumentsTab } from '@/modules/projects/components/ProjectDocumentsTab';
+import type { ProjectStatus, ProjectTask } from '@/modules/projects/types/projects.types';
 import { toast } from 'sonner';
 import { ProjectsService } from '@/modules/projects/services/projects.service';
+import { ProjectTasksService } from '@/modules/projects/services/project-tasks.service';
 import { logger } from '@/lib/logger';
 
 /**
@@ -72,9 +79,16 @@ export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
   const projectId = params.id as string;
+  const { user } = useAuth();
 
   // Real Firebase data with realtime updates
   const { project, loading, error } = useProject(projectId);
+  const { tasks, loading: tasksLoading } = useProjectTasks({ projectId });
+
+  // User data with defaults
+  const userId = user?.uid || 'guest';
+  const userName = user?.displayName || user?.email || 'Usuario';
+  const userRole = 'admin'; // TODO: Get from user profile
 
   const handleEdit = () => {
     toast.info('Funcionalidad de editar proyecto en desarrollo');
@@ -217,13 +231,14 @@ export default function ProjectDetailPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Vista General</TabsTrigger>
-          <TabsTrigger value="work-orders">Órdenes de Trabajo</TabsTrigger>
+          <TabsTrigger value="work-orders">Órdenes</TabsTrigger>
           <TabsTrigger value="tasks">Tareas</TabsTrigger>
-          <TabsTrigger value="timeline">Historial</TabsTrigger>
-          <TabsTrigger value="finance">Finanzas</TabsTrigger>
+          <TabsTrigger value="sessions">Sesiones</TabsTrigger>
+          <TabsTrigger value="expenses">Gastos</TabsTrigger>
           <TabsTrigger value="documents">Documentos</TabsTrigger>
+          <TabsTrigger value="timeline">Historial</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4 mt-6">
@@ -244,37 +259,71 @@ export default function ProjectDetailPage() {
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4 mt-6">
-          <div className="text-center py-12">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Tareas del Proyecto</h3>
-            <p className="text-sm text-muted-foreground">
-              Esta funcionalidad estará disponible próximamente
-            </p>
-          </div>
+          <ProjectTasksTab
+            projectId={projectId}
+            tasks={tasks}
+            loading={tasksLoading}
+            onAddTask={async (taskData) => {
+              try {
+                await ProjectTasksService.createTask({
+                  ...taskData,
+                  projectId,
+                  createdBy: userId,
+                } as ProjectTask);
+                toast.success('Tarea creada exitosamente');
+              } catch (err) {
+                logger.error('Error creating task', err as Error);
+                toast.error('Error al crear tarea');
+              }
+            }}
+            onUpdateTask={async (taskId, updates) => {
+              try {
+                await ProjectTasksService.updateTask(taskId, updates);
+                toast.success('Tarea actualizada');
+              } catch (err) {
+                logger.error('Error updating task', err as Error);
+                toast.error('Error al actualizar tarea');
+              }
+            }}
+            onDeleteTask={async (taskId) => {
+              try {
+                await ProjectTasksService.deleteTask(taskId);
+                toast.success('Tarea eliminada');
+              } catch (err) {
+                logger.error('Error deleting task', err as Error);
+                toast.error('Error al eliminar tarea');
+              }
+            }}
+          />
+        </TabsContent>
+
+        <TabsContent value="sessions" className="space-y-4 mt-6">
+          <WorkSessionsTab
+            projectId={projectId}
+            userId={userId}
+            userName={userName}
+            hourlyRate={50}
+          />
+        </TabsContent>
+
+        <TabsContent value="expenses" className="space-y-4 mt-6">
+          <ProjectExpensesTab
+            projectId={projectId}
+            userId={userId}
+            userRole={userRole}
+          />
+        </TabsContent>
+
+        <TabsContent value="documents" className="space-y-4 mt-6">
+          <ProjectDocumentsTab
+            projectId={projectId}
+            userId={userId}
+            userName={userName}
+          />
         </TabsContent>
 
         <TabsContent value="timeline" className="space-y-4 mt-6">
           <ProjectTimeline projectId={projectId} />
-        </TabsContent>
-
-        <TabsContent value="finance" className="space-y-4 mt-6">
-          <div className="text-center py-12">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Análisis Financiero</h3>
-            <p className="text-sm text-muted-foreground">
-              Esta funcionalidad estará disponible próximamente
-            </p>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="documents" className="space-y-4 mt-6">
-          <div className="text-center py-12">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Documentos del Proyecto</h3>
-            <p className="text-sm text-muted-foreground">
-              Esta funcionalidad estará disponible próximamente
-            </p>
-          </div>
         </TabsContent>
       </Tabs>
     </div>
