@@ -33,6 +33,17 @@ import type {
 
 const MODEL = 'google/gemini-2.0-flash-exp:free'; // Free tier
 
+function sanitizeMetadata(metadata?: Record<string, unknown>): Record<string, unknown> | undefined {
+  if (!metadata) {
+    return undefined;
+  }
+  const entries = Object.entries(metadata).filter(([, value]) => value !== undefined);
+  if (entries.length === 0) {
+    return undefined;
+  }
+  return Object.fromEntries(entries);
+}
+
 /**
  * Build system context from Firebase data
  */
@@ -430,9 +441,10 @@ export const AIAssistantService = {
           content: m.content || '',
           timestamp: m.timestamp ? Timestamp.fromDate(m.timestamp) : Timestamp.now(),
         };
-        // Only add metadata if it exists and is not empty (Firestore doesn't accept undefined)
-        if (m.metadata && Object.keys(m.metadata).length > 0) {
-          msg.metadata = m.metadata;
+        // Only add metadata if we have values (Firestore rejects undefined fields)
+        const metadata = sanitizeMetadata(m.metadata);
+        if (metadata) {
+          msg.metadata = metadata;
         }
         return msg;
       });
