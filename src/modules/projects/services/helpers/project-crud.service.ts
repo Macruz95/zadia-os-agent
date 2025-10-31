@@ -21,6 +21,52 @@ import type {
 } from '../../validations/projects.validation';
 import { ProjectTimelineService } from './project-timeline.service';
 
+const PROJECTS_COLLECTION = 'projects';
+
+function removeUndefinedDeep<T>(value: T): T {
+  if (value instanceof Timestamp) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(item => removeUndefinedDeep(item)) as unknown as T;
+  }
+
+  if (value && typeof value === 'object') {
+    const result: Record<string, unknown> = {};
+    Object.entries(value as Record<string, unknown>).forEach(([key, val]) => {
+      if (val === undefined) {
+        return;
+      }
+      const cleaned = removeUndefinedDeep(val);
+      if (cleaned !== undefined) {
+        result[key] = cleaned;
+      }
+    });
+    return result as T;
+  }
+
+  return value;
+}
+
+function toTimestampSafe(value: unknown): Timestamp | undefined {
+  if (!value) return undefined;
+  if (value instanceof Timestamp) return value;
+  if (value instanceof Date) return Timestamp.fromDate(value);
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    'seconds' in value &&
+    'nanoseconds' in value &&
+    typeof (value as { seconds: unknown }).seconds === 'number' &&
+    typeof (value as { nanoseconds: unknown }).nanoseconds === 'number'
+  ) {
+    const { seconds, nanoseconds } = value as { seconds: number; nanoseconds: number };
+    return new Timestamp(seconds, nanoseconds);
+  }
+  return undefined;
+}
+
 /**
  * Crear un nuevo proyecto
  * @param projectData - Datos del proyecto validados con Zod
@@ -30,7 +76,7 @@ export async function createProject(
   projectData: CreateProjectInput
 ): Promise<string> {
   try {
-    const projectsRef = collection(db, 'projects');
+    const projectsRef = collection(db, PROJECTS_COLLECTION);
 
     const newProject = {
       ...projectData,
@@ -45,7 +91,10 @@ export async function createProject(
       updatedAt: Timestamp.now(),
     };
 
-    const docRef = await addDoc(projectsRef, newProject);
+    // Sanitizar para Firestore
+    const sanitizedProject = removeUndefinedDeep(newProject);
+
+    const docRef = await addDoc(projectsRef, sanitizedProject);
 
     // Crear entrada en timeline
     await ProjectTimelineService.addTimelineEntry({
@@ -78,17 +127,23 @@ export async function getProjectById(
   projectId: string
 ): Promise<Project | null> {
   try {
-    const projectRef = doc(db, 'projects', projectId);
+    const projectRef = doc(db, PROJECTS_COLLECTION, projectId);
     const projectDoc = await getDoc(projectRef);
 
     if (!projectDoc.exists()) {
       return null;
     }
 
-    return {
+    const data = projectDoc.data() as Partial<Project>;
+    return ({
+      ...data,
       id: projectDoc.id,
-      ...projectDoc.data(),
-    } as Project;
+      createdAt: toTimestampSafe(data.createdAt) || Timestamp.fromDate(new Date()),
+      updatedAt: toTimestampSafe(data.updatedAt) || Timestamp.fromDate(new Date()),
+      startDate: toTimestampSafe(data.startDate),
+      estimatedEndDate: toTimestampSafe(data.estimatedEndDate),
+      actualEndDate: toTimestampSafe(data.actualEndDate),
+    } as unknown) as Project;
   } catch (error) {
     logger.error('Error fetching project', error as Error);
     throw new Error('Error al obtener el proyecto');
@@ -105,12 +160,17 @@ export async function updateProject(
   updates: UpdateProjectInput
 ): Promise<void> {
   try {
-    const projectRef = doc(db, 'projects', projectId);
+    const projectRef = doc(db, PROJECTS_COLLECTION, projectId);
 
-    await updateDoc(projectRef, {
+    const updateData = {
       ...updates,
       updatedAt: Timestamp.now(),
-    });
+    };
+
+    // Sanitizar para Firestore
+    const sanitizedUpdates = removeUndefinedDeep(updateData);
+
+    await updateDoc(projectRef, sanitizedUpdates);
   } catch (error) {
     logger.error('Error updating project', error as Error);
     throw new Error('Error al actualizar el proyecto');

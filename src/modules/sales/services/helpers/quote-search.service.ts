@@ -11,7 +11,8 @@ import {
   where,
   orderBy,
   QueryDocumentSnapshot,
-  DocumentData
+  DocumentData,
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
@@ -19,21 +20,39 @@ import type { Quote } from '../../types/sales.types';
 
 const QUOTES_COLLECTION = 'quotes';
 
+function toTimestampSafe(value: unknown): Timestamp | undefined {
+  if (!value) return undefined;
+  if (value instanceof Timestamp) return value;
+  if (value instanceof Date) return Timestamp.fromDate(value);
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    'seconds' in value &&
+    'nanoseconds' in value &&
+    typeof (value as { seconds: unknown }).seconds === 'number' &&
+    typeof (value as { nanoseconds: unknown }).nanoseconds === 'number'
+  ) {
+    const { seconds, nanoseconds } = value as { seconds: number; nanoseconds: number };
+    return new Timestamp(seconds, nanoseconds);
+  }
+  return undefined;
+}
+
 /**
  * Convertir documento Firestore a Quote
  */
 function docToQuote(doc: QueryDocumentSnapshot<DocumentData>): Quote {
-  const data = doc.data();
-  return {
-    id: doc.id,
+  const data = doc.data() as Partial<Quote>;
+  return ({
     ...data,
-    createdAt: data.createdAt?.toDate() || new Date(),
-    updatedAt: data.updatedAt?.toDate() || new Date(),
-    validUntil: data.validUntil?.toDate() || new Date(),
-    sentAt: data.sentAt?.toDate() || undefined,
-    acceptedAt: data.acceptedAt?.toDate() || undefined,
-    rejectedAt: data.rejectedAt?.toDate() || undefined,
-  } as Quote;
+    id: doc.id,
+    createdAt: toTimestampSafe(data.createdAt) || Timestamp.fromDate(new Date()),
+    updatedAt: toTimestampSafe(data.updatedAt) || Timestamp.fromDate(new Date()),
+    validUntil: toTimestampSafe(data.validUntil) || Timestamp.fromDate(new Date()),
+    sentAt: toTimestampSafe(data.sentAt),
+    acceptedAt: toTimestampSafe(data.acceptedAt),
+    rejectedAt: toTimestampSafe(data.rejectedAt),
+  } as unknown) as Quote;
 }
 
 /**

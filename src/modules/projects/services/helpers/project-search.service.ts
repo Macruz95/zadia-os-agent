@@ -11,10 +11,49 @@ import {
   where,
   orderBy,
   limit,
+  Timestamp,
+  QueryDocumentSnapshot,
+  DocumentData,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
 import type { Project, ProjectSearchParams } from '../../types/projects.types';
+
+const PROJECTS_COLLECTION = 'projects';
+
+function toTimestampSafe(value: unknown): Timestamp | undefined {
+  if (!value) return undefined;
+  if (value instanceof Timestamp) return value;
+  if (value instanceof Date) return Timestamp.fromDate(value);
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    'seconds' in value &&
+    'nanoseconds' in value &&
+    typeof (value as { seconds: unknown }).seconds === 'number' &&
+    typeof (value as { nanoseconds: unknown }).nanoseconds === 'number'
+  ) {
+    const { seconds, nanoseconds } = value as { seconds: number; nanoseconds: number };
+    return new Timestamp(seconds, nanoseconds);
+  }
+  return undefined;
+}
+
+/**
+ * Convertir documento Firestore a Project
+ */
+function docToProject(doc: QueryDocumentSnapshot<DocumentData>): Project {
+  const data = doc.data() as Partial<Project>;
+  return ({
+    ...data,
+    id: doc.id,
+    createdAt: toTimestampSafe(data.createdAt) || Timestamp.fromDate(new Date()),
+    updatedAt: toTimestampSafe(data.updatedAt) || Timestamp.fromDate(new Date()),
+    startDate: toTimestampSafe(data.startDate),
+    estimatedEndDate: toTimestampSafe(data.estimatedEndDate),
+    actualEndDate: toTimestampSafe(data.actualEndDate),
+  } as unknown) as Project;
+}
 
 /**
  * Buscar proyectos con filtros
@@ -28,7 +67,7 @@ export async function searchProjects(
   totalCount: number;
 }> {
   try {
-    const projectsRef = collection(db, 'projects');
+    const projectsRef = collection(db, PROJECTS_COLLECTION);
     let q = query(projectsRef);
 
     // Aplicar filtros
@@ -56,10 +95,11 @@ export async function searchProjects(
     }
 
     const snapshot = await getDocs(q);
-    const projects = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Project[];
+    const projects: Project[] = [];
+
+    snapshot.forEach((doc) => {
+      projects.push(docToProject(doc));
+    });
 
     return {
       projects,

@@ -22,10 +22,12 @@ import { generateQuoteNumber, addIdsToItems, calculateTotals } from './quote-uti
 const QUOTES_COLLECTION = 'quotes';
 
 function removeUndefinedDeep<T>(value: T): T {
+  if (value instanceof Timestamp) {
+    return value;
+  }
+
   if (Array.isArray(value)) {
-    return value
-      .map(item => removeUndefinedDeep(item))
-      .filter(item => item !== undefined) as unknown as T;
+    return value.map(item => removeUndefinedDeep(item)) as unknown as T;
   }
 
   if (value && typeof value === 'object') {
@@ -43,6 +45,24 @@ function removeUndefinedDeep<T>(value: T): T {
   }
 
   return value;
+}
+
+function toTimestampSafe(value: unknown): Timestamp | undefined {
+  if (!value) return undefined;
+  if (value instanceof Timestamp) return value;
+  if (value instanceof Date) return Timestamp.fromDate(value);
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    'seconds' in value &&
+    'nanoseconds' in value &&
+    typeof (value as { seconds: unknown }).seconds === 'number' &&
+    typeof (value as { nanoseconds: unknown }).nanoseconds === 'number'
+  ) {
+    const { seconds, nanoseconds } = value as { seconds: number; nanoseconds: number };
+    return new Timestamp(seconds, nanoseconds);
+  }
+  return undefined;
 }
 
 /**
@@ -93,10 +113,17 @@ export async function createQuote(
 
     const docRef = await addDoc(collection(db, QUOTES_COLLECTION), sanitizedQuoteData);
 
-    const newQuote: Quote = {
-      ...(sanitizedQuoteData as Quote),
+    const quotePayload = sanitizedQuoteData as Partial<Quote>;
+    const newQuote = ({
+      ...quotePayload,
       id: docRef.id,
-    };
+      createdAt: toTimestampSafe(quotePayload.createdAt) || Timestamp.fromDate(new Date()),
+      updatedAt: toTimestampSafe(quotePayload.updatedAt) || Timestamp.fromDate(new Date()),
+      validUntil: toTimestampSafe(quotePayload.validUntil) || Timestamp.fromDate(new Date()),
+      sentAt: toTimestampSafe(quotePayload.sentAt),
+      acceptedAt: toTimestampSafe(quotePayload.acceptedAt),
+      rejectedAt: toTimestampSafe(quotePayload.rejectedAt),
+    } as unknown) as Quote;
 
     logger.info('Quote created successfully', {
       component: 'QuotesService',
@@ -126,17 +153,17 @@ export async function getQuoteById(id: string): Promise<Quote | null> {
       return null;
     }
 
-    const data = docSnap.data();
-    return {
-      id: docSnap.id,
+    const data = docSnap.data() as Partial<Quote>;
+    return ({
       ...data,
-      createdAt: data.createdAt?.toDate() || new Date(),
-      updatedAt: data.updatedAt?.toDate() || new Date(),
-      validUntil: data.validUntil?.toDate() || new Date(),
-      sentAt: data.sentAt?.toDate() || undefined,
-      acceptedAt: data.acceptedAt?.toDate() || undefined,
-      rejectedAt: data.rejectedAt?.toDate() || undefined,
-    } as Quote;
+      id: docSnap.id,
+      createdAt: toTimestampSafe(data.createdAt) || Timestamp.fromDate(new Date()),
+      updatedAt: toTimestampSafe(data.updatedAt) || Timestamp.fromDate(new Date()),
+      validUntil: toTimestampSafe(data.validUntil) || Timestamp.fromDate(new Date()),
+      sentAt: toTimestampSafe(data.sentAt),
+      acceptedAt: toTimestampSafe(data.acceptedAt),
+      rejectedAt: toTimestampSafe(data.rejectedAt),
+    } as unknown) as Quote;
   } catch (error) {
     logger.error('Error fetching quote', error as Error, {
       component: 'QuotesService',
