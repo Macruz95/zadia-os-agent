@@ -30,7 +30,13 @@ Cada conversación incluye automáticamente:
 - ✅ El sistema aprende de tus patrones de trabajo
 - ✅ Auto-guardado después de cada intercambio
 
-### 4. **Ejemplos de Uso**
+### 4. **Automatización Segura**
+- ⚙️ Ejecución de acciones reales desde lenguaje natural
+- 🧰 Herramientas disponibles: `create_task`, `create_expense`, `schedule_meeting`, `create_project`
+- ✅ Validación con Zod + Firestore antes de persistir cualquier dato
+- 🧾 Formato uniforme mediante bloque JSON (ver sección "Formato de acciones")
+
+### 5. **Ejemplos de Uso**
 
 **Análisis de negocio:**
 ```
@@ -63,6 +69,7 @@ src/
 │   └── ai-assistant.types.ts          # Tipos y schemas Zod
 ├── services/
 │   └── ai-assistant.service.ts        # Servicio principal (contexto + Firestore)
+│   └── ai-agent-tools.service.ts      # Acciones estructuradas (tareas, gastos, reuniones, proyectos)
 ├── hooks/
 │   └── use-ai-chat.ts                 # Hook de estado de conversación
 ├── app/
@@ -102,6 +109,27 @@ firestore.indexes.json                  # Índice compuesto para queries
 7. Respuesta AI se muestra en UI
 8. Auto-guardado en Firestore collection ai-conversations
 ```
+## 🔒 Seguridad
+
+## 🛠️ Formato de Acciones
+
+Cuando el usuario solicita una acción operativa, el asistente responde con su explicación habitual y añade un bloque JSON:
+
+```json
+{
+  "tool": "create_task",
+  "parameters": {
+    "title": "Llamar al proveedor",
+    "dueDate": "2025-10-31T10:00:00-06:00"
+  },
+  "rationale": "Se agenda la llamada para asegurar stock antes del cierre"
+}
+```
+
+- `tool` corresponde a una de las herramientas autorizadas.
+- `parameters` sigue los schemas Zod definidos en `ai-agent-tools.service.ts`.
+- `rationale` documenta el motivo de la acción.
+- El hook `useAIChat` elimina el bloque JSON del mensaje visible, ejecuta la acción y agrega el resultado (`toast` + mensaje confirmación).
 
 ## 🔒 Seguridad
 
@@ -137,6 +165,13 @@ match /ai-conversations/{conversationId} {
       metadata?: {
         model?: string;
         tokensUsed?: number;
+        agentAction?: {
+          tool: string;
+          parameters: Record<string, unknown>;
+          success: boolean;
+          redirectUrl?: string;
+          metadata?: Record<string, unknown>;
+        };
       }
     }
   ];
@@ -167,7 +202,7 @@ match /ai-conversations/{conversationId} {
 - [ ] Adjuntar archivos/imágenes
 - [ ] Voice input (speech-to-text)
 - [ ] Streaming de respuestas (palabra por palabra)
-- [ ] Acciones ejecutables (crear cliente, proyecto desde AI)
+- ✅ Acciones ejecutables (tareas, gastos, reuniones, proyectos)
 
 ## 📈 Métricas de Uso
 

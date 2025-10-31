@@ -140,7 +140,8 @@
   - Análisis de datos en tiempo real
   - Recomendaciones de negocio
   - Acceso a todos los módulos (clientes, proyectos, facturas, inventario, ventas)
-- **Servicios:** ✅ ai-assistant.service.ts, use-ai-chat.ts
+  - Ejecución de acciones (tareas, gastos, reuniones, proyectos)
+- **Servicios:** ✅ ai-assistant.service.ts, ai-agent-tools.service.ts, use-ai-chat.ts
 - **API:** ✅ /api/ai/chat (OpenRouter + Gemma 3 27B)
 
 ---
