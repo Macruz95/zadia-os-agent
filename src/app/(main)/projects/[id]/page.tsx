@@ -2,7 +2,6 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useProject } from '@/modules/projects/hooks/use-projects';
-import { useProjectTasks } from '@/modules/projects/hooks/use-project-tasks';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,13 +28,12 @@ import {
 import { ProjectOverview } from '@/modules/projects/components/ProjectOverview';
 import { ProjectTimeline } from '@/modules/projects/components/ProjectTimeline';
 import { WorkSessionsTab } from '@/modules/projects/components/WorkSessionsTab';
-import { ProjectTasksTab } from '@/modules/projects/components/ProjectTasksTab';
+import { ProjectTasksTab } from '@/modules/projects/components/tasks/ProjectTasksTab';
 import { ProjectExpensesTab } from '@/modules/projects/components/ProjectExpensesTab';
-import { ProjectDocumentsTab } from '@/modules/projects/components/ProjectDocumentsTab';
-import type { ProjectStatus, ProjectTask } from '@/modules/projects/types/projects.types';
+import { ProjectDocumentsTab } from '@/modules/projects/components/documents/ProjectDocumentsTab';
+import type { ProjectStatus } from '@/modules/projects/types/projects.types';
 import { toast } from 'sonner';
 import { ProjectsService } from '@/modules/projects/services/projects.service';
-import { ProjectTasksService } from '@/modules/projects/services/project-tasks.service';
 import { logger } from '@/lib/logger';
 
 /**
@@ -83,7 +81,6 @@ export default function ProjectDetailPage() {
 
   // Real Firebase data with realtime updates
   const { project, loading, error } = useProject(projectId);
-  const { tasks, loading: tasksLoading } = useProjectTasks({ projectId });
 
   // User data with defaults
   const userId = user?.uid || 'guest';
@@ -259,42 +256,7 @@ export default function ProjectDetailPage() {
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4 mt-6">
-          <ProjectTasksTab
-            projectId={projectId}
-            tasks={tasks}
-            loading={tasksLoading}
-            onAddTask={async (taskData) => {
-              try {
-                await ProjectTasksService.createTask({
-                  ...taskData,
-                  projectId,
-                  createdBy: userId,
-                } as ProjectTask);
-                toast.success('Tarea creada exitosamente');
-              } catch (err) {
-                logger.error('Error creating task', err as Error);
-                toast.error('Error al crear tarea');
-              }
-            }}
-            onUpdateTask={async (taskId, updates) => {
-              try {
-                await ProjectTasksService.updateTask(taskId, updates);
-                toast.success('Tarea actualizada');
-              } catch (err) {
-                logger.error('Error updating task', err as Error);
-                toast.error('Error al actualizar tarea');
-              }
-            }}
-            onDeleteTask={async (taskId) => {
-              try {
-                await ProjectTasksService.deleteTask(taskId);
-                toast.success('Tarea eliminada');
-              } catch (err) {
-                logger.error('Error deleting task', err as Error);
-                toast.error('Error al eliminar tarea');
-              }
-            }}
-          />
+          <ProjectTasksTab projectId={projectId} />
         </TabsContent>
 
         <TabsContent value="sessions" className="space-y-4 mt-6">
@@ -315,11 +277,7 @@ export default function ProjectDetailPage() {
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-4 mt-6">
-          <ProjectDocumentsTab
-            projectId={projectId}
-            userId={userId}
-            userName={userName}
-          />
+          <ProjectDocumentsTab projectId={projectId} />
         </TabsContent>
 
         <TabsContent value="timeline" className="space-y-4 mt-6">

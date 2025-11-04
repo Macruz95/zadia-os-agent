@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { logger } from '@/lib/logger';
 
 // Initialize OpenAI client with OpenRouter configuration
 const openai = new OpenAI({
@@ -24,8 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     // Validate API key
     if (!process.env.OPENROUTER_API_KEY) {
-      // eslint-disable-next-line no-console
-      console.error('[AI API] OPENROUTER_API_KEY not configured');
+      logger.error('[AI API] OPENROUTER_API_KEY not configured');
       return NextResponse.json(
         { error: 'AI service not configured' },
         { status: 503 }
@@ -43,8 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log request for debugging
-    // eslint-disable-next-line no-console
-    console.log('[AI API] Calling OpenRouter with', messages.length, 'messages');
+    logger.info(`[AI API] Calling OpenRouter with ${messages.length} messages`);
 
     // Call OpenRouter using OpenAI SDK
     const completion = await openai.chat.completions.create({
@@ -63,8 +62,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('[AI API] Error:', error);
+    logger.error(
+      '[AI API] Error processing request',
+      error instanceof Error ? error : new Error(String(error))
+    );
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

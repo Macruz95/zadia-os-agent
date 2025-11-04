@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { logger } from '@/lib/logger';
 import {
   Select,
   SelectContent,
@@ -46,11 +47,13 @@ export function InteractionComposer({
   const [meetingTitle, setMeetingTitle] = useState('');
   const [meetingNotes, setMeetingNotes] = useState('');
 
-  const handleSubmit = async (type: string) => {
-    // TODO: Integrar con InteractionsService
-    // Placeholder - will integrate with actual service
-    void clientId; // Use clientId
-    void type; // Use type
+  const handleSubmit = async (interactionType: string) => {
+    // TODO: Integrar con InteractionsService cuando esté disponible
+    logger.info('Creating interaction', { 
+      component: 'InteractionComposer',
+      action: 'createInteraction',
+      metadata: { clientId, interactionType }
+    });
     
     // Reset forms
     setNoteContent('');
