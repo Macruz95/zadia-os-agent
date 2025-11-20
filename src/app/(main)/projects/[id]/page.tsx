@@ -121,6 +121,24 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleFinishProject = async () => {
+    try {
+      const confirmed = confirm('¿Marcar este proyecto como finalizado? Se actualizará la fecha de finalización y el estado.');
+
+      if (!confirmed) return;
+
+      await ProjectsService.updateProject(projectId, {
+        estimatedEndDate: new Date(),
+        status: 'completed'
+      });
+
+      toast.success('¡Proyecto finalizado exitosamente!');
+    } catch (err) {
+      logger.error('Error finishing project', err as Error);
+      toast.error('Error al finalizar el proyecto');
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -216,6 +234,11 @@ export default function ProjectDetailPage() {
               <DropdownMenuItem onClick={() => handleStatusChange('completed')}>
                 <CheckCircle2 className="h-4 w-4 mr-2" />
                 Completado
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleFinishProject} className="text-green-600">
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+                Finalizar Proyecto
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleDelete} className="text-red-600">

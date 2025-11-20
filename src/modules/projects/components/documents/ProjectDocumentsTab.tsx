@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import { storage } from '@/lib/firebase';
-import { 
-  ref, 
-  uploadBytes, 
-  getDownloadURL, 
-  deleteObject, 
+import { Progress } from '@/components/ui/progress';
+import {
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  deleteObject,
   listAll,
   getMetadata
 } from 'firebase/storage';
@@ -43,6 +44,7 @@ interface ProjectDocumentsTabProps {
 export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
   const [documents, setDocuments] = useState<ProjectDocument[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(false);
 
@@ -56,12 +58,12 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
     try {
       const storageRef = ref(storage, `projects/${projectId}/documents`);
       const result = await listAll(storageRef);
-      
+
       const docs: ProjectDocument[] = await Promise.all(
         result.items.map(async (itemRef) => {
           const url = await getDownloadURL(itemRef);
           const metadata = await getMetadata(itemRef);
-          
+
           return {
             id: itemRef.name,
             name: itemRef.name,
@@ -74,7 +76,7 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
           };
         })
       );
-      
+
       setDocuments(docs);
       logger.info('Documents loaded successfully', { projectId, metadata: { count: docs.length } });
     } catch (error) {
@@ -91,27 +93,43 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
     if (!files || files.length === 0) return;
 
     setUploading(true);
+    setUploadProgress(0);
+
     try {
-      const uploadPromises = Array.from(files).map(async (file) => {
+      // Upload files one by one to track progress
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         const timestamp = Date.now();
         const fileName = `${timestamp}_${file.name}`;
         const storageRef = ref(storage, `projects/${projectId}/documents/${fileName}`);
-        
-        await uploadBytes(storageRef, file, {
+
+        const uploadTask = uploadBytesResumable(storageRef, file, {
           customMetadata: {
             category: selectedCategory === 'all' ? 'other' : selectedCategory,
             uploadedBy: 'current-user', // TODO: Get from auth context
           }
         });
+
+        // Track upload progress
+        await new Promise<void>((resolve, reject) => {
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setUploadProgress(Math.round(progress));
+            },
+            (error) => reject(error),
+            () => resolve()
+          );
+        });
+      }
+
+      toast.success(`${files.length} archivo(s) subido(s) exitosamente`);
+      logger.info('Files uploaded successfully', {
+        projectId,
+        metadata: { count: files.length }
       });
 
-      await Promise.all(uploadPromises);
-      toast.success(`${files.length} archivo(s) subido(s) exitosamente`);
-      logger.info('Files uploaded successfully', { 
-        projectId, 
-        metadata: { count: files.length } 
-      });
-      
       // Recargar lista de documentos
       await loadDocuments();
     } catch (error) {
@@ -120,6 +138,7 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
       toast.error('Error al subir archivos');
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -140,10 +159,10 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
     try {
       const storageRef = ref(storage, `projects/${projectId}/documents/${docId}`);
       await deleteObject(storageRef);
-      
+
       toast.success('Documento eliminado');
       logger.info('Document deleted', { projectId, fileName: docId });
-      
+
       // Recargar lista de documentos
       await loadDocuments();
     } catch (error) {
@@ -153,8 +172,8 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
     }
   };
 
-  const filteredDocs = selectedCategory === 'all' 
-    ? documents 
+  const filteredDocs = selectedCategory === 'all'
+    ? documents
     : documents.filter(d => d.category === selectedCategory);
 
   return (
@@ -166,6 +185,17 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
         onCategoryChange={setSelectedCategory}
         onFileUpload={handleFileUpload}
       />
+
+      {/* Upload Progress Bar */}
+      {uploading && uploadProgress > 0 && (
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>Subiendo archivo...</span>
+            <span>{uploadProgress}%</span>
+          </div>
+          <Progress value={uploadProgress} className="w-full" />
+        </div>
+      )}
 
       {loading || documents.length === 0 ? (
         <DocumentsEmptyState loading={loading} />

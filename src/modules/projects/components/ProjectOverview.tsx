@@ -15,6 +15,7 @@ import {
 import type { Project } from '../types/projects.types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { ProjectTimerCard } from './ProjectTimerCard';
 
 // Rule #2: ShadCN UI + Lucide Icons only
 
@@ -52,6 +53,9 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
 
   return (
     <div className="space-y-6">
+      {/* Project Timer */}
+      <ProjectTimerCard projectId={project.id} project={project} />
+
       {/* Project Info Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Client Info */}

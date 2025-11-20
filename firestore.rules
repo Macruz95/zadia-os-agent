@@ -183,6 +183,18 @@ service cloud.firestore {
         allow read: if isAuthenticated();
         allow write: if isAuthenticated();
       }
+      
+      // Project transactions subcollection (ingresos/gastos)
+      match /transactions/{transactionId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+      
+      // Project work sessions subcollection (timer tracking)
+      match /workSessions/{sessionId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
     }
     
     // ===========================
