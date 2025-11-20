@@ -9,7 +9,7 @@
 
 import { logger } from '@/lib/logger';
 
-const OPENROUTER_API_KEY = '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';
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 const DEFAULT_MODEL = 'google/gemma-3-27b-it:free';
 
