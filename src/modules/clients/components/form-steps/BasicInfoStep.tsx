@@ -22,7 +22,7 @@ export function BasicInfoStep({ form, clientType }: BasicInfoStepProps) {
         </div>
         <h3 className="text-lg font-medium">Información básica del cliente</h3>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
@@ -61,7 +61,7 @@ export function BasicInfoStep({ form, clientType }: BasicInfoStepProps) {
           )}
         />
       </div>
-      
+
       {clientType === 'PersonaNatural' && (
         <div className="grid grid-cols-2 gap-4">
           <FormField
@@ -74,7 +74,7 @@ export function BasicInfoStep({ form, clientType }: BasicInfoStepProps) {
                   <DatePicker
                     value={field.value}
                     onChange={field.onChange}
-                    placeholder="Seleccione fecha de nacimiento"
+                    placeholder="Seleccionar fecha"
                   />
                 </FormControl>
                 <FormMessage />
@@ -105,7 +105,7 @@ export function BasicInfoStep({ form, clientType }: BasicInfoStepProps) {
           />
         </div>
       )}
-      
+
       <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
@@ -143,7 +143,7 @@ export function BasicInfoStep({ form, clientType }: BasicInfoStepProps) {
           )}
         />
       </div>
-      
+
       <FormField
         control={form.control}
         name="communicationOptIn"

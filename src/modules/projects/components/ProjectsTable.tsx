@@ -189,9 +189,9 @@ export function ProjectsTable({
         </TableHeader>
         <TableBody>
           {projects.map((project) => {
-            const StatusIcon = statusConfig[project.status].icon;
-            const statusInfo = statusConfig[project.status];
-            const priorityInfo = priorityConfig[project.priority];
+            const statusInfo = statusConfig[project.status] || statusConfig['planning'];
+            const StatusIcon = statusInfo.icon;
+            const priorityInfo = priorityConfig[project.priority] || priorityConfig['medium'];
 
             return (
               <TableRow key={project.id}>

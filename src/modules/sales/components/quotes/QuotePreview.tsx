@@ -86,13 +86,13 @@ export function QuotePreview({ quote, clientName, opportunityName }: QuotePrevie
                   </TableCell>
                   <TableCell className="text-right">{item.quantity}</TableCell>
                   <TableCell className="text-right">
-                    ${item.unitPrice.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    ${item.unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </TableCell>
                   <TableCell className="text-right">
-                    ${item.discount.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    ${item.discount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    ${item.subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                    ${item.subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </TableCell>
                 </TableRow>
               ))}
@@ -107,15 +107,15 @@ export function QuotePreview({ quote, clientName, opportunityName }: QuotePrevie
           <div className="w-72 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal:</span>
-              <span>${quote.subtotal.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+              <span>${quote.subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>
-            
+
             {Object.entries(quote.taxes).map(([name, rate]) => {
               const amount = (quote.subtotal * rate) / 100;
               return (
                 <div key={name} className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{name} ({rate}%):</span>
-                  <span>${amount.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                  <span>${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
               );
             })}
@@ -128,7 +128,7 @@ export function QuotePreview({ quote, clientName, opportunityName }: QuotePrevie
             )}
 
             <Separator />
-            
+
             <div className="flex justify-between text-lg font-bold">
               <span>Total:</span>
               <span>${quote.total.toLocaleString('es-MX', { minimumFractionDigits: 2 })} {quote.currency}</span>

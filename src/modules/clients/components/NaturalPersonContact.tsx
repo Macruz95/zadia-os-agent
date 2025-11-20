@@ -24,7 +24,7 @@ export function NaturalPersonContact({ form, clientName }: NaturalPersonContactP
           Solo necesitas proporcionar el número de teléfono. El código postal es opcional.
         </p>
       </div>
-      
+
       <div className="bg-gray-50 p-4 rounded-lg">
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -37,46 +37,44 @@ export function NaturalPersonContact({ form, clientName }: NaturalPersonContactP
           </div>
         </div>
       </div>
-      
-      {/* Campos editables para teléfono y email */}
-      <div className="grid grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="contacts.0.email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email (Opcional)</FormLabel>
-              <FormControl>
-                <Input 
-                  type="email" 
-                  placeholder="email@ejemplo.com" 
-                  {...field} 
-                  value={field.value || ''} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Controller
-          name="contacts.0.phone"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Número de teléfono (Requerido)</FormLabel>
-              <PhoneCodeInput
+
+      <FormField
+        control={form.control}
+        name="contacts.0.email"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Email (Opcional)</FormLabel>
+            <FormControl>
+              <Input
+                type="email"
+                placeholder="email@ejemplo.com"
+                {...field}
                 value={field.value || ''}
-                onChange={field.onChange}
-                countryId={form.watch('contacts.0.phoneCountryId')}
-                onCountryChange={(countryId) => {
-                  form.setValue('contacts.0.phoneCountryId', countryId);
-                }}
               />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <Controller
+        name="contacts.0.phone"
+        control={form.control}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Número de teléfono (Requerido)</FormLabel>
+            <PhoneCodeInput
+              value={field.value || ''}
+              onChange={field.onChange}
+              countryId={form.watch('contacts.0.phoneCountryId')}
+              onCountryChange={(countryId) => {
+                form.setValue('contacts.0.phoneCountryId', countryId);
+              }}
+            />
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 }

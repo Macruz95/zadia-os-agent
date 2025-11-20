@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,15 +14,20 @@ import { Opportunity, OpportunityStage } from '../../types/sales.types';
 import { PRIORITY_COLORS } from './KanbanConfig';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { markOpportunityAsWonAction } from '@/actions/opportunity-actions';
+import { toast } from 'sonner';
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
   stage: OpportunityStage;
   onStageChange: (opportunityId: string, newStage: OpportunityStage) => void;
   onCardClick: (opportunityId: string) => void;
+  onRefresh?: () => void;
 }
 
-export function OpportunityCard({ opportunity, stage, onStageChange, onCardClick }: OpportunityCardProps) {
+export function OpportunityCard({ opportunity, stage, onStageChange, onCardClick, onRefresh }: OpportunityCardProps) {
+  const [isMarkingAsWon, setIsMarkingAsWon] = useState(false);
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-PY', {
       style: 'currency',
@@ -30,8 +36,36 @@ export function OpportunityCard({ opportunity, stage, onStageChange, onCardClick
     }).format(value);
   };
 
+  const handleMarkAsWon = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsMarkingAsWon(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('opportunityId', opportunity.id);
+      formData.append('projectName', `Proyecto - ${opportunity.name}`);
+      formData.append('priority', opportunity.priority === 'high' ? 'high' : 'medium');
+
+      const result = await markOpportunityAsWonAction({}, formData);
+
+      if (result.success) {
+        toast.success(`¡Oportunidad ganada! Proyecto creado automáticamente.`);
+        if (onRefresh) {
+          onRefresh();
+        }
+      } else {
+        toast.error(result.error || 'Error al marcar como ganada');
+      }
+    } catch (error) {
+      toast.error('Error inesperado');
+      console.error(error);
+    } finally {
+      setIsMarkingAsWon(false);
+    }
+  };
+
   return (
-    <Card 
+    <Card
       className="cursor-pointer hover:shadow-md transition-shadow"
       onClick={() => onCardClick(opportunity.id)}
     >
@@ -50,11 +84,11 @@ export function OpportunityCard({ opportunity, stage, onStageChange, onCardClick
                 <span>{opportunity.probability}%</span>
               </div>
             </div>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   className="h-6 w-6 p-0"
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -74,19 +108,26 @@ export function OpportunityCard({ opportunity, stage, onStageChange, onCardClick
                 {stage !== 'closed-won' && stage !== 'closed-lost' && (
                   <>
                     {stage !== 'negotiation' && (
-                      <DropdownMenuItem 
-                        onClick={() => onStageChange(opportunity.id, 'negotiation')}
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onStageChange(opportunity.id, 'negotiation');
+                        }}
                       >
                         Mover a Negociación
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem 
-                      onClick={() => onStageChange(opportunity.id, 'closed-won')}
+                    <DropdownMenuItem
+                      onClick={handleMarkAsWon}
+                      disabled={isMarkingAsWon}
                     >
-                      Marcar como Ganada
+                      {isMarkingAsWon ? 'Creando proyecto...' : '✨ Marcar como Ganada'}
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => onStageChange(opportunity.id, 'closed-lost')}
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onStageChange(opportunity.id, 'closed-lost');
+                      }}
                       className="text-destructive"
                     >
                       Marcar como Perdida
@@ -99,18 +140,18 @@ export function OpportunityCard({ opportunity, stage, onStageChange, onCardClick
 
           {/* Priority & Date */}
           <div className="flex items-center justify-between">
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={`text-xs ${PRIORITY_COLORS[opportunity.priority]}`}
             >
-              {opportunity.priority === 'high' ? 'Alta' : 
-               opportunity.priority === 'medium' ? 'Media' : 'Baja'}
+              {opportunity.priority === 'high' ? 'Alta' :
+                opportunity.priority === 'medium' ? 'Media' : 'Baja'}
             </Badge>
-            
+
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Calendar className="h-3 w-3" />
               <span>
-                {opportunity.expectedCloseDate ? 
+                {opportunity.expectedCloseDate ?
                   format(opportunity.expectedCloseDate.toDate(), 'dd MMM', { locale: es }) :
                   'Sin fecha'
                 }

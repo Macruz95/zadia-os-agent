@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -20,7 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Save, Loader2 } from 'lucide-react';
+import { Save, Loader2, DollarSign, Calendar } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { ClientsService } from '@/modules/clients/services/clients.service';
@@ -48,12 +48,21 @@ export function OpportunityFormDialog({
   // Form state
   const [name, setName] = useState('');
   const [clientId, setClientId] = useState('');
-  const [contactId, setContactId] = useState('placeholder'); // Simplified - will improve later
+  const [contactId, setContactId] = useState('');
   const [estimatedValue, setEstimatedValue] = useState('');
   const [currency, setCurrency] = useState('USD');
   const [expectedCloseDate, setExpectedCloseDate] = useState('');
   const [priority, setPriority] = useState<OpportunityPriority>('medium');
   const [notes, setNotes] = useState('');
+
+  // Get contacts from selected client
+  const selectedClient = useMemo(() => {
+    return clients.find(c => c.id === clientId);
+  }, [clients, clientId]);
+
+  const availableContacts = useMemo(() => {
+    return selectedClient?.contacts || [];
+  }, [selectedClient]);
 
   // Load clients
   useEffect(() => {
@@ -74,6 +83,13 @@ export function OpportunityFormDialog({
     }
   }, [open]);
 
+  // Reset contact when client changes
+  useEffect(() => {
+    if (clientId && !opportunity) {
+      setContactId('');
+    }
+  }, [clientId, opportunity]);
+
   // Load opportunity data for editing
   useEffect(() => {
     if (opportunity) {
@@ -93,7 +109,7 @@ export function OpportunityFormDialog({
       // Reset form for new opportunity
       setName('');
       setClientId('');
-      setContactId('placeholder');
+      setContactId('');
       setEstimatedValue('');
       setCurrency('USD');
       setExpectedCloseDate('');
@@ -110,7 +126,7 @@ export function OpportunityFormDialog({
       return;
     }
 
-    if (!name || !clientId || !estimatedValue) {
+    if (!name || !clientId || !contactId || !estimatedValue) {
       toast.error('Complete todos los campos requeridos');
       return;
     }
@@ -164,53 +180,95 @@ export function OpportunityFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+          {/* Nombre de la Oportunidad */}
+          <div className="space-y-2">
+            <Label htmlFor="name">Nombre de la Oportunidad *</Label>
+            <Input
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ej: Sistema de gestión para empresa X"
+              required
+            />
+          </div>
+
+          {/* Cliente */}
+          <div className="space-y-2">
+            <Label htmlFor="client">Cliente *</Label>
+            <Select value={clientId} onValueChange={setClientId} required>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccione cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                {loadingClients ? (
+                  <SelectItem value="loading" disabled>Cargando...</SelectItem>
+                ) : clients.length === 0 ? (
+                  <SelectItem value="empty" disabled>No hay clientes disponibles</SelectItem>
+                ) : (
+                  clients.map(client => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Contacto */}
+          <div className="space-y-2">
+            <Label htmlFor="contact">Contacto *</Label>
+            <Select
+              value={contactId}
+              onValueChange={setContactId}
+              disabled={!clientId}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={clientId ? "Seleccione contacto" : "Primero seleccione un cliente"} />
+              </SelectTrigger>
+              <SelectContent>
+                {availableContacts.length === 0 ? (
+                  <SelectItem value="empty" disabled>
+                    {clientId ? 'Este cliente no tiene contactos' : 'Seleccione un cliente primero'}
+                  </SelectItem>
+                ) : (
+                  availableContacts.map(contact => (
+                    <SelectItem key={contact.id} value={contact.id}>
+                      {contact.name} {contact.email ? `(${contact.email})` : ''}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+            {clientId && availableContacts.length === 0 && (
+              <p className="text-xs text-muted-foreground">
+                💡 Tip: Añade contactos al cliente desde el módulo de Clientes
+              </p>
+            )}
+          </div>
+
+          {/* Valor Estimado y Moneda */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <Label htmlFor="name">Nombre de la Oportunidad *</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ej: Sistema de gestión para empresa X"
-                required
-              />
-            </div>
-
-            <div className="col-span-2">
-              <Label htmlFor="client">Cliente *</Label>
-              <Select value={clientId} onValueChange={setClientId} required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccione cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingClients ? (
-                    <SelectItem value="loading" disabled>Cargando...</SelectItem>
-                  ) : (
-                    clients.map(client => (
-                      <SelectItem key={client.id} value={client.id}>
-                        {client.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="value">Valor Estimado *</Label>
-              <Input
-                id="value"
-                type="number"
-                step="0.01"
-                value={estimatedValue}
-                onChange={(e) => setEstimatedValue(e.target.value)}
-                placeholder="0.00"
-                required
-              />
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                <Input
+                  id="value"
+                  type="number"
+                  step="0.01"
+                  value={estimatedValue}
+                  onChange={(e) => setEstimatedValue(e.target.value)}
+                  placeholder="0.00"
+                  className="pl-10"
+                  required
+                />
+              </div>
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="currency">Moneda</Label>
               <Select value={currency} onValueChange={setCurrency}>
                 <SelectTrigger>
@@ -222,18 +280,25 @@ export function OpportunityFormDialog({
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
-            <div>
+          {/* Fecha de Cierre y Prioridad */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="closeDate">Fecha de Cierre Esperada</Label>
-              <Input
-                id="closeDate"
-                type="date"
-                value={expectedCloseDate}
-                onChange={(e) => setExpectedCloseDate(e.target.value)}
-              />
+              <div className="relative">
+                <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                <Input
+                  id="closeDate"
+                  type="date"
+                  value={expectedCloseDate}
+                  onChange={(e) => setExpectedCloseDate(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="priority">Prioridad</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as OpportunityPriority)}>
                 <SelectTrigger>
@@ -246,17 +311,18 @@ export function OpportunityFormDialog({
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
-            <div className="col-span-2">
-              <Label htmlFor="notes">Notas</Label>
-              <Textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Información adicional sobre la oportunidad..."
-                rows={3}
-              />
-            </div>
+          {/* Notas */}
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notas</Label>
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Información adicional sobre la oportunidad..."
+              rows={3}
+            />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">

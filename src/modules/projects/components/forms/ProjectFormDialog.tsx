@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { 
+import {
   ProjectFormStep1,
   ProjectFormStep2,
   ProjectFormStep3,
@@ -14,7 +14,7 @@ import {
 import { ProjectsService } from '../../services/projects.service';
 import { logger } from '@/lib/logger';
 import type { CreateProjectInput } from '../../validations/projects.validation';
-import { ArrowLeft, ArrowRight, Save } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Save, Loader2 } from 'lucide-react';
 
 /**
  * ProjectFormDialog - Wizard para crear proyectos
@@ -103,13 +103,13 @@ export function ProjectFormDialog({
   // Close handler
   const handleClose = () => {
     if (isSubmitting) return;
-    
+
     if (Object.keys(formData).length > 0) {
       if (!confirm('¿Descartar cambios sin guardar?')) {
         return;
       }
     }
-    
+
     setFormData({});
     setCurrentStep(1);
     onOpenChange(false);
@@ -186,8 +186,17 @@ export function ProjectFormDialog({
               </Button>
             ) : (
               <Button type="button" onClick={handleSubmit} disabled={isSubmitting}>
-                <Save className="w-4 h-4 mr-2" />
-                {isSubmitting ? 'Guardando...' : 'Crear Proyecto'}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Crear Proyecto
+                  </>
+                )}
               </Button>
             )}
           </div>

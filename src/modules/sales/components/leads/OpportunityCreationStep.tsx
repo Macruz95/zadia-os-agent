@@ -16,14 +16,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ChevronLeft, ChevronRight, Briefcase, DollarSign, Calendar } from 'lucide-react';
 import { Lead } from '../../types/sales.types';
-import { 
-  OpportunityFromConversionInput, 
+import {
+  OpportunityFromConversionInput,
   opportunityFromConversionSchema,
-  ClientFromLeadInput 
+  ClientFromLeadInput
 } from '../../validations/lead-conversion.schema';
+import { DEFAULT_CURRENCY } from '@/config/defaults';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Briefcase, DollarSign, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface OpportunityCreationStepProps {
   lead: Lead;
@@ -33,12 +34,12 @@ interface OpportunityCreationStepProps {
   onOpportunityData: (data: OpportunityFromConversionInput) => void;
 }
 
-export function OpportunityCreationStep({ 
-  lead, 
+export function OpportunityCreationStep({
+  lead,
   clientData,
-  onNext, 
-  onBack, 
-  onOpportunityData 
+  onNext,
+  onBack,
+  onOpportunityData
 }: OpportunityCreationStepProps) {
   const {
     register,
@@ -54,7 +55,7 @@ export function OpportunityCreationStep({
     defaultValues: {
       name: `Oportunidad de ${clientData?.name || lead.fullName || lead.entityName}`,
       estimatedValue: 0,
-      currency: 'USD',
+      currency: DEFAULT_CURRENCY,
       stage: 'qualified' as const,
       status: 'open' as const,
       probability: 20,

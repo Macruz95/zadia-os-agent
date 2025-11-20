@@ -86,6 +86,14 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     
+    // Client interactions collection
+    match /interactions/{interactionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
     // ===========================
     // SALES MODULE
     // ===========================
@@ -148,10 +156,7 @@ service cloud.firestore {
     // ===========================
     match /projects/{projectId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated()
-        && hasRequiredFields(request.resource.data, ['name', 'status', 'clientId'])
-        && isValidString(request.resource.data.name)
-        && isValidTimestamp(request.resource.data.createdAt);
+      allow create: if isAuthenticated();
       allow update: if isAuthenticated();
       allow delete: if isAdmin();
       
@@ -169,6 +174,12 @@ service cloud.firestore {
       
       // Project documents subcollection
       match /documents/{documentId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+      
+      // Project expenses subcollection
+      match /expenses/{expenseId} {
         allow read: if isAuthenticated();
         allow write: if isAuthenticated();
       }
@@ -286,6 +297,60 @@ service cloud.firestore {
     
     // Work Orders (kebab-case - compatibilidad legacy)
     match /work-orders/{workOrderId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Tasks (root collection for queries)
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Work Sessions (time tracking)
+    match /workSessions/{sessionId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Timeline (project history - root collection)
+    match /timeline/{timelineId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Expenses (project expenses tracking)
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    // Project-specific collections (root level)
+    match /projectTasks/{taskId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    match /projectExpenses/{expenseId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+    
+    match /projectTimeline/{timelineId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated();
       allow update: if isAuthenticated();

@@ -3,16 +3,17 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  Package, 
-  Plus, 
-  ChevronRight, 
+import {
+  Package,
+  Plus,
+  ChevronRight,
   ChevronDown,
   DollarSign,
   Box,
   Layers
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatCurrency } from '@/lib/utils';
 import type { BillOfMaterials, BOMItem } from '@/modules/inventory/types/inventory.types';
 
 /**
@@ -58,13 +59,7 @@ export function ProjectBOMPanel({ bomId }: ProjectBOMPanelProps) {
     toast.info('Funcionalidad de editar BOM en desarrollo');
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency: 'MXN',
-      minimumFractionDigits: 2,
-    }).format(value);
-  };
+
 
   if (loading) {
     return (

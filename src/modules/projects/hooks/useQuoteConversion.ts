@@ -47,9 +47,9 @@ export function useQuoteConversion({
   });
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-MX', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: quote.currency || 'MXN',
+      currency: quote.currency || 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);

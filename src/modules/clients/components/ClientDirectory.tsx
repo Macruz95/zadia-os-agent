@@ -13,6 +13,7 @@ import { ClientTable } from './ClientTable';
 import { ClientCards } from './ClientCards';
 import { DeleteClientDialog } from './DeleteClientDialog';
 import { EditClientDialog } from './EditClientDialog';
+import { CreateClientDialog } from './CreateClientDialog';
 
 interface ClientDirectoryProps {
   onClientSelect?: (client: Client) => void;
@@ -31,6 +32,8 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
   const [selectedType, setSelectedType] = useState<ClientType | 'all'>('all');
   const [selectedStatus, setSelectedStatus] = useState<ClientStatus | 'all'>('all');
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+
+  // Dialog states
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; client: Client | null }>({
     open: false,
     client: null,
@@ -39,6 +42,7 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
     open: false,
     client: null,
   });
+  const [createDialog, setCreateDialog] = useState(false);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -93,17 +97,17 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
 
   const handleCreateClientClick = () => {
     if (onCreateClient) {
-      // Si se proporciona callback, usar el comportamiento legacy
+      // Si se proporciona callback externo
       onCreateClient();
     } else {
-      // Usar routing por defecto
-      router.push('/clients/create');
+      // Abrir diálogo local
+      setCreateDialog(true);
     }
   };
 
   const confirmDelete = async () => {
     if (!deleteDialog.client) return;
-    
+
     try {
       await ClientsService.deleteClient(deleteDialog.client.id);
       notificationService.success('Cliente eliminado exitosamente');
@@ -121,6 +125,12 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
     setEditDialog({ open: false, client: null });
   };
 
+  const handleCreateSuccess = () => {
+    updateSearchParams({});
+    setCreateDialog(false);
+    notificationService.success('Cliente creado exitosamente');
+  };
+
   if (error) {
     return (
       <Card>
@@ -135,12 +145,12 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
 
   return (
     <div className="space-y-6">
-      <ClientHeader 
+      <ClientHeader
         onCreateClient={handleCreateClientClick}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />
-      
+
       <ClientFilters
         searchQuery={searchQuery}
         selectedType={selectedType}
@@ -149,7 +159,7 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
         onTypeChange={handleTypeFilter}
         onStatusChange={handleStatusFilter}
       />
-      
+
       {viewMode === 'table' ? (
         <ClientTable
           clients={clients}
@@ -165,14 +175,14 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
           onClientSelect={handleClientSelect}
         />
       )}
-      
+
       <DeleteClientDialog
         open={deleteDialog.open}
         onOpenChange={(open) => setDeleteDialog({ open, client: null })}
         onConfirm={confirmDelete}
         clientName={deleteDialog.client?.name || ''}
       />
-      
+
       {editDialog.client && (
         <EditClientDialog
           open={editDialog.open}
@@ -181,6 +191,12 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
           onSuccess={handleEditSuccess}
         />
       )}
+
+      <CreateClientDialog
+        open={createDialog}
+        onOpenChange={setCreateDialog}
+        onSuccess={handleCreateSuccess}
+      />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
+import { formatCurrency } from '@/lib/utils';
 
 interface InvoiceSummaryProps {
   subtotal: number;
@@ -30,12 +31,7 @@ export function InvoiceSummary({
   total,
   currency,
 }: InvoiceSummaryProps) {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-MX', {
-      style: 'currency',
-      currency,
-    }).format(amount);
-  };
+
 
   return (
     <Card>

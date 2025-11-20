@@ -94,7 +94,7 @@ export default function ProjectDetailPage() {
   const handleDelete = async () => {
     try {
       const confirmed = confirm('¿Estás seguro de eliminar este proyecto? Esta acción no se puede deshacer.');
-      
+
       if (!confirmed) return;
 
       await ProjectsService.deleteProject(projectId);
@@ -151,7 +151,8 @@ export default function ProjectDetailPage() {
     );
   }
 
-  const StatusIcon = statusConfig[project.status].icon;
+  const statusInfo = statusConfig[project.status] || statusConfig['planning'];
+  const StatusIcon = statusInfo.icon;
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -169,13 +170,13 @@ export default function ProjectDetailPage() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
             <div className="flex items-center gap-2 mt-2">
-              <Badge variant={statusConfig[project.status].variant} className="flex items-center gap-1">
+              <Badge variant={statusInfo.variant} className="flex items-center gap-1">
                 <StatusIcon className="h-3 w-3" />
-                {statusConfig[project.status].label}
+                {statusInfo.label}
               </Badge>
               <Badge variant="outline" className="capitalize">
-                {project.projectType === 'production' ? 'Producción' : 
-                 project.projectType === 'service' ? 'Servicio' : 'Interno'}
+                {project.projectType === 'production' ? 'Producción' :
+                  project.projectType === 'service' ? 'Servicio' : 'Interno'}
               </Badge>
               <span className="text-sm text-muted-foreground">
                 Cliente: {project.clientName}

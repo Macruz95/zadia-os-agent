@@ -66,13 +66,13 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
 
     try {
       setLoading(true);
-      
+
       // Set assignedTo to current user if not specified
       const leadData = {
         ...data,
         assignedTo: data.assignedTo || user.uid,
       };
-      
+
       await createLead(leadData, user.uid);
       toast.success('Lead creado exitosamente');
       form.reset();
@@ -97,20 +97,20 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
             <LeadEntityTypeSection control={form.control} />
-            
+
             <LeadBasicInfoSection control={form.control} />
-            
+
             <LeadDetailsSection control={form.control} />
-            
+
             <LeadPriorityInfo />
 
             <Separator />
 
-            <LeadFormActions 
-              loading={loading} 
-              onCancel={() => onOpenChange(false)} 
+            <LeadFormActions
+              loading={loading}
+              onCancel={() => onOpenChange(false)}
             />
           </form>
         </Form>

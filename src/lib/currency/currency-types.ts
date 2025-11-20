@@ -6,7 +6,7 @@
 /**
  * Supported currency codes
  */
-export type CurrencyCode = 
+export type CurrencyCode =
   | 'USD'  // US Dollar
   | 'COP'  // Colombian Peso
   | 'GTQ'  // Guatemalan Quetzal
@@ -45,7 +45,7 @@ export interface CurrencyFormatOptions {
  * Default configuration by currency
  */
 export const CURRENCY_DEFAULTS: Record<CurrencyCode, Partial<CurrencyFormatOptions>> = {
-  USD: { locale: 'es-PY', minimumFractionDigits: 0, maximumFractionDigits: 2 },
+  USD: { locale: 'en-US', minimumFractionDigits: 2, maximumFractionDigits: 2 },
   COP: { locale: 'es-CO', minimumFractionDigits: 0, maximumFractionDigits: 0 },
   GTQ: { locale: 'es-GT', minimumFractionDigits: 2, maximumFractionDigits: 2 },
   PYG: { locale: 'es-PY', minimumFractionDigits: 0, maximumFractionDigits: 0 },

@@ -23,10 +23,18 @@ interface ProjectOverviewProps {
 }
 
 export function ProjectOverview({ project }: ProjectOverviewProps) {
+  // Helper to safely convert Firestore Timestamp to Date
+  const toDate = (timestamp: any): Date | null => {
+    if (!timestamp) return null;
+    if (timestamp instanceof Date) return timestamp;
+    if (typeof timestamp.toDate === 'function') return timestamp.toDate();
+    return null;
+  };
+
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('es-MX', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'MXN',
+      currency: 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
@@ -38,6 +46,9 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
 
   const estimatedProfit = project.salesPrice - project.estimatedCost;
   const actualProfit = project.salesPrice - project.actualCost;
+
+  const startDate = toDate(project.startDate);
+  const estimatedEndDate = toDate(project.estimatedEndDate);
 
   return (
     <div className="space-y-6">
@@ -80,19 +91,19 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {project.startDate && (
+            {startDate && (
               <div className="text-sm">
                 <span className="text-muted-foreground">Inicio: </span>
                 <span className="font-medium">
-                  {format(project.startDate.toDate(), 'dd MMM yyyy', { locale: es })}
+                  {format(startDate, 'dd MMM yyyy', { locale: es })}
                 </span>
               </div>
             )}
-            {project.estimatedEndDate && (
+            {estimatedEndDate && (
               <div className="text-sm mt-1">
                 <span className="text-muted-foreground">Fin estimado: </span>
                 <span className="font-medium">
-                  {format(project.estimatedEndDate.toDate(), 'dd MMM yyyy', { locale: es })}
+                  {format(estimatedEndDate, 'dd MMM yyyy', { locale: es })}
                 </span>
               </div>
             )}
@@ -193,16 +204,15 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
             <div className="pt-3 border-t">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium">Margen de Utilidad</span>
-                <span className={`text-2xl font-bold ${
-                  profitMargin > 20 ? 'text-green-600' : 
-                  profitMargin > 10 ? 'text-yellow-600' : 
-                  'text-red-600'
-                }`}>
+                <span className={`text-2xl font-bold ${profitMargin > 20 ? 'text-green-600' :
+                  profitMargin > 10 ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>
                   {profitMargin.toFixed(1)}%
                 </span>
               </div>
-              <Progress 
-                value={Math.min(profitMargin, 100)} 
+              <Progress
+                value={Math.min(profitMargin, 100)}
                 className="h-2"
               />
             </div>
@@ -226,11 +236,11 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
               <div className="mt-1">
                 <Badge variant={
                   project.priority === 'urgent' ? 'destructive' :
-                  project.priority === 'high' ? 'default' : 'secondary'
+                    project.priority === 'high' ? 'default' : 'secondary'
                 }>
                   {project.priority === 'urgent' ? 'Urgente' :
-                   project.priority === 'high' ? 'Alta' :
-                   project.priority === 'medium' ? 'Media' : 'Baja'}
+                    project.priority === 'high' ? 'Alta' :
+                      project.priority === 'medium' ? 'Media' : 'Baja'}
                 </Badge>
               </div>
             </div>

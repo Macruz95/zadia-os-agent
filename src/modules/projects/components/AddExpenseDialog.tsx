@@ -35,7 +35,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useProjectExpenses } from '../hooks/use-project-expenses';
+import { DollarSign, Calendar, Save, Loader2 } from 'lucide-react';
 
 interface AddExpenseDialogProps {
   projectId: string;
@@ -54,6 +54,11 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+import { useAuthState } from '@/hooks/use-auth-state';
+import { DEFAULT_CURRENCY } from '@/config/defaults';
+
+import { createExpenseAction } from '@/actions/expense-actions';
+
 export function AddExpenseDialog({
   projectId,
   userId,
@@ -61,7 +66,7 @@ export function AddExpenseDialog({
   onOpenChange,
 }: AddExpenseDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { addExpense } = useProjectExpenses(projectId);
+  const { user } = useAuthState();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -69,7 +74,7 @@ export function AddExpenseDialog({
       description: '',
       category: 'materials',
       amount: 0,
-      currency: 'MXN',
+      currency: DEFAULT_CURRENCY,
       expenseDate: new Date().toISOString().split('T')[0],
     },
   });
@@ -77,19 +82,29 @@ export function AddExpenseDialog({
   const handleSubmit = async (data: FormData) => {
     try {
       setIsSubmitting(true);
-      await addExpense({
-        projectId,
-        description: data.description,
-        category: data.category,
-        amount: data.amount,
-        currency: data.currency,
-        expenseDate: new Date(data.expenseDate),
-        createdBy: userId,
-        createdByName: 'Usuario', // TODO: Get from auth context
-      });
-      toast.success('Gasto registrado exitosamente');
-      form.reset();
-      onOpenChange(false);
+
+      const formData = new FormData();
+      formData.append('projectId', projectId);
+      formData.append('description', data.description);
+      formData.append('category', data.category);
+      formData.append('amount', data.amount.toString());
+      formData.append('currency', data.currency);
+      formData.append('date', data.expenseDate);
+      formData.append('createdBy', userId);
+      formData.append('createdByName', user?.displayName || user?.email || 'Usuario');
+
+      const result = await createExpenseAction({}, formData);
+
+      if (result.success) {
+        toast.success('Gasto registrado y presupuesto actualizado');
+        form.reset();
+        onOpenChange(false);
+      } else {
+        toast.error(result.error || 'Error al registrar gasto');
+      }
+    } catch (error) {
+      toast.error('Error inesperado');
+      console.error(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -97,20 +112,20 @@ export function AddExpenseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Registrar Gasto</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 mt-4">
             {/* Descripción */}
             <FormField
               control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descripción</FormLabel>
+                  <FormLabel>Descripción *</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Describe el gasto..."
@@ -129,7 +144,7 @@ export function AddExpenseDialog({
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Categoría</FormLabel>
+                  <FormLabel>Categoría *</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -157,15 +172,19 @@ export function AddExpenseDialog({
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Monto</FormLabel>
+                    <FormLabel>Monto *</FormLabel>
                     <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                      />
+                      <div className="relative">
+                        <DollarSign className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          className="pl-10"
+                          {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -186,8 +205,8 @@ export function AddExpenseDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="MXN">MXN</SelectItem>
                         <SelectItem value="USD">USD</SelectItem>
+                        <SelectItem value="EUR">EUR</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -202,25 +221,39 @@ export function AddExpenseDialog({
               name="expenseDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Fecha del Gasto</FormLabel>
+                  <FormLabel>Fecha del Gasto *</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <div className="relative">
+                      <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                      <Input type="date" className="pl-10" {...field} />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 pt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
               >
                 Cancelar
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Registrando...' : 'Registrar'}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Registrando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Registrar Gasto
+                  </>
+                )}
               </Button>
             </div>
           </form>
