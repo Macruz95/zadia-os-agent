@@ -4,6 +4,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { FieldValue } from 'firebase-admin/firestore';
+import { logger } from '@/lib/logger';
 
 // Schema for validation
 const CreateInventoryReservationSchema = z.object({
@@ -183,7 +184,7 @@ export async function createInventoryReservationAction(
         };
 
     } catch (error) {
-        console.error('Error creating inventory reservation:', error);
+        logger.error('Error creating inventory reservation', error as Error);
         return {
             success: false,
             error: error instanceof Error ? error.message : 'Error desconocido al crear reserva',
@@ -268,7 +269,7 @@ export async function cancelInventoryReservationAction(
         };
 
     } catch (error) {
-        console.error('Error cancelling reservation:', error);
+        logger.error('Error cancelling reservation', error as Error);
         return {
             success: false,
             error: error instanceof Error ? error.message : 'Error desconocido al cancelar reserva',

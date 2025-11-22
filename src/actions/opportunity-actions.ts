@@ -4,6 +4,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { logger } from '@/lib/logger';
 
 // Schema for validation
 const MarkOpportunityAsWonSchema = z.object({
@@ -150,7 +151,7 @@ export async function markOpportunityAsWonAction(
         };
 
     } catch (error) {
-        console.error('Error marking opportunity as won:', error);
+        logger.error('Error marking opportunity as won', error as Error);
         return {
             success: false,
             error: error instanceof Error ? error.message : 'Error desconocido al procesar oportunidad',

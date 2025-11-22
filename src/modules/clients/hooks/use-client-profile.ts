@@ -4,6 +4,7 @@ import { ClientProfileState } from '../types/clients.types';
 import { ClientsService } from '../services/clients.service';
 import { ContactsService } from '../services/entities/contacts-entity.service';
 import { InteractionsService } from '../services/entities/interactions-entity.service';
+import { ClientActivitiesService } from '../services/client-activities.service';
 
 export const useClientProfile = (clientId: string | null) => {
   const [state, setState] = useState<ClientProfileState>({
@@ -27,21 +28,31 @@ export const useClientProfile = (clientId: string | null) => {
         client,
         contacts,
         interactions,
+        projects,
+        quotes,
+        transactions,
+        tasks,
+        meetings
       ] = await Promise.all([
         ClientsService.getClientById(id),
         ContactsService.getContactsByClient(id),
         InteractionsService.getInteractionsByClient(id),
+        ClientActivitiesService.getClientProjects(id),
+        ClientActivitiesService.getClientQuotes(id),
+        ClientActivitiesService.getClientTransactions(id),
+        ClientActivitiesService.getClientTasks(id),
+        ClientActivitiesService.getClientMeetings(id)
       ]);
 
       setState({
         client: client || undefined,
         contacts,
         interactions,
-        transactions: [], // Empty until implemented
-        projects: [], // Empty until implemented
-        quotes: [], // Empty until implemented
-        meetings: [], // Empty until implemented
-        tasks: [], // Empty until implemented
+        transactions,
+        projects,
+        quotes,
+        meetings,
+        tasks,
         loading: false,
       });
     } catch (error) {

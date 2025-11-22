@@ -36,6 +36,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { DollarSign, Calendar, Save, Loader2 } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface AddExpenseDialogProps {
   projectId: string;
@@ -104,7 +105,7 @@ export function AddExpenseDialog({
       }
     } catch (error) {
       toast.error('Error inesperado');
-      console.error(error);
+      logger.error('Error adding expense', error as Error);
     } finally {
       setIsSubmitting(false);
     }

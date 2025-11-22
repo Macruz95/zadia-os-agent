@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { markOpportunityAsWonAction } from '@/actions/opportunity-actions';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
@@ -58,7 +59,7 @@ export function OpportunityCard({ opportunity, stage, onStageChange, onCardClick
       }
     } catch (error) {
       toast.error('Error inesperado');
-      console.error(error);
+      logger.error('Error marking opportunity as won', error as Error);
     } finally {
       setIsMarkingAsWon(false);
     }

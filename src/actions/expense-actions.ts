@@ -4,6 +4,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { FieldValue } from 'firebase-admin/firestore';
+import { logger } from '@/lib/logger';
 
 // Schema for validation
 const CreateExpenseSchema = z.object({
@@ -48,7 +49,7 @@ export async function createExpenseAction(prevState: CreateExpenseState, formDat
             };
         }
 
-        const { projectId, amount, description, category, date, createdBy, createdByName } = validated.data;
+        const { projectId, amount, description, category, createdBy, createdByName } = validated.data;
 
         // Execute Transaction
         await adminDb.runTransaction(async (transaction) => {
@@ -94,7 +95,7 @@ export async function createExpenseAction(prevState: CreateExpenseState, formDat
         };
 
     } catch (error) {
-        console.error('Error creating expense:', error);
+        logger.error('Error creating expense', error as Error);
         return {
             success: false,
             error: error instanceof Error ? error.message : 'Error desconocido al registrar gasto',

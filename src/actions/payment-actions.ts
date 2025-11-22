@@ -4,6 +4,7 @@ import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { FieldValue } from 'firebase-admin/firestore';
+import { logger } from '@/lib/logger';
 
 // Schema for validation
 const RecordPaymentSchema = z.object({
@@ -106,7 +107,13 @@ export async function recordPaymentAction(
             transaction.set(paymentRef, paymentData);
 
             // 3. Update Invoice
-            const invoiceUpdates: any = {
+            const invoiceUpdates: {
+                amountPaid: number;
+                amountDue: number;
+                updatedAt: FieldValue;
+                status?: string;
+                paidDate?: FieldValue;
+            } = {
                 amountPaid: newAmountPaid,
                 amountDue: newAmountDue,
                 updatedAt: FieldValue.serverTimestamp(),
@@ -154,7 +161,7 @@ export async function recordPaymentAction(
         };
 
     } catch (error) {
-        console.error('Error recording payment:', error);
+        logger.error('Error recording payment', error as Error);
         return {
             success: false,
             error: error instanceof Error ? error.message : 'Error desconocido al registrar pago',

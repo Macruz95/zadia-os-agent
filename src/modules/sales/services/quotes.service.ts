@@ -16,7 +16,8 @@ export {
 export {
   getAllQuotes,
   getQuotesByOpportunity,
-  getQuotesByStatus
+  getQuotesByStatus,
+  getQuotesByClient
 } from './helpers/quote-search.service';
 
 // Status Management
@@ -47,6 +48,7 @@ export class QuotesService {
   static getQuotes = QuoteSearch.getAllQuotes;
   static getQuotesByOpportunity = QuoteSearch.getQuotesByOpportunity;
   static getQuotesByStatus = QuoteSearch.getQuotesByStatus;
+  static getQuotesByClient = QuoteSearch.getQuotesByClient;
   static updateQuoteStatus = QuoteStatus.updateQuoteStatus;
   static generateQuoteNumber = QuoteUtils.generateQuoteNumber;
   static addIdsToItems = QuoteUtils.addIdsToItems;

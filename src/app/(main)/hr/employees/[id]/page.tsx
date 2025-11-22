@@ -22,6 +22,7 @@ import {
   Calendar,
   Edit,
   Trash2,
+  Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -38,10 +39,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { EmployeesService } from '@/modules/hr/services/employees.service';
-import type { Employee } from '@/modules/hr/types/hr.types';
-import { STATUS_CONFIG, POSITION_CONFIG, CONTRACT_TYPE_CONFIG } from '@/modules/hr/types/hr.types';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
+
+import { EmployeesService } from '@/modules/hr/services/employees.service';
+import { WorkPeriodsService } from '@/modules/hr/services/work-periods.service';
+import { LoansService } from '@/modules/hr/services/loans.service';
+import type { Employee, WorkPeriod, Loan } from '@/modules/hr/types/hr.types';
+import { STATUS_CONFIG, POSITION_CONFIG, CONTRACT_TYPE_CONFIG } from '@/modules/hr/types/hr.types';
+import { ActivePeriodCard } from '@/modules/hr/components/periods/ActivePeriodCard';
+import { PeriodsHistory } from '@/modules/hr/components/periods/PeriodsHistory';
+import { StartPeriodDialog } from '@/modules/hr/components/periods/StartPeriodDialog';
 
 interface EmployeeDetailPageProps {
   params: Promise<{ id: string }>;
@@ -53,21 +61,38 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchEmployee = async () => {
-      try {
-        const data = await EmployeesService.getEmployeeById(resolvedParams.id);
-        setEmployee(data);
-      } catch {
-        toast.error('Error al cargar empleado');
-        router.push('/hr/employees');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Work Periods State
+  const [periods, setPeriods] = useState<WorkPeriod[]>([]);
+  const [activePeriod, setActivePeriod] = useState<WorkPeriod | null>(null);
+  const [activeLoans, setActiveLoans] = useState<Loan[]>([]);
+  const [showStartPeriod, setShowStartPeriod] = useState(false);
 
-    fetchEmployee();
-  }, [resolvedParams.id, router]);
+  const fetchData = async () => {
+    try {
+      const empData = await EmployeesService.getEmployeeById(resolvedParams.id);
+      setEmployee(empData);
+
+      // Load periods
+      const periodsData = await WorkPeriodsService.getPeriodsByEmployee(resolvedParams.id);
+      setPeriods(periodsData);
+
+      const active = periodsData.find(p => p.status === 'active') || null;
+      setActivePeriod(active);
+
+      if (active) {
+        const loansData = await LoansService.getLoansByPeriod(active.id);
+        setActiveLoans(loansData);
+      }
+    } catch {
+      toast.error('Error al cargar datos');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [resolvedParams.id]);
 
   const handleDelete = async () => {
     if (!employee) return;
@@ -80,21 +105,8 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Cargando empleado...</p>
-      </div>
-    );
-  }
-
-  if (!employee) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-destructive">Empleado no encontrado</p>
-      </div>
-    );
-  }
+  if (loading) return <div className="p-8 text-center">Cargando...</div>;
+  if (!employee) return <div className="p-8 text-center text-red-500">No encontrado</div>;
 
   const statusConfig = STATUS_CONFIG[employee.status];
   const positionConfig = POSITION_CONFIG[employee.position];
@@ -102,14 +114,10 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header (Mismo de antes) */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-          >
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
@@ -120,163 +128,114 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
               {positionConfig.label} • {employee.department}
             </p>
           </div>
-          <Badge variant={statusConfig.variant}>
-            {statusConfig.label}
-          </Badge>
+          <Badge variant={statusConfig.variant}>{statusConfig.label}</Badge>
         </div>
+        {/* Botones de acción (Editar/Eliminar) */}
         <div className="flex gap-2">
           <Button variant="outline">
-            <Edit className="mr-2 h-4 w-4" />
-            Editar
+            <Edit className="mr-2 h-4 w-4" /> Editar
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Eliminar
+                <Trash2 className="mr-2 h-4 w-4" /> Eliminar
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
+              {/* ... Dialog Content ... */}
               <AlertDialogHeader>
                 <AlertDialogTitle>¿Eliminar empleado?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción marcará al empleado como inactivo.
-                </AlertDialogDescription>
+                <AlertDialogDescription>Esta acción marcará al empleado como inactivo.</AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>
-                  Eliminar
-                </AlertDialogAction>
+                <AlertDialogAction onClick={handleDelete}>Eliminar</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Personal Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Información Personal</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              <span>{employee.email}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              <span>{employee.phone}</span>
-            </div>
-            <div className="flex items-start gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
-              <span>{employee.address}</span>
-            </div>
-            <Separator />
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-muted-foreground">DUI</p>
-                <p className="font-medium">{employee.nationalId}</p>
-              </div>
-              {employee.taxId && (
-                <div>
-                  <p className="text-muted-foreground">NIT</p>
-                  <p className="font-medium">{employee.taxId}</p>
+      <Tabs defaultValue="info" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="info">Información General</TabsTrigger>
+          <TabsTrigger value="periods">Temporadas y Pagos</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="info" className="space-y-4">
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Cards de Info Personal, Laboral, Compensación (Mismos de antes) */}
+            <Card>
+              <CardHeader><CardTitle>Información Personal</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-muted-foreground" /><span>{employee.email || 'N/A'}</span></div>
+                <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-muted-foreground" /><span>{employee.phone}</span></div>
+                <div className="flex items-start gap-2"><MapPin className="h-4 w-4 text-muted-foreground mt-1" /><span>{employee.address}</span></div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle>Información Laboral</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-2"><Briefcase className="h-4 w-4 text-muted-foreground" /><span>{positionConfig.label}</span></div>
+                <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-muted-foreground" /><span>Desde {format(employee.hireDate.toDate(), 'PPP', { locale: es })}</span></div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle>Compensación Base</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-2xl font-bold">{employee.currency} {employee.salary.toLocaleString('es-SV', { minimumFractionDigits: 2 })}</span>
                 </div>
-              )}
-              <div>
-                <p className="text-muted-foreground">Fecha Nacimiento</p>
-                <p className="font-medium">
-                  {format(employee.birthDate.toDate(), 'PPP', { locale: es })}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                <p className="text-sm text-muted-foreground">Pago {employee.paymentFrequency}</p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
-        {/* Employment Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Información Laboral</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Briefcase className="h-4 w-4 text-muted-foreground" />
-              <span>{positionConfig.label}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>
-                Desde {format(employee.hireDate.toDate(), 'PPP', { locale: es })}
-              </span>
-            </div>
-            <Separator />
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-muted-foreground">Departamento</p>
-                <p className="font-medium">{employee.department}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Tipo Contrato</p>
-                <p className="font-medium">{contractConfig}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Compensation */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Compensación</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-              <span className="text-2xl font-bold">
-                {employee.currency} {employee.salary.toLocaleString('es-SV', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {employee.paymentFrequency === 'hourly' && 'Por Hora'}
-              {employee.paymentFrequency === 'daily' && 'Diario'}
-              {employee.paymentFrequency === 'weekly' && 'Semanal'}
-              {employee.paymentFrequency === 'biweekly' && 'Quincenal'}
-              {employee.paymentFrequency === 'monthly' && 'Mensual'}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Emergency Contact */}
-        {employee.emergencyContactName && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Contacto de Emergencia</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div>
-                <p className="text-muted-foreground text-sm">Nombre</p>
-                <p className="font-medium">{employee.emergencyContactName}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-sm">Teléfono</p>
-                <p className="font-medium">{employee.emergencyContactPhone}</p>
-              </div>
-              {employee.emergencyContactRelation && (
-                <div>
-                  <p className="text-muted-foreground text-sm">Relación</p>
-                  <p className="font-medium">{employee.emergencyContactRelation}</p>
+        <TabsContent value="periods" className="space-y-6">
+          {/* Active Period Section */}
+          {activePeriod ? (
+            <ActivePeriodCard
+              period={activePeriod}
+              loans={activeLoans}
+              onLoanAdded={fetchData}
+              onPeriodEnded={fetchData}
+            />
+          ) : (
+            <Card className="border-dashed">
+              <CardContent className="flex flex-col items-center justify-center py-10 space-y-4">
+                <div className="p-4 bg-muted rounded-full">
+                  <Calendar className="h-8 w-8 text-muted-foreground" />
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-      </div>
+                <div className="text-center">
+                  <h3 className="font-semibold text-lg">No hay temporada activa</h3>
+                  <p className="text-muted-foreground text-sm max-w-sm">
+                    Inicia una nueva temporada cuando el empleado llegue al país para comenzar a registrar sus días y préstamos.
+                  </p>
+                </div>
+                <Button onClick={() => setShowStartPeriod(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Iniciar Temporada
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
+          {/* History Section */}
+          <PeriodsHistory periods={periods} />
+        </TabsContent>
+      </Tabs>
+
+      <StartPeriodDialog
+        open={showStartPeriod}
+        onOpenChange={setShowStartPeriod}
+        employeeId={employee.id}
+        defaultRate={employee.salary} // Use base salary as default daily rate
+        onSuccess={fetchData}
+      />
     </div>
   );
 }

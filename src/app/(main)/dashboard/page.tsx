@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardData } from '@/modules/dashboard/hooks/use-dashboard-data';
 import { useDashboardRevenue } from '@/modules/dashboard/hooks/use-dashboard-revenue';
 import { useAIDashboardInsights } from '@/modules/dashboard/hooks/use-ai-dashboard-insights';
+import { useDashboardMetrics } from '@/modules/dashboard/hooks/useDashboardMetrics';
 import {
   DashboardStatsCards,
   DashboardSecondaryStats,
@@ -11,6 +12,8 @@ import {
   ProjectStatusChart,
   MetricsBarChart,
   DashboardLoading,
+  FinancialPulseWidget,
+  PriorityActionsWidget,
 } from '@/modules/dashboard/components';
 import { AIInsightsPanel } from '@/modules/dashboard/components/AIInsightsPanel';
 
@@ -18,18 +21,19 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { stats, projectStatus, loading } = useDashboardData(user?.uid);
   const { data: revenueData, monthlyRevenue, loading: revenueLoading } = useDashboardRevenue(6);
+  const { metrics, loading: metricsLoading } = useDashboardMetrics();
 
   // AI Insights
   const aiInsights = useAIDashboardInsights(
     revenueData?.totalRevenue || 0,
-    0, // TODO: Get expenses from stats
-    revenueData?.totalRevenue || 0, // TODO: Calculate profit
+    metrics?.financial?.monthlyExpenses || 0,
+    metrics?.financial?.netProfit || 0,
     monthlyRevenue,
     stats?.pendingInvoices,
     stats?.activeOpportunities
   );
 
-  if (authLoading || loading || revenueLoading) {
+  if (authLoading || loading || revenueLoading || metricsLoading) {
     return <DashboardLoading />;
   }
 
@@ -48,23 +52,34 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <DashboardStatsCards stats={stats} />
-      <DashboardSecondaryStats stats={stats} />
+      {/* Financial Pulse - Top Priority */}
+      <FinancialPulseWidget metrics={metrics?.financial} loading={metricsLoading} />
 
-      {/* AI Insights Panel */}
-      <AIInsightsPanel
-        insights={aiInsights.insights}
-        healthScore={aiInsights.healthScore}
-        loading={aiInsights.loading}
-        error={aiInsights.error}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Priority Actions - Critical for CEO */}
+        <div className="lg:col-span-1 h-full">
+          <PriorityActionsWidget actions={metrics?.priorityActions || []} loading={metricsLoading} />
+        </div>
 
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-        <RevenueChart data={monthlyRevenue} />
-        <ProjectStatusChart data={projectStatus} />
+        {/* Revenue Chart - Main Visual */}
+        <div className="lg:col-span-2 h-full">
+          <RevenueChart data={monthlyRevenue} />
+        </div>
       </div>
 
-      <MetricsBarChart stats={stats} />
+      {/* Operational & AI Insights */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ProjectStatusChart data={projectStatus} />
+        <AIInsightsPanel
+          insights={aiInsights.insights}
+          healthScore={aiInsights.healthScore}
+          loading={aiInsights.loading}
+          error={aiInsights.error}
+        />
+      </div>
+
+      {/* Secondary Stats - Less critical info */}
+      <DashboardStatsCards stats={stats} />
     </div>
   );
 }

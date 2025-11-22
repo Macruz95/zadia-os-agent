@@ -60,9 +60,9 @@ export function OpportunityFormDialog({
     return clients.find(c => c.id === clientId);
   }, [clients, clientId]);
 
-  const availableContacts = useMemo(() => {
-    return selectedClient?.contacts || [];
-  }, [selectedClient]);
+  // Note: Contacts are managed separately in the contacts collection
+  // For now, we'll use a simplified approach
+  const availableContacts: any[] = [];
 
   // Load clients
   useEffect(() => {

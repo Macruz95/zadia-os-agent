@@ -5,6 +5,7 @@ import { LandingHero } from './LandingHero';
 import { LandingFeatures } from './LandingFeatures';
 import { LandingTestimonials } from './LandingTestimonials';
 import { LandingCTA } from './LandingCTA';
+import { LandingShowcase } from './LandingShowcase';
 import { LandingFooter } from './LandingFooter';
 
 export function LandingPage() {
@@ -14,6 +15,7 @@ export function LandingPage() {
       <main>
         <LandingHero />
         <LandingFeatures />
+        <LandingShowcase />
         <LandingTestimonials />
         <LandingCTA />
       </main>

@@ -1,6 +1,7 @@
 import 'server-only';
 import { initializeApp, getApps, cert, App } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { logger } from '@/lib/logger';
 
 // Initialize Firebase Admin
 // Note: In production (Vercel), we should use environment variables for the service account
@@ -22,7 +23,7 @@ if (!getApps().length) {
                 projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
             });
         } catch (error) {
-            console.error('Error parsing FIREBASE_SERVICE_ACCOUNT_KEY:', error);
+            logger.error('Error parsing FIREBASE_SERVICE_ACCOUNT_KEY', error as Error);
             // Fallback to default initialization (might fail locally without setup)
             app = initializeApp({
                 projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,

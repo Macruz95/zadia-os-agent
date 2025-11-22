@@ -159,7 +159,11 @@ export function EmployeesList({
                 const positionConfig = POSITION_CONFIG[employee.position];
 
                 return (
-                  <TableRow key={employee.id}>
+                  <TableRow
+                    key={employee.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => router.push(`/hr/employees/${employee.id}`)}
+                  >
                     <TableCell className="font-medium">
                       {employee.firstName} {employee.lastName}
                     </TableCell>
@@ -182,23 +186,38 @@ export function EmployeesList({
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => router.push(`/hr/employees/${employee.id}`)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/hr/employees/${employee.id}`);
+                            }}
                           >
                             <Eye className="mr-2 h-4 w-4" />
                             Ver Detalles
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onEdit(employee)}>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEdit(employee);
+                            }}
+                          >
                             <Pencil className="mr-2 h-4 w-4" />
                             Editar
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => setDeleteId(employee.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteId(employee.id);
+                            }}
                             className="text-destructive"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />

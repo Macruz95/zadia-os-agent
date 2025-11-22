@@ -56,8 +56,8 @@ service cloud.firestore {
       allow read: if isOwner(userId) || isAdmin();
       // Users can update their own profile, admins can update all
       allow update: if isOwner(userId) || isAdmin();
-      // Only admins can create users
-      allow create: if isAdmin();
+      // Users can create their own profile
+      allow create: if isOwner(userId) || isAdmin();
       // Only admins can delete users
       allow delete: if isAdmin();
     }
@@ -392,6 +392,18 @@ service cloud.firestore {
       // Only admins can access payroll
       allow read: if isAdmin();
       allow write: if isAdmin();
+    }
+
+    // Work Periods (Temporadas)
+    match /workPeriods/{periodId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Loans (Préstamos)
+    match /loans/{loanId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
     }
     
     // ===========================

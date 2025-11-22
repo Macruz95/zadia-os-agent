@@ -143,3 +143,34 @@ export async function getQuotesByStatus(
     throw new Error('Failed to fetch quotes by status');
   }
 }
+
+/**
+ * Obtener cotizaciones por cliente
+ */
+export async function getQuotesByClient(
+  clientId: string
+): Promise<Quote[]> {
+  try {
+    const q = query(
+      collection(db, QUOTES_COLLECTION),
+      where('clientId', '==', clientId),
+      orderBy('createdAt', 'desc')
+    );
+
+    const querySnapshot = await getDocs(q);
+    const quotes: Quote[] = [];
+
+    querySnapshot.forEach((doc) => {
+      quotes.push(docToQuote(doc));
+    });
+
+    return quotes;
+  } catch (error) {
+    logger.error('Error fetching quotes by client', error as Error, {
+      component: 'QuotesService',
+      action: 'getByClient',
+      metadata: { clientId }
+    });
+    throw new Error('Failed to fetch quotes by client');
+  }
+}

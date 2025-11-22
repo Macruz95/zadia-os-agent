@@ -166,7 +166,10 @@ export async function convertQuoteToProject(
         },
       });
     } catch (timelineError) {
-      logger.warn('Failed to create timeline entry', timelineError as Error);
+      logger.warn('Failed to create timeline entry', {
+        component: 'QuoteProjectConversionService',
+        metadata: { error: (timelineError as Error).message }
+      });
       // Don't fail the whole process if timeline fails
     }
 

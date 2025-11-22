@@ -53,7 +53,7 @@ export type ShiftType =
  */
 export interface Employee {
   id: string;
-  
+
   // Personal Info
   firstName: string;
   lastName: string;
@@ -62,33 +62,33 @@ export interface Employee {
   phoneCountryId?: string;     // Código de país para el teléfono (SV, NI, etc.)
   address: string;
   birthDate: Timestamp;
-  
+
   // Identification - Opcional para empleados extranjeros temporales
   nationalId?: string;          // DUI (SV), Cédula (NI), etc.
   taxId?: string;               // NIT
   socialSecurityNumber?: string;
-  
+
   // Employment Info
   position: EmployeePosition;
   department: string;
   status: EmployeeStatus;
   contractType: ContractType;
-  
+
   // Dates
   hireDate: Timestamp;
   terminationDate?: Timestamp;
-  
+
   // Compensation
   salary: number;
   currency: string;
   paymentFrequency: 'hourly' | 'daily' | 'weekly' | 'biweekly' | 'monthly';
-  
+
   // Emergency Contact
   emergencyContactName?: string;
   emergencyContactPhone?: string;
   emergencyContactPhoneCountryId?: string;
   emergencyContactRelation?: string;
-  
+
   // Metadata
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -102,17 +102,17 @@ export interface Shift {
   id: string;
   employeeId: string;
   employeeName: string;
-  
+
   // Shift Details
   type: ShiftType;
   startTime: string;           // HH:mm format
   endTime: string;             // HH:mm format
   daysOfWeek: number[];        // 0=Sunday, 6=Saturday
-  
+
   // Active period
   startDate: Timestamp;
   endDate?: Timestamp;
-  
+
   // Metadata
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -125,21 +125,21 @@ export interface Attendance {
   id: string;
   employeeId: string;
   employeeName: string;
-  
+
   // Attendance Details
   date: Timestamp;
   checkIn?: Timestamp;
   checkOut?: Timestamp;
-  
+
   // Hours
   scheduledHours: number;
   workedHours: number;
   overtimeHours: number;
-  
+
   // Status
   status: 'present' | 'absent' | 'late' | 'half-day' | 'overtime';
   notes?: string;
-  
+
   // Metadata
   recordedAt: Timestamp;
   recordedBy: string;
@@ -152,12 +152,12 @@ export interface Payroll {
   id: string;
   employeeId: string;
   employeeName: string;
-  
+
   // Period
   periodStart: Timestamp;
   periodEnd: Timestamp;
   paymentDate: Timestamp;
-  
+
   // Salary
   baseSalary: number;
   overtimePay: number;
@@ -165,21 +165,21 @@ export interface Payroll {
   deductions: number;
   netPay: number;
   currency: string;
-  
+
   // Hours
   regularHours: number;
   overtimeHours: number;
-  
+
   // Status
   status: 'pending' | 'approved' | 'paid';
   approvedBy?: string;
   approvedAt?: Timestamp;
   paidAt?: Timestamp;
-  
+
   // Payment Method
   paymentMethod: 'cash' | 'bank-transfer' | 'check';
   reference?: string;
-  
+
   // Metadata
   createdAt: Timestamp;
   createdBy: string;
@@ -192,22 +192,22 @@ export interface LeaveRequest {
   id: string;
   employeeId: string;
   employeeName: string;
-  
+
   // Request Details
   type: 'vacation' | 'sick' | 'personal' | 'unpaid';
   startDate: Timestamp;
   endDate: Timestamp;
   days: number;
-  
+
   // Status
   status: 'pending' | 'approved' | 'rejected';
   reason: string;
-  
+
   // Approval
   approvedBy?: string;
   approvedAt?: Timestamp;
   rejectionReason?: string;
-  
+
   // Metadata
   requestedAt: Timestamp;
 }
@@ -239,9 +239,9 @@ export const POSITION_CONFIG: Record<EmployeePosition, { label: string; icon: st
   other: { label: 'Otro', icon: '👤' },
 };
 
-export const STATUS_CONFIG: Record<EmployeeStatus, { 
-  label: string; 
-  variant: 'default' | 'secondary' | 'destructive' | 'outline' 
+export const STATUS_CONFIG: Record<EmployeeStatus, {
+  label: string;
+  variant: 'default' | 'secondary' | 'destructive' | 'outline'
 }> = {
   active: { label: 'Activo', variant: 'default' },
   inactive: { label: 'Inactivo', variant: 'secondary' },
@@ -262,3 +262,41 @@ export const SHIFT_TYPE_CONFIG: Record<ShiftType, { label: string; icon: string 
   night: { label: 'Noche', icon: '🌙' },
   'full-day': { label: 'Día Completo', icon: '⏰' },
 };
+
+/**
+ * Work Period (Temporada de Trabajo)
+ */
+export interface WorkPeriod {
+  id: string;
+  employeeId: string;
+  startDate: Timestamp;
+  endDate?: Timestamp;
+  status: 'active' | 'completed';
+  dailyRate: number;
+  currency: string; // Always 'USD' per user request
+
+  // Calculated fields
+  totalDays: number;
+  totalSalary: number;
+  totalLoans: number;
+  netPayable: number;
+
+  notes?: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+/**
+ * Loan (Préstamo/Adelanto)
+ */
+export interface Loan {
+  id: string;
+  employeeId: string;
+  workPeriodId: string;
+  amount: number;
+  date: Timestamp;
+  reason: string;
+  status: 'pending' | 'deducted' | 'paid';
+  approvedBy: string;
+  createdAt: Timestamp;
+}

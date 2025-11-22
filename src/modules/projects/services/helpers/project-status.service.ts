@@ -26,11 +26,36 @@ export async function updateProjectStatus(
   try {
     const projectRef = doc(db, 'projects', projectId);
 
-    await updateDoc(projectRef, {
+    // Preparar actualizaciones base
+    const updates: any = {
       status: newStatus,
       updatedAt: Timestamp.now(),
       updatedBy: userId,
-    });
+    };
+
+    // 🎯 LÓGICA HÍBRIDA DE PROGRESO
+    if (newStatus === 'completed') {
+      // Completado -> 100% siempre
+      updates.progressPercent = 100;
+      updates.actualEndDate = Timestamp.now();
+    } else if (newStatus === 'planning') {
+      // Planificación -> 0%
+      updates.progressPercent = 0;
+    } else if (newStatus === 'in-progress') {
+      // En progreso -> calcular basado en tareas si existen
+      const { calculateProjectProgress } = await import('./project-progress.service');
+      const calculatedProgress = await calculateProjectProgress(projectId);
+
+      if (calculatedProgress !== null) {
+        updates.progressPercent = calculatedProgress;
+      }
+      // Si no hay tareas, mantener progreso actual
+
+      updates.actualStartDate = Timestamp.now();
+    }
+    // 'cancelled' y 'on-hold' mantienen progreso actual
+
+    await updateDoc(projectRef, updates);
 
     // Registrar en timeline
     await ProjectTimelineService.addTimelineEntry({
@@ -41,6 +66,11 @@ export async function updateProjectStatus(
       performedBy: userId,
       performedByName: userName,
       performedAt: Timestamp.now(),
+    });
+
+    logger.info('Project status updated', {
+      projectId,
+      metadata: { newStatus, progressPercent: updates.progressPercent }
     });
   } catch (error) {
     logger.error('Error updating project status', error as Error);

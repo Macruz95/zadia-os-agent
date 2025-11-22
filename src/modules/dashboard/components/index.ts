@@ -9,3 +9,5 @@ export { RevenueChart } from './RevenueChart';
 export { ProjectStatusChart } from './ProjectStatusChart';
 export { MetricsBarChart } from './MetricsBarChart';
 export { DashboardLoading } from './DashboardLoading';
+export { FinancialPulseWidget } from './FinancialPulseWidget';
+export { PriorityActionsWidget } from './PriorityActionsWidget';

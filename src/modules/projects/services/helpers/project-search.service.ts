@@ -61,7 +61,8 @@ function docToProject(doc: QueryDocumentSnapshot<DocumentData>): Project {
  * @returns Lista de proyectos y total
  */
 export async function searchProjects(
-  params: ProjectSearchParams = {}
+  params: ProjectSearchParams = {},
+  pageSize?: number
 ): Promise<{
   projects: Project[];
   totalCount: number;
@@ -90,8 +91,9 @@ export async function searchProjects(
     q = query(q, orderBy(sortField, sortDirection));
 
     // Limitar resultados
-    if (params.pageSize) {
-      q = query(q, limit(params.pageSize));
+    const limitCount = pageSize || params.pageSize;
+    if (limitCount) {
+      q = query(q, limit(limitCount));
     }
 
     const snapshot = await getDocs(q);
