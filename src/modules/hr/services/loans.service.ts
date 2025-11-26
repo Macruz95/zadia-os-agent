@@ -50,7 +50,10 @@ export class LoansService {
             // Recalculate period totals
             await WorkPeriodsService.recalculateTotals(workPeriodId);
 
-            logger.info('Loan added', { employeeId, amount });
+            logger.info('Loan added', { 
+                component: 'LoansService',
+                metadata: { employeeId, amount } 
+            });
 
             return {
                 id: docRef.id,
@@ -95,7 +98,10 @@ export class LoansService {
             // Recalculate period totals
             await WorkPeriodsService.recalculateTotals(workPeriodId);
 
-            logger.info('Loan deleted', { loanId });
+            logger.info('Loan deleted', { 
+                component: 'LoansService',
+                metadata: { loanId } 
+            });
         } catch (error) {
             logger.error('Error deleting loan', error as Error);
             throw error;

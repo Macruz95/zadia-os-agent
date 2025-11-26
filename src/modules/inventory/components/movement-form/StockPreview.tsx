@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { AlertTriangle, XCircle, TrendingUp } from 'lucide-react';
 import { RawMaterial, FinishedProduct } from '../../types';
 
 interface StockPreviewProps {
@@ -123,18 +124,21 @@ export function StockPreview({ item, itemType, quantity, movementType, unitCost 
 
         {/* Warnings */}
         {newStock === 0 && (
-          <div className="bg-orange-50 border border-orange-200 p-2 rounded text-orange-700 text-xs">
-            ⚠️ El stock quedará en cero
+          <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 p-2 rounded text-orange-700 text-xs">
+            <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+            El stock quedará en cero
           </div>
         )}
         {newStock < 0 && (
-          <div className="bg-red-50 border border-red-200 p-2 rounded text-red-700 text-xs">
-            ❌ Stock insuficiente para esta operación
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 p-2 rounded text-red-700 text-xs">
+            <XCircle className="h-3 w-3 flex-shrink-0" />
+            Stock insuficiente para esta operación
           </div>
         )}
         {Math.abs(costDifference) > currentItemCost * 0.2 && (
-          <div className="bg-yellow-50 border border-yellow-200 p-2 rounded text-yellow-700 text-xs">
-            💰 Cambio significativo en el costo (más del 20%)
+          <div className="flex items-center gap-2 bg-yellow-50 border border-yellow-200 p-2 rounded text-yellow-700 text-xs">
+            <TrendingUp className="h-3 w-3 flex-shrink-0" />
+            Cambio significativo en el costo (más del 20%)
           </div>
         )}
       </div>

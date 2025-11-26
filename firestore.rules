@@ -469,5 +469,72 @@ service cloud.firestore {
       allow update: if isOwner(resource.data.userId);
       allow delete: if isOwner(resource.data.userId);
     }
+
+    // ===========================
+    // CALENDAR MODULE (Agenda Cognitiva)
+    // ===========================
+    match /events/{eventId} {
+      // Users can read their own events, admins can read all
+      allow read: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      // Users can create their own events
+      allow create: if isAuthenticated() 
+        && isOwner(request.resource.data.userId)
+        && hasRequiredFields(request.resource.data, ['userId', 'title', 'startDate', 'status']);
+      // Users can update their own events, admins can update all
+      allow update: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      // Users can delete their own events, admins can delete all
+      allow delete: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+    }
+
+    // ===========================
+    // TASKS MODULE (Gestor RICE-Z)
+    // ===========================
+    // Tasks collection (actualizar reglas existentes para incluir filtro por userId)
+    match /tasks/{taskId} {
+      // Users can read their own tasks, admins can read all
+      allow read: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      // Users can create their own tasks
+      allow create: if isAuthenticated() 
+        && isOwner(request.resource.data.userId)
+        && hasRequiredFields(request.resource.data, ['userId', 'title', 'status', 'priority', 'domain']);
+      // Users can update their own tasks, admins can update all
+      allow update: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      // Users can delete their own tasks, admins can delete all
+      allow delete: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+    }
+
+    // ===========================
+    // WORKFLOWS MODULE (Biblioteca de Flujos Cognitivos)
+    // ===========================
+    match /workflows/{workflowId} {
+      // Get: Users can read their own workflows, admins can read all
+      allow get: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      // List: Allow authenticated users to list (query filters by userId in app code)
+      allow list: if isAuthenticated();
+      // Users can create their own workflows
+      allow create: if isAuthenticated() 
+        && isOwner(request.resource.data.userId)
+        && hasRequiredFields(request.resource.data, ['userId', 'name', 'template', 'status']);
+      // Users can update their own workflows, admins can update all
+      allow update: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      // Users can delete their own workflows, admins can delete all
+      allow delete: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+    }
+
+    // Workflow executions history
+    match /workflow-executions/{executionId} {
+      // Get: Users can read their own executions, admins can read all
+      allow get: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      // List: Allow authenticated users to list (query filters by userId in app code)
+      allow list: if isAuthenticated();
+      // System can create executions
+      allow create: if isAuthenticated() 
+        && isOwner(request.resource.data.userId)
+        && hasRequiredFields(request.resource.data, ['userId', 'workflowId', 'status', 'startedAt']);
+      // Users can update their own executions, admins can update all
+      allow update: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      // Only admins can delete executions
+      allow delete: if isAdmin();
+    }
   }
 }

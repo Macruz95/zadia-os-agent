@@ -27,7 +27,14 @@ export async function updateProjectStatus(
     const projectRef = doc(db, 'projects', projectId);
 
     // Preparar actualizaciones base
-    const updates: any = {
+    const updates: {
+      status: ProjectStatus;
+      updatedAt: Timestamp;
+      updatedBy: string;
+      progressPercent?: number;
+      actualEndDate?: Timestamp;
+      actualStartDate?: Timestamp;
+    } = {
       status: newStatus,
       updatedAt: Timestamp.now(),
       updatedBy: userId,

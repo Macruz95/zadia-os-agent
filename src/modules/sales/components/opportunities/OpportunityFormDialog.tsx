@@ -55,14 +55,17 @@ export function OpportunityFormDialog({
   const [priority, setPriority] = useState<OpportunityPriority>('medium');
   const [notes, setNotes] = useState('');
 
-  // Get contacts from selected client
-  const selectedClient = useMemo(() => {
+  // Get selected client for reference
+  const _selectedClient = useMemo(() => {
     return clients.find(c => c.id === clientId);
   }, [clients, clientId]);
 
   // Note: Contacts are managed separately in the contacts collection
-  // For now, we'll use a simplified approach
-  const availableContacts: any[] = [];
+  // For now, we'll use a simplified approach - contacts will be loaded when needed
+  const availableContacts: { id: string; name: string; email?: string }[] = [];
+  
+  // Suppress unused variable warning - client will be used for contact loading
+  void _selectedClient;
 
   // Load clients
   useEffect(() => {

@@ -90,36 +90,36 @@ export const inventoryUtils = {
    */
   getRawMaterialCategoryIcon: (category: RawMaterialCategory): string => {
     const categoryIcons = {
-      'Maderas': '🪵',
-      'Acabados': '✨',
-      'Adhesivos': '🧴',
-      'Herrajes': '🔩',
-      'Químicos': '⚗️',
-      'Textiles': '🧵',
-      'Herramientas': '🔨',
-      'Otros': '📦'
+      'Maderas': 'TreeDeciduous',
+      'Acabados': 'Sparkles',
+      'Adhesivos': 'Droplets',
+      'Herrajes': 'Cog',
+      'Químicos': 'FlaskConical',
+      'Textiles': 'Scissors',
+      'Herramientas': 'Hammer',
+      'Otros': 'Package'
     };
     
-    return categoryIcons[category] || '📦';
+    return categoryIcons[category] || 'Package';
   },
 
   /**
-   * Get category icon for finished products
+   * Get category icon name for finished products (Lucide React icon names)
    */
   getFinishedProductCategoryIcon: (category: FinishedProductCategory): string => {
     const categoryIcons = {
-      'Dormitorio': '🛏️',
-      'Oficina': '🏢',
-      'Sala': '🛋️',
-      'Cocina': '🍳',
-      'Comedor': '🍽️',
-      'Baño': '🚿',
-      'Infantil': '🧸',
-      'Exterior': '🌳',
-      'Otros': '🪑'
+      'Dormitorio': 'Bed',
+      'Oficina': 'Building2',
+      'Sala': 'Sofa',
+      'Cocina': 'ChefHat',
+      'Comedor': 'UtensilsCrossed',
+      'Baño': 'Bath',
+      'Infantil': 'Baby',
+      'Exterior': 'TreePine',
+      'Otros': 'Armchair'
     };
     
-    return categoryIcons[category] || '🪑';
+    return categoryIcons[category] || 'Armchair';
   },
 
   /**

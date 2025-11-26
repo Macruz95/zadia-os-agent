@@ -23,11 +23,11 @@ import { LoansService } from '@/modules/hr/services/loans.service';
 import { useAuth } from '@/contexts/AuthContext';
 
 const loanSchema = z.object({
-    amount: z.coerce.number().min(0.01, 'Monto requerido'),
+    amount: z.number().min(0.01, 'Monto requerido'),
     reason: z.string().min(3, 'Motivo requerido'),
 });
 
-type LoanForm = z.infer<typeof loanSchema>;
+type LoanFormData = z.infer<typeof loanSchema>;
 
 interface AddLoanDialogProps {
     open: boolean;
@@ -47,11 +47,15 @@ export function AddLoanDialog({
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<LoanForm>({
+    const { register, handleSubmit, reset, formState: { errors } } = useForm<LoanFormData>({
         resolver: zodResolver(loanSchema),
+        defaultValues: {
+            amount: 0,
+            reason: ''
+        }
     });
 
-    const onSubmit = async (data: LoanForm) => {
+    const onSubmit = async (data: LoanFormData) => {
         if (!user) return;
 
         try {
@@ -68,7 +72,7 @@ export function AddLoanDialog({
             reset();
             onSuccess();
             onOpenChange(false);
-        } catch (error) {
+        } catch {
             toast.error('Error al registrar préstamo');
         } finally {
             setLoading(false);
@@ -90,7 +94,7 @@ export function AddLoanDialog({
                             type="number"
                             step="0.01"
                             placeholder="0.00"
-                            {...register('amount')}
+                            {...register('amount', { valueAsNumber: true })}
                         />
                         {errors.amount && (
                             <p className="text-sm text-destructive">{errors.amount.message}</p>

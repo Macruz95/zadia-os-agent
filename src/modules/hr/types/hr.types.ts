@@ -228,15 +228,15 @@ export interface EmployeeStats {
  * Config objects for UI
  */
 export const POSITION_CONFIG: Record<EmployeePosition, { label: string; icon: string }> = {
-  carpenter: { label: 'Carpintero', icon: '🔨' },
-  assistant: { label: 'Ayudante', icon: '🤝' },
-  designer: { label: 'Diseñador', icon: '✏️' },
-  installer: { label: 'Instalador', icon: '🔧' },
-  supervisor: { label: 'Supervisor', icon: '👔' },
-  manager: { label: 'Gerente', icon: '💼' },
-  sales: { label: 'Ventas', icon: '💰' },
-  admin: { label: 'Administrativo', icon: '📋' },
-  other: { label: 'Otro', icon: '👤' },
+  carpenter: { label: 'Carpintero', icon: 'Hammer' },
+  assistant: { label: 'Ayudante', icon: 'HandHelping' },
+  designer: { label: 'Diseñador', icon: 'Pencil' },
+  installer: { label: 'Instalador', icon: 'Wrench' },
+  supervisor: { label: 'Supervisor', icon: 'UserCheck' },
+  manager: { label: 'Gerente', icon: 'Briefcase' },
+  sales: { label: 'Ventas', icon: 'DollarSign' },
+  admin: { label: 'Administrativo', icon: 'ClipboardList' },
+  other: { label: 'Otro', icon: 'User' },
 };
 
 export const STATUS_CONFIG: Record<EmployeeStatus, {
@@ -257,10 +257,10 @@ export const CONTRACT_TYPE_CONFIG: Record<ContractType, string> = {
 };
 
 export const SHIFT_TYPE_CONFIG: Record<ShiftType, { label: string; icon: string }> = {
-  morning: { label: 'Mañana', icon: '🌅' },
-  afternoon: { label: 'Tarde', icon: '☀️' },
-  night: { label: 'Noche', icon: '🌙' },
-  'full-day': { label: 'Día Completo', icon: '⏰' },
+  morning: { label: 'Mañana', icon: 'Sunrise' },
+  afternoon: { label: 'Tarde', icon: 'Sun' },
+  night: { label: 'Noche', icon: 'Moon' },
+  'full-day': { label: 'Día Completo', icon: 'Clock' },
 };
 
 /**

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext } from 'react';
-import { User as FirebaseUser } from 'firebase/auth';
+import React, { createContext, useContext, useEffect } from 'react';
+import { User as FirebaseUser, onIdTokenChanged } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 import { UserProfile, RegisterFormData, GoogleCompleteFormData } from '@/validations/auth.schema';
 import { useAuthState } from '@/hooks/use-auth-state';
 import { useAuthActions } from '@/hooks/use-auth-actions';
@@ -21,9 +22,38 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Sync Firebase auth state with HTTP-only cookie for middleware protection
+ */
+function useAuthCookieSync() {
+  useEffect(() => {
+    const unsubscribe = onIdTokenChanged(auth, async (user) => {
+      try {
+        if (user) {
+          const token = await user.getIdToken();
+          await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token }),
+          });
+        } else {
+          await fetch('/api/auth/session', { method: 'DELETE' });
+        }
+      } catch {
+        // Silently fail - cookie sync is non-critical
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { user, firebaseUser, loading, refreshUserProfile } = useAuthState();
   const authActions = useAuthActions();
+
+  // Sync auth state with cookie for middleware
+  useAuthCookieSync();
 
   const completeGoogleProfile = async (data: GoogleCompleteFormData): Promise<void> => {
     if (!firebaseUser) {

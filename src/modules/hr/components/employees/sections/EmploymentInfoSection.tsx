@@ -9,6 +9,7 @@
 'use client';
 
 import { Briefcase } from 'lucide-react';
+import { DynamicIcon } from '@/lib/icons';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -52,7 +53,10 @@ export function EmploymentInfoSection({
             <SelectContent>
               {Object.entries(POSITION_CONFIG).map(([key, config]) => (
                 <SelectItem key={key} value={key}>
-                  {config.icon} {config.label}
+                  <span className="flex items-center gap-2">
+                    <DynamicIcon name={config.icon} className="h-4 w-4" />
+                    {config.label}
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>

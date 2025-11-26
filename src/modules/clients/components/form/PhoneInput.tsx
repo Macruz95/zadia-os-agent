@@ -4,13 +4,12 @@ import { useState } from 'react';
 import { Input } from '../../../../components/ui/input';
 import { Label } from '../../../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../components/ui/select';
-import { Phone } from 'lucide-react';
+import { Phone, Globe, AlertTriangle } from 'lucide-react';
 
 interface Country {
   code: string;
   name: string;
   dialCode: string;
-  flag: string;
 }
 
 interface PhoneInputProps {
@@ -26,26 +25,26 @@ interface PhoneInputProps {
 
 // Lista de países más comunes en LATAM + internacionales
 const COUNTRIES: Country[] = [
-  { code: 'CO', name: 'Colombia', dialCode: '+57', flag: '🇨🇴' },
-  { code: 'MX', name: 'México', dialCode: '+52', flag: '🇲🇽' },
-  { code: 'US', name: 'Estados Unidos', dialCode: '+1', flag: '🇺🇸' },
-  { code: 'AR', name: 'Argentina', dialCode: '+54', flag: '🇦🇷' },
-  { code: 'BR', name: 'Brasil', dialCode: '+55', flag: '🇧🇷' },
-  { code: 'CL', name: 'Chile', dialCode: '+56', flag: '🇨🇱' },
-  { code: 'PE', name: 'Perú', dialCode: '+51', flag: '🇵🇪' },
-  { code: 'EC', name: 'Ecuador', dialCode: '+593', flag: '🇪🇨' },
-  { code: 'VE', name: 'Venezuela', dialCode: '+58', flag: '🇻🇪' },
-  { code: 'UY', name: 'Uruguay', dialCode: '+598', flag: '🇺🇾' },
-  { code: 'PY', name: 'Paraguay', dialCode: '+595', flag: '🇵🇾' },
-  { code: 'BO', name: 'Bolivia', dialCode: '+591', flag: '🇧🇴' },
-  { code: 'CR', name: 'Costa Rica', dialCode: '+506', flag: '🇨🇷' },
-  { code: 'PA', name: 'Panamá', dialCode: '+507', flag: '🇵🇦' },
-  { code: 'GT', name: 'Guatemala', dialCode: '+502', flag: '🇬🇹' },
-  { code: 'HN', name: 'Honduras', dialCode: '+504', flag: '🇭🇳' },
-  { code: 'SV', name: 'El Salvador', dialCode: '+503', flag: '🇸🇻' },
-  { code: 'NI', name: 'Nicaragua', dialCode: '+505', flag: '🇳🇮' },
-  { code: 'DO', name: 'República Dominicana', dialCode: '+1-809', flag: '🇩🇴' },
-  { code: 'ES', name: 'España', dialCode: '+34', flag: '🇪🇸' },
+  { code: 'CO', name: 'Colombia', dialCode: '+57' },
+  { code: 'MX', name: 'México', dialCode: '+52' },
+  { code: 'US', name: 'Estados Unidos', dialCode: '+1' },
+  { code: 'AR', name: 'Argentina', dialCode: '+54' },
+  { code: 'BR', name: 'Brasil', dialCode: '+55' },
+  { code: 'CL', name: 'Chile', dialCode: '+56' },
+  { code: 'PE', name: 'Perú', dialCode: '+51' },
+  { code: 'EC', name: 'Ecuador', dialCode: '+593' },
+  { code: 'VE', name: 'Venezuela', dialCode: '+58' },
+  { code: 'UY', name: 'Uruguay', dialCode: '+598' },
+  { code: 'PY', name: 'Paraguay', dialCode: '+595' },
+  { code: 'BO', name: 'Bolivia', dialCode: '+591' },
+  { code: 'CR', name: 'Costa Rica', dialCode: '+506' },
+  { code: 'PA', name: 'Panamá', dialCode: '+507' },
+  { code: 'GT', name: 'Guatemala', dialCode: '+502' },
+  { code: 'HN', name: 'Honduras', dialCode: '+504' },
+  { code: 'SV', name: 'El Salvador', dialCode: '+503' },
+  { code: 'NI', name: 'Nicaragua', dialCode: '+505' },
+  { code: 'DO', name: 'República Dominicana', dialCode: '+1-809' },
+  { code: 'ES', name: 'España', dialCode: '+34' },
 ];
 
 export const PhoneInput = ({
@@ -101,7 +100,7 @@ export const PhoneInput = ({
             <SelectValue>
               {selectedCountryData && (
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{selectedCountryData.flag}</span>
+                  <Globe className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">{selectedCountryData.dialCode}</span>
                 </div>
               )}
@@ -111,7 +110,7 @@ export const PhoneInput = ({
             {COUNTRIES.map((country) => (
               <SelectItem key={country.code} value={country.code}>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">{country.flag}</span>
+                  <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded">{country.code}</span>
                   <span className="text-sm">{country.name}</span>
                   <span className="text-xs text-muted-foreground">{country.dialCode}</span>
                 </div>
@@ -147,7 +146,7 @@ export const PhoneInput = ({
       {/* Error message */}
       {error && (
         <p className="text-xs text-red-500 flex items-center gap-1">
-          <span>⚠</span> {error}
+          <AlertTriangle className="h-3 w-3" /> {error}
         </p>
       )}
     </div>

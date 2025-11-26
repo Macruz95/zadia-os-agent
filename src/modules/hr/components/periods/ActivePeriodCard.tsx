@@ -11,9 +11,9 @@ import {
     Calendar,
     DollarSign,
     Clock,
-    Plus,
     LogOut,
-    AlertCircle
+    AlertCircle,
+    // Plus removed - not used in this component
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

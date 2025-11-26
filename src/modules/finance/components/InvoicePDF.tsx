@@ -85,7 +85,7 @@ export const InvoicePDF = React.forwardRef<HTMLDivElement, InvoicePDFProps>(
               </tr>
             </thead>
             <tbody>
-              {invoice.items.map((item: any, index: number) => (
+              {invoice.items.map((item, index: number) => (
                 <tr key={index} className="hover:bg-gray-50">
                   <td className="border border-gray-300 p-3 text-sm">
                     {item.description}
@@ -97,13 +97,13 @@ export const InvoicePDF = React.forwardRef<HTMLDivElement, InvoicePDFProps>(
                     {item.unitOfMeasure || 'pza'}
                   </td>
                   <td className="border border-gray-300 p-3 text-right text-sm">
-                    {formatCurrency(item.unitPrice, invoice.currency as any)}
+                    {formatCurrency(item.unitPrice, invoice.currency)}
                   </td>
                   <td className="border border-gray-300 p-3 text-right text-sm">
-                    {formatCurrency(item.discount || 0, invoice.currency as any)}
+                    {formatCurrency(item.discount || 0, invoice.currency)}
                   </td>
                   <td className="border border-gray-300 p-3 text-right text-sm font-semibold">
-                    {formatCurrency(item.subtotal, invoice.currency as any)}
+                    {formatCurrency(item.subtotal, invoice.currency)}
                   </td>
                 </tr>
               ))}
@@ -117,16 +117,16 @@ export const InvoicePDF = React.forwardRef<HTMLDivElement, InvoicePDFProps>(
             <div className="flex justify-between py-2 border-b">
               <span className="text-sm font-medium">Subtotal:</span>
               <span className="text-sm font-semibold">
-                {formatCurrency(invoice.subtotal, invoice.currency as any)}
+                {formatCurrency(invoice.subtotal, invoice.currency)}
               </span>
             </div>
             {Object.entries(invoice.taxes).map(([taxName, rate]) => (
               <div key={taxName} className="flex justify-between py-2 border-b">
                 <span className="text-sm font-medium">
-                  {taxName} ({rate}%):
+                  {taxName} ({rate as number}%):
                 </span>
                 <span className="text-sm font-semibold">
-                  {formatCurrency((invoice.subtotal * rate) / 100, invoice.currency as any)}
+                  {formatCurrency((invoice.subtotal * (rate as number)) / 100, invoice.currency)}
                 </span>
               </div>
             ))}
@@ -134,14 +134,14 @@ export const InvoicePDF = React.forwardRef<HTMLDivElement, InvoicePDFProps>(
               <div className="flex justify-between py-2 border-b">
                 <span className="text-sm font-medium">Descuentos:</span>
                 <span className="text-sm font-semibold text-red-600">
-                  -{formatCurrency(invoice.discounts, invoice.currency as any)}
+                  -{formatCurrency(invoice.discounts, invoice.currency)}
                 </span>
               </div>
             )}
             <div className="flex justify-between py-3 bg-primary text-primary-foreground px-3 rounded mt-2">
               <span className="font-bold text-lg">TOTAL:</span>
               <span className="font-bold text-lg">
-                {formatCurrency(invoice.total, invoice.currency as any)}
+                {formatCurrency(invoice.total, invoice.currency)}
               </span>
             </div>
             {invoice.amountPaid > 0 && (
@@ -149,13 +149,13 @@ export const InvoicePDF = React.forwardRef<HTMLDivElement, InvoicePDFProps>(
                 <div className="flex justify-between py-2 border-b mt-2">
                   <span className="text-sm font-medium">Pagado:</span>
                   <span className="text-sm font-semibold text-green-600">
-                    {formatCurrency(invoice.amountPaid, invoice.currency as any)}
+                    {formatCurrency(invoice.amountPaid, invoice.currency)}
                   </span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-sm font-medium">Pendiente:</span>
                   <span className="text-sm font-semibold text-orange-600">
-                    {formatCurrency(invoice.amountDue, invoice.currency as any)}
+                    {formatCurrency(invoice.amountDue, invoice.currency)}
                   </span>
                 </div>
               </>

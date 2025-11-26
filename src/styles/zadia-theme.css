@@ -1,0 +1,548 @@
+/**
+ * ZADIA OS - Command Center Theme
+ * Sistema de diseño para el Sistema Operativo Empresarial Agéntico
+ * Estética de centro de mando / cockpit ejecutivo
+ */
+
+/* ============================================
+ * ZADIA COMMAND CENTER - CSS VARIABLES
+ * ============================================ */
+
+:root {
+  /* Core Brand Colors */
+  --zadia-primary: 250 95% 60%;
+  --zadia-primary-glow: 250 100% 70%;
+  --zadia-accent: 180 100% 50%;
+  --zadia-accent-glow: 180 100% 60%;
+  
+  /* Status Colors - Vivid for data visualization */
+  --zadia-success: 145 80% 45%;
+  --zadia-success-glow: 145 90% 55%;
+  --zadia-warning: 45 100% 55%;
+  --zadia-warning-glow: 45 100% 65%;
+  --zadia-danger: 0 85% 55%;
+  --zadia-danger-glow: 0 90% 65%;
+  --zadia-info: 200 100% 55%;
+  --zadia-info-glow: 200 100% 65%;
+  
+  /* Neutral Palette */
+  --zadia-bg-deep: 230 25% 8%;
+  --zadia-bg-elevated: 230 20% 12%;
+  --zadia-bg-surface: 230 18% 16%;
+  --zadia-bg-hover: 230 15% 20%;
+  --zadia-border: 230 15% 25%;
+  --zadia-border-glow: 250 50% 40%;
+  
+  /* Text Colors */
+  --zadia-text-primary: 0 0% 98%;
+  --zadia-text-secondary: 230 10% 70%;
+  --zadia-text-muted: 230 10% 50%;
+  
+  /* Gradients */
+  --zadia-gradient-primary: linear-gradient(135deg, hsl(250 95% 60%) 0%, hsl(280 90% 55%) 100%);
+  --zadia-gradient-accent: linear-gradient(135deg, hsl(180 100% 50%) 0%, hsl(200 100% 55%) 100%);
+  --zadia-gradient-dark: linear-gradient(180deg, hsl(230 25% 8%) 0%, hsl(230 30% 5%) 100%);
+  --zadia-gradient-glow: radial-gradient(ellipse at center, hsl(250 100% 70% / 0.15) 0%, transparent 70%);
+  
+  /* Shadows with glow effect */
+  --zadia-shadow-sm: 0 2px 8px hsl(0 0% 0% / 0.3);
+  --zadia-shadow-md: 0 4px 16px hsl(0 0% 0% / 0.4);
+  --zadia-shadow-lg: 0 8px 32px hsl(0 0% 0% / 0.5);
+  --zadia-shadow-glow: 0 0 20px hsl(250 100% 60% / 0.3);
+  --zadia-shadow-glow-accent: 0 0 20px hsl(180 100% 50% / 0.3);
+  
+  /* Animation Timing */
+  --zadia-transition-fast: 150ms ease;
+  --zadia-transition-base: 250ms ease;
+  --zadia-transition-slow: 400ms ease;
+}
+
+/* ============================================
+ * ZADIA DARK THEME (Command Center Mode)
+ * ============================================ */
+
+.zadia-dark,
+[data-theme="zadia-dark"] {
+  --background: var(--zadia-bg-deep);
+  --foreground: var(--zadia-text-primary);
+  --card: var(--zadia-bg-elevated);
+  --card-foreground: var(--zadia-text-primary);
+  --popover: var(--zadia-bg-surface);
+  --popover-foreground: var(--zadia-text-primary);
+  --primary: var(--zadia-primary);
+  --primary-foreground: 0 0% 100%;
+  --secondary: var(--zadia-bg-surface);
+  --secondary-foreground: var(--zadia-text-primary);
+  --muted: var(--zadia-bg-surface);
+  --muted-foreground: var(--zadia-text-secondary);
+  --accent: var(--zadia-accent);
+  --accent-foreground: 0 0% 100%;
+  --destructive: var(--zadia-danger);
+  --destructive-foreground: 0 0% 100%;
+  --border: var(--zadia-border);
+  --input: var(--zadia-border);
+  --ring: var(--zadia-primary);
+}
+
+/* ============================================
+ * COMMAND CENTER COMPONENTS
+ * ============================================ */
+
+/* Glowing Card */
+.zadia-card {
+  background: hsl(var(--zadia-bg-elevated));
+  border: 1px solid hsl(var(--zadia-border));
+  border-radius: 12px;
+  transition: all var(--zadia-transition-base);
+}
+
+.zadia-card:hover {
+  border-color: hsl(var(--zadia-border-glow));
+  box-shadow: var(--zadia-shadow-glow);
+}
+
+.zadia-card-accent {
+  border-left: 3px solid hsl(var(--zadia-primary));
+}
+
+/* Metric Display */
+.zadia-metric {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.zadia-metric-xl {
+  font-size: 3rem;
+}
+
+.zadia-metric-lg {
+  font-size: 2.25rem;
+}
+
+.zadia-metric-md {
+  font-size: 1.5rem;
+}
+
+.zadia-metric-sm {
+  font-size: 1.125rem;
+}
+
+/* Status Indicators */
+.zadia-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.zadia-status-dot.success {
+  background: hsl(var(--zadia-success));
+  box-shadow: 0 0 8px hsl(var(--zadia-success-glow));
+}
+
+.zadia-status-dot.warning {
+  background: hsl(var(--zadia-warning));
+  box-shadow: 0 0 8px hsl(var(--zadia-warning-glow));
+}
+
+.zadia-status-dot.danger {
+  background: hsl(var(--zadia-danger));
+  box-shadow: 0 0 8px hsl(var(--zadia-danger-glow));
+  animation: pulse-danger 1s ease-in-out infinite;
+}
+
+.zadia-status-dot.info {
+  background: hsl(var(--zadia-info));
+  box-shadow: 0 0 8px hsl(var(--zadia-info-glow));
+}
+
+/* Glow Effects */
+.zadia-glow {
+  position: relative;
+}
+
+.zadia-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: var(--zadia-gradient-primary);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity var(--zadia-transition-base);
+  z-index: -1;
+  filter: blur(8px);
+}
+
+.zadia-glow:hover::before {
+  opacity: 0.5;
+}
+
+/* Data Grid Lines */
+.zadia-grid-bg {
+  background-image: 
+    linear-gradient(hsl(var(--zadia-border) / 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--zadia-border) / 0.3) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Scanline Effect (subtle) */
+.zadia-scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    hsl(0 0% 0% / 0.03) 2px,
+    hsl(0 0% 0% / 0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* ============================================
+ * ANIMATIONS
+ * ============================================ */
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulse-danger {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes data-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Shimmer loading effect */
+.zadia-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--zadia-bg-surface)) 0%,
+    hsl(var(--zadia-bg-hover)) 50%,
+    hsl(var(--zadia-bg-surface)) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+ * LANDING PAGE SPECIFIC
+ * ============================================ */
+
+.zadia-landing {
+  background: var(--zadia-gradient-dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.zadia-landing-glow {
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.zadia-landing-glow.primary {
+  background: hsl(var(--zadia-primary));
+  top: -200px;
+  right: -200px;
+}
+
+.zadia-landing-glow.accent {
+  background: hsl(var(--zadia-accent));
+  bottom: -200px;
+  left: -200px;
+}
+
+/* Hero Dashboard Preview */
+.zadia-dashboard-preview {
+  background: hsl(var(--zadia-bg-elevated));
+  border: 1px solid hsl(var(--zadia-border));
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 
+    var(--zadia-shadow-lg),
+    0 0 60px hsl(var(--zadia-primary) / 0.2);
+  transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
+  transition: transform var(--zadia-transition-slow);
+}
+
+.zadia-dashboard-preview:hover {
+  transform: perspective(1000px) rotateX(2deg) rotateY(-2deg);
+}
+
+/* Feature Cards */
+.zadia-feature-card {
+  background: hsl(var(--zadia-bg-elevated) / 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--zadia-border));
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all var(--zadia-transition-base);
+}
+
+.zadia-feature-card:hover {
+  border-color: hsl(var(--zadia-primary) / 0.5);
+  transform: translateY(-4px);
+  box-shadow: var(--zadia-shadow-glow);
+}
+
+.zadia-feature-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: hsl(var(--zadia-primary) / 0.1);
+  color: hsl(var(--zadia-primary));
+  margin-bottom: 1.5rem;
+}
+
+/* Stats Counter */
+.zadia-stat {
+  text-align: center;
+  padding: 2rem;
+}
+
+.zadia-stat-value {
+  font-size: 3rem;
+  font-weight: 800;
+  background: var(--zadia-gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.zadia-stat-label {
+  color: hsl(var(--zadia-text-secondary));
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.5rem;
+}
+
+/* CTA Button */
+.zadia-cta-button {
+  background: var(--zadia-gradient-primary);
+  color: white;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all var(--zadia-transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.zadia-cta-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.zadia-cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--zadia-shadow-glow);
+}
+
+.zadia-cta-button:hover::before {
+  transform: translateX(100%);
+}
+
+/* ============================================
+ * DASHBOARD COMPONENTS
+ * ============================================ */
+
+/* KPI Card */
+.zadia-kpi-card {
+  background: hsl(var(--zadia-bg-elevated));
+  border: 1px solid hsl(var(--zadia-border));
+  border-radius: 12px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.zadia-kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--zadia-gradient-primary);
+}
+
+.zadia-kpi-card.success::before {
+  background: hsl(var(--zadia-success));
+}
+
+.zadia-kpi-card.warning::before {
+  background: hsl(var(--zadia-warning));
+}
+
+.zadia-kpi-card.danger::before {
+  background: hsl(var(--zadia-danger));
+}
+
+/* Gauge Component */
+.zadia-gauge {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.zadia-gauge-bg {
+  fill: none;
+  stroke: hsl(var(--zadia-border));
+  stroke-width: 8;
+}
+
+.zadia-gauge-fill {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset var(--zadia-transition-slow);
+}
+
+.zadia-gauge-fill.success {
+  stroke: hsl(var(--zadia-success));
+  filter: drop-shadow(0 0 6px hsl(var(--zadia-success-glow)));
+}
+
+.zadia-gauge-fill.warning {
+  stroke: hsl(var(--zadia-warning));
+  filter: drop-shadow(0 0 6px hsl(var(--zadia-warning-glow)));
+}
+
+.zadia-gauge-fill.danger {
+  stroke: hsl(var(--zadia-danger));
+  filter: drop-shadow(0 0 6px hsl(var(--zadia-danger-glow)));
+}
+
+/* Insight Card */
+.zadia-insight-card {
+  background: hsl(var(--zadia-bg-elevated));
+  border: 1px solid hsl(var(--zadia-border));
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  gap: 1rem;
+  transition: all var(--zadia-transition-base);
+}
+
+.zadia-insight-card:hover {
+  border-color: hsl(var(--zadia-primary) / 0.5);
+  background: hsl(var(--zadia-bg-hover));
+}
+
+.zadia-insight-card.risk {
+  border-left: 3px solid hsl(var(--zadia-danger));
+}
+
+.zadia-insight-card.opportunity {
+  border-left: 3px solid hsl(var(--zadia-success));
+}
+
+.zadia-insight-card.info {
+  border-left: 3px solid hsl(var(--zadia-info));
+}
+
+/* Command Palette (Oracle) */
+.zadia-oracle {
+  background: hsl(var(--zadia-bg-surface) / 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid hsl(var(--zadia-border));
+  border-radius: 16px;
+  box-shadow: var(--zadia-shadow-lg), var(--zadia-shadow-glow);
+  max-width: 640px;
+  width: 100%;
+}
+
+.zadia-oracle-input {
+  background: transparent;
+  border: none;
+  color: hsl(var(--zadia-text-primary));
+  font-size: 1.125rem;
+  padding: 1.25rem;
+  width: 100%;
+  outline: none;
+}
+
+.zadia-oracle-input::placeholder {
+  color: hsl(var(--zadia-text-muted));
+}
+
+/* ============================================
+ * RESPONSIVE UTILITIES
+ * ============================================ */
+
+@media (max-width: 768px) {
+  .zadia-metric-xl {
+    font-size: 2.25rem;
+  }
+  
+  .zadia-metric-lg {
+    font-size: 1.75rem;
+  }
+  
+  .zadia-dashboard-preview {
+    transform: none;
+  }
+  
+  .zadia-dashboard-preview:hover {
+    transform: none;
+  }
+}
+

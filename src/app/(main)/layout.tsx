@@ -74,11 +74,11 @@ export default function MainLayout({
   return (
     <RouteGuard>
       <SidebarProvider>
-        <div className="flex min-h-screen w-full">
+        <div className="flex min-h-screen w-full bg-[#0a0f1a]">
           <Sidebar />
-          <SidebarInset>
+          <SidebarInset className="bg-[#0a0f1a]">
             <Header />
-            <main className="flex-1 p-6">
+            <main className="flex-1">
               {children}
             </main>
           </SidebarInset>

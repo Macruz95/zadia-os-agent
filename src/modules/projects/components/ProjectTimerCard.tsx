@@ -19,17 +19,27 @@ import {
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
 
+interface FirestoreTimestamp {
+    seconds: number;
+    nanoseconds: number;
+    toDate?: () => Date;
+}
+
 interface WorkSession {
     id: string;
-    startTime: any;
-    endTime: any;
+    startTime: FirestoreTimestamp | Date | null;
+    endTime: FirestoreTimestamp | Date | null;
     durationSeconds: number;
     cost: number;
 }
 
 interface ProjectTimerCardProps {
     projectId: string;
-    project: any;
+    project: {
+        name?: string;
+        hourlyRate?: number;
+        startDate?: unknown;
+    };
 }
 
 export function ProjectTimerCard({ projectId, project }: ProjectTimerCardProps) {
@@ -95,7 +105,7 @@ export function ProjectTimerCard({ projectId, project }: ProjectTimerCardProps) 
         }
 
         // Calculate cost based on hourly rate (default $15/hour if not set)
-        const hourlyRate = project.laborCost || 15;
+        const hourlyRate = project.hourlyRate || 15;
         const sessionCost = (durationSeconds / 3600) * hourlyRate;
 
         try {
@@ -136,11 +146,15 @@ export function ProjectTimerCard({ projectId, project }: ProjectTimerCardProps) 
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
 
-    const formatDate = (date: any) => {
+    const formatDate = (date: FirestoreTimestamp | Date | null | undefined) => {
         if (!date) return 'N/A';
-        if (date.seconds) return new Date(date.seconds * 1000).toLocaleDateString('es-MX');
-        if (date.toDate) return date.toDate().toLocaleDateString('es-MX');
-        return new Date(date).toLocaleDateString('es-MX');
+        if (typeof date === 'object' && 'seconds' in date) {
+            return new Date(date.seconds * 1000).toLocaleDateString('es-MX');
+        }
+        if (date instanceof Date) {
+            return date.toLocaleDateString('es-MX');
+        }
+        return 'N/A';
     };
 
     const totalHours = workSessions.reduce((sum, s) => sum + s.durationSeconds, 0) / 3600;

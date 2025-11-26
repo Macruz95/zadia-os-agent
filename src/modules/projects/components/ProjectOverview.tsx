@@ -25,10 +25,12 @@ interface ProjectOverviewProps {
 
 export function ProjectOverview({ project }: ProjectOverviewProps) {
   // Helper to safely convert Firestore Timestamp to Date
-  const toDate = (timestamp: any): Date | null => {
+  const toDate = (timestamp: Date | { toDate: () => Date } | null | undefined): Date | null => {
     if (!timestamp) return null;
     if (timestamp instanceof Date) return timestamp;
-    if (typeof timestamp.toDate === 'function') return timestamp.toDate();
+    if (typeof timestamp === 'object' && 'toDate' in timestamp && typeof timestamp.toDate === 'function') {
+      return timestamp.toDate();
+    }
     return null;
   };
 

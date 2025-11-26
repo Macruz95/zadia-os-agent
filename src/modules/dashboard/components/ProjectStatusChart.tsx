@@ -1,19 +1,19 @@
 /**
  * ZADIA OS - Project Status Chart
- * Gráfico de distribución de proyectos por estado
+ * Gráfico de proyectos con estética cockpit
  * Rule #2: ShadCN UI + Lucide Icons
- * Rule #5: Max 200 lines
  */
 
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Briefcase } from 'lucide-react';
 import {
   PieChart,
   Pie,
   Cell,
-  Tooltip,
   ResponsiveContainer,
+  Legend,
 } from 'recharts';
 import type { StatusDistribution } from '../hooks/use-dashboard-data';
 
@@ -21,42 +21,78 @@ interface ProjectStatusChartProps {
   data: StatusDistribution[];
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COLORS = {
+  completed: '#10b981',
+  in_progress: '#3b82f6',
+  pending: '#f59e0b',
+  cancelled: '#ef4444',
+};
+
+const STATUS_NAMES: Record<string, string> = {
+  completed: 'Completados',
+  in_progress: 'En Progreso',
+  pending: 'Pendientes',
+  cancelled: 'Cancelados',
+};
 
 export function ProjectStatusChart({ data }: ProjectStatusChartProps) {
+  // Transformar datos para mostrar nombres legibles
+  const chartData = data.map(item => ({
+    ...item,
+    displayName: STATUS_NAMES[item.name] || item.name,
+    fill: COLORS[item.name as keyof typeof COLORS] || '#6b7280',
+  }));
+
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Estado de Proyectos</CardTitle>
-        <CardDescription>Distribución por estado</CardDescription>
+    <Card className="bg-[#161b22] border-gray-800/50">
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2">
+          <Briefcase className="h-4 w-4 text-amber-400" />
+          <CardTitle className="text-gray-200 text-base">Estado de Proyectos</CardTitle>
+        </div>
+        <p className="text-xs text-gray-500">Distribución por estado</p>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={data as unknown as Record<string, unknown>[]}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={(props: { name?: string; percent?: number }) =>
-                props.name && props.percent !== undefined
-                  ? `${props.name}: ${(props.percent * 100).toFixed(0)}%`
-                  : ''
-              }
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {data.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
+        <div className="flex items-center justify-center">
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={90}
+                paddingAngle={2}
+                dataKey="value"
+                nameKey="displayName"
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Pie>
+              <Legend 
+                verticalAlign="middle"
+                align="right"
+                layout="vertical"
+                iconType="circle"
+                iconSize={8}
+                formatter={(value) => (
+                  <span className="text-xs text-gray-400">{value}</span>
+                )}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        
+        {/* Center Label */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ marginTop: '-30px' }}>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-white">{total}</p>
+            <p className="text-xs text-gray-500">Total</p>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

@@ -17,6 +17,7 @@ import {
   Trash2,
   Eye,
 } from 'lucide-react';
+import { DynamicIcon } from '@/lib/icons';
 import { useRouter } from 'next/navigation';
 import {
   Table,
@@ -169,8 +170,8 @@ export function EmployeesList({
                     </TableCell>
                     <TableCell>{employee.email || '-'}</TableCell>
                     <TableCell>
-                      <span className="flex items-center gap-1">
-                        {positionConfig.icon}
+                      <span className="flex items-center gap-2">
+                        <DynamicIcon name={positionConfig.icon} className="h-4 w-4 text-muted-foreground" />
                         {positionConfig.label}
                       </span>
                     </TableCell>

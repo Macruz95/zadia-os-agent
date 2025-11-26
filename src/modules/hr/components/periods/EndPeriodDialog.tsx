@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+// es locale removed - not used
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -47,7 +47,7 @@ export function EndPeriodDialog({
             toast.success('Temporada finalizada correctamente');
             onSuccess();
             onOpenChange(false);
-        } catch (error) {
+        } catch {
             toast.error('Error al finalizar temporada');
         } finally {
             setLoading(false);

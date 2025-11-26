@@ -27,7 +27,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,7 +45,7 @@ import { EmployeesService } from '@/modules/hr/services/employees.service';
 import { WorkPeriodsService } from '@/modules/hr/services/work-periods.service';
 import { LoansService } from '@/modules/hr/services/loans.service';
 import type { Employee, WorkPeriod, Loan } from '@/modules/hr/types/hr.types';
-import { STATUS_CONFIG, POSITION_CONFIG, CONTRACT_TYPE_CONFIG } from '@/modules/hr/types/hr.types';
+import { STATUS_CONFIG, POSITION_CONFIG } from '@/modules/hr/types/hr.types';
 import { ActivePeriodCard } from '@/modules/hr/components/periods/ActivePeriodCard';
 import { PeriodsHistory } from '@/modules/hr/components/periods/PeriodsHistory';
 import { StartPeriodDialog } from '@/modules/hr/components/periods/StartPeriodDialog';
@@ -110,7 +109,6 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
 
   const statusConfig = STATUS_CONFIG[employee.status];
   const positionConfig = POSITION_CONFIG[employee.position];
-  const contractConfig = CONTRACT_TYPE_CONFIG[employee.contractType];
 
   return (
     <div className="space-y-6">

@@ -32,6 +32,7 @@ import {
   type ProductStatus 
 } from '../../types/inventory.types';
 import { inventoryUtils } from '../../utils/inventory.utils';
+import { DynamicIcon } from '@/lib/icons';
 
 interface BasicInfoFieldsProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,7 +104,7 @@ export function BasicInfoFields({ form, type }: BasicInfoFieldsProps) {
                 {categoryOptions.map((category) => (
                   <SelectItem key={category} value={category}>
                     <div className="flex items-center gap-2">
-                      <span>{getCategoryIcon(category)}</span>
+                      <DynamicIcon name={getCategoryIcon(category)} className="h-4 w-4" />
                       <span>{category}</span>
                     </div>
                   </SelectItem>

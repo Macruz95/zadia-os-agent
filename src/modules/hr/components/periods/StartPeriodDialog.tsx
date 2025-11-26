@@ -22,10 +22,10 @@ import { WorkPeriodsService } from '@/modules/hr/services/work-periods.service';
 
 const startPeriodSchema = z.object({
     startDate: z.string(),
-    dailyRate: z.coerce.number().min(0.01, 'Tarifa requerida'),
+    dailyRate: z.number().min(0.01, 'Tarifa requerida'),
 });
 
-type StartPeriodForm = z.infer<typeof startPeriodSchema>;
+type StartPeriodFormData = z.infer<typeof startPeriodSchema>;
 
 interface StartPeriodDialogProps {
     open: boolean;
@@ -44,7 +44,7 @@ export function StartPeriodDialog({
 }: StartPeriodDialogProps) {
     const [loading, setLoading] = useState(false);
 
-    const { register, handleSubmit, formState: { errors } } = useForm<StartPeriodForm>({
+    const { register, handleSubmit, formState: { errors } } = useForm<StartPeriodFormData>({
         resolver: zodResolver(startPeriodSchema),
         defaultValues: {
             startDate: new Date().toISOString().split('T')[0],
@@ -52,7 +52,7 @@ export function StartPeriodDialog({
         }
     });
 
-    const onSubmit = async (data: StartPeriodForm) => {
+    const onSubmit = async (data: StartPeriodFormData) => {
         try {
             setLoading(true);
             await WorkPeriodsService.startPeriod(
@@ -64,7 +64,7 @@ export function StartPeriodDialog({
             toast.success('Temporada iniciada correctamente');
             onSuccess();
             onOpenChange(false);
-        } catch (error) {
+        } catch {
             toast.error('Error al iniciar temporada');
         } finally {
             setLoading(false);
@@ -97,7 +97,7 @@ export function StartPeriodDialog({
                             id="dailyRate"
                             type="number"
                             step="0.01"
-                            {...register('dailyRate')}
+                            {...register('dailyRate', { valueAsNumber: true })}
                         />
                         {errors.dailyRate && (
                             <p className="text-sm text-destructive">{errors.dailyRate.message}</p>

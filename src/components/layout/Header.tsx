@@ -1,42 +1,163 @@
+/**
+ * ZADIA OS - Dynamic Header
+ * 
+ * Header con breadcrumb dinámico y ZADIA Command
+ * REGLA 2: ShadCN UI + Lucide icons
+ */
+
 'use client';
 
+import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserNav } from './UserNav';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { 
+  Breadcrumb, 
+  BreadcrumbItem, 
+  BreadcrumbLink, 
+  BreadcrumbList, 
+  BreadcrumbPage, 
+  BreadcrumbSeparator 
+} from '@/components/ui/breadcrumb';
+import { Search, Command, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { NotificationsDropdown } from '@/components/notifications';
+
+// Mapeo de rutas a nombres legibles
+const routeNames: Record<string, string> = {
+  dashboard: 'Dashboard',
+  'ai-assistant': 'Asistente AI',
+  crm: 'CRM',
+  sales: 'Ventas',
+  leads: 'Leads',
+  opportunities: 'Oportunidades',
+  projects: 'Proyectos',
+  'work-orders': 'Work Orders',
+  finance: 'Finanzas',
+  invoices: 'Facturas',
+  expenses: 'Gastos',
+  hr: 'Recursos Humanos',
+  employees: 'Empleados',
+  clients: 'Clientes',
+  inventory: 'Inventario',
+  settings: 'Configuración',
+  profile: 'Mi Perfil',
+};
+
+function CommandSearchTrigger({ onClick }: { onClick: () => void }) {
+  const [isMac, setIsMac] = useState(false);
+
+  useEffect(() => {
+    setIsMac(navigator.platform.toUpperCase().indexOf('MAC') >= 0);
+  }, []);
+
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex items-center gap-3 h-9 px-4 rounded-lg",
+        "bg-gray-800/50 hover:bg-gray-800",
+        "border border-gray-700/50 hover:border-cyan-500/30",
+        "transition-all duration-200 group",
+        "min-w-[240px]"
+      )}
+    >
+      <Search className="h-4 w-4 text-gray-500 group-hover:text-cyan-400 transition-colors" />
+      <span className="flex-1 text-left text-sm text-gray-500 group-hover:text-gray-400">
+        Buscar...
+      </span>
+      <div className="flex items-center gap-0.5">
+        <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gray-900 text-gray-500 border border-gray-700/50">
+          {isMac ? <Command className="h-2.5 w-2.5 inline" /> : 'Ctrl'}
+        </kbd>
+        <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gray-900 text-gray-500 border border-gray-700/50">
+          K
+        </kbd>
+      </div>
+    </button>
+  );
+}
 
 export function Header() {
   const { user, loading } = useAuth();
+  const pathname = usePathname();
+
+  // Generar breadcrumbs dinámicos
+  const pathSegments = pathname.split('/').filter(Boolean);
+  const breadcrumbs = pathSegments.map((segment, index) => ({
+    name: routeNames[segment] || segment.charAt(0).toUpperCase() + segment.slice(1),
+    href: '/' + pathSegments.slice(0, index + 1).join('/'),
+    isLast: index === pathSegments.length - 1,
+  }));
+
+  const handleOpenCommand = () => {
+    const event = new KeyboardEvent('keydown', {
+      key: 'k',
+      metaKey: true,
+      ctrlKey: true,
+      bubbles: true,
+    });
+    document.dispatchEvent(event);
+  };
 
   if (loading) {
     return (
-      <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <div className="h-4 w-4 animate-pulse bg-muted rounded" />
-        <div className="h-4 w-24 animate-pulse bg-muted rounded" />
-        <div className="ml-auto h-9 w-9 animate-pulse bg-muted rounded-full" />
+      <header className="flex h-14 shrink-0 items-center gap-4 border-b border-gray-800/50 bg-[#0d1117] px-4">
+        <div className="h-4 w-4 animate-pulse bg-gray-800 rounded" />
+        <div className="h-4 w-32 animate-pulse bg-gray-800 rounded" />
       </header>
     );
   }
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-2 h-4" />
-      <Breadcrumb>
+    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-gray-800/50 bg-[#0d1117] px-4">
+      <SidebarTrigger className="text-gray-400 hover:text-white hover:bg-gray-800/50" />
+      <Separator orientation="vertical" className="h-4 bg-gray-800" />
+      
+      {/* Breadcrumb Dinámico */}
+      <Breadcrumb className="flex-1">
         <BreadcrumbList>
-          <BreadcrumbItem className="hidden md:block">
-            <BreadcrumbLink href="#">
-              ZADIA OS
+          <BreadcrumbItem>
+            <BreadcrumbLink 
+              href="/dashboard" 
+              className="text-gray-500 hover:text-cyan-400 transition-colors text-sm"
+            >
+              ZADIA
             </BreadcrumbLink>
           </BreadcrumbItem>
-          <BreadcrumbSeparator className="hidden md:block" />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Dashboard</BreadcrumbPage>
-          </BreadcrumbItem>
+          
+          {breadcrumbs.map((crumb) => (
+            <div key={crumb.href} className="flex items-center">
+              <BreadcrumbSeparator className="text-gray-700">
+                <ChevronRight className="h-3 w-3" />
+              </BreadcrumbSeparator>
+              <BreadcrumbItem>
+                {crumb.isLast ? (
+                  <BreadcrumbPage className="text-white text-sm font-medium">
+                    {crumb.name}
+                  </BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink 
+                    href={crumb.href}
+                    className="text-gray-500 hover:text-cyan-400 transition-colors text-sm"
+                  >
+                    {crumb.name}
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </div>
+          ))}
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="ml-auto">
+
+      {/* ZADIA Command */}
+      <CommandSearchTrigger onClick={handleOpenCommand} />
+
+      {/* Actions */}
+      <div className="flex items-center gap-2">
+        <NotificationsDropdown />
         {user && <UserNav />}
       </div>
     </header>

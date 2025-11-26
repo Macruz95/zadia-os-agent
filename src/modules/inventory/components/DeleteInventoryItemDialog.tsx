@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { AlertTriangle } from 'lucide-react';
 import { RawMaterial, FinishedProduct } from '../types';
 
 interface DeleteInventoryItemDialogProps {
@@ -41,8 +42,9 @@ export function DeleteInventoryItemDialog({
           <AlertDialogDescription>
             Esta acción eliminará permanentemente <strong>{item.name}</strong>.
             {item.currentStock > 0 && (
-              <span className="block mt-2 text-orange-600 font-medium">
-                ⚠️ Este ítem tiene {item.currentStock} unidades en stock.
+              <span className="flex items-center gap-2 mt-2 text-orange-600 font-medium">
+                <AlertTriangle className="h-4 w-4" />
+                Este ítem tiene {item.currentStock} unidades en stock.
               </span>
             )}
             <span className="block mt-2 text-red-600 font-medium">

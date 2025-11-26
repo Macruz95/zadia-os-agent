@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, AlertCircle, UserCheck, UserPlus, Mail, Phone, Calendar } from 'lucide-react';
+import { Loader2, AlertCircle, UserCheck, UserPlus, Mail, Phone, Calendar, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Lead } from '../../types/sales.types';
 import { ConversionDecision } from '../../validations/lead-conversion.schema';
 import { useDuplicateDetection } from '../../hooks/use-duplicate-detection';
@@ -101,17 +101,17 @@ export function DuplicateCheckStep({ lead, onNext, onDecision }: DuplicateCheckS
       {/* Duplicate results */}
       {!hasDuplicates ? (
         <Alert>
-          <UserCheck className="h-4 w-4" />
-          <AlertDescription>
-            ✅ No se encontraron clientes duplicados. Puede proceder a crear un nuevo cliente.
+          <CheckCircle className="h-4 w-4 text-emerald-500" />
+          <AlertDescription className="flex items-center gap-2">
+            No se encontraron clientes duplicados. Puede proceder a crear un nuevo cliente.
           </AlertDescription>
         </Alert>
       ) : (
         <div className="space-y-4">
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              ⚠️ Se encontraron {duplicates.length} cliente(s) similar(es). 
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription className="flex items-center gap-2">
+              Se encontraron {duplicates.length} cliente(s) similar(es). 
               Revise y decida si desea vincular a uno existente o crear uno nuevo.
             </AlertDescription>
           </Alert>

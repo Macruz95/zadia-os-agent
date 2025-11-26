@@ -55,7 +55,11 @@ export class WorkPeriodsService {
 
             const docRef = await addDoc(collection(db, COLLECTION), periodData);
 
-            logger.info('Work period started', { employeeId, periodId: docRef.id });
+            logger.info('Work period started', { 
+                component: 'WorkPeriodsService',
+                employeeId,
+                metadata: { periodId: docRef.id } 
+            });
 
             return {
                 id: docRef.id,
@@ -110,7 +114,10 @@ export class WorkPeriodsService {
 
             await updateDoc(doc(db, COLLECTION, periodId), updateData);
 
-            logger.info('Work period ended', { periodId, netPayable });
+            logger.info('Work period ended', { 
+                component: 'WorkPeriodsService',
+                metadata: { periodId, netPayable } 
+            });
 
             return {
                 ...period,
