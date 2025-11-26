@@ -178,6 +178,7 @@ interface ScoreItemProps {
   label: string;
   value: number;
   description: string;
+  inverse?: boolean;
 }
 
 function ScoreItem({ icon: Icon, label, value, description }: ScoreItemProps) {

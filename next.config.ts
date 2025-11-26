@@ -3,19 +3,16 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Fix Next.js workspace root warning
   outputFileTracingRoot: __dirname,
-  
-  // ESLint configuration for Next.js plugin detection
-  eslint: {
-    dirs: ['src'],
-    ignoreDuringBuilds: false,
-  },
-  
+
+  // Enable Turbopack (Next.js 16 default)
+  turbopack: {},
+
   // Enable experimental features for better performance
   experimental: {
     optimizeServerReact: true,
   },
-  
-  // Configure webpack for better optimization
+
+  // Configure webpack for better optimization (when not using Turbopack)
   webpack: (config, { isServer }) => {
     if (!isServer) {
       // Resolve client-side modules properly
@@ -26,31 +23,31 @@ const nextConfig: NextConfig = {
         tls: false,
       };
     }
-    
+
     return config;
   },
-  
+
   // Optimize static generation
   staticPageGenerationTimeout: 60, // Reduced to 1 minute
-  
+
   // Better compression and optimization
   compress: true,
   poweredByHeader: false,
-  
+
   // Image optimization
   images: {
     formats: ['image/webp', 'image/avif'],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  
+
   // TypeScript configuration - exclude functions directory from type checking
   typescript: {
     // Temporarily ignore build errors from functions directory
     // The functions directory has its own tsconfig.json and should be built separately
     ignoreBuildErrors: true,
   },
-  
+
   // Disable server-side compilation for specific modules that cause issues
   transpilePackages: ['react-i18next', 'i18next'],
 };
