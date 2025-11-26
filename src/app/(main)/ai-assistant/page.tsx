@@ -1,203 +1,105 @@
 /**
- * ZADIA OS - AI Assistant Page
+ * ZADIA OS - AI Assistant Page (Redesigned)
  * 
- * Modern ChatGPT-style conversational AI interface
- * RULE #2: ShadCN UI + Lucide icons
+ * Professional AI chat interface with:
+ * - Multi-model support (DeepSeek R1, Qwen3, Gemini 2.5)
+ * - Tool execution / Function calling
+ * - Web search integration
+ * - Multimodal support (images)
+ * - Full ZADIA system integration
  */
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useAIChat } from '@/hooks/use-ai-chat';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useRef, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import { 
-  Bot, 
-  User, 
-  Send, 
-  Trash2, 
-  Save,
-  Sparkles,
-  Copy,
-  Check,
-  Zap,
-  TrendingUp,
-  Users,
-  DollarSign,
-  FolderOpen
-} from 'lucide-react';
-
-const SUGGESTED_PROMPTS = [
-  {
-    icon: TrendingUp,
-    title: "Análisis de ventas",
-    prompt: "¿Cómo van las ventas este mes comparado con el anterior?",
-    color: "text-emerald-400"
-  },
-  {
-    icon: Users,
-    title: "Clientes activos",
-    prompt: "¿Cuántos clientes activos tengo y cuál es su valor promedio?",
-    color: "text-blue-400"
-  },
-  {
-    icon: DollarSign,
-    title: "Facturas pendientes",
-    prompt: "¿Qué clientes tienen facturas pendientes de pago?",
-    color: "text-orange-400"
-  },
-  {
-    icon: FolderOpen,
-    title: "Estado de proyectos",
-    prompt: "Dame un resumen del estado de mis proyectos activos",
-    color: "text-purple-400"
-  }
-];
+  ChatMessage, 
+  ChatInput, 
+  ChatHeader, 
+  EmptyState,
+  useAdvancedAIChat,
+} from '@/modules/ai-assistant';
 
 export default function AIAssistantPage() {
   const {
     messages,
-    sending,
+    isLoading,
+    isProcessingTool,
+    currentModel,
+    availableModels,
     sendMessage,
-    clearConversation,
-    saveConversation,
+    setModel,
+    clearChat,
+    regenerateLastResponse,
     conversationTitle,
-  } = useAIChat();
+  } = useAdvancedAIChat({
+    defaultModel: 'deepseek-r1',
+    enableTools: true,
+    enableWebSearch: true,
+  });
 
-  const [input, setInput] = useState('');
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Auto-scroll to bottom on new messages
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      const scrollElement = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollElement) {
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+      }
     }
   }, [messages]);
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 200) + 'px';
-    }
-  }, [input]);
-
-  const handleSend = async () => {
-    if (!input.trim() || sending) return;
-    const messageToSend = input;
-    setInput('');
-    if (textareaRef.current) textareaRef.current.style.height = 'auto';
-    await sendMessage(messageToSend);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const handleCopy = async (content: string, id: string) => {
-    await navigator.clipboard.writeText(content);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+  const handleSelectPrompt = (prompt: string) => {
+    sendMessage(prompt);
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col bg-[#0d1117]">
+    <div className="h-[calc(100vh-3.5rem)] flex flex-col bg-[#0d1117]">
       {/* Header */}
-      <div className="border-b border-gray-800/50 bg-[#161b22]/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="flex items-center justify-between max-w-4xl mx-auto px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <Bot className="h-5 w-5 text-white" />
-              </div>
-              <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-[#161b22]" />
-            </div>
-            <div>
-              <h1 className="text-lg font-semibold text-white flex items-center gap-2">
-                Asistente ZADIA
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-normal border-cyan-500/30 text-cyan-400">
-                  IA
-                </Badge>
-              </h1>
-              <p className="text-xs text-gray-500">
-                {messages.length > 0 ? conversationTitle : 'Listo para ayudarte'}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-1.5">
-            <Button variant="ghost" size="sm" onClick={saveConversation} disabled={messages.length === 0}
-              className="h-8 px-3 text-gray-400 hover:text-white hover:bg-gray-800/50">
-              <Save className="h-4 w-4 mr-1.5" />
-              <span className="hidden sm:inline">Guardar</span>
-            </Button>
-            <Button variant="ghost" size="sm" onClick={clearConversation} disabled={messages.length === 0}
-              className="h-8 px-3 text-gray-400 hover:text-red-400 hover:bg-red-500/10">
-              <Trash2 className="h-4 w-4 mr-1.5" />
-              <span className="hidden sm:inline">Limpiar</span>
-            </Button>
-          </div>
-        </div>
-      </div>
+      <ChatHeader
+        conversationTitle={conversationTitle}
+        currentModel={currentModel}
+        isLoading={isLoading}
+        isProcessingTool={isProcessingTool}
+        messageCount={messages.length}
+        onClear={clearChat}
+      />
 
       {/* Messages Area */}
       <ScrollArea ref={scrollRef} className="flex-1">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-              <div className="relative mb-8">
-                <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-600/20 flex items-center justify-center border border-gray-800/50">
-                  <Sparkles className="h-12 w-12 text-cyan-400" />
-                </div>
-                <div className="absolute -top-2 -right-2 h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                  <Zap className="h-4 w-4 text-white" />
-                </div>
-              </div>
-              
-              <h2 className="text-2xl font-bold text-white mb-2">¿En qué puedo ayudarte hoy?</h2>
-              <p className="text-gray-400 max-w-md mb-8">
-                Soy tu asistente de inteligencia artificial. Puedo analizar tu negocio,
-                responder preguntas y ayudarte a tomar mejores decisiones.
-              </p>
+        {messages.length === 0 ? (
+          <EmptyState 
+            onSelectPrompt={handleSelectPrompt}
+            currentModel={currentModel}
+          />
+        ) : (
+          <div className="pb-4">
+            {messages.map((message, idx) => (
+              <ChatMessage
+                key={message.id}
+                message={message}
+                onRegenerate={idx === messages.length - 1 && message.role === 'assistant' ? regenerateLastResponse : undefined}
+                isLast={idx === messages.length - 1}
+              />
+            ))}
+          </div>
+        )}
+      </ScrollArea>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
-                {SUGGESTED_PROMPTS.map((item, idx) => (
-                  <button key={idx} onClick={() => { setInput(item.prompt); textareaRef.current?.focus(); }}
-                    className="group flex items-start gap-3 p-4 rounded-xl bg-[#161b22] border border-gray-800/50 hover:border-cyan-500/30 hover:bg-[#1c2128] transition-all text-left">
-                    <div className={cn("p-2 rounded-lg bg-gray-800/50 group-hover:bg-gray-800", item.color)}>
-                      <item.icon className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-200 group-hover:text-white">{item.title}</p>
-                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{item.prompt}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {messages.map((message) => (
-                <div key={message.id} className={cn("flex gap-4", message.role === 'user' && "flex-row-reverse")}>
-                  <Avatar className="h-8 w-8 shrink-0">
-                    <AvatarFallback className={cn("text-white",
-                      message.role === 'assistant' ? 'bg-gradient-to-br from-cyan-500 to-purple-600' : 'bg-gradient-to-br from-gray-600 to-gray-700')}>
-                      {message.role === 'assistant' ? <Bot className="h-4 w-4" /> : <User className="h-4 w-4" />}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className={cn("flex-1 max-w-[85%]", message.role === 'user' && "flex flex-col items-end")}>
-                    <div className={cn("rounded-2xl px-4 py-3",
-                      message.role === 'assistant' ? 'bg-[#161b22] border border-gray-800/50' : 'bg-cyan-600/20 border border-cyan-500/20')}>
-                      <p className={cn("text-sm whitespace-pre-wrap leading-relaxed",
-                        message.role === 'assistant' ? 'text-gray-200' : 'text-gray-100')}>{message.content}</p>
+      {/* Input Area */}
+      <ChatInput
+        onSend={sendMessage}
+        disabled={isLoading}
+        currentModel={currentModel}
+        availableModels={availableModels}
+        onModelChange={setModel}
+        placeholder={isLoading ? 'Esperando respuesta...' : 'Escribe tu mensaje...'}
+      />
+    </div>
+  );
+}
                     </div>
                     
                     <div className={cn("flex items-center gap-2 mt-1.5 px-1", message.role === 'user' && "flex-row-reverse")}>
