@@ -14,6 +14,8 @@ import { useDashboardRevenue } from '@/modules/dashboard/hooks/use-dashboard-rev
 import { useDashboardMetrics } from '@/modules/dashboard/hooks/useDashboardMetrics';
 import { RevenueChart, ProjectStatusChart, DashboardLoading } from '@/modules/dashboard/components';
 import { ZadiaScoreWidget, DigitalAdvisorWidget, FinancialKPIGrid } from '@/components/cockpit';
+import { GlobalActivityFeed } from '@/components/cockpit/GlobalActivityFeed';
+import { AgenticSystemStatus } from '@/components/cockpit/AgenticSystemStatus';
 import { Zap, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -66,18 +68,24 @@ export default function DashboardPage() {
         loading={isLoading}
       />
 
-      {/* ZADIA Score + Consejero Digital */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      {/* ZADIA Score + Consejero Digital + Sistema Agéntico */}
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
         <ZadiaScoreWidget />
         <div className="xl:col-span-2">
           <DigitalAdvisorWidget maxInsights={3} />
         </div>
+        <AgenticSystemStatus />
       </div>
 
       {/* Gráficos: Ingresos + Estado de Proyectos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RevenueChart data={monthlyRevenue} />
         <ProjectStatusChart data={projectStatus} />
+      </div>
+
+      {/* Actividad Global del Sistema */}
+      <div className="grid grid-cols-1 gap-6">
+        <GlobalActivityFeed maxEvents={10} />
       </div>
     </div>
   );
