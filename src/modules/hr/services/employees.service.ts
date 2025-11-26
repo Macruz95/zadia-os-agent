@@ -39,6 +39,7 @@ export class EmployeesService {
     try {
       const employeeData = {
         ...data,
+        userId, // Add userId for data isolation
         birthDate: Timestamp.fromDate(data.birthDate),
         hireDate: Timestamp.fromDate(data.hireDate),
         terminationDate: data.terminationDate
@@ -50,7 +51,7 @@ export class EmployeesService {
       };
 
       const docRef = await addDoc(collection(db, COLLECTION), employeeData);
-      
+
       logger.info('Employee created', {
         metadata: { employeeId: docRef.id },
       });
@@ -92,39 +93,40 @@ export class EmployeesService {
   /**
    * Get all employees
    */
-  static async getAllEmployees(): Promise<Employee[]> {
+  static async getAllEmployees(userId: string): Promise<Employee[]> {
     try {
       const q = query(
         collection(db, COLLECTION),
+        where('userId', '==', userId),
         orderBy('lastName', 'asc')
       );
-      
+
       const snapshot = await getDocs(q);
-      
+
       if (snapshot.empty) {
         logger.info('No employees found in database', {
           component: 'EmployeesService',
         });
         return [];
       }
-      
+
       return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Employee[];
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Unknown error');
-      
+
       // Only retry for Firestore index errors (failed-precondition)
       if (
         error instanceof FirebaseError &&
         (error.code === 'failed-precondition' || err.message?.includes('index'))
       ) {
-        logger.warn('Index missing, retrying without orderBy', { 
+        logger.warn('Index missing, retrying without orderBy', {
           component: 'EmployeesService',
           metadata: { errorMessage: err.message }
         });
-        
+
         try {
           const snapshot = await getDocs(collection(db, COLLECTION));
           return snapshot.docs.map((doc) => ({
@@ -140,7 +142,7 @@ export class EmployeesService {
           throw retryError; // Throw retry error for more context
         }
       }
-      
+
       // For other errors (permissions, network, etc), don't retry
       logger.error('Error fetching employees', err, { component: 'EmployeesService' });
       throw err;
@@ -151,17 +153,19 @@ export class EmployeesService {
    * Get employees by status
    */
   static async getEmployeesByStatus(
-    status: EmployeeStatus
+    status: EmployeeStatus,
+    userId: string
   ): Promise<Employee[]> {
     try {
       const q = query(
         collection(db, COLLECTION),
+        where('userId', '==', userId),
         where('status', '==', status),
         orderBy('lastName', 'asc')
       );
-      
+
       const snapshot = await getDocs(q);
-      
+
       return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -182,7 +186,7 @@ export class EmployeesService {
   ): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION, id);
-      
+
       const updateData: Record<string, unknown> = {
         ...data,
         updatedAt: Timestamp.now(),
@@ -200,7 +204,7 @@ export class EmployeesService {
       }
 
       await updateDoc(docRef, updateData);
-      
+
       logger.info('Employee updated', { employeeId: id });
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Error updating employee');
@@ -215,13 +219,13 @@ export class EmployeesService {
   static async deleteEmployee(id: string): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION, id);
-      
+
       await updateDoc(docRef, {
         status: 'inactive',
         terminationDate: Timestamp.now(),
         updatedAt: Timestamp.now(),
       });
-      
+
       logger.info('Employee deactivated', { employeeId: id });
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Error deactivating employee');
@@ -237,7 +241,7 @@ export class EmployeesService {
     try {
       const docRef = doc(db, COLLECTION, id);
       await deleteDoc(docRef);
-      
+
       logger.info('Employee permanently deleted', { employeeId: id });
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Error deleting employee');
@@ -255,12 +259,12 @@ export class EmployeesService {
   ): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION, id);
-      
+
       await updateDoc(docRef, {
         status,
         updatedAt: Timestamp.now(),
       });
-      
+
       logger.info('Employee status changed', { employeeId: id, status });
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Error changing employee status');

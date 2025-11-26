@@ -96,6 +96,7 @@ export function LandingHero() {
             </div>
           </div>
 
+<<<<<<< Updated upstream
           {/* Right: Dashboard Preview */}
           <div 
             className={`relative transition-all duration-1000 delay-300 ${
@@ -103,6 +104,21 @@ export function LandingHero() {
             }`}
           >
             <DashboardPreview />
+=======
+        <div className="relative mt-12 lg:mt-0">
+          <div className="relative rounded-xl overflow-hidden shadow-2xl border border-border/50 bg-background/50 backdrop-blur-sm">
+            <Image
+              src="/landing/images/hero-dashboard.png"
+              alt="ZADIA OS Dashboard"
+              className="w-full h-auto object-cover"
+              width={800}
+              height={600}
+              priority
+            />
+            {/* Decorative elements */}
+            <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/20 rounded-full blur-3xl -z-10" />
+            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-secondary/20 rounded-full blur-3xl -z-10" />
+>>>>>>> Stashed changes
           </div>
         </div>
       </div>

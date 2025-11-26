@@ -373,9 +373,11 @@ service cloud.firestore {
     // HR MODULE
     // ===========================
     match /employees/{employeeId} {
-      // Employees can read their own data, admins can read all
-      allow read: if isOwner(employeeId) || isAdmin();
-      allow write: if isAdmin();
+      // Users can only read/write their own employees (filtered by userId)
+      allow read: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
+      allow create: if isAuthenticated() && (request.resource.data.userId == getUserId() || isAdmin());
+      allow update: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
+      allow delete: if isAdmin();
     }
     
     // Work Sessions - Time Tracking
@@ -396,14 +398,18 @@ service cloud.firestore {
 
     // Work Periods (Temporadas)
     match /workPeriods/{periodId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow read: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
+      allow create: if isAuthenticated() && (request.resource.data.userId == getUserId() || isAdmin());
+      allow update: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
+      allow delete: if isAdmin();
     }
 
     // Loans (Préstamos)
     match /loans/{loanId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow read: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
+      allow create: if isAuthenticated() && (request.resource.data.userId == getUserId() || isAdmin());
+      allow update: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
+      allow delete: if isAdmin();
     }
     
     // ===========================

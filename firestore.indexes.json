@@ -1,401 +1,271 @@
 {
-  "indexes": [
-    {
-      "collectionGroup": "workOrders",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "projectId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "projectTasks",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "projectId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "projectExpenses",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "projectId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "expenseDate",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "projectTimeline",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "projectId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "performedAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "workSessions",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "projectId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "startTime",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "quotes",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "clientId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "interactions",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "clientId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "type",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "date",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "invoices",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "clientId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "invoices",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "leads",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "workPeriods",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "employeeId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "startDate",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "loans",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "workPeriodId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "date",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "opportunities",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "stage",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "opportunities",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "assignedTo",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "projectTasks",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "workOrderId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "events",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "startDate",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "tasks",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "ricezScore.total",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "tasks",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "ricezScore.total",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "tasks",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "priority",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "ricezScore.total",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "tasks",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "domain",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "ricezScore.total",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "workflows",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "workflows",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "workflows",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "template",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "workflow-executions",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "startedAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "workflow-executions",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "workflowId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "startedAt",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "workflow-executions",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "startedAt",
-          "order": "DESCENDING"
-        }
-      ]
-    }
-  ],
-  "fieldOverrides": []
+    "indexes":  [
+                    {
+                        "collectionGroup":  "workOrders",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "projectId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "createdAt",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "projectTasks",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "projectId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "createdAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "projectExpenses",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "projectId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "expenseDate",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "projectTimeline",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "projectId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "performedAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "workSessions",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "projectId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "startTime",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "quotes",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "clientId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "createdAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "interactions",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "clientId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "type",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "date",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "invoices",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "clientId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "createdAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "invoices",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "status",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "createdAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "leads",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "status",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "createdAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "workPeriods",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "employeeId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "startDate",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "loans",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "workPeriodId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "date",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "opportunities",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "stage",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "createdAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "opportunities",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "assignedTo",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "createdAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "projectTasks",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "workOrderId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "createdAt",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "employees",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "userId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "lastName",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "employees",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "userId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "status",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "lastName",
+                                           "order":  "ASCENDING"
+                                       }
+                                   ]
+                    },
+                    {
+                        "collectionGroup":  "workPeriods",
+                        "queryScope":  "COLLECTION",
+                        "fields":  [
+                                       {
+                                           "fieldPath":  "employeeId",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "status",
+                                           "order":  "ASCENDING"
+                                       },
+                                       {
+                                           "fieldPath":  "startDate",
+                                           "order":  "DESCENDING"
+                                       }
+                                   ]
+                    }
+                ],
+    "fieldOverrides":  [
+
+                       ]
 }

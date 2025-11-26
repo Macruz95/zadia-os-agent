@@ -13,12 +13,18 @@ interface LogContext {
   path?: string;
   projectId?: string;
   employeeId?: string;
+  periodId?: string;
   invoiceId?: string;
   quoteId?: string;
   clientId?: string;
   newStatus?: string;
   status?: string;
   url?: string;
+  // HR Module fields
+  amount?: number;
+  netPayable?: number;
+  loanId?: string;
+  workPeriodId?: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -40,27 +46,27 @@ class Logger {
     const levels = ['debug', 'info', 'warn', 'error'];
     const currentLevelIndex = levels.indexOf(this.logLevel);
     const requestedLevelIndex = levels.indexOf(level);
-    
+
     return requestedLevelIndex >= currentLevelIndex;
   }
 
   private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
     const timestamp = new Date().toISOString();
     const prefix = level.toUpperCase().padEnd(5);
-    
+
     let formatted = `[${timestamp}] ${prefix} ${message}`;
-    
+
     if (context) {
       const contextStr = Object.entries(context)
         .filter(([, value]) => value !== undefined)
         .map(([key, value]) => `${key}=${JSON.stringify(value)}`)
         .join(' ');
-      
+
       if (contextStr) {
         formatted += ` | ${contextStr}`;
       }
     }
-    
+
     return formatted;
   }
 
@@ -95,10 +101,10 @@ class Logger {
 
   // Utility methods for common scenarios
   dataConversion(operation: string, data: Record<string, unknown>): void {
-    this.debug(`Data conversion: ${operation}`, { 
+    this.debug(`Data conversion: ${operation}`, {
       component: 'DataConverter',
       action: operation,
-      metadata: data 
+      metadata: data
     });
   }
 

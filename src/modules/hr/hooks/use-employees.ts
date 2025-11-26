@@ -11,24 +11,31 @@ import { EmployeesService } from '../services/employees.service';
 import type { Employee, EmployeeStatus } from '../types/hr.types';
 import type { EmployeeFormData } from '../validations/hr.validation';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function useEmployees(statusFilter?: EmployeeStatus) {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   /**
    * Fetch employees
    */
   const fetchEmployees = useCallback(async () => {
+    if (!user?.uid) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
-      
+
       const data = statusFilter
-        ? await EmployeesService.getEmployeesByStatus(statusFilter)
-        : await EmployeesService.getAllEmployees();
-      
+        ? await EmployeesService.getEmployeesByStatus(statusFilter, user.uid)
+        : await EmployeesService.getAllEmployees(user.uid);
+
       setEmployees(data);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al cargar empleados';
@@ -37,7 +44,7 @@ export function useEmployees(statusFilter?: EmployeeStatus) {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter]);
+  }, [statusFilter, user?.uid]);
 
   /**
    * Create employee

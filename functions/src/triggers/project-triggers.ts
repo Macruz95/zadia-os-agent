@@ -12,7 +12,7 @@ const db = admin.firestore();
  */
 export const onExpenseWrite = functions.firestore
     .document('expenses/{expenseId}')
-    .onWrite(async (change, context) => {
+    .onWrite(async (change, _context) => {
         const expenseData = change.after.exists ? change.after.data() : change.before.data();
         const projectId = expenseData?.projectId;
 
@@ -77,7 +77,7 @@ export const onExpenseWrite = functions.firestore
  */
 export const onTaskWrite = functions.firestore
     .document('tasks/{taskId}')
-    .onWrite(async (change, context) => {
+    .onWrite(async (change, _context) => {
         const taskData = change.after.exists ? change.after.data() : change.before.data();
         const projectId = taskData?.projectId;
 
