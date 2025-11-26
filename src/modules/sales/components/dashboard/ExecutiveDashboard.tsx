@@ -43,8 +43,8 @@ export function ExecutiveDashboard() {
 
   if (loading) {
     return (
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
           <div className="h-8 bg-muted animate-pulse rounded w-64"></div>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -58,7 +58,7 @@ export function ExecutiveDashboard() {
 
   if (!analyticsData) {
     return (
-      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="p-6 space-y-6">
         <div className="text-center py-8">
           <p>No hay datos disponibles</p>
         </div>
@@ -67,7 +67,7 @@ export function ExecutiveDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <DashboardHeader 
         onViewAnalytics={() => router.push('/sales/analytics')}
         onGoToSales={() => router.push('/sales/leads')}

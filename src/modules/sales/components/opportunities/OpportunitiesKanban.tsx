@@ -150,7 +150,7 @@ export function OpportunitiesKanban() {
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         <KanbanHeader
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}

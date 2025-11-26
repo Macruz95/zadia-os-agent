@@ -57,7 +57,7 @@ export function QuotesDirectory() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <QuotesPageHeader 
         onNewQuote={() => router.push('/sales/quotes/new')}
         onTemplatesClick={() => setTemplatesDialogOpen(true)}

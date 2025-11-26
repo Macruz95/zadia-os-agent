@@ -149,7 +149,7 @@ export function LeadsDirectory() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <LeadsHeader 
         onRefresh={refresh}
         onCreateLead={() => setShowCreateDialog(true)}
