@@ -54,7 +54,7 @@ export function QuoteHeader({
 
   return (
     <div className="bg-card border-b">
-      <div className="container mx-auto py-6">
+      <div className="container mx-auto px-6 py-6">
         <div className="flex items-center justify-between mb-4">
           <Button
             variant="ghost"

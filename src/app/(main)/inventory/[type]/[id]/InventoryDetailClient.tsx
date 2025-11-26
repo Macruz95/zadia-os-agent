@@ -103,7 +103,7 @@ export function InventoryDetailClient({ type, id }: InventoryDetailClientProps) 
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto px-6 py-6">
         <div className="text-center py-12">
           <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
           <h2 className="text-lg font-semibold mb-2">Cargando elemento...</h2>
@@ -114,7 +114,7 @@ export function InventoryDetailClient({ type, id }: InventoryDetailClientProps) 
 
   if (error || !item) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto px-6 py-6">
         <div className="text-center py-12">
           <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-red-500" />
           <h2 className="text-lg font-semibold mb-2 text-red-700">Error</h2>
@@ -132,7 +132,7 @@ export function InventoryDetailClient({ type, id }: InventoryDetailClientProps) 
   const StockIcon = stockStatus.icon;
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto px-6 py-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">

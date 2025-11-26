@@ -82,7 +82,7 @@ export default function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
   // Error state
   if (error || !quote) {
     return (
-      <div className="container mx-auto py-6">
+      <div className="container mx-auto px-6 py-6">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
@@ -106,7 +106,7 @@ export default function QuoteDetailsPage({ params }: QuoteDetailsPageProps) {
       />
 
       {/* Content */}
-      <div className="container mx-auto py-6">
+      <div className="container mx-auto px-6 py-6">
         <div className="grid grid-cols-3 gap-6">
           {/* Main content - 2 columns */}
           <div className="col-span-2">

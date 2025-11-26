@@ -9,7 +9,7 @@ import { ClientDirectory } from '@/modules/clients';
  */
 export default function ClientsPage() {
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <ClientDirectory />
     </div>
   );

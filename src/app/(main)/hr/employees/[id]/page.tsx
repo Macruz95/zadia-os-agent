@@ -111,7 +111,7 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
   const positionConfig = POSITION_CONFIG[employee.position];
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       {/* Header (Mismo de antes) */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

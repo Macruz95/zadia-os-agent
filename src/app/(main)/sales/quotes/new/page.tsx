@@ -21,7 +21,7 @@ export default function NewQuotePage() {
   const opportunityId = searchParams.get('opportunityId') || undefined;
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto px-6 py-6">
       {/* Header */}
       <div className="mb-6">
         <Button

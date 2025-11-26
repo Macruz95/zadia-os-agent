@@ -105,7 +105,7 @@ export default function OpportunityProfilePage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto px-6 py-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
@@ -118,7 +118,7 @@ export default function OpportunityProfilePage() {
 
   if (error || !opportunity) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto px-6 py-6">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
@@ -140,7 +140,7 @@ export default function OpportunityProfilePage() {
   const priorityBadge = getPriorityBadge(opportunity.priority);
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="container mx-auto px-6 py-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
