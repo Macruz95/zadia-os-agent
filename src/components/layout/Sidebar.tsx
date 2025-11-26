@@ -88,17 +88,18 @@ export function Sidebar() {
           <Link 
             href={item.href}
             className={cn(
-              active && "bg-cyan-50 text-gray-900 border-l-2 border-cyan-500"
+              "transition-all duration-200",
+              active 
+                ? "bg-cyan-500/10 text-cyan-400 border-l-2 border-cyan-500" 
+                : "text-gray-400 hover:text-white hover:bg-white/5"
             )}
           >
             <Icon className={cn(
               "h-4 w-4",
-              active ? "text-cyan-600" : "text-gray-600"
+              active ? "text-cyan-400" : "text-gray-500"
             )} />
-            <span className={cn(
-              active ? "text-gray-900" : "text-gray-900"
-            )}>{item.title}</span>
-            {active && <ChevronRight className="ml-auto h-4 w-4 text-cyan-600" />}
+            <span>{item.title}</span>
+            {active && <ChevronRight className="ml-auto h-4 w-4 text-cyan-400" />}
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -107,11 +108,11 @@ export function Sidebar() {
 
   if (loading) {
     return (
-      <SidebarComponent collapsible="icon" className="bg-white border-r border-gray-200">
-        <SidebarHeader className="border-b border-gray-200">
+      <SidebarComponent collapsible="icon" className="bg-[#0d1117] border-r border-gray-800/50">
+        <SidebarHeader className="border-b border-gray-800/50">
           <div className="flex items-center gap-2 px-2 py-1.5">
-            <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-200" />
-            <div className="h-4 w-20 animate-pulse rounded bg-gray-200" />
+            <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-800" />
+            <div className="h-4 w-20 animate-pulse rounded bg-gray-800" />
           </div>
         </SidebarHeader>
       </SidebarComponent>
@@ -127,10 +128,10 @@ export function Sidebar() {
   return (
     <SidebarComponent 
       collapsible="icon" 
-      className="bg-white border-r border-gray-200"
+      className="bg-[#0d1117] border-r border-gray-800/50"
     >
       {/* Header con Logo */}
-      <SidebarHeader className="border-b border-gray-200 px-4 py-4">
+      <SidebarHeader className="border-b border-gray-800/50 px-4 py-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
@@ -139,8 +140,8 @@ export function Sidebar() {
                   <Zap className="size-4 text-white" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-bold text-gray-900">ZADIA OS</span>
-                  <span className="truncate text-xs text-gray-600 uppercase tracking-wider">Enterprise</span>
+                  <span className="truncate font-bold text-white">ZADIA OS</span>
+                  <span className="truncate text-xs text-gray-500 uppercase tracking-wider">Enterprise</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -152,7 +153,7 @@ export function Sidebar() {
       <SidebarContent className="px-2 py-4">
         {/* Principal */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider px-2 mb-1">
+          <SidebarGroupLabel className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider px-2 mb-1">
             Principal
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -166,7 +167,7 @@ export function Sidebar() {
 
         {/* Negocio */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider px-2 mb-1">
+          <SidebarGroupLabel className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider px-2 mb-1">
             Negocio
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -180,7 +181,7 @@ export function Sidebar() {
 
         {/* Recursos */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider px-2 mb-1">
+          <SidebarGroupLabel className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider px-2 mb-1">
             Recursos
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -194,51 +195,51 @@ export function Sidebar() {
       </SidebarContent>
 
       {/* Footer con Usuario */}
-      <SidebarFooter className="border-t border-gray-200 px-4 py-3">
+      <SidebarFooter className="border-t border-gray-800/50 px-4 py-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-gray-100 data-[state=open]:text-gray-900 w-full justify-start"
+                  className="data-[state=open]:bg-gray-800 data-[state=open]:text-white w-full justify-start text-gray-400 hover:text-white hover:bg-white/5"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg bg-gradient-to-br from-gray-700 to-gray-800 text-white text-xs font-bold">
+                    <AvatarFallback className="rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 text-white text-xs font-bold">
                       {userInitials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium text-gray-900">
+                    <span className="truncate font-medium text-white">
                       {user.displayName || 'Usuario'}
                     </span>
-                    <span className="truncate text-xs text-gray-600">
+                    <span className="truncate text-xs text-gray-500">
                       {user.email}
                     </span>
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg bg-white border-gray-200"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg bg-[#161b22] border-gray-800/50"
                 side="bottom"
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem asChild className="text-gray-900 hover:text-gray-900 hover:bg-gray-100 cursor-pointer">
+                <DropdownMenuItem asChild className="text-gray-300 hover:text-white hover:bg-white/5 cursor-pointer">
                   <Link href="/profile">
                     Mi Perfil
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="text-gray-900 hover:text-gray-900 hover:bg-gray-100 cursor-pointer">
+                <DropdownMenuItem asChild className="text-gray-300 hover:text-white hover:bg-white/5 cursor-pointer">
                   <Link href="/settings">
                     <Settings className="mr-2 h-4 w-4" />
                     Configuración
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-gray-200" />
+                <DropdownMenuSeparator className="bg-gray-800" />
                 <DropdownMenuItem 
                   onClick={logout}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
+                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Cerrar Sesión
