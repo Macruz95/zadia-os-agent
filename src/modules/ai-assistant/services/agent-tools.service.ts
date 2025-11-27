@@ -83,10 +83,11 @@ const schemas = {
   }),
 
   send_email: z.object({
-    to: z.string().email(),
+    to: z.string().min(1), // Can be email or client name
+    clientId: z.string().optional(), // Optional: direct client ID
     subject: z.string().min(3),
     body: z.string().min(10),
-    attachments: z.array(z.string()).optional(),
+    emailType: z.enum(['general', 'installation_ready', 'payment_reminder', 'quote_followup', 'project_update']).optional(),
   }),
 
   create_quote: z.object({
@@ -213,6 +214,25 @@ export const TOOL_DEFINITIONS: AgentToolDefinition[] = [
       required: [],
     },
   },
+  {
+    name: 'send_email',
+    description: 'Envía un correo electrónico a un cliente. Puede buscar el cliente por nombre y generar el contenido automáticamente según el tipo de email.',
+    parameters: {
+      type: 'object',
+      properties: {
+        to: { type: 'string', description: 'Email del destinatario o nombre del cliente para buscar su email', required: true },
+        clientId: { type: 'string', description: 'ID del cliente (opcional, si ya lo conoces)' },
+        subject: { type: 'string', description: 'Asunto del correo', required: true },
+        body: { type: 'string', description: 'Contenido del correo en texto plano o HTML', required: true },
+        emailType: { 
+          type: 'string', 
+          description: 'Tipo de correo para usar plantilla predefinida', 
+          enum: ['general', 'installation_ready', 'payment_reminder', 'quote_followup', 'project_update'] 
+        },
+      },
+      required: ['to', 'subject', 'body'],
+    },
+  },
 ];
 
 // Tool execution functions
@@ -240,6 +260,8 @@ export class AgentToolsExecutor {
           return this.searchWeb(params);
         case 'check_system_status':
           return this.checkSystemStatus();
+        case 'send_email':
+          return this.sendEmail(params);
         default:
           return { success: false, message: `Herramienta "${toolName}" no implementada aún.` };
       }
@@ -776,5 +798,169 @@ ${aiModels.map(m => `🤖 ${m.name} - ${m.use}`).join('\n')}
 ✅ Multimodalidad (imágenes)`,
       data: { modules: statusChecks, aiModels },
     };
+  }
+
+  private async sendEmail(params: Record<string, unknown>): Promise<AgentToolResult> {
+    const parsed = schemas.send_email.safeParse(params);
+    if (!parsed.success) {
+      return { success: false, message: parsed.error.issues[0]?.message || 'Datos inválidos para enviar email' };
+    }
+
+    const { to, clientId, subject, body, emailType } = parsed.data;
+    
+    // Try to find client email
+    let recipientEmail = to;
+    let clientName = to;
+    let clientFound = false;
+
+    try {
+      // If clientId is provided, get client directly
+      if (clientId) {
+        const clientsQ = query(collection(db, 'clients'), limit(100));
+        const clientsSnap = await getDocs(clientsQ);
+        const clientDoc = clientsSnap.docs.find(doc => doc.id === clientId);
+        if (clientDoc) {
+          const clientData = clientDoc.data();
+          recipientEmail = clientData.email || clientData.contactEmail || '';
+          clientName = clientData.commercialName || clientData.name || to;
+          clientFound = true;
+        }
+      }
+      // Otherwise, search by name
+      else if (!to.includes('@')) {
+        const clientsQ = query(collection(db, 'clients'), limit(100));
+        const clientsSnap = await getDocs(clientsQ);
+        
+        // Search by name (fuzzy match)
+        const searchTerm = to.toLowerCase();
+        const matchedClient = clientsSnap.docs.find(doc => {
+          const data = doc.data();
+          const name = (data.commercialName || data.name || '').toLowerCase();
+          const contactName = (data.contactName || '').toLowerCase();
+          return name.includes(searchTerm) || contactName.includes(searchTerm) || searchTerm.includes(name);
+        });
+
+        if (matchedClient) {
+          const clientData = matchedClient.data();
+          recipientEmail = clientData.email || clientData.contactEmail || '';
+          clientName = clientData.commercialName || clientData.name || to;
+          clientFound = true;
+        }
+      } else {
+        // It's already an email
+        recipientEmail = to;
+        clientFound = true;
+      }
+    } catch (error) {
+      logger.error('Error searching for client', error as Error);
+    }
+
+    if (!clientFound || !recipientEmail || !recipientEmail.includes('@')) {
+      return {
+        success: false,
+        message: `❌ No pude encontrar el email del cliente "${to}". Por favor proporciona el email directamente o verifica que el cliente existe en el sistema.`,
+      };
+    }
+
+    // Check if Resend is configured
+    const resendApiKey = process.env.RESEND_API_KEY;
+    if (!resendApiKey || resendApiKey === 'TU_API_KEY_REAL') {
+      // Log the email that would be sent (for demo/development)
+      logger.info('Email would be sent (Resend not configured)', {
+        component: 'AgentTools',
+        metadata: { to: recipientEmail, subject, clientName }
+      });
+
+      // Save to a sent_emails collection for tracking
+      await addDoc(collection(db, 'sentEmails'), {
+        to: recipientEmail,
+        clientName,
+        subject,
+        body,
+        emailType: emailType || 'general',
+        status: 'simulated', // Not actually sent
+        createdAt: Timestamp.now(),
+        createdBy: this.userId,
+      });
+
+      return {
+        success: true,
+        message: `📧 **Email preparado** (modo simulación - Resend no configurado)
+
+**Para:** ${clientName} <${recipientEmail}>
+**Asunto:** ${subject}
+
+**Vista previa del contenido:**
+${body.substring(0, 200)}${body.length > 200 ? '...' : ''}
+
+⚠️ Para enviar emails reales, configura la API key de Resend en las variables de entorno.`,
+        data: { 
+          to: recipientEmail, 
+          clientName, 
+          subject, 
+          simulated: true 
+        },
+      };
+    }
+
+    // Send real email with Resend
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'ZADIA OS <noreply@zadia.app>',
+          to: [recipientEmail],
+          subject: subject,
+          html: body.replace(/\n/g, '<br>'),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al enviar email');
+      }
+
+      const result = await response.json();
+
+      // Log sent email
+      await addDoc(collection(db, 'sentEmails'), {
+        to: recipientEmail,
+        clientName,
+        subject,
+        body,
+        emailType: emailType || 'general',
+        status: 'sent',
+        resendId: result.id,
+        createdAt: Timestamp.now(),
+        createdBy: this.userId,
+      });
+
+      return {
+        success: true,
+        message: `✅ **Email enviado exitosamente**
+
+**Para:** ${clientName} <${recipientEmail}>
+**Asunto:** ${subject}
+
+El cliente ha sido notificado. El email ha sido registrado en el sistema.`,
+        data: { 
+          to: recipientEmail, 
+          clientName, 
+          subject, 
+          emailId: result.id 
+        },
+      };
+
+    } catch (error) {
+      logger.error('Error sending email via Resend', error as Error);
+      return {
+        success: false,
+        message: `❌ Error al enviar el email: ${(error as Error).message}`,
+      };
+    }
   }
 }
