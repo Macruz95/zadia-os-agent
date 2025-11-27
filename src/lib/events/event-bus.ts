@@ -12,26 +12,74 @@ import { logger } from '@/lib/logger';
 
 // Tipos de eventos del sistema
 export type ZadiaEventType =
-  // Sales Events
+  // ═══════════════════════════════════════════════════════════════════════
+  // SALES EVENTS
+  // ═══════════════════════════════════════════════════════════════════════
   | 'lead:created' | 'lead:updated' | 'lead:converted'
   | 'opportunity:created' | 'opportunity:updated' | 'opportunity:won' | 'opportunity:lost'
   | 'quote:created' | 'quote:sent' | 'quote:approved' | 'quote:rejected'
-  // Finance Events
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // FINANCE EVENTS
+  // ═══════════════════════════════════════════════════════════════════════
   | 'invoice:created' | 'invoice:sent' | 'invoice:paid' | 'invoice:overdue'
   | 'expense:created' | 'expense:approved' | 'expense:rejected'
   | 'payment:received' | 'payment:pending'
-  // Inventory Events
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // INVENTORY EVENTS
+  // ═══════════════════════════════════════════════════════════════════════
   | 'product:created' | 'product:updated' | 'product:low_stock'
   | 'movement:in' | 'movement:out' | 'movement:transfer'
-  // Project Events
-  | 'project:created' | 'project:started' | 'project:completed' | 'project:delayed'
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // PROJECT EVENTS
+  // ═══════════════════════════════════════════════════════════════════════
+  | 'project:created' | 'project:updated' | 'project:started' | 'project:paused'
+  | 'project:completed' | 'project:cancelled' | 'project:delayed' | 'project:budget_overrun'
+  | 'project:progress_updated' | 'project:task_added' | 'project:task_completed'
+  | 'project:milestone_added' | 'project:milestone_completed'
   | 'task:created' | 'task:completed' | 'task:overdue'
-  // HR Events
-  | 'employee:created' | 'employee:updated'
-  // Client Events
-  | 'client:created' | 'client:updated'
-  // System Events
-  | 'system:startup' | 'system:error';
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // CLIENT EVENTS
+  // ═══════════════════════════════════════════════════════════════════════
+  | 'client:created' | 'client:updated' | 'client:activated' | 'client:deactivated'
+  | 'client:interaction' | 'client:vip_marked' | 'client:segment_changed' | 'client:flagged'
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // ORDER EVENTS
+  // ═══════════════════════════════════════════════════════════════════════
+  | 'order:created' | 'order:confirmed' | 'order:production_started'
+  | 'order:ready' | 'order:delivered' | 'order:cancelled'
+  | 'order:priority_changed' | 'order:delivery_date_changed'
+  | 'order:note_added' | 'order:issue_reported'
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // HR EVENTS
+  // ═══════════════════════════════════════════════════════════════════════
+  | 'employee:created' | 'employee:updated' | 'employee:promoted' | 'employee:transferred'
+  | 'employee:timeoff_requested' | 'employee:timeoff_approved' | 'employee:timeoff_rejected'
+  | 'employee:performance_reviewed' | 'employee:terminated'
+  | 'employee:onboarding_started' | 'employee:onboarding_completed'
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // CALENDAR EVENTS
+  // ═══════════════════════════════════════════════════════════════════════
+  | 'calendar:event_created' | 'calendar:event_updated' | 'calendar:event_cancelled'
+  | 'calendar:event_rescheduled' | 'calendar:attendance_confirmed' | 'calendar:event_completed'
+  | 'calendar:reminder_created' | 'calendar:deadline_created'
+  | 'calendar:client_meeting_scheduled' | 'calendar:conflict_detected'
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // AI ASSISTANT EVENTS
+  // ═══════════════════════════════════════════════════════════════════════
+  | 'ai:query' | 'ai:response' | 'ai:tool_called' | 'ai:email_sent'
+  
+  // ═══════════════════════════════════════════════════════════════════════
+  // SYSTEM EVENTS
+  // ═══════════════════════════════════════════════════════════════════════
+  | 'system:startup' | 'system:error' | 'system:notification';
 
 export interface ZadiaEvent<T = unknown> {
   id: string;

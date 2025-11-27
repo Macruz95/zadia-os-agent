@@ -64,6 +64,9 @@ class AgentOrchestratorClass {
    */
   private initializeAgents(): void {
     this.agents = [
+      // ═══════════════════════════════════════════════════════════════════════
+      // AGENTE DE VENTAS
+      // ═══════════════════════════════════════════════════════════════════════
       {
         id: 'sales-agent',
         name: 'Agente de Ventas',
@@ -82,6 +85,10 @@ class AgentOrchestratorClass {
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
+      
+      // ═══════════════════════════════════════════════════════════════════════
+      // AGENTE FINANCIERO
+      // ═══════════════════════════════════════════════════════════════════════
       {
         id: 'finance-agent',
         name: 'Agente Financiero',
@@ -100,6 +107,10 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
+      
+      // ═══════════════════════════════════════════════════════════════════════
+      // AGENTE DE INVENTARIO
+      // ═══════════════════════════════════════════════════════════════════════
       {
         id: 'inventory-agent',
         name: 'Agente de Inventario',
@@ -117,38 +128,151 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
+      
+      // ═══════════════════════════════════════════════════════════════════════
+      // AGENTE DE PROYECTOS
+      // ═══════════════════════════════════════════════════════════════════════
       {
         id: 'project-agent',
         name: 'Agente de Proyectos',
         description: 'Monitorea salud de proyectos y tareas',
         model: 'deepseek/deepseek-r1:free',
         triggerEvents: [
-          'project:created', 'project:started', 'project:completed', 'project:delayed',
+          'project:created', 'project:updated', 'project:started', 'project:paused',
+          'project:completed', 'project:cancelled', 'project:delayed', 'project:budget_overrun',
+          'project:progress_updated', 'project:task_added', 'project:task_completed',
+          'project:milestone_added', 'project:milestone_completed',
           'task:created', 'task:completed', 'task:overdue'
         ],
         systemPrompt: `Eres el PM Virtual de ZADIA OS. Tu función es:
 1. Evaluar salud de proyectos en cada actualización
 2. Detectar riesgos de retraso tempranamente
-3. Optimizar asignación de recursos
-4. Sugerir ajustes de cronograma
+3. Monitorear presupuesto y alertar sobre sobrecostos
+4. Optimizar asignación de recursos
+5. Sugerir ajustes de cronograma
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
+      
+      // ═══════════════════════════════════════════════════════════════════════
+      // AGENTE DE CLIENTES
+      // ═══════════════════════════════════════════════════════════════════════
       {
         id: 'client-agent',
         name: 'Agente de Clientes',
         description: 'Analiza relaciones y satisfacción',
         model: 'google/gemini-2.5-pro-exp-03-25:free',
         triggerEvents: [
-          'client:created', 'client:updated',
+          'client:created', 'client:updated', 'client:activated', 'client:deactivated',
+          'client:interaction', 'client:vip_marked', 'client:segment_changed', 'client:flagged',
           'invoice:paid', 'invoice:overdue',
-          'project:completed'
+          'project:completed', 'order:delivered'
         ],
         systemPrompt: `Eres el Agente de Éxito del Cliente de ZADIA OS. Tu función es:
 1. Evaluar salud de la relación con cada cliente
 2. Identificar clientes en riesgo de churn
 3. Detectar oportunidades de upsell/cross-sell
-4. Medir satisfacción implícita
+4. Medir satisfacción implícita por interacciones
+5. Priorizar clientes VIP
+Responde en JSON con: analysis, suggestedActions[], insights[]`,
+        enabled: true
+      },
+      
+      // ═══════════════════════════════════════════════════════════════════════
+      // AGENTE DE PEDIDOS
+      // ═══════════════════════════════════════════════════════════════════════
+      {
+        id: 'orders-agent',
+        name: 'Agente de Pedidos',
+        description: 'Monitorea flujo de pedidos y entregas',
+        model: 'qwen/qwen-2.5-72b-instruct:free',
+        triggerEvents: [
+          'order:created', 'order:confirmed', 'order:production_started',
+          'order:ready', 'order:delivered', 'order:cancelled',
+          'order:priority_changed', 'order:delivery_date_changed',
+          'order:note_added', 'order:issue_reported'
+        ],
+        systemPrompt: `Eres el Agente de Operaciones de ZADIA OS. Tu función es:
+1. Monitorear el flujo de pedidos en tiempo real
+2. Detectar cuellos de botella en producción
+3. Alertar sobre pedidos urgentes o atrasados
+4. Optimizar secuencia de producción
+5. Coordinar entregas y notificar clientes
+Responde en JSON con: analysis, suggestedActions[], insights[]`,
+        enabled: true
+      },
+      
+      // ═══════════════════════════════════════════════════════════════════════
+      // AGENTE DE RRHH
+      // ═══════════════════════════════════════════════════════════════════════
+      {
+        id: 'hr-agent',
+        name: 'Agente de RRHH',
+        description: 'Gestiona talento y bienestar',
+        model: 'meta-llama/llama-4-maverick:free',
+        triggerEvents: [
+          'employee:created', 'employee:updated', 'employee:promoted', 'employee:transferred',
+          'employee:timeoff_requested', 'employee:timeoff_approved', 'employee:timeoff_rejected',
+          'employee:performance_reviewed', 'employee:terminated',
+          'employee:onboarding_started', 'employee:onboarding_completed'
+        ],
+        systemPrompt: `Eres el Agente de Recursos Humanos de ZADIA OS. Tu función es:
+1. Monitorear bienestar y satisfacción del equipo
+2. Optimizar procesos de onboarding
+3. Detectar riesgos de rotación
+4. Analizar patrones de ausencias
+5. Sugerir desarrollo de carrera
+Responde en JSON con: analysis, suggestedActions[], insights[]`,
+        enabled: true
+      },
+      
+      // ═══════════════════════════════════════════════════════════════════════
+      // AGENTE DE CALENDARIO
+      // ═══════════════════════════════════════════════════════════════════════
+      {
+        id: 'calendar-agent',
+        name: 'Agente de Calendario',
+        description: 'Optimiza agenda y evita conflictos',
+        model: 'mistralai/mistral-small-3.1-24b-instruct:free',
+        triggerEvents: [
+          'calendar:event_created', 'calendar:event_updated', 'calendar:event_cancelled',
+          'calendar:event_rescheduled', 'calendar:attendance_confirmed', 'calendar:event_completed',
+          'calendar:reminder_created', 'calendar:deadline_created',
+          'calendar:client_meeting_scheduled', 'calendar:conflict_detected'
+        ],
+        systemPrompt: `Eres el Agente de Calendario de ZADIA OS. Tu función es:
+1. Detectar y resolver conflictos de agenda
+2. Optimizar distribución de reuniones
+3. Alertar sobre deadlines próximos
+4. Sugerir mejores horarios para reuniones
+5. Proteger tiempo de trabajo profundo
+Responde en JSON con: analysis, suggestedActions[], insights[]`,
+        enabled: true
+      },
+      
+      // ═══════════════════════════════════════════════════════════════════════
+      // AGENTE ESTRATÉGICO (SUPERVISA TODO)
+      // ═══════════════════════════════════════════════════════════════════════
+      {
+        id: 'strategic-agent',
+        name: 'Agente Estratégico',
+        description: 'Visión holística del negocio',
+        model: 'deepseek/deepseek-r1:free',
+        triggerEvents: [
+          // Eventos críticos de alto impacto
+          'opportunity:won', 'opportunity:lost',
+          'project:completed', 'project:delayed', 'project:budget_overrun',
+          'invoice:overdue',
+          'client:flagged', 'client:vip_marked',
+          'employee:terminated',
+          'order:issue_reported'
+        ],
+        systemPrompt: `Eres el CEO Virtual de ZADIA OS. Tu función es:
+1. Tener visión holística de todas las operaciones
+2. Identificar patrones cross-funcionales
+3. Detectar riesgos sistémicos
+4. Proponer optimizaciones estratégicas
+5. Alertar sobre eventos de alto impacto
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       }
