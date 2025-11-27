@@ -4,7 +4,7 @@
  * Extended toolset for the AI assistant with full system integration
  */
 
-import { addDoc, collection, Timestamp, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { addDoc, collection, Timestamp, getDocs, query, orderBy, limit } from 'firebase/firestore';
 import { z } from 'zod';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
@@ -376,119 +376,270 @@ export class AgentToolsExecutor {
 
     const { dataType, period = 'month' } = parsed.data;
     
-    // Calculate date range
+    // Calculate date range (for future filtering)
     const now = new Date();
-    let startDate: Date;
+    let _startDate: Date;
     switch (period) {
       case 'today':
-        startDate = new Date(now.setHours(0, 0, 0, 0));
+        _startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         break;
       case 'week':
-        startDate = new Date(now.setDate(now.getDate() - 7));
+        _startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         break;
       case 'month':
-        startDate = new Date(now.setMonth(now.getMonth() - 1));
+        _startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
         break;
       case 'quarter':
-        startDate = new Date(now.setMonth(now.getMonth() - 3));
+        _startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
         break;
       case 'year':
-        startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+        _startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
         break;
       default:
-        startDate = new Date(now.setMonth(now.getMonth() - 1));
+        _startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
     }
 
-    let collectionName: string;
     let metrics: Record<string, unknown> = {};
 
-    switch (dataType) {
-      case 'sales': {
-        collectionName = 'invoices';
-        const q = query(
-          collection(db, collectionName),
-          where('userId', '==', this.userId),
-          where('createdAt', '>=', Timestamp.fromDate(startDate)),
-          orderBy('createdAt', 'desc')
-        );
-        const snapshot = await getDocs(q);
-        const total = snapshot.docs.reduce((sum, doc) => sum + (doc.data().total || 0), 0);
-        metrics = {
-          totalSales: total,
-          invoiceCount: snapshot.size,
-          averageInvoice: snapshot.size > 0 ? total / snapshot.size : 0,
-        };
-        break;
+    try {
+      switch (dataType) {
+        case 'sales': {
+          // Get invoices without userId filter (organization-wide)
+          const invoicesQ = query(
+            collection(db, 'invoices'),
+            orderBy('createdAt', 'desc'),
+            limit(200)
+          );
+          const invoicesSnap = await getDocs(invoicesQ);
+          
+          let totalRevenue = 0;
+          let paidCount = 0;
+          let pendingCount = 0;
+          let pendingAmount = 0;
+          const clientRevenue: Record<string, { name: string; total: number; pending: number }> = {};
+          
+          invoicesSnap.docs.forEach(doc => {
+            const data = doc.data();
+            const total = data.total || 0;
+            const clientId = data.clientId || 'unknown';
+            const clientName = data.clientName || data.client?.name || 'Cliente sin nombre';
+            const status = data.status || 'draft';
+            
+            totalRevenue += total;
+            
+            if (!clientRevenue[clientId]) {
+              clientRevenue[clientId] = { name: clientName, total: 0, pending: 0 };
+            }
+            clientRevenue[clientId].total += total;
+            
+            if (status === 'paid') {
+              paidCount++;
+            } else if (status === 'sent' || status === 'overdue' || status === 'pending') {
+              pendingCount++;
+              pendingAmount += total;
+              clientRevenue[clientId].pending += total;
+            }
+          });
+          
+          // Top 5 clients by revenue
+          const topClients = Object.entries(clientRevenue)
+            .sort((a, b) => b[1].total - a[1].total)
+            .slice(0, 5)
+            .map(([id, info], index) => ({
+              rank: index + 1,
+              clientId: id,
+              name: info.name,
+              totalFacturado: `$${info.total.toLocaleString()}`,
+              facturasPendientes: info.pending > 0 ? `$${info.pending.toLocaleString()}` : 'Ninguna'
+            }));
+          
+          metrics = {
+            totalFacturado: `$${totalRevenue.toLocaleString()}`,
+            facturasPagadas: paidCount,
+            facturasPendientes: pendingCount,
+            montoPendiente: `$${pendingAmount.toLocaleString()}`,
+            top5Clientes: topClients,
+          };
+          break;
+        }
+        case 'expenses': {
+          const expensesQ = query(
+            collection(db, 'projectExpenses'),
+            orderBy('expenseDate', 'desc'),
+            limit(100)
+          );
+          const snapshot = await getDocs(expensesQ);
+          const total = snapshot.docs.reduce((sum, doc) => sum + (doc.data().amount || 0), 0);
+          
+          // Group by category
+          const byCategory: Record<string, number> = {};
+          snapshot.docs.forEach(doc => {
+            const cat = doc.data().category || 'Sin categoría';
+            byCategory[cat] = (byCategory[cat] || 0) + (doc.data().amount || 0);
+          });
+          
+          metrics = {
+            totalGastos: `$${total.toLocaleString()}`,
+            cantidadGastos: snapshot.size,
+            promedioGasto: snapshot.size > 0 ? `$${(total / snapshot.size).toLocaleString()}` : '$0',
+            porCategoria: byCategory,
+          };
+          break;
+        }
+        case 'projects': {
+          const projectsQ = query(
+            collection(db, 'projects'),
+            orderBy('createdAt', 'desc'),
+            limit(100)
+          );
+          const snapshot = await getDocs(projectsQ);
+          const statusCounts: Record<string, number> = {};
+          let totalBudget = 0;
+          
+          snapshot.docs.forEach(doc => {
+            const data = doc.data();
+            const status = data.status || 'unknown';
+            statusCounts[status] = (statusCounts[status] || 0) + 1;
+            totalBudget += data.budget || 0;
+          });
+          
+          metrics = {
+            totalProyectos: snapshot.size,
+            presupuestoTotal: `$${totalBudget.toLocaleString()}`,
+            porEstado: statusCounts,
+          };
+          break;
+        }
+        case 'clients': {
+          // Get clients
+          const clientsQ = query(
+            collection(db, 'clients'),
+            orderBy('createdAt', 'desc'),
+            limit(100)
+          );
+          const clientsSnap = await getDocs(clientsQ);
+          
+          // Get invoices to calculate revenue per client
+          const invoicesQ = query(
+            collection(db, 'invoices'),
+            limit(500)
+          );
+          const invoicesSnap = await getDocs(invoicesQ);
+          
+          const clientStats: Record<string, { 
+            name: string; 
+            total: number; 
+            pending: number;
+            invoiceCount: number;
+          }> = {};
+          
+          // Initialize with client names
+          clientsSnap.docs.forEach(doc => {
+            const data = doc.data();
+            clientStats[doc.id] = {
+              name: data.commercialName || data.name || 'Sin nombre',
+              total: 0,
+              pending: 0,
+              invoiceCount: 0
+            };
+          });
+          
+          // Aggregate invoice data
+          invoicesSnap.docs.forEach(doc => {
+            const data = doc.data();
+            const clientId = data.clientId;
+            const total = data.total || 0;
+            const status = data.status;
+            
+            if (clientId && clientStats[clientId]) {
+              clientStats[clientId].total += total;
+              clientStats[clientId].invoiceCount++;
+              if (status !== 'paid' && status !== 'cancelled') {
+                clientStats[clientId].pending += total;
+              }
+            }
+          });
+          
+          // Top 5 clients by revenue
+          const top5 = Object.entries(clientStats)
+            .sort((a, b) => b[1].total - a[1].total)
+            .slice(0, 5)
+            .map(([_id, stats], i) => ({
+              posicion: i + 1,
+              nombre: stats.name,
+              facturacionTotal: `$${stats.total.toLocaleString()}`,
+              facturasPendientes: stats.pending > 0 ? `⚠️ $${stats.pending.toLocaleString()} pendiente` : '✅ Sin pendientes',
+              cantidadFacturas: stats.invoiceCount
+            }));
+          
+          metrics = {
+            totalClientes: clientsSnap.size,
+            top5ClientesPorFacturacion: top5,
+          };
+          break;
+        }
+        case 'inventory': {
+          // Try raw materials
+          const rawQ = query(collection(db, 'rawMaterials'), limit(100));
+          const rawSnap = await getDocs(rawQ);
+          
+          // Try finished products
+          const finishedQ = query(collection(db, 'finishedProducts'), limit(100));
+          const finishedSnap = await getDocs(finishedQ);
+          
+          let lowStockRaw = 0;
+          let lowStockFinished = 0;
+          
+          rawSnap.docs.forEach(doc => {
+            const data = doc.data();
+            if ((data.stock || 0) < (data.minStock || 10)) lowStockRaw++;
+          });
+          
+          finishedSnap.docs.forEach(doc => {
+            const data = doc.data();
+            if ((data.stock || 0) < (data.minStock || 10)) lowStockFinished++;
+          });
+          
+          metrics = {
+            materiasPrimas: rawSnap.size,
+            productosTerminados: finishedSnap.size,
+            alertasStockBajo: lowStockRaw + lowStockFinished,
+            detalleAlertas: {
+              materiasPrimas: lowStockRaw,
+              productosTerminados: lowStockFinished
+            }
+          };
+          break;
+        }
       }
-      case 'expenses': {
-        collectionName = 'expenses';
-        const q = query(
-          collection(db, collectionName),
-          where('userId', '==', this.userId),
-          where('createdAt', '>=', Timestamp.fromDate(startDate)),
-          orderBy('createdAt', 'desc')
-        );
-        const snapshot = await getDocs(q);
-        const total = snapshot.docs.reduce((sum, doc) => sum + (doc.data().amount || 0), 0);
-        metrics = {
-          totalExpenses: total,
-          expenseCount: snapshot.size,
-          averageExpense: snapshot.size > 0 ? total / snapshot.size : 0,
-        };
-        break;
-      }
-      case 'projects': {
-        const q = query(
-          collection(db, 'projects'),
-          where('userId', '==', this.userId),
-          limit(100)
-        );
-        const snapshot = await getDocs(q);
-        const statusCounts: Record<string, number> = {};
-        snapshot.docs.forEach(doc => {
-          const status = doc.data().status || 'unknown';
-          statusCounts[status] = (statusCounts[status] || 0) + 1;
-        });
-        metrics = {
-          totalProjects: snapshot.size,
-          byStatus: statusCounts,
-        };
-        break;
-      }
-      case 'clients': {
-        const q = query(
-          collection(db, 'clients'),
-          where('userId', '==', this.userId),
-          limit(100)
-        );
-        const snapshot = await getDocs(q);
-        metrics = {
-          totalClients: snapshot.size,
-        };
-        break;
-      }
-      case 'inventory': {
-        const q = query(
-          collection(db, 'products'),
-          where('userId', '==', this.userId),
-          limit(100)
-        );
-        const snapshot = await getDocs(q);
-        const lowStock = snapshot.docs.filter(doc => (doc.data().stock || 0) < (doc.data().minStock || 10)).length;
-        metrics = {
-          totalProducts: snapshot.size,
-          lowStockItems: lowStock,
-        };
-        break;
-      }
+    } catch (error) {
+      logger.error('Error in analyzeData', error as Error);
+      return {
+        success: false,
+        message: `Error al analizar datos de ${dataType}: ${(error as Error).message}`,
+      };
     }
+
+    // Format response
+    const formatValue = (value: unknown): string => {
+      if (Array.isArray(value)) {
+        return '\n' + value.map((item, i) => 
+          typeof item === 'object' 
+            ? Object.entries(item).map(([k, v]) => `  ${k}: ${v}`).join('\n')
+            : `  ${i + 1}. ${item}`
+        ).join('\n\n');
+      }
+      if (typeof value === 'object' && value !== null) {
+        return '\n' + Object.entries(value).map(([k, v]) => `  • ${k}: ${v}`).join('\n');
+      }
+      return String(value);
+    };
 
     return {
       success: true,
-      message: `📊 Análisis de ${dataType} (${period}):
-${Object.entries(metrics).map(([key, value]) => 
-  `• ${key}: ${typeof value === 'number' ? value.toLocaleString() : JSON.stringify(value)}`
-).join('\n')}`,
+      message: `📊 **Análisis de ${dataType}** (período: ${period}):\n\n${Object.entries(metrics).map(([key, value]) => 
+        `**${key}:** ${formatValue(value)}`
+      ).join('\n\n')}`,
       data: metrics,
     };
   }
