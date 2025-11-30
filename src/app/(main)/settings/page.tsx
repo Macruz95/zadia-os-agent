@@ -19,8 +19,9 @@ import { PermissionGate } from '@/modules/permissions/components/PermissionGate'
 import { TeamMembersCard } from '@/modules/tenants/components/TeamMembersCard';
 import { 
   Settings, Building2, Users, Shield, Bell, 
-  CreditCard, Globe, Palette, Lock
+  CreditCard, Globe, Palette, Lock, History
 } from 'lucide-react';
+import { AuditLogsCard } from '@/modules/settings/components/AuditLogsCard';
 
 function SettingsLoading() {
   return (
@@ -86,6 +87,12 @@ export default function SettingsPage() {
             <Bell className="h-4 w-4 mr-2" />
             Notificaciones
           </TabsTrigger>
+          <PermissionGate module="settings" action="manage">
+            <TabsTrigger value="audit" className="data-[state=active]:bg-gray-700">
+              <History className="h-4 w-4 mr-2" />
+              Auditoría
+            </TabsTrigger>
+          </PermissionGate>
         </TabsList>
 
         {/* Organization Tab */}
@@ -218,6 +225,11 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Audit Tab */}
+        <TabsContent value="audit" className="mt-6">
+          <AuditLogsCard />
         </TabsContent>
       </Tabs>
 
