@@ -31,6 +31,7 @@ import { WorkSessionsTab } from '@/modules/projects/components/WorkSessionsTab';
 import { ProjectTasksTab } from '@/modules/projects/components/tasks/ProjectTasksTab';
 import { ProjectExpensesTab } from '@/modules/projects/components/ProjectExpensesTab';
 import { ProjectDocumentsTab } from '@/modules/projects/components/documents/ProjectDocumentsTab';
+import { WorkOrdersTab } from '@/modules/projects/components/work-orders/WorkOrdersTab';
 import type { ProjectStatus } from '@/modules/projects/types/projects.types';
 import { toast } from 'sonner';
 import { ProjectsService } from '@/modules/projects/services/projects.service';
@@ -267,16 +268,7 @@ export default function ProjectDetailPage() {
         </TabsContent>
 
         <TabsContent value="work-orders" className="space-y-4 mt-6">
-          <div className="text-center py-12">
-            <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Órdenes de Trabajo</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Gestiona las fases de producción del proyecto
-            </p>
-            <Button onClick={() => router.push(`/projects/${projectId}/work-orders`)}>
-              Ver Órdenes de Trabajo
-            </Button>
-          </div>
+          <WorkOrdersTab projectId={projectId} />
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4 mt-6">

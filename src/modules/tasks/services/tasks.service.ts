@@ -359,16 +359,57 @@ Responde SOLO con JSON válido:
         constraints.push(orderBy(sortBy, sortOrder));
       }
 
-      const q = query(collection(db, this.COLLECTION), ...constraints);
-      const querySnapshot = await getDocs(q);
-      const tasks: Task[] = [];
+      let tasks: Task[] = [];
+      
+      try {
+        const q = query(collection(db, this.COLLECTION), ...constraints);
+        const querySnapshot = await getDocs(q);
 
-      querySnapshot.forEach((doc) => {
-        tasks.push({
-          id: doc.id,
-          ...doc.data()
-        } as Task);
-      });
+        querySnapshot.forEach((doc) => {
+          tasks.push({
+            id: doc.id,
+            ...doc.data()
+          } as Task);
+        });
+      } catch (indexError) {
+        // Fallback: query without orderBy if index is not ready
+        logger.warn('Index not ready, falling back to unordered query', {
+          component: 'TasksService',
+          metadata: { userId, error: String(indexError) }
+        });
+        
+        const basicConstraints: Parameters<typeof query>[1][] = [
+          where('userId', '==', userId)
+        ];
+        
+        const q = query(collection(db, this.COLLECTION), ...basicConstraints);
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach((doc) => {
+          tasks.push({
+            id: doc.id,
+            ...doc.data()
+          } as Task);
+        });
+        
+        // Sort manually in memory
+        tasks.sort((a, b) => {
+          const aScore = a.ricezScore?.total || 0;
+          const bScore = b.ricezScore?.total || 0;
+          return sortOrder === 'desc' ? bScore - aScore : aScore - bScore;
+        });
+        
+        // Apply filters manually if needed
+        if (filters?.status && filters.status.length > 0) {
+          tasks = tasks.filter(t => filters.status!.includes(t.status));
+        }
+        if (filters?.priority && filters.priority.length > 0) {
+          tasks = tasks.filter(t => filters.priority!.includes(t.priority));
+        }
+        if (filters?.domain && filters.domain.length > 0) {
+          tasks = tasks.filter(t => filters.domain!.includes(t.domain));
+        }
+      }
 
       // Filtrar por búsqueda si existe
       if (filters?.search) {
