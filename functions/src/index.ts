@@ -197,3 +197,6 @@ export const updateUserRole = functions.https.onCall(async (data, context) => {
 
 // Export Project Triggers
 export * from './triggers/project-triggers';
+
+// Export Backup Triggers
+export * from './triggers/backup-triggers';

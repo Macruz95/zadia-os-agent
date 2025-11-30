@@ -45,7 +45,7 @@ export function SubmitSection({ form, isLoading }: SubmitSectionProps) {
             <span>
               {t('auth.register.acceptTermsPrefix', { defaultValue: 'Acepto los' })}{' '}
               <Link 
-                href="#" 
+                href="/terms" 
                 className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
                 target="_blank"
               >
@@ -65,7 +65,7 @@ export function SubmitSection({ form, isLoading }: SubmitSectionProps) {
             <span>
               {t('auth.register.acceptPrivacyPrefix', { defaultValue: 'Acepto la' })}{' '}
               <Link 
-                href="#" 
+                href="/privacy" 
                 className="text-cyan-400 hover:text-cyan-300 underline underline-offset-2"
                 target="_blank"
               >
