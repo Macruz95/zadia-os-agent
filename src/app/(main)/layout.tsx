@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { TenantProvider } from "@/contexts/TenantContext";
 import { Header } from "@/components/layout/Header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -75,22 +76,24 @@ export default function MainLayout({
 
   return (
     <RouteGuard>
-      <ZadiaAgenticProvider>
-        <ZadiaSystemInitializer>
-          <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-[#0a0f1a]">
-              <Sidebar />
-              <SidebarInset className="bg-[#0a0f1a]">
-                <Header />
-                <main className="flex-1">
-                  {children}
-                </main>
-              </SidebarInset>
-            </div>
-            <CommandBar />
-          </SidebarProvider>
-        </ZadiaSystemInitializer>
-      </ZadiaAgenticProvider>
+      <TenantProvider>
+        <ZadiaAgenticProvider>
+          <ZadiaSystemInitializer>
+            <SidebarProvider>
+              <div className="flex min-h-screen w-full bg-[#0a0f1a]">
+                <Sidebar />
+                <SidebarInset className="bg-[#0a0f1a]">
+                  <Header />
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                </SidebarInset>
+              </div>
+              <CommandBar />
+            </SidebarProvider>
+          </ZadiaSystemInitializer>
+        </ZadiaAgenticProvider>
+      </TenantProvider>
     </RouteGuard>
   );
 }

@@ -71,6 +71,10 @@ const resourcesNav = [
   { title: 'Inventario', href: '/inventory', icon: Package },
 ];
 
+const systemNav = [
+  { title: 'Configuración', href: '/settings', icon: Settings },
+];
+
 export function Sidebar() {
   const { user, loading, logout } = useAuth();
   const pathname = usePathname();
@@ -191,6 +195,20 @@ export function Sidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Sistema */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider px-2 mb-1">
+            Sistema
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemNav.map((item) => (
+                <NavItem key={item.href} item={item} />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       {/* Footer con Usuario */}
@@ -230,7 +248,7 @@ export function Sidebar() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="text-gray-300 hover:text-white hover:bg-white/5 cursor-pointer">
-                  <Link href="/profile">
+                  <Link href="/settings">
                     <Settings className="mr-2 h-4 w-4" />
                     Configuración
                   </Link>
