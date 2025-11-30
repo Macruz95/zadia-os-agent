@@ -14,6 +14,7 @@ import {
   Cell,
   ResponsiveContainer,
   Legend,
+  Label,
 } from 'recharts';
 import type { StatusDistribution } from '../hooks/use-dashboard-data';
 
@@ -62,8 +63,8 @@ export function ProjectStatusChart({ data }: ProjectStatusChartProps) {
                 data={chartData}
                 cx="50%"
                 cy="50%"
-                innerRadius={60}
-                outerRadius={90}
+                innerRadius={55}
+                outerRadius={85}
                 paddingAngle={2}
                 dataKey="value"
                 nameKey="displayName"
@@ -71,27 +72,37 @@ export function ProjectStatusChart({ data }: ProjectStatusChartProps) {
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
+                <Label
+                  content={() => (
+                    <text
+                      x="50%"
+                      y="50%"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                    >
+                      <tspan x="50%" dy="-0.2em" fill="#ffffff" fontSize="24" fontWeight="bold">
+                        {total}
+                      </tspan>
+                      <tspan x="50%" dy="1.4em" fill="#6b7280" fontSize="11">
+                        Total
+                      </tspan>
+                    </text>
+                  )}
+                />
               </Pie>
               <Legend 
-                verticalAlign="middle"
-                align="right"
-                layout="vertical"
+                verticalAlign="bottom"
+                align="center"
+                layout="horizontal"
                 iconType="circle"
                 iconSize={8}
+                wrapperStyle={{ paddingTop: '10px' }}
                 formatter={(value) => (
-                  <span className="text-xs text-gray-400">{value}</span>
+                  <span className="text-xs text-gray-400 mr-3">{value}</span>
                 )}
               />
             </PieChart>
           </ResponsiveContainer>
-        </div>
-        
-        {/* Center Label */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ marginTop: '-30px' }}>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-white">{total}</p>
-            <p className="text-xs text-gray-500">Total</p>
-          </div>
         </div>
       </CardContent>
     </Card>

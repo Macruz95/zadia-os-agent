@@ -8,6 +8,7 @@ import {
     collection,
     addDoc,
     getDocs,
+    updateDoc,
     query,
     where,
     orderBy,
@@ -18,7 +19,6 @@ import {
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
 import type { Loan } from '../types/hr.types';
-import { WorkPeriodsService } from './work-periods.service';
 
 const COLLECTION = 'loans';
 
@@ -47,7 +47,8 @@ export class LoansService {
 
             const docRef = await addDoc(collection(db, COLLECTION), loanData);
 
-            // Recalculate period totals
+            // Import dynamically to avoid circular dependency
+            const { WorkPeriodsService } = await import('./work-periods.service');
             await WorkPeriodsService.recalculateTotals(workPeriodId);
 
             logger.info('Loan added', { 
@@ -89,13 +90,57 @@ export class LoansService {
     }
 
     /**
+     * Get all loans for an employee (across all periods)
+     */
+    static async getLoansByEmployee(employeeId: string): Promise<Loan[]> {
+        try {
+            const q = query(
+                collection(db, COLLECTION),
+                where('employeeId', '==', employeeId),
+                orderBy('date', 'desc')
+            );
+
+            const snapshot = await getDocs(q);
+
+            return snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as Loan[];
+        } catch (error) {
+            logger.error('Error getting employee loans', error as Error);
+            return [];
+        }
+    }
+
+    /**
+     * Update loan status
+     */
+    static async updateLoanStatus(
+        loanId: string, 
+        status: Loan['status']
+    ): Promise<void> {
+        try {
+            await updateDoc(doc(db, COLLECTION, loanId), { status });
+
+            logger.info('Loan status updated', {
+                component: 'LoansService',
+                metadata: { loanId, status },
+            });
+        } catch (error) {
+            logger.error('Error updating loan status', error as Error);
+            throw error;
+        }
+    }
+
+    /**
      * Delete loan (if mistake made)
      */
     static async deleteLoan(loanId: string, workPeriodId: string): Promise<void> {
         try {
             await deleteDoc(doc(db, COLLECTION, loanId));
 
-            // Recalculate period totals
+            // Import dynamically to avoid circular dependency
+            const { WorkPeriodsService } = await import('./work-periods.service');
             await WorkPeriodsService.recalculateTotals(workPeriodId);
 
             logger.info('Loan deleted', { 
@@ -105,6 +150,29 @@ export class LoansService {
         } catch (error) {
             logger.error('Error deleting loan', error as Error);
             throw error;
+        }
+    }
+
+    /**
+     * Get pending loans that need to be carried over
+     */
+    static async getPendingLoans(workPeriodId: string): Promise<Loan[]> {
+        try {
+            const q = query(
+                collection(db, COLLECTION),
+                where('workPeriodId', '==', workPeriodId),
+                where('status', '==', 'pending')
+            );
+
+            const snapshot = await getDocs(q);
+
+            return snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+            })) as Loan[];
+        } catch (error) {
+            logger.error('Error getting pending loans', error as Error);
+            return [];
         }
     }
 }

@@ -24,7 +24,6 @@ interface OrderData {
   priority?: 'normal' | 'high' | 'urgent';
   deliveryDate?: string;
   notes?: string;
-  [key: string]: unknown;
 }
 
 interface OrderItem {

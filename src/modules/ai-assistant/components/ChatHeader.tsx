@@ -1,7 +1,8 @@
 /**
  * ZADIA OS - AI Assistant Chat Header
  * 
- * Header with model info, status, and actions
+ * Header with intelligent model selector, status, and actions
+ * Supports auto and manual model selection like VS Code / Cursor
  */
 
 'use client';
@@ -21,32 +22,41 @@ import {
   History, 
   Settings2,
   Sparkles,
-  Brain,
   Zap,
   Loader2,
 } from 'lucide-react';
-import type { AIModel } from '../types';
+import { AIModelSelector } from './AIModelSelector';
+import type { AIModelMode } from '../hooks/use-advanced-ai-chat';
 
 interface ChatHeaderProps {
   conversationTitle: string;
-  currentModel: AIModel;
   isLoading?: boolean;
   isProcessingTool?: boolean;
   messageCount: number;
   onClear: () => void;
   onOpenHistory?: () => void;
   onOpenSettings?: () => void;
+  // Model selection props
+  modelMode: AIModelMode;
+  onModelModeChange: (mode: AIModelMode) => void;
+  selectedModel: string | null;
+  onModelChange: (modelId: string | null) => void;
+  lastUsedModel?: string | null;
 }
 
 export function ChatHeader({
   conversationTitle,
-  currentModel,
   isLoading,
   isProcessingTool,
   messageCount,
   onClear,
   onOpenHistory,
   onOpenSettings,
+  modelMode,
+  onModelModeChange,
+  selectedModel,
+  onModelChange,
+  lastUsedModel,
 }: ChatHeaderProps) {
   return (
     <div className="border-b border-gray-800/50 bg-[#0d1117]/80 backdrop-blur-md sticky top-0 z-20">
@@ -98,33 +108,22 @@ export function ChatHeader({
           </div>
         </div>
 
-        {/* Center: Model Info */}
+        {/* Center: Model Selector */}
         <div className="hidden md:flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800/50 border border-gray-700/50">
-                  <Brain className="h-4 w-4 text-purple-400" />
-                  <span className="text-xs text-gray-300">{currentModel.name}</span>
-                  <Badge 
-                    variant="outline" 
-                    className="text-[9px] px-1 py-0 border-emerald-500/30 text-emerald-400"
-                  >
-                    GRATIS
-                  </Badge>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="bg-[#161b22] border-gray-800/50">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-white">{currentModel.name}</p>
-                  <p className="text-[10px] text-gray-400">{currentModel.description}</p>
-                  <p className="text-[10px] text-gray-500">
-                    Contexto: {(currentModel.contextWindow / 1000).toFixed(0)}K tokens
-                  </p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <AIModelSelector
+            mode={modelMode}
+            onModeChange={onModelModeChange}
+            selectedModelId={selectedModel ?? undefined}
+            onModelSelect={onModelChange}
+          />
+          {lastUsedModel && modelMode === 'auto' && (
+            <Badge 
+              variant="outline" 
+              className="text-[9px] px-1.5 py-0 border-purple-500/30 text-purple-400"
+            >
+              Último: {lastUsedModel.split('/').pop()?.slice(0, 15)}...
+            </Badge>
+          )}
         </div>
 
         {/* Right: Actions */}

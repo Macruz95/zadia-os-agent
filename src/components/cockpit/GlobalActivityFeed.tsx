@@ -114,7 +114,7 @@ export function GlobalActivityFeed({
   compact = false 
 }: GlobalActivityFeedProps) {
   const [events, setEvents] = useState<ZadiaEvent[]>([]);
-  const [isLive, setIsLive] = useState(true);
+  const [isLive] = useState(true);
 
   const handleNewEvent = useCallback((event: ZadiaEvent) => {
     setEvents(prev => {
@@ -134,25 +134,27 @@ export function GlobalActivityFeed({
   }, [maxEvents, handleNewEvent]);
 
   return (
-    <Card className={cn("h-full", compact && "border-0 shadow-none")}>
+    <Card className={cn("h-full bg-[#161b22] border-gray-800/50", compact && "border-0 shadow-none")}>
       {showHeader && (
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            Actividad Global
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-200">
+              <Activity className="h-4 w-4 text-cyan-400" />
+              Actividad Global
+            </CardTitle>
             {isLive && (
-              <Badge variant="outline" className="ml-auto text-xs">
+              <Badge variant="outline" className="text-xs bg-green-500/10 text-green-400 border-green-500/30">
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-1" />
                 En vivo
               </Badge>
             )}
-          </CardTitle>
+          </div>
         </CardHeader>
       )}
       <CardContent className={cn("p-0", !showHeader && "pt-0")}>
         <ScrollArea className={cn("px-4", compact ? "h-[300px]" : "h-[400px]")}>
           {events.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+            <div className="flex flex-col items-center justify-center h-32 text-gray-500">
               <Zap className="h-8 w-8 mb-2 opacity-50" />
               <p className="text-sm">Sin actividad reciente</p>
               <p className="text-xs">Los eventos aparecerán aquí</p>
@@ -166,7 +168,7 @@ export function GlobalActivityFeed({
                 return (
                   <div 
                     key={event.id} 
-                    className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                    className="flex items-start gap-3 p-2 rounded-lg bg-[#0d1117] border border-gray-800/50 hover:border-gray-700/50 transition-colors"
                   >
                     <div className={cn(
                       "p-1.5 rounded-full text-white shrink-0",
@@ -175,11 +177,11 @@ export function GlobalActivityFeed({
                       <Icon className="h-3 w-3" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
+                      <p className="text-sm font-medium truncate text-gray-200">
                         {getEventDescription(event)}
                       </p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Badge variant="secondary" className="text-[10px] px-1 py-0">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <Badge variant="secondary" className="text-[10px] px-1 py-0 bg-[#21262d] text-gray-400 border-0">
                           {config.module}
                         </Badge>
                         <span>

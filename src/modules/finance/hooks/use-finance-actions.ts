@@ -41,7 +41,7 @@ export function useFinanceActions() {
       number: data.number,
       clientId: data.clientId,
       subtotal: data.subtotal,
-      tax: data.tax,
+      taxes: data.taxes,
       total: data.total,
       dueDate: data.dueDate
     }, {

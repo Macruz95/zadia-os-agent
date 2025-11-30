@@ -19,7 +19,6 @@ interface ClientData {
   company?: string;
   type?: 'individual' | 'company';
   status?: string;
-  [key: string]: unknown;
 }
 
 interface InteractionData {
@@ -30,7 +29,6 @@ interface InteractionData {
   subject?: string;
   notes?: string;
   outcome?: string;
-  [key: string]: unknown;
 }
 
 export function useClientActions() {

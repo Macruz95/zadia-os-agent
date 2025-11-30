@@ -93,6 +93,7 @@ export interface Employee {
   createdAt: Timestamp;
   updatedAt: Timestamp;
   createdBy: string;
+  userId?: string;             // Para aislamiento de datos por usuario
 }
 
 /**
@@ -279,11 +280,18 @@ export interface WorkPeriod {
   totalDays: number;
   totalSalary: number;
   totalLoans: number;
+  totalBonuses: number;      // NEW: Total de bonificaciones
+  carriedDebt: number;       // NEW: Deuda transferida de temporada anterior
   netPayable: number;
+
+  // Debt tracking
+  remainingDebt: number;     // NEW: Deuda que queda al finalizar (para transferir)
+  previousPeriodId?: string; // NEW: Referencia a la temporada anterior (si heredó deuda)
 
   notes?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  userId?: string;           // NEW: Para aislamiento de datos
 }
 
 /**
@@ -296,7 +304,45 @@ export interface Loan {
   amount: number;
   date: Timestamp;
   reason: string;
-  status: 'pending' | 'deducted' | 'paid';
+  status: 'pending' | 'deducted' | 'paid' | 'carried'; // NEW: 'carried' = transferido a siguiente temporada
   approvedBy: string;
   createdAt: Timestamp;
 }
+
+/**
+ * Bonus Type (Tipo de Bonificación)
+ */
+export type BonusType = 
+  | 'gratification'    // Gratificación
+  | 'christmas'        // Aguinaldo
+  | 'performance'      // Bono por desempeño
+  | 'overtime'         // Horas extra
+  | 'travel'           // Viáticos
+  | 'other';           // Otro
+
+/**
+ * Bonus (Bonificación/Aguinaldo/Gratificación)
+ */
+export interface Bonus {
+  id: string;
+  employeeId: string;
+  workPeriodId: string;
+  type: BonusType;
+  amount: number;
+  date: Timestamp;
+  description: string;
+  approvedBy: string;
+  createdAt: Timestamp;
+}
+
+/**
+ * Bonus Type Config for UI
+ */
+export const BONUS_TYPE_CONFIG: Record<BonusType, { label: string; icon: string }> = {
+  gratification: { label: 'Gratificación', icon: 'Gift' },
+  christmas: { label: 'Aguinaldo', icon: 'TreePine' },
+  performance: { label: 'Bono Desempeño', icon: 'Award' },
+  overtime: { label: 'Horas Extra', icon: 'Clock' },
+  travel: { label: 'Viáticos', icon: 'Car' },
+  other: { label: 'Otro', icon: 'Plus' },
+};

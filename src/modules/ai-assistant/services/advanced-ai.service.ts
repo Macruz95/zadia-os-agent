@@ -2,7 +2,7 @@
  * ZADIA OS - Advanced AI Chat Service
  * 
  * Multi-model AI chat with:
- * - Best-in-class models (DeepSeek R1, Qwen3, Gemini 2.5)
+ * - Best-in-class models (Grok 4.1, DeepSeek R1, Qwen3, Gemini 2.5)
  * - Function calling / Tool use
  * - Web search integration
  * - Multimodal support
@@ -18,8 +18,19 @@ import { logger } from '@/lib/logger';
 import { TOOL_DEFINITIONS, AgentToolsExecutor } from './agent-tools.service';
 import type { Conversation, AIModel } from '../types';
 
-// Available AI Models (sorted by capability)
+// Available AI Models (sorted by priority - Grok 4.1 Fast first)
 export const AI_MODELS: AIModel[] = [
+  {
+    id: 'grok-4.1-fast',
+    name: 'Grok 4.1 Fast',
+    provider: 'openrouter',
+    description: '#1 OpenRouter. Ultra-rápido. Mejor balance velocidad/calidad.',
+    capabilities: ['general', 'reasoning', 'coding', 'tool-use', 'fast'],
+    contextWindow: 131072,
+    isFree: true,
+    speed: 'fast',
+    quality: 'excellent',
+  },
   {
     id: 'deepseek-r1',
     name: 'DeepSeek R1',
@@ -54,6 +65,17 @@ export const AI_MODELS: AIModel[] = [
     quality: 'excellent',
   },
   {
+    id: 'gemini-2.5-flash',
+    name: 'Gemini 2.5 Flash',
+    provider: 'openrouter',
+    description: 'Ultra rápido. 1M tokens contexto. Multimodal.',
+    capabilities: ['fast', 'multimodal', 'general', 'vision'],
+    contextWindow: 1000000,
+    isFree: true,
+    speed: 'fast',
+    quality: 'excellent',
+  },
+  {
     id: 'glm-4.5-thinking',
     name: 'GLM-4.5 Thinking',
     provider: 'openrouter',
@@ -75,15 +97,41 @@ export const AI_MODELS: AIModel[] = [
     speed: 'medium',
     quality: 'excellent',
   },
+  {
+    id: 'llama-4-scout',
+    name: 'Llama 4 Scout',
+    provider: 'openrouter',
+    description: '512K tokens contexto. Ultra eficiente.',
+    capabilities: ['long-context', 'general', 'summarization'],
+    contextWindow: 512000,
+    isFree: true,
+    speed: 'fast',
+    quality: 'excellent',
+  },
+  {
+    id: 'grok-4.1-mini',
+    name: 'Grok 4.1 Mini',
+    provider: 'openrouter',
+    description: 'Con búsqueda web integrada.',
+    capabilities: ['web-search', 'general', 'fast'],
+    contextWindow: 131072,
+    isFree: true,
+    speed: 'fast',
+    quality: 'excellent',
+  },
 ];
 
 // Model ID to OpenRouter model string mapping
 const MODEL_MAPPING: Record<string, string> = {
+  'grok-4.1-fast': 'x-ai/grok-4.1-fast:free',
+  'grok-4.1-mini': 'x-ai/grok-4.1-mini:free',
   'deepseek-r1': 'deepseek/deepseek-r1:free',
   'qwen3-coder': 'qwen/qwen3-coder:free',
   'gemini-2.5-pro': 'google/gemini-2.5-pro-exp-03-25:free',
+  'gemini-2.5-flash': 'google/gemini-2.5-flash-preview-05-20:free',
   'glm-4.5-thinking': 'z-ai/glm-4.5-thinking:free',
   'llama-4-maverick': 'meta-llama/llama-4-maverick:free',
+  'llama-4-scout': 'meta-llama/llama-4-scout:free',
 };
 
 interface ChatRequest {
@@ -92,14 +140,19 @@ interface ChatRequest {
   temperature?: number;
   enableTools?: boolean;
   enableWebSearch?: boolean;
+  mode?: 'auto' | 'manual';
 }
 
 interface ChatResponse {
   content: string;
   model: string;
+  modelId?: string;
+  modelName?: string;
+  provider?: string;
   tokensUsed?: number;
   toolCalls?: Array<{ name: string; arguments: Record<string, unknown> }>;
   webSearchUsed?: boolean;
+  routingReason?: string;
 }
 
 /**
@@ -191,68 +244,97 @@ async function buildSystemContext(userId: string): Promise<string> {
  * Generate the master system prompt
  */
 function generateSystemPrompt(context: string): string {
-  return `Eres **ZADIA**, el asistente de inteligencia artificial más avanzado del sistema empresarial ZADIA OS.
+  return `Eres ZADIA, el asistente de inteligencia artificial del sistema empresarial ZADIA OS.
 
-## TU IDENTIDAD
-- Nombre: ZADIA (Zonal Artificial Digital Intelligence Agent)
-- Rol: Agente de IA empresarial de alto rendimiento
-- Capacidades: Razonamiento profundo, ejecución de acciones, búsqueda web, análisis de datos
+TU IDENTIDAD
+• Nombre: ZADIA (Zonal Artificial Digital Intelligence Agent)
+• Rol: Agente de IA empresarial de alto rendimiento
+• Capacidades: Razonamiento profundo, ejecución de acciones, búsqueda web, análisis de datos
 
-## CONTEXTO DEL NEGOCIO (DATOS EN TIEMPO REAL)
+CONTEXTO DEL NEGOCIO (DATOS EN TIEMPO REAL)
 ${context}
 
-## TUS CAPACIDADES
+TUS CAPACIDADES
 
-### 🧠 RAZONAMIENTO
-- Análisis profundo de problemas empresariales
-- Recomendaciones basadas en datos reales del sistema
-- Predicciones y tendencias
+🧠 RAZONAMIENTO
+• Análisis profundo de problemas empresariales
+• Recomendaciones basadas en datos reales del sistema
+• Predicciones y tendencias
 
-### 🛠️ HERRAMIENTAS DISPONIBLES
+🛠️ HERRAMIENTAS DISPONIBLES
 Puedes ejecutar las siguientes acciones:
-${TOOL_DEFINITIONS.map(t => `- **${t.name}**: ${t.description}`).join('\n')}
+${TOOL_DEFINITIONS.map(t => `• ${t.name}: ${t.description}`).join('\n')}
 
-### 🔍 BÚSQUEDA WEB
-- Puedo buscar información actualizada en internet
-- Verificar datos y noticias recientes
-- Contrastar información de múltiples fuentes
+📊 ANÁLISIS DE DATOS (analyze_data)
+Para analizar datos, usa EXACTAMENTE estos valores:
+• dataType: "sales" | "expenses" | "projects" | "clients" | "inventory"
+• period: "today" | "week" | "month" | "quarter" | "year"
 
-### 📊 ANÁLISIS DE DATOS
-- Acceso a todos los módulos: CRM, Ventas, Proyectos, Inventario, Finanzas
-- Métricas y KPIs en tiempo real
-- Reportes y comparativas
+Ejemplo correcto:
+{"tool": "analyze_data", "parameters": {"dataType": "sales", "period": "month"}}
 
-## CÓMO EJECUTAR ACCIONES
+🔍 BÚSQUEDA WEB
+• Puedo buscar información actualizada en internet
+• Verificar datos y noticias recientes
+• Contrastar información de múltiples fuentes
 
-Cuando necesites ejecutar una herramienta, responde con un bloque JSON:
+CÓMO EJECUTAR ACCIONES
 
+Cuando necesites ejecutar una herramienta:
+1. Simplemente incluye el JSON de la herramienta
+2. El sistema lo ejecutará automáticamente
+3. NO expliques el JSON al usuario, solo ejecútalo
+4. DESPUÉS de ejecutar, da una respuesta natural con los resultados
+
+Formato para ejecutar herramientas (INTERNO - no mostrar al usuario):
 \`\`\`json
-{
-  "tool": "nombre_herramienta",
-  "parameters": { ... },
-  "reason": "Por qué esta acción es útil"
-}
+{"tool": "nombre_herramienta", "parameters": {...}}
 \`\`\`
 
-Ejemplos:
-- Crear tarea: \`{"tool": "create_task", "parameters": {"title": "Revisar propuesta", "priority": "high"}}\`
-- Agendar reunión: \`{"tool": "schedule_meeting", "parameters": {"title": "Call con cliente", "startTime": "2025-01-15T10:00:00"}}\`
-- Buscar en web: \`{"tool": "search_web", "parameters": {"query": "tendencias ecommerce 2025"}}\`
+IMPORTANTE: Cuando ejecutes una herramienta, NO digas "voy a ejecutar..." ni muestres el JSON. 
+Solo ejecuta y luego responde naturalmente con los resultados.
 
-## INSTRUCCIONES
+INSTRUCCIONES DE FORMATO (MUY IMPORTANTE)
 
-1. **Sé proactivo**: Sugiere acciones cuando sea apropiado
-2. **Usa datos reales**: Basa tus respuestas en el contexto del sistema
-3. **Ejecuta herramientas**: Cuando el usuario lo solicite o sea claramente útil
-4. **Busca en web**: Para información actualizada o externa al sistema
-5. **Sé conciso**: Respuestas claras y actionables
-6. **Usa español**: Siempre en español profesional con emojis ocasionales
+1. NUNCA uses asteriscos (*) para negritas ni cursivas
+2. NUNCA uses markdown como ** o __ o # 
+3. Usa bullets con • en lugar de - o *
+4. Para énfasis usa MAYÚSCULAS o emojis
+5. Formatea datos en líneas limpias sin decoración markdown
+6. Sé profesional y directo
 
-## MODELO DE RESPUESTA
-- Si es una pregunta simple: Responde directamente
-- Si requiere acción: Explica brevemente y ejecuta la herramienta
-- Si necesitas más info: Pregunta lo necesario
-- Si hay error: Explica qué salió mal y cómo resolverlo
+EJEMPLO DE RESPUESTA CORRECTA:
+📊 Análisis de Ventas (período: mes)
+
+Total Facturado: $45,000
+Facturas Pagadas: 12
+Facturas Pendientes: 3
+Monto Pendiente: $8,500
+
+Top 5 Clientes:
+1. Empresa ABC → $15,000
+2. Cliente XYZ → $12,000
+3. Negocio 123 → $8,000
+
+EJEMPLO INCORRECTO (NO HAGAS ESTO):
+"**Análisis de Ventas** (período: mes)
+- **Total Facturado**: $45,000"
+
+Eso está MAL porque usa asteriscos.
+
+INSTRUCCIONES GENERALES
+1. Sé proactivo: Sugiere acciones cuando sea apropiado
+2. Usa datos reales: Basa tus respuestas en el contexto del sistema
+3. Ejecuta herramientas: Cuando el usuario lo solicite o sea claramente útil
+4. Busca en web: Para información actualizada o externa al sistema
+5. Sé conciso: Respuestas claras y actionables
+6. Usa español: Siempre en español profesional con emojis ocasionales
+
+MODELO DE RESPUESTA
+• Si es una pregunta simple: Responde directamente
+• Si requiere acción: Explica brevemente y ejecuta la herramienta
+• Si necesitas más info: Pregunta lo necesario
+• Si hay error: Explica qué salió mal y cómo resolverlo
 
 ¡Estoy listo para potenciar tu negocio! 🚀`;
 }
@@ -263,9 +345,16 @@ Ejemplos:
 export const AdvancedAIService = {
   /**
    * Send message to AI with full capabilities
+   * Supports auto (intelligent) and manual model selection
    */
   async chat(userId: string, request: ChatRequest): Promise<ChatResponse> {
-    const { messages, modelId = 'deepseek-r1', temperature = 0.7, enableTools = true } = request;
+    const { 
+      messages, 
+      modelId = 'deepseek-r1', 
+      temperature = 0.7, 
+      enableTools = true,
+      mode = 'auto',
+    } = request;
 
     // Build system context
     const contextData = await buildSystemContext(userId);
@@ -277,18 +366,20 @@ export const AdvancedAIService = {
       ...messages,
     ];
 
-    // Get model string
-    const model = MODEL_MAPPING[modelId] || MODEL_MAPPING['deepseek-r1'];
+    // Get model string for manual mode
+    const manualModel = MODEL_MAPPING[modelId] || MODEL_MAPPING['deepseek-r1'];
 
-    // Call API
+    // Call API with mode parameter
     const response = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         messages: aiMessages,
-        model,
+        model: manualModel,
+        modelId: mode === 'manual' ? modelId : undefined,
         temperature,
         enableTools,
+        mode, // Pass mode to API route for intelligent routing
       }),
     });
 
@@ -301,8 +392,12 @@ export const AdvancedAIService = {
 
     return {
       content: data.content,
-      model: data.modelUsed || model,
+      model: data.modelUsed || manualModel,
+      modelId: data.modelId,
+      modelName: data.modelName,
+      provider: data.provider,
       tokensUsed: data.tokensUsed,
+      routingReason: data.routingReason,
     };
   },
 
@@ -316,13 +411,13 @@ export const AdvancedAIService = {
     const toolResults: Array<{ tool: string; result: unknown }> = [];
     let processedContent = content;
 
-    // Extract tool calls from response
-    const toolRegex = /```json\s*([\s\S]*?)```/gi;
+    // Method 1: Extract tool calls from code blocks ```json ... ```
+    const codeBlockRegex = /```(?:json)?\s*([\s\S]*?)```/gi;
     let match;
 
-    while ((match = toolRegex.exec(content)) !== null) {
+    while ((match = codeBlockRegex.exec(content)) !== null) {
       try {
-        const toolCall = JSON.parse(match[1]);
+        const toolCall = JSON.parse(match[1].trim());
         
         if (toolCall.tool && typeof toolCall.tool === 'string') {
           const executor = new AgentToolsExecutor(userId);
@@ -340,16 +435,79 @@ export const AdvancedAIService = {
             processedContent = processedContent.replace(match[0], `⚠️ ${result.message}`);
           }
         }
-      } catch (error) {
-        logger.warn('Failed to parse tool call', {
-          component: 'AdvancedAIService',
-          metadata: { error: String(error), match: match[1] }
-        });
+      } catch {
+        // Not a valid tool call JSON, ignore
       }
     }
 
+    // Method 2: Try to parse the entire content as JSON (for direct JSON responses)
+    if (toolResults.length === 0) {
+      try {
+        // Check if content looks like a JSON object with tool property
+        const trimmedContent = content.trim();
+        if (trimmedContent.startsWith('{') && trimmedContent.includes('"tool"')) {
+          const toolCall = JSON.parse(trimmedContent);
+          
+          if (toolCall.tool && typeof toolCall.tool === 'string') {
+            const executor = new AgentToolsExecutor(userId);
+            const result = await executor.execute(toolCall.tool, toolCall.parameters || {});
+            
+            toolResults.push({
+              tool: toolCall.tool,
+              result,
+            });
+
+            // Replace entire content with the result
+            if (result.success) {
+              processedContent = result.message;
+            } else {
+              processedContent = `⚠️ ${result.message}`;
+            }
+          }
+        }
+      } catch {
+        // Not a valid JSON, keep original content
+      }
+    }
+
+    // Method 3: Look for inline JSON objects with tool property
+    if (toolResults.length === 0) {
+      const inlineJsonRegex = /\{[^{}]*"tool"\s*:\s*"[^"]+"\s*[^{}]*(?:\{[^{}]*\}[^{}]*)?\}/g;
+      let inlineMatch;
+      
+      while ((inlineMatch = inlineJsonRegex.exec(content)) !== null) {
+        try {
+          const toolCall = JSON.parse(inlineMatch[0]);
+          
+          if (toolCall.tool && typeof toolCall.tool === 'string') {
+            const executor = new AgentToolsExecutor(userId);
+            const result = await executor.execute(toolCall.tool, toolCall.parameters || {});
+            
+            toolResults.push({
+              tool: toolCall.tool,
+              result,
+            });
+
+            if (result.success) {
+              processedContent = processedContent.replace(inlineMatch[0], result.message);
+            } else {
+              processedContent = processedContent.replace(inlineMatch[0], `⚠️ ${result.message}`);
+            }
+          }
+        } catch {
+          // Not a valid tool call JSON
+        }
+      }
+    }
+
+    // Clean up: remove any remaining raw JSON artifacts
+    processedContent = processedContent
+      .replace(/^\s*```json\s*/gm, '')
+      .replace(/^\s*```\s*/gm, '')
+      .trim();
+
     return {
-      content: processedContent.trim(),
+      content: processedContent,
       toolResults,
     };
   },

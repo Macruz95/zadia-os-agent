@@ -29,7 +29,6 @@ interface EventData {
   recurrence?: RecurrenceRule;
   reminders?: Reminder[];
   status?: 'scheduled' | 'confirmed' | 'cancelled' | 'completed';
-  [key: string]: unknown;
 }
 
 interface Attendee {

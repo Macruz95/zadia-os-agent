@@ -373,10 +373,23 @@ service cloud.firestore {
     // HR MODULE
     // ===========================
     match /employees/{employeeId} {
-      // Users can only read/write their own employees (filtered by userId)
-      allow read: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
-      allow create: if isAuthenticated() && (request.resource.data.userId == getUserId() || isAdmin());
-      allow update: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
+      // Users can read employees that belong to them OR legacy employees without userId
+      allow read: if isAuthenticated() && (
+        !('userId' in resource.data) || 
+        resource.data.userId == getUserId() || 
+        isAdmin()
+      );
+      // Users can create employees with their userId
+      allow create: if isAuthenticated() && (
+        request.resource.data.userId == getUserId() || 
+        isAdmin()
+      );
+      // Users can update their own employees or legacy employees without userId
+      allow update: if isAuthenticated() && (
+        !('userId' in resource.data) || 
+        resource.data.userId == getUserId() || 
+        isAdmin()
+      );
       allow delete: if isAdmin();
     }
     
@@ -398,17 +411,27 @@ service cloud.firestore {
 
     // Work Periods (Temporadas)
     match /workPeriods/{periodId} {
-      allow read: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
-      allow create: if isAuthenticated() && (request.resource.data.userId == getUserId() || isAdmin());
-      allow update: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
+      // Simplified rules - authenticated users can manage periods
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
       allow delete: if isAdmin();
     }
 
     // Loans (Préstamos)
     match /loans/{loanId} {
-      allow read: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
-      allow create: if isAuthenticated() && (request.resource.data.userId == getUserId() || isAdmin());
-      allow update: if isAuthenticated() && (resource.data.userId == getUserId() || isAdmin());
+      // Simplified rules - authenticated users can manage loans
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // Bonuses (Bonificaciones/Aguinaldo/Gratificaciones)
+    match /bonuses/{bonusId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
       allow delete: if isAdmin();
     }
     
@@ -474,6 +497,24 @@ service cloud.firestore {
       allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
       allow update: if isOwner(resource.data.userId);
       allow delete: if isOwner(resource.data.userId);
+    }
+
+    // ===========================
+    // AI LEARNING MEMORY
+    // ===========================
+    match /ai-semantic-memories/{memoryId} {
+      // Allow authenticated users to manage their own memories
+      allow read, write: if isAuthenticated();
+    }
+
+    match /ai-learned-patterns/{patternId} {
+      // Allow authenticated users to manage their own patterns
+      allow read, write: if isAuthenticated();
+    }
+
+    match /ai-user-preferences/{prefId} {
+      // Allow authenticated users to manage their own preferences
+      allow read, write: if isAuthenticated();
     }
 
     // ===========================

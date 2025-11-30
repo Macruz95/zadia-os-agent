@@ -312,10 +312,11 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
           responses.push(response);
         }
       } catch (error) {
-        logger.error(`Agent ${agent.id} failed`, {
-          component: 'AgentOrchestrator',
-          error: error instanceof Error ? error : new Error(String(error))
-        });
+        logger.error(
+          `Agent ${agent.id} failed`,
+          error instanceof Error ? error : new Error(String(error)),
+          { component: 'AgentOrchestrator' }
+        );
       }
     }
 
@@ -376,10 +377,11 @@ Analiza este evento y responde con tu evaluación.`;
         };
       }
     } catch (error) {
-      logger.error(`AI call failed for agent ${agent.id}`, {
-        component: 'AgentOrchestrator',
-        error: error instanceof Error ? error : new Error(String(error))
-      });
+      logger.error(
+        `AI call failed for agent ${agent.id}`,
+        error instanceof Error ? error : new Error(String(error)),
+        { component: 'AgentOrchestrator' }
+      );
       return null;
     }
   }

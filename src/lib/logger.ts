@@ -17,14 +17,51 @@ interface LogContext {
   invoiceId?: string;
   quoteId?: string;
   clientId?: string;
+  orderId?: string;
+  taskId?: string;
+  milestoneId?: string;
+  interactionId?: string;
   newStatus?: string;
   status?: string;
   url?: string;
   // HR Module fields
+  name?: string;
   amount?: number;
   netPayable?: number;
   loanId?: string;
   workPeriodId?: string;
+  newPosition?: string;
+  // Additional context fields
+  reason?: string;
+  segment?: string;
+  flag?: string;
+  progress?: number;
+  daysDelayed?: number;
+  overrunPercent?: number;
+  priority?: string;
+  severity?: string;
+  // Calendar fields
+  eventId?: string;
+  reminderId?: string;
+  deadlineId?: string;
+  meetingId?: string;
+  event1Title?: string;
+  event2Title?: string;
+  title?: string;
+  newStartDate?: string;
+  attendeeName?: string;
+  dueDate?: string;
+  // Orders fields
+  orderNumber?: string;
+  newDate?: string;
+  // HR additional fields
+  toDepartment?: string;
+  requestId?: string;
+  reviewId?: string;
+  type?: string;
+  // Client fields
+  clientName?: string;
+  // Generic metadata for any additional fields
   metadata?: Record<string, unknown>;
 }
 

@@ -45,10 +45,13 @@ import { EmployeesService } from '@/modules/hr/services/employees.service';
 import { WorkPeriodsService } from '@/modules/hr/services/work-periods.service';
 import { LoansService } from '@/modules/hr/services/loans.service';
 import type { Employee, WorkPeriod, Loan } from '@/modules/hr/types/hr.types';
+import type { EmployeeFormData } from '@/modules/hr/validations/hr.validation';
 import { STATUS_CONFIG, POSITION_CONFIG } from '@/modules/hr/types/hr.types';
 import { ActivePeriodCard } from '@/modules/hr/components/periods/ActivePeriodCard';
 import { PeriodsHistory } from '@/modules/hr/components/periods/PeriodsHistory';
 import { StartPeriodDialog } from '@/modules/hr/components/periods/StartPeriodDialog';
+import { EmployeeFormDialog } from '@/modules/hr/components/employees/EmployeeFormDialog';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface EmployeeDetailPageProps {
   params: Promise<{ id: string }>;
@@ -57,8 +60,10 @@ interface EmployeeDetailPageProps {
 export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) {
   const resolvedParams = use(params);
   const router = useRouter();
+  const { user } = useAuth();
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   // Work Periods State
   const [periods, setPeriods] = useState<WorkPeriod[]>([]);
@@ -104,6 +109,18 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
     }
   };
 
+  const handleEditSubmit = async (data: EmployeeFormData) => {
+    if (!employee) return;
+    try {
+      await EmployeesService.updateEmployee(employee.id, data);
+      toast.success('Empleado actualizado');
+      setShowEditDialog(false);
+      await fetchData(); // Refresh data
+    } catch {
+      toast.error('Error al actualizar empleado');
+    }
+  };
+
   if (loading) return <div className="p-8 text-center">Cargando...</div>;
   if (!employee) return <div className="p-8 text-center text-red-500">No encontrado</div>;
 
@@ -130,7 +147,7 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
         </div>
         {/* Botones de acción (Editar/Eliminar) */}
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setShowEditDialog(true)}>
             <Edit className="mr-2 h-4 w-4" /> Editar
           </Button>
           <AlertDialog>
@@ -233,6 +250,14 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
         employeeId={employee.id}
         defaultRate={employee.salary} // Use base salary as default daily rate
         onSuccess={fetchData}
+      />
+
+      {/* Edit Employee Dialog */}
+      <EmployeeFormDialog
+        open={showEditDialog}
+        onClose={() => setShowEditDialog(false)}
+        onSubmit={handleEditSubmit}
+        employee={employee}
       />
     </div>
   );

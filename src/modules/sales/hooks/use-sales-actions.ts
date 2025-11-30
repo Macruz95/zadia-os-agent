@@ -37,9 +37,12 @@ export function useSalesActions() {
   const createLead = useCallback(async (data: LeadFormData): Promise<Lead> => {
     const lead = await LeadsService.createLead(data, userId || '');
     
+    // Use fullName for person or entityName for company/institution
+    const displayName = lead.fullName || lead.entityName || 'Sin nombre';
+    
     await EventBus.emit('lead:created', {
       id: lead.id,
-      name: `${lead.firstName} ${lead.lastName}`,
+      name: displayName,
       company: lead.company,
       email: lead.email,
       source: lead.source,
@@ -94,9 +97,9 @@ export function useSalesActions() {
     
     await EventBus.emit('opportunity:created', {
       id: opportunity.id,
-      title: opportunity.title,
+      title: opportunity.name,
       clientId: opportunity.clientId,
-      value: opportunity.value,
+      value: opportunity.estimatedValue,
       stage: opportunity.stage,
       probability: opportunity.probability
     }, {
@@ -129,7 +132,7 @@ export function useSalesActions() {
   }, [userId]);
 
   const winOpportunity = useCallback(async (id: string, value: number, clientId: string, title: string): Promise<void> => {
-    await OpportunitiesService.updateOpportunity(id, { stage: 'won' });
+    await OpportunitiesService.updateOpportunity(id, { stage: 'closed-won' });
     
     await EventBus.emit('opportunity:won', {
       id,
@@ -146,7 +149,7 @@ export function useSalesActions() {
   }, [userId]);
 
   const loseOpportunity = useCallback(async (id: string, reason: string): Promise<void> => {
-    await OpportunitiesService.updateOpportunity(id, { stage: 'lost' });
+    await OpportunitiesService.updateOpportunity(id, { stage: 'closed-lost' });
     
     await EventBus.emit('opportunity:lost', {
       id,
@@ -182,7 +185,7 @@ export function useSalesActions() {
   }, [userId]);
 
   const sendQuote = useCallback(async (id: string, clientId: string, total: number): Promise<void> => {
-    await QuotesService.updateQuote(id, { status: 'sent' });
+    await QuotesService.updateQuoteStatus(id, 'sent');
     
     await EventBus.emit('quote:sent', {
       id,
@@ -198,7 +201,7 @@ export function useSalesActions() {
   }, [userId]);
 
   const approveQuote = useCallback(async (id: string, clientId: string, total: number): Promise<void> => {
-    await QuotesService.updateQuote(id, { status: 'accepted' });
+    await QuotesService.updateQuoteStatus(id, 'accepted');
     
     await EventBus.emit('quote:approved', {
       id,
@@ -214,7 +217,7 @@ export function useSalesActions() {
   }, [userId]);
 
   const rejectQuote = useCallback(async (id: string, reason: string): Promise<void> => {
-    await QuotesService.updateQuote(id, { status: 'rejected' });
+    await QuotesService.updateQuoteStatus(id, 'rejected');
     
     await EventBus.emit('quote:rejected', {
       id,

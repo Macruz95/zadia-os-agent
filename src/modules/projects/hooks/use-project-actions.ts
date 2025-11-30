@@ -24,7 +24,6 @@ interface ProjectData {
   progress?: number;
   managerId?: string;
   managerName?: string;
-  [key: string]: unknown;
 }
 
 interface TaskData {
@@ -38,7 +37,6 @@ interface TaskData {
   status?: 'pending' | 'in_progress' | 'completed' | 'blocked';
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   dueDate?: string;
-  [key: string]: unknown;
 }
 
 interface MilestoneData {
@@ -48,7 +46,6 @@ interface MilestoneData {
   name: string;
   dueDate: string;
   completed?: boolean;
-  [key: string]: unknown;
 }
 
 export function useProjectActions() {
@@ -68,8 +65,7 @@ export function useProjectActions() {
       priority: data.priority || 'medium',
       budget: data.budget,
       startDate: data.startDate,
-      endDate: data.endDate,
-      ...data
+      endDate: data.endDate
     }, { source: 'projects-module' });
 
     logger.info('✅ Project created', { projectId, name: data.name });

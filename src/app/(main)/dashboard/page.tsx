@@ -68,13 +68,12 @@ export default function DashboardPage() {
         loading={isLoading}
       />
 
-      {/* ZADIA Score + Consejero Digital + Sistema Agéntico */}
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+      {/* ZADIA Score + Consejero Digital */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <ZadiaScoreWidget />
         <div className="xl:col-span-2">
           <DigitalAdvisorWidget maxInsights={3} />
         </div>
-        <AgenticSystemStatus />
       </div>
 
       {/* Gráficos: Ingresos + Estado de Proyectos */}
@@ -83,10 +82,11 @@ export default function DashboardPage() {
         <ProjectStatusChart data={projectStatus} />
       </div>
 
+      {/* Sistema Agéntico A-OS - Full Width */}
+      <AgenticSystemStatus />
+
       {/* Actividad Global del Sistema */}
-      <div className="grid grid-cols-1 gap-6">
-        <GlobalActivityFeed maxEvents={10} />
-      </div>
+      <GlobalActivityFeed maxEvents={10} />
     </div>
   );
 }

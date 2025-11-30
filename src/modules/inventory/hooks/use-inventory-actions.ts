@@ -35,15 +35,15 @@ export function useInventoryActions() {
   // ============ RAW MATERIALS ============
 
   const createRawMaterial = useCallback(async (data: RawMaterialFormData) => {
-    const material = await RawMaterialsService.create(data);
+    const material = await RawMaterialsService.createRawMaterial(data, userId || '');
     
     await EventBus.emit('product:created', {
       id: material.id,
       type: 'raw-material',
       name: material.name,
       sku: material.sku,
-      stock: material.stock,
-      minStock: material.minStock
+      stock: material.currentStock,
+      minStock: material.minimumStock
     }, {
       source: 'inventory-module',
       userId,
@@ -56,7 +56,7 @@ export function useInventoryActions() {
   }, [userId]);
 
   const updateRawMaterial = useCallback(async (id: string, data: Partial<RawMaterialFormData>) => {
-    await RawMaterialsService.update(id, data);
+    await RawMaterialsService.updateRawMaterial(id, data, userId || '');
     
     await EventBus.emit('product:updated', {
       id,
@@ -75,15 +75,15 @@ export function useInventoryActions() {
   // ============ FINISHED PRODUCTS ============
 
   const createFinishedProduct = useCallback(async (data: FinishedProductFormData) => {
-    const product = await FinishedProductsService.create(data);
+    const product = await FinishedProductsService.createFinishedProduct(data, userId || '');
     
     await EventBus.emit('product:created', {
       id: product.id,
       type: 'finished-product',
       name: product.name,
       sku: product.sku,
-      stock: product.stock,
-      minStock: product.minStock
+      stock: product.currentStock,
+      minStock: product.minimumStock
     }, {
       source: 'inventory-module',
       userId,
@@ -96,7 +96,7 @@ export function useInventoryActions() {
   }, [userId]);
 
   const updateFinishedProduct = useCallback(async (id: string, data: Partial<FinishedProductFormData>) => {
-    await FinishedProductsService.update(id, data);
+    await FinishedProductsService.updateFinishedProduct(id, data, userId || '');
     
     await EventBus.emit('product:updated', {
       id,
@@ -115,7 +115,7 @@ export function useInventoryActions() {
   // ============ INVENTORY MOVEMENTS ============
 
   const createMovementIn = useCallback(async (data: MovementFormData) => {
-    const movement = await InventoryMovementsService.create(data);
+    const movement = await InventoryMovementsService.createMovement(data);
     
     await EventBus.emit('movement:in', {
       id: movement.id,
@@ -135,7 +135,7 @@ export function useInventoryActions() {
   }, [userId]);
 
   const createMovementOut = useCallback(async (data: MovementFormData) => {
-    const movement = await InventoryMovementsService.create(data);
+    const movement = await InventoryMovementsService.createMovement(data);
     
     await EventBus.emit('movement:out', {
       id: movement.id,

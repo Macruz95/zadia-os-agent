@@ -55,10 +55,14 @@ export function StartPeriodDialog({
     const onSubmit = async (data: StartPeriodFormData) => {
         try {
             setLoading(true);
+            // Fix timezone issue: parse date parts to create local date
+            const [year, month, day] = data.startDate.split('-').map(Number);
+            const localDate = new Date(year, month - 1, day, 12, 0, 0); // noon to avoid timezone issues
+            
             await WorkPeriodsService.startPeriod(
                 employeeId,
                 data.dailyRate,
-                new Date(data.startDate)
+                localDate
             );
 
             toast.success('Temporada iniciada correctamente');

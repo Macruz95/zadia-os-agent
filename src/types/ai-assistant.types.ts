@@ -102,6 +102,10 @@ export const aiResponseSchema = z.object({
   content: z.string(),
   tokensUsed: z.number().optional(),
   model: z.string().optional(),
+  modelId: z.string().optional(),
+  modelName: z.string().optional(),
+  provider: z.string().optional(),
+  routingReason: z.string().optional(),
   timestamp: z.date(),
 });
 

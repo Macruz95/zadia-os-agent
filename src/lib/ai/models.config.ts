@@ -604,6 +604,19 @@ export const OPENROUTER_FREE_MODELS: Record<string, AIModelConfig> = {
   // 🌐 TIER F - MODELOS CON WEB SEARCH
   // ═══════════════════════════════════════════════════════════════════════
 
+  'grok-4.1-fast': {
+    id: 'grok-4.1-fast',
+    name: 'Grok 4.1 Fast',
+    model: 'x-ai/grok-4.1-fast:free',
+    provider: 'openrouter',
+    description: '#1 OpenRouter, xAI Grok ultra-rápido, agente general',
+    contextTokens: 131072,
+    specialties: ['ultra-fast', 'general', 'reasoning', 'chat', 'research'],
+    useCase: ['fast', 'default', 'research'],
+    speed: 'ultra-fast',
+    quality: 'top-tier'
+  },
+
   'grok-4.1-mini': {
     id: 'grok-4.1-mini',
     name: 'Grok 4.1 Mini',
@@ -1106,7 +1119,7 @@ export function getModelForUseCase(useCase: AIModelType): AIModelConfig {
       return OPENROUTER_FREE_MODELS['qwen3-coder'];
     
     case 'fast':
-      return GROQ_FREE_MODELS['groq-llama-3.3-70b'];
+      return OPENROUTER_FREE_MODELS['grok-4.1-fast']; // #1 OpenRouter
     
     case 'roleplay':
       return OPENROUTER_FREE_MODELS['mythomax-l2-13b'];
@@ -1118,7 +1131,7 @@ export function getModelForUseCase(useCase: AIModelType): AIModelConfig {
       return OPENROUTER_FREE_MODELS['grok-4.1-mini'];
     
     default:
-      return GROQ_FREE_MODELS['groq-llama-3.3-70b'];
+      return OPENROUTER_FREE_MODELS['grok-4.1-fast']; // #1 OpenRouter como default
   }
 }
 
@@ -1183,8 +1196,11 @@ export const PHASE_4_MODELS = {
   // Contexto largo (documentos, historial)
   longContext: OPENROUTER_FREE_MODELS['gemini-2.5-pro'],
   
-  // Ultra-rápido para respuestas inmediatas
-  instant: GROQ_FREE_MODELS['groq-llama-3.3-70b'],
+  // Ultra-rápido para respuestas inmediatas (#1 OpenRouter)
+  instant: OPENROUTER_FREE_MODELS['grok-4.1-fast'],
+  
+  // Agente general rápido (alternativa a Claude/Gemini)
+  generalAgent: OPENROUTER_FREE_MODELS['grok-4.1-fast'],
   
   // Código y debugging
   coding: OPENROUTER_FREE_MODELS['qwen3-coder'],
@@ -1226,7 +1242,7 @@ export function autoSelectModel(options: {
 }): AIModelConfig {
   // Prioridad: velocidad > específico
   if (options.needsSpeed) {
-    return GROQ_FREE_MODELS['groq-llama-3.3-70b'];
+    return OPENROUTER_FREE_MODELS['grok-4.1-fast']; // #1 OpenRouter
   }
   
   if (options.needsWebSearch) {
@@ -1249,8 +1265,8 @@ export function autoSelectModel(options: {
     return OPENROUTER_FREE_MODELS['gemini-2.5-pro'];
   }
   
-  // Default: balance velocidad/calidad
-  return GROQ_FREE_MODELS['groq-llama-3.3-70b'];
+  // Default: Grok 4.1 Fast - #1 en OpenRouter, balance velocidad/calidad
+  return OPENROUTER_FREE_MODELS['grok-4.1-fast'];
 }
 
 /**

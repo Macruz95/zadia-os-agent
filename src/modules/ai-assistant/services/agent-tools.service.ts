@@ -393,7 +393,15 @@ export class AgentToolsExecutor {
   private async analyzeData(params: Record<string, unknown>): Promise<AgentToolResult> {
     const parsed = schemas.analyze_data.safeParse(params);
     if (!parsed.success) {
-      return { success: false, message: parsed.error.issues[0]?.message || 'Datos inválidos' };
+      const error = parsed.error.issues[0];
+      // Provide more helpful error message for enum validation
+      if (error?.code === 'invalid_value' || error?.message?.includes('Invalid enum value')) {
+        return { 
+          success: false, 
+          message: `❌ Valor inválido para "dataType". Usa uno de: sales, expenses, projects, clients, inventory. Recibido: "${params.dataType}"` 
+        };
+      }
+      return { success: false, message: error?.message || 'Datos inválidos' };
     }
 
     const { dataType, period = 'month' } = parsed.data;
@@ -642,25 +650,33 @@ export class AgentToolsExecutor {
       };
     }
 
-    // Format response
+    // Format response - Clean format without markdown
     const formatValue = (value: unknown): string => {
       if (Array.isArray(value)) {
         return '\n' + value.map((item, i) => 
           typeof item === 'object' 
-            ? Object.entries(item).map(([k, v]) => `  ${k}: ${v}`).join('\n')
-            : `  ${i + 1}. ${item}`
+            ? Object.entries(item).map(([k, v]) => `   ${k}: ${v}`).join('\n')
+            : `   ${i + 1}. ${item}`
         ).join('\n\n');
       }
       if (typeof value === 'object' && value !== null) {
-        return '\n' + Object.entries(value).map(([k, v]) => `  • ${k}: ${v}`).join('\n');
+        return '\n' + Object.entries(value).map(([k, v]) => `   • ${k}: ${v}`).join('\n');
       }
       return String(value);
     };
 
+    // Format key names to be more readable
+    const formatKey = (key: string): string => {
+      return key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/^./, str => str.toUpperCase())
+        .trim();
+    };
+
     return {
       success: true,
-      message: `📊 **Análisis de ${dataType}** (período: ${period}):\n\n${Object.entries(metrics).map(([key, value]) => 
-        `**${key}:** ${formatValue(value)}`
+      message: `📊 Análisis de ${dataType.toUpperCase()} (período: ${period})\n\n${Object.entries(metrics).map(([key, value]) => 
+        `${formatKey(key)}: ${formatValue(value)}`
       ).join('\n\n')}`,
       data: metrics,
     };
@@ -700,7 +716,7 @@ export class AgentToolsExecutor {
 
 ${data.answer ? `📝 Resumen: ${data.answer}\n\n` : ''}Fuentes encontradas:
 ${results.map((r: { title: string; url: string; content: string }, i: number) => 
-  `${i + 1}. **${r.title}**\n   ${r.url}\n   ${r.content?.slice(0, 150)}...`
+  `${i + 1}. ${r.title}\n   🔗 ${r.url}\n   ${r.content?.slice(0, 150)}...`
 ).join('\n\n')}`,
             data: { results, answer: data.answer },
           };
@@ -782,15 +798,15 @@ ${topics.map((t: { Text?: string; FirstURL?: string }, i: number) =>
 
     return {
       success: true,
-      message: `🖥️ **Estado del Sistema ZADIA OS**
+      message: `🖥️ ESTADO DEL SISTEMA ZADIA OS
 
-**Módulos:**
+MÓDULOS:
 ${statusChecks.map(m => `${m.connected ? '✅' : '❌'} ${m.name}`).join('\n')}
 
-**Modelos de IA Conectados:**
+MODELOS DE IA CONECTADOS:
 ${aiModels.map(m => `🤖 ${m.name} - ${m.use}`).join('\n')}
 
-**Capacidades Activas:**
+CAPACIDADES ACTIVAS:
 ✅ Razonamiento avanzado (DeepSeek R1)
 ✅ Ejecución de herramientas (Function Calling)
 ✅ Búsqueda web en tiempo real
@@ -885,12 +901,12 @@ ${aiModels.map(m => `🤖 ${m.name} - ${m.use}`).join('\n')}
 
       return {
         success: true,
-        message: `📧 **Email preparado** (modo simulación - Resend no configurado)
+        message: `📧 Email preparado (modo simulación - Resend no configurado)
 
-**Para:** ${clientName} <${recipientEmail}>
-**Asunto:** ${subject}
+Para: ${clientName} <${recipientEmail}>
+Asunto: ${subject}
 
-**Vista previa del contenido:**
+Vista previa del contenido:
 ${body.substring(0, 200)}${body.length > 200 ? '...' : ''}
 
 ⚠️ Para enviar emails reales, configura la API key de Resend en las variables de entorno.`,
@@ -941,10 +957,10 @@ ${body.substring(0, 200)}${body.length > 200 ? '...' : ''}
 
       return {
         success: true,
-        message: `✅ **Email enviado exitosamente**
+        message: `✅ EMAIL ENVIADO EXITOSAMENTE
 
-**Para:** ${clientName} <${recipientEmail}>
-**Asunto:** ${subject}
+Para: ${clientName} <${recipientEmail}>
+Asunto: ${subject}
 
 El cliente ha sido notificado. El email ha sido registrado en el sistema.`,
         data: { 

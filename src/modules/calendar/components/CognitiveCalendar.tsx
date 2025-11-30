@@ -6,7 +6,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar as CalendarIcon, Plus, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { useCalendar } from '../hooks/use-calendar';
 import { EventCard } from './EventCard';
 import { TimeBlocker } from './TimeBlocker';
+import { EventCreator } from './EventCreator';
 import { MeetingDossier } from './MeetingDossier';
 
 import type { CalendarEvent } from '../types/calendar.types';
@@ -41,8 +42,6 @@ export function CognitiveCalendar() {
   };
 
   const handleBlockTime = async (block: Parameters<typeof TimeBlocker>[0]['onBlockTime'] extends (block: infer T) => Promise<void> ? T : never) => {
-    if (!selectedDate) return;
-    
     const getTimeValue = (date: Date | import('firebase/firestore').Timestamp): number => {
       return date instanceof Date ? date.getTime() : date.toMillis();
     };
@@ -51,7 +50,7 @@ export function CognitiveCalendar() {
     const endTime = getTimeValue(block.endDate);
     
     const event: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'> = {
-      userId: '', // Se llenará en el servicio
+      userId: '',
       title: block.title,
       description: block.description,
       type: 'block',
@@ -64,6 +63,10 @@ export function CognitiveCalendar() {
     };
 
     await createEvent(event);
+  };
+
+  const handleCreateEvent = async (newEvent: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>) => {
+    await createEvent(newEvent);
   };
 
   const getEventsForDate = (date: Date) => {
@@ -105,10 +108,7 @@ export function CognitiveCalendar() {
         </div>
         <div className="flex items-center gap-2">
           <TimeBlocker onBlockTime={handleBlockTime} />
-          <Button className="bg-cyan-600 hover:bg-cyan-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Nuevo Evento
-          </Button>
+          <EventCreator onCreateEvent={handleCreateEvent} defaultDate={selectedDate || undefined} />
         </div>
       </div>
 

@@ -2,10 +2,12 @@
  * ZADIA OS - Advanced AI Chat Hook
  * 
  * React hook for the advanced AI assistant with:
- * - Multi-model support
+ * - Multi-model support with auto/manual selection
+ * - Intelligent model routing (like VS Code / Cursor)
  * - Tool execution
  * - Streaming-like UX
  * - Conversation persistence
+ * - Learning from interactions
  */
 
 'use client';
@@ -13,12 +15,16 @@
 import { useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AdvancedAIService, AI_MODELS } from '../services/advanced-ai.service';
+import { LearningMemoryService } from '@/lib/ai/learning-memory';
 import { logger } from '@/lib/logger';
 import { toast } from 'sonner';
 import type { AIMessage, AIModel, Attachment, ToolCall } from '../types';
 
+export type AIModelMode = 'auto' | 'manual';
+
 interface UseAdvancedAIChatOptions {
   defaultModel?: string;
+  defaultMode?: AIModelMode;
   enableTools?: boolean;
   enableWebSearch?: boolean;
 }
@@ -34,11 +40,18 @@ interface UseAdvancedAIChatReturn {
   clearChat: () => void;
   regenerateLastResponse: () => Promise<void>;
   conversationTitle: string;
+  // New model selection features
+  modelMode: AIModelMode;
+  setModelMode: (mode: AIModelMode) => void;
+  selectedModel: string | null;
+  setSelectedModel: (modelId: string | null) => void;
+  lastUsedModel: string | null;
 }
 
 export function useAdvancedAIChat(options: UseAdvancedAIChatOptions = {}): UseAdvancedAIChatReturn {
   const { 
-    defaultModel = 'deepseek-r1', 
+    defaultModel = 'grok-4.1-fast',
+    defaultMode = 'auto',
     enableTools = true,
   } = options;
 
@@ -48,6 +61,11 @@ export function useAdvancedAIChat(options: UseAdvancedAIChatOptions = {}): UseAd
   const [isProcessingTool, setIsProcessingTool] = useState(false);
   const [currentModelId, setCurrentModelId] = useState(defaultModel);
   const [conversationTitle, setConversationTitle] = useState('Nueva conversación');
+  
+  // Model selection state
+  const [modelMode, setModelMode] = useState<AIModelMode>(defaultMode);
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [lastUsedModel, setLastUsedModel] = useState<string | null>(null);
   
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -99,12 +117,27 @@ export function useAdvancedAIChat(options: UseAdvancedAIChatOptions = {}): UseAd
         content: m.content,
       }));
 
-      // Call AI service
+      // Determine model to use based on mode
+      const modelToUse = modelMode === 'manual' && selectedModel 
+        ? selectedModel 
+        : currentModelId;
+
+      // Call AI service with model mode
       const response = await AdvancedAIService.chat(user.uid, {
         messages: chatMessages,
-        modelId: currentModelId,
+        modelId: modelToUse,
         enableTools,
+        mode: modelMode,
       });
+
+      // Track the model that was actually used
+      const usedModel = response.modelId || response.model || modelToUse;
+      setLastUsedModel(usedModel);
+      
+      // Update current model if auto mode selected a different one
+      if (modelMode === 'auto' && response.modelId) {
+        setCurrentModelId(response.modelId);
+      }
 
       // Process response for tool calls
       setIsProcessingTool(true);
@@ -119,6 +152,24 @@ export function useAdvancedAIChat(options: UseAdvancedAIChatOptions = {}): UseAd
         result: tr.result,
       }));
 
+      // Record interaction for learning
+      if (toolCalls.length > 0) {
+        for (const tc of toolCalls) {
+          await LearningMemoryService.learnFromInteraction(
+            user.uid,
+            content,
+            processed.content,
+            { tool: tc.name, success: tc.status === 'success' }
+          );
+        }
+      } else {
+        await LearningMemoryService.learnFromInteraction(
+          user.uid,
+          content,
+          processed.content
+        );
+      }
+
       // Update AI message with response
       setMessages(prev => prev.map(m => 
         m.id === aiMessageId 
@@ -129,7 +180,11 @@ export function useAdvancedAIChat(options: UseAdvancedAIChatOptions = {}): UseAd
               toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
               metadata: {
                 model: response.model,
+                modelId: response.modelId,
+                modelName: response.modelName,
+                provider: response.provider,
                 tokensUsed: response.tokensUsed,
+                routingReason: response.routingReason,
               },
             }
           : m
@@ -161,12 +216,14 @@ export function useAdvancedAIChat(options: UseAdvancedAIChatOptions = {}): UseAd
       setIsLoading(false);
       setIsProcessingTool(false);
     }
-  }, [user?.uid, messages, currentModelId, enableTools]);
+  }, [user?.uid, messages, currentModelId, enableTools, modelMode, selectedModel]);
 
   const setModel = useCallback((modelId: string) => {
     const model = AI_MODELS.find(m => m.id === modelId);
     if (model) {
       setCurrentModelId(modelId);
+      setSelectedModel(modelId);
+      setModelMode('manual');
       toast.info(`Modelo cambiado a ${model.name}`);
     }
   }, []);
@@ -174,6 +231,7 @@ export function useAdvancedAIChat(options: UseAdvancedAIChatOptions = {}): UseAd
   const clearChat = useCallback(() => {
     setMessages([]);
     setConversationTitle('Nueva conversación');
+    setLastUsedModel(null);
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -206,5 +264,11 @@ export function useAdvancedAIChat(options: UseAdvancedAIChatOptions = {}): UseAd
     clearChat,
     regenerateLastResponse,
     conversationTitle,
+    // New model selection features
+    modelMode,
+    setModelMode,
+    selectedModel,
+    setSelectedModel,
+    lastUsedModel,
   };
 }

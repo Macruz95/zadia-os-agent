@@ -7,9 +7,11 @@ export { ChatMessage } from './components/ChatMessage';
 export { ChatInput } from './components/ChatInput';
 export { ChatHeader } from './components/ChatHeader';
 export { EmptyState } from './components/EmptyState';
+export { AIModelSelector } from './components/AIModelSelector';
 
 // Hooks
 export { useAdvancedAIChat } from './hooks/use-advanced-ai-chat';
+export type { AIModelMode } from './hooks/use-advanced-ai-chat';
 
 // Services
 export { AdvancedAIService, AI_MODELS } from './services/advanced-ai.service';

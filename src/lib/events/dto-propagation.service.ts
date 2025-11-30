@@ -162,10 +162,11 @@ class DTOPropagationServiceClass {
           });
         }
       } catch (error) {
-        logger.error(`Propagation failed: ${rule.name}`, {
-          component: 'DTOPropagation',
-          error: error instanceof Error ? error : new Error(String(error))
-        });
+        logger.error(
+          `Propagation failed: ${rule.name}`,
+          error instanceof Error ? error : new Error(String(error)),
+          { component: 'DTOPropagation' }
+        );
       }
     }
   }
@@ -223,6 +224,7 @@ class DTOPropagationServiceClass {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async handleLowStock(_event: ZadiaEvent): Promise<PropagationResult> {
     // TODO: Implement notification creation for low stock
     return {
@@ -250,6 +252,7 @@ class DTOPropagationServiceClass {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async handleProjectDelayed(_event: ZadiaEvent): Promise<PropagationResult> {
     // TODO: Implement notification creation for delayed projects
     return {

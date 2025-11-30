@@ -92,9 +92,11 @@ export class EmployeesService {
 
   /**
    * Get all employees
+   * Includes both user-owned employees and legacy employees without userId
    */
   static async getAllEmployees(userId: string): Promise<Employee[]> {
     try {
+      // First, try to get employees with userId filter
       const q = query(
         collection(db, COLLECTION),
         where('userId', '==', userId),
@@ -102,18 +104,47 @@ export class EmployeesService {
       );
 
       const snapshot = await getDocs(q);
-
-      if (snapshot.empty) {
-        logger.info('No employees found in database', {
-          component: 'EmployeesService',
-        });
-        return [];
-      }
-
-      return snapshot.docs.map((doc) => ({
+      let employees = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Employee[];
+
+      // Also try to get legacy employees without userId field
+      // This handles employees created before userId was required
+      try {
+        const allDocsSnapshot = await getDocs(collection(db, COLLECTION));
+        const legacyEmployees = allDocsSnapshot.docs
+          .filter(doc => !doc.data().userId) // Only those without userId
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as Employee[];
+        
+        // Merge and deduplicate
+        const existingIds = new Set(employees.map(e => e.id));
+        for (const legacy of legacyEmployees) {
+          if (!existingIds.has(legacy.id)) {
+            employees.push(legacy);
+          }
+        }
+      } catch (legacyError) {
+        // If we can't get legacy employees, that's ok - just use the filtered ones
+        logger.warn('Could not fetch legacy employees', {
+          component: 'EmployeesService',
+          metadata: { error: String(legacyError) }
+        });
+      }
+
+      // Sort by lastName
+      employees.sort((a, b) => (a.lastName || '').localeCompare(b.lastName || ''));
+
+      if (employees.length === 0) {
+        logger.info('No employees found in database', {
+          component: 'EmployeesService',
+        });
+      }
+
+      return employees;
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Unknown error');
 
@@ -128,18 +159,28 @@ export class EmployeesService {
         });
 
         try {
+          // Fallback: get all employees and filter/sort manually
           const snapshot = await getDocs(collection(db, COLLECTION));
-          return snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          })) as Employee[];
+          const employees = snapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            })) as Employee[];
+          
+          // Filter: only show user's employees OR legacy employees without userId
+          const filtered = employees.filter(e => !e.userId || e.userId === userId);
+          
+          // Sort manually by lastName
+          return filtered.sort((a, b) => 
+            (a.lastName || '').localeCompare(b.lastName || '')
+          );
         } catch (retryError) {
           logger.error(
             'Retry without orderBy failed',
             retryError instanceof Error ? retryError : new Error('Unknown retry error'),
             { component: 'EmployeesService' }
           );
-          throw retryError; // Throw retry error for more context
+          throw retryError;
         }
       }
 
@@ -179,6 +220,7 @@ export class EmployeesService {
 
   /**
    * Update employee
+   * If salary changes and there's an active period, also update the period's daily rate
    */
   static async updateEmployee(
     id: string,
@@ -204,6 +246,50 @@ export class EmployeesService {
       }
 
       await updateDoc(docRef, updateData);
+      
+      logger.info('Employee update data received', {
+        component: 'EmployeesService',
+        metadata: { 
+          employeeId: id, 
+          hasSalary: data.salary !== undefined,
+          salaryValue: data.salary,
+          salaryType: typeof data.salary
+        }
+      });
+
+      // If salary was updated, sync with active work period
+      // Check for salary being a valid number (not undefined, not null, not NaN)
+      if (typeof data.salary === 'number' && !isNaN(data.salary)) {
+        try {
+          // Import dynamically to avoid circular dependency
+          const { WorkPeriodsService } = await import('./work-periods.service');
+          const activePeriod = await WorkPeriodsService.getActivePeriod(id);
+          
+          logger.info('Checking for active period to sync salary', {
+            component: 'EmployeesService',
+            metadata: { 
+              employeeId: id, 
+              hasActivePeriod: !!activePeriod,
+              activePeriodId: activePeriod?.id,
+              newSalary: data.salary
+            }
+          });
+          
+          if (activePeriod) {
+            await WorkPeriodsService.updateDailyRate(activePeriod.id, data.salary);
+            logger.info('Active period daily rate synced with employee salary', {
+              employeeId: id,
+              metadata: { periodId: activePeriod.id, newRate: data.salary }
+            });
+          }
+        } catch (syncError) {
+          // Log but don't fail the main update
+          logger.error('Could not sync salary with active period', syncError as Error, {
+            component: 'EmployeesService',
+            metadata: { employeeId: id, salary: data.salary }
+          });
+        }
+      }
 
       logger.info('Employee updated', { employeeId: id });
     } catch (error) {

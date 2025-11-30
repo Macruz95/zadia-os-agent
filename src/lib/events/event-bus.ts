@@ -195,11 +195,14 @@ class EventBusClass {
       try {
         await subscription.handler(event as ZadiaEvent);
       } catch (error) {
-        logger.error(`Handler error for ${type}`, {
-          component: 'EventBus',
-          error: error instanceof Error ? error : new Error(String(error)),
-          metadata: { subscriptionId: subscription.id }
-        });
+        logger.error(
+          `Handler error for ${type}`,
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            component: 'EventBus',
+            metadata: { subscriptionId: subscription.id }
+          }
+        );
       }
     }
   }

@@ -2,9 +2,10 @@
  * ZADIA OS - Active Period Card
  * 
  * Shows current work period status and actions
+ * Includes bonuses and carried debt tracking
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -13,15 +14,21 @@ import {
     Clock,
     LogOut,
     AlertCircle,
-    // Plus removed - not used in this component
+    Gift,
+    AlertTriangle,
+    Pencil,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import type { WorkPeriod, Loan } from '../../types/hr.types';
+import type { WorkPeriod, Loan, Bonus } from '../../types/hr.types';
+import { BONUS_TYPE_CONFIG } from '../../types/hr.types';
+import { BonusesService } from '../../services/bonuses.service';
 import { AddLoanDialog } from './AddLoanDialog';
+import { AddBonusDialog } from './AddBonusDialog';
 import { EndPeriodDialog } from './EndPeriodDialog';
+import { EditPeriodDialog } from './EditPeriodDialog';
 
 interface ActivePeriodCardProps {
     period: WorkPeriod;
@@ -37,7 +44,19 @@ export function ActivePeriodCard({
     onPeriodEnded
 }: ActivePeriodCardProps) {
     const [showLoanDialog, setShowLoanDialog] = useState(false);
+    const [showBonusDialog, setShowBonusDialog] = useState(false);
     const [showEndDialog, setShowEndDialog] = useState(false);
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [bonuses, setBonuses] = useState<Bonus[]>([]);
+
+    // Fetch bonuses
+    useEffect(() => {
+        const fetchBonuses = async () => {
+            const data = await BonusesService.getBonusesByPeriod(period.id);
+            setBonuses(data);
+        };
+        fetchBonuses();
+    }, [period.id]);
 
     // Calculate live stats
     const startDate = period.startDate.toDate();
@@ -45,7 +64,21 @@ export function ActivePeriodCard({
     const daysElapsed = differenceInDays(today, startDate) + 1;
     const currentSalary = daysElapsed * period.dailyRate;
     const totalLoans = loans.reduce((sum, loan) => sum + loan.amount, 0);
-    const currentNet = currentSalary - totalLoans;
+    const totalBonuses = bonuses.reduce((sum, bonus) => sum + bonus.amount, 0);
+    const carriedDebt = period.carriedDebt || 0;
+    
+    // Net = Salary + Bonuses - Loans - Carried Debt
+    const currentNet = currentSalary + totalBonuses - totalLoans - carriedDebt;
+
+    const handleBonusAdded = async () => {
+        const data = await BonusesService.getBonusesByPeriod(period.id);
+        setBonuses(data);
+        onLoanAdded(); // Refresh parent data
+    };
+
+    const handlePeriodEdited = () => {
+        onLoanAdded(); // Refresh parent data to get updated period
+    };
 
     return (
         <Card className="border-primary/20 shadow-md">
@@ -54,11 +87,36 @@ export function ActivePeriodCard({
                     <Clock className="h-5 w-5 text-primary" />
                     Temporada Activa
                 </CardTitle>
-                <Badge variant="default" className="animate-pulse">
-                    En Curso
-                </Badge>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setShowEditDialog(true)}
+                        title="Editar temporada"
+                    >
+                        <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Badge variant="default" className="animate-pulse">
+                        En Curso
+                    </Badge>
+                </div>
             </CardHeader>
             <CardContent className="space-y-6">
+                {/* Carried Debt Warning */}
+                {carriedDebt > 0 && (
+                    <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3 flex items-center gap-3">
+                        <AlertTriangle className="h-5 w-5 text-orange-500" />
+                        <div>
+                            <p className="font-medium text-orange-700 dark:text-orange-400">
+                                Deuda de temporada anterior
+                            </p>
+                            <p className="text-sm text-orange-600 dark:text-orange-500">
+                                ${carriedDebt.toFixed(2)} pendientes que se descontarán de esta temporada
+                            </p>
+                        </div>
+                    </div>
+                )}
+
                 {/* Key Metrics Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="space-y-1">
@@ -86,6 +144,44 @@ export function ActivePeriodCard({
 
                 <Separator />
 
+                {/* Bonuses Section */}
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                        <h4 className="font-medium flex items-center gap-2">
+                            <Gift className="h-4 w-4 text-blue-500" />
+                            Bonificaciones / Aguinaldo
+                        </h4>
+                        <span className="font-bold text-blue-600">
+                            +${totalBonuses.toFixed(2)}
+                        </span>
+                    </div>
+
+                    {bonuses.length > 0 ? (
+                        <div className="space-y-2">
+                            {bonuses.slice(0, 3).map((bonus) => (
+                                <div key={bonus.id} className="flex justify-between text-sm bg-blue-50 dark:bg-blue-950/20 p-2 rounded">
+                                    <span>
+                                        {format(bonus.date.toDate(), 'dd MMM', { locale: es })} - {BONUS_TYPE_CONFIG[bonus.type].label}
+                                        {bonus.description && `: ${bonus.description}`}
+                                    </span>
+                                    <span className="font-medium text-blue-600">+${bonus.amount.toFixed(2)}</span>
+                                </div>
+                            ))}
+                            {bonuses.length > 3 && (
+                                <p className="text-xs text-center text-muted-foreground">
+                                    + {bonuses.length - 3} bonificaciones más...
+                                </p>
+                            )}
+                        </div>
+                    ) : (
+                        <p className="text-sm text-muted-foreground italic">
+                            No hay bonificaciones registradas en este periodo.
+                        </p>
+                    )}
+                </div>
+
+                <Separator />
+
                 {/* Loans Section */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
@@ -101,9 +197,9 @@ export function ActivePeriodCard({
                     {loans.length > 0 ? (
                         <div className="space-y-2">
                             {loans.slice(0, 3).map((loan) => (
-                                <div key={loan.id} className="flex justify-between text-sm bg-muted/30 p-2 rounded">
+                                <div key={loan.id} className="flex justify-between text-sm bg-orange-50 dark:bg-orange-950/20 p-2 rounded">
                                     <span>{format(loan.date.toDate(), 'dd MMM', { locale: es })} - {loan.reason}</span>
-                                    <span className="font-medium">-${loan.amount.toFixed(2)}</span>
+                                    <span className="font-medium text-orange-600">-${loan.amount.toFixed(2)}</span>
                                 </div>
                             ))}
                             {loans.length > 3 && (
@@ -121,31 +217,70 @@ export function ActivePeriodCard({
 
                 <Separator />
 
+                {/* Summary */}
+                <div className="bg-muted/30 rounded-lg p-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                        <span>Salario ({daysElapsed} días × ${period.dailyRate})</span>
+                        <span className="text-green-600">+${currentSalary.toFixed(2)}</span>
+                    </div>
+                    {totalBonuses > 0 && (
+                        <div className="flex justify-between text-sm">
+                            <span>Bonificaciones</span>
+                            <span className="text-blue-600">+${totalBonuses.toFixed(2)}</span>
+                        </div>
+                    )}
+                    {totalLoans > 0 && (
+                        <div className="flex justify-between text-sm">
+                            <span>Préstamos</span>
+                            <span className="text-orange-600">-${totalLoans.toFixed(2)}</span>
+                        </div>
+                    )}
+                    {carriedDebt > 0 && (
+                        <div className="flex justify-between text-sm">
+                            <span>Deuda anterior</span>
+                            <span className="text-red-600">-${carriedDebt.toFixed(2)}</span>
+                        </div>
+                    )}
+                </div>
+
                 {/* Net Payable & Actions */}
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-muted/20 p-4 rounded-lg border">
                     <div>
                         <p className="text-sm text-muted-foreground">Saldo Actual a Pagar</p>
-                        <p className="text-3xl font-bold text-green-700">
+                        <p className={`text-3xl font-bold ${currentNet >= 0 ? 'text-green-700' : 'text-red-600'}`}>
                             ${currentNet.toFixed(2)}
                         </p>
+                        {currentNet < 0 && (
+                            <p className="text-xs text-red-500">
+                                Esta cantidad quedará como deuda para la próxima temporada
+                            </p>
+                        )}
                     </div>
 
-                    <div className="flex gap-2 w-full md:w-auto">
+                    <div className="flex flex-wrap gap-2 w-full md:w-auto">
                         <Button
                             variant="outline"
-                            className="flex-1"
+                            size="sm"
+                            onClick={() => setShowBonusDialog(true)}
+                        >
+                            <Gift className="mr-2 h-4 w-4" />
+                            Bonificación
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => setShowLoanDialog(true)}
                         >
                             <DollarSign className="mr-2 h-4 w-4" />
-                            Registrar Préstamo
+                            Préstamo
                         </Button>
                         <Button
                             variant="destructive"
-                            className="flex-1"
+                            size="sm"
                             onClick={() => setShowEndDialog(true)}
                         >
                             <LogOut className="mr-2 h-4 w-4" />
-                            Finalizar Temporada
+                            Finalizar
                         </Button>
                     </div>
                 </div>
@@ -159,12 +294,29 @@ export function ActivePeriodCard({
                 onSuccess={onLoanAdded}
             />
 
+            <AddBonusDialog
+                open={showBonusDialog}
+                onOpenChange={setShowBonusDialog}
+                periodId={period.id}
+                employeeId={period.employeeId}
+                onSuccess={handleBonusAdded}
+            />
+
             <EndPeriodDialog
                 open={showEndDialog}
                 onOpenChange={setShowEndDialog}
                 period={period}
                 currentLoans={totalLoans}
+                currentBonuses={totalBonuses}
+                carriedDebt={carriedDebt}
                 onSuccess={onPeriodEnded}
+            />
+
+            <EditPeriodDialog
+                open={showEditDialog}
+                onOpenChange={setShowEditDialog}
+                period={period}
+                onSuccess={handlePeriodEdited}
             />
         </Card>
     );
