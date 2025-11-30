@@ -67,10 +67,12 @@ export async function recordMaterialConsumption(
       updatedAt: Timestamp.now(),
     });
 
-    // Actualizar costos del proyecto
+    // Actualizar costos del proyecto (materialsCost y actualCost)
     const projectRef = doc(db, 'projects', workOrder.projectId);
+    const materialCostIncrement = input.quantityUsed * material.unitCost;
     await updateDoc(projectRef, {
-      materialsCost: increment(input.quantityUsed * material.unitCost),
+      materialsCost: increment(materialCostIncrement),
+      actualCost: increment(materialCostIncrement),
       updatedAt: Timestamp.now(),
     });
 

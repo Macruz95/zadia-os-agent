@@ -45,10 +45,11 @@ export async function recordLaborHours(
       updatedAt: Timestamp.now(),
     });
 
-    // Actualizar costos del proyecto
+    // Actualizar costos del proyecto (laborCost y actualCost)
     const projectRef = doc(db, 'projects', workOrder.projectId);
     await updateDoc(projectRef, {
       laborCost: increment(laborCost),
+      actualCost: increment(laborCost),
       updatedAt: Timestamp.now(),
     });
 

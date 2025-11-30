@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,18 +10,23 @@ import {
   ChevronDown,
   DollarSign,
   Box,
-  Layers
+  Layers,
+  RefreshCw,
+  ExternalLink
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/lib/utils';
+import { BOMService } from '@/modules/inventory/services/entities/bom.service';
 import type { BillOfMaterials, BOMItem } from '@/modules/inventory/types/inventory.types';
+import { logger } from '@/lib/logger';
+import Link from 'next/link';
 
 /**
  * ProjectBOMPanel - Panel de Bill of Materials
  * Rule #1: Real BOM data from inventory module
  * Rule #2: ShadCN UI + Lucide icons
  * Rule #4: Modular component
- * Rule #5: 195 lines (within limit)
+ * Rule #5: Within 200 lines
  */
 
 interface ProjectBOMPanelProps {
@@ -29,17 +34,31 @@ interface ProjectBOMPanelProps {
   bomId?: string;
 }
 
-export function ProjectBOMPanel({ bomId }: ProjectBOMPanelProps) {
-  const [bom] = useState<BillOfMaterials | null>(null);
+export function ProjectBOMPanel({ projectId, bomId }: ProjectBOMPanelProps) {
+  const [bom, setBom] = useState<BillOfMaterials | null>(null);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-  const loading = false;
+  const [loading, setLoading] = useState(false);
 
-  // TODO: Load BOM from Firebase when bomId is provided
-  // useEffect(() => {
-  //   if (bomId) {
-  //     // Load BOM from inventory module
-  //   }
-  // }, [bomId]);
+  // Load BOM from Firebase when bomId is provided
+  useEffect(() => {
+    async function loadBOM() {
+      if (!bomId) return;
+      
+      setLoading(true);
+      try {
+        const bomData = await BOMService.getBOMById(bomId);
+        setBom(bomData);
+        logger.debug('BOM loaded for project', { projectId, bomId, bom: bomData });
+      } catch (error) {
+        logger.error('Error loading BOM', { projectId, bomId, error });
+        toast.error('Error al cargar el BOM');
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    loadBOM();
+  }, [bomId, projectId]);
 
   const toggleItem = (itemId: string) => {
     const newExpanded = new Set(expandedItems);
@@ -51,20 +70,26 @@ export function ProjectBOMPanel({ bomId }: ProjectBOMPanelProps) {
     setExpandedItems(newExpanded);
   };
 
-  const handleCreateBOM = () => {
-    toast.info('Funcionalidad de crear BOM en desarrollo');
+  const handleRefresh = async () => {
+    if (!bomId) return;
+    
+    setLoading(true);
+    try {
+      const bomData = await BOMService.getBOMById(bomId);
+      setBom(bomData);
+      toast.success('BOM actualizado');
+    } catch (error) {
+      toast.error('Error al actualizar BOM');
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const handleEditBOM = () => {
-    toast.info('Funcionalidad de editar BOM en desarrollo');
-  };
-
-
 
   if (loading) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        Cargando BOM...
+      <div className="flex items-center justify-center py-12">
+        <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+        <span className="ml-2 text-muted-foreground">Cargando BOM...</span>
       </div>
     );
   }
@@ -76,12 +101,29 @@ export function ProjectBOMPanel({ bomId }: ProjectBOMPanelProps) {
           <Layers className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="font-medium text-lg mb-2">Sin BOM Asignado</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Este proyecto no tiene un Bill of Materials configurado
+            Este proyecto no tiene un Bill of Materials configurado.
+            Puedes crear uno desde el módulo de Inventario.
           </p>
-          <Button onClick={handleCreateBOM}>
-            <Plus className="w-4 h-4 mr-2" />
-            Crear BOM
+          <Button asChild>
+            <Link href="/inventory?tab=bom">
+              <Plus className="w-4 h-4 mr-2" />
+              Ir a Inventario / BOM
+            </Link>
           </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!bom && bomId) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center">
+          <Layers className="w-12 h-12 mx-auto text-red-500 mb-4" />
+          <h3 className="font-medium text-lg mb-2">BOM No Encontrado</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            El BOM asignado (ID: {bomId}) no se encontró en el sistema.
+          </p>
         </CardContent>
       </Card>
     );
@@ -89,7 +131,7 @@ export function ProjectBOMPanel({ bomId }: ProjectBOMPanelProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header con Resumen */}
+      {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
@@ -115,7 +157,6 @@ export function ProjectBOMPanel({ bomId }: ProjectBOMPanelProps) {
             <div className="text-2xl font-bold">
               {formatCurrency(bom?.totalMaterialCost || 0)}
             </div>
-            <p className="text-xs text-muted-foreground">Total materiales</p>
           </CardContent>
         </Card>
 
@@ -123,7 +164,7 @@ export function ProjectBOMPanel({ bomId }: ProjectBOMPanelProps) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
-              Costo Mano de Obra
+              Mano de Obra
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -147,9 +188,6 @@ export function ProjectBOMPanel({ bomId }: ProjectBOMPanelProps) {
             <div className="text-2xl font-bold text-blue-600">
               {formatCurrency(bom?.totalCost || 0)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Incluye overhead
-            </p>
           </CardContent>
         </Card>
       </div>
@@ -159,14 +197,23 @@ export function ProjectBOMPanel({ bomId }: ProjectBOMPanelProps) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Bill of Materials</CardTitle>
+              <CardTitle>{bom?.finishedProductName || 'Bill of Materials'}</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {bom?.finishedProductName} - Versión {bom?.version || 1}
+                Versión {bom?.version || 1}
               </p>
             </div>
-            <Button onClick={handleEditBOM} variant="outline">
-              Editar BOM
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={handleRefresh} variant="outline" size="sm">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Actualizar
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/inventory/bom/${bom?.finishedProductId}`}>
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Ver en Inventario
+                </Link>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

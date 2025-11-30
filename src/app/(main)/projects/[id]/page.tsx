@@ -32,6 +32,8 @@ import { ProjectTasksTab } from '@/modules/projects/components/tasks/ProjectTask
 import { ProjectExpensesTab } from '@/modules/projects/components/ProjectExpensesTab';
 import { ProjectDocumentsTab } from '@/modules/projects/components/documents/ProjectDocumentsTab';
 import { WorkOrdersTab } from '@/modules/projects/components/work-orders/WorkOrdersTab';
+import { ProjectFinanceTab } from '@/modules/projects/components/finance/ProjectFinanceTab';
+import { ProjectBOMPanel } from '@/modules/projects/components/bom/ProjectBOMPanel';
 import type { ProjectStatus } from '@/modules/projects/types/projects.types';
 import { toast } from 'sonner';
 import { ProjectsService } from '@/modules/projects/services/projects.service';
@@ -253,13 +255,15 @@ export default function ProjectDetailPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="overview">Vista General</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-9">
+          <TabsTrigger value="overview">General</TabsTrigger>
           <TabsTrigger value="work-orders">Órdenes</TabsTrigger>
           <TabsTrigger value="tasks">Tareas</TabsTrigger>
           <TabsTrigger value="sessions">Sesiones</TabsTrigger>
           <TabsTrigger value="expenses">Gastos</TabsTrigger>
-          <TabsTrigger value="documents">Documentos</TabsTrigger>
+          <TabsTrigger value="bom">BOM</TabsTrigger>
+          <TabsTrigger value="finance">Finanzas</TabsTrigger>
+          <TabsTrigger value="documents">Docs</TabsTrigger>
           <TabsTrigger value="timeline">Historial</TabsTrigger>
         </TabsList>
 
@@ -290,6 +294,17 @@ export default function ProjectDetailPage() {
             userId={userId}
             userRole={userRole}
           />
+        </TabsContent>
+
+        <TabsContent value="bom" className="space-y-4 mt-6">
+          <ProjectBOMPanel 
+            projectId={projectId} 
+            bomId={project.bomId}
+          />
+        </TabsContent>
+
+        <TabsContent value="finance" className="space-y-4 mt-6">
+          <ProjectFinanceTab project={project} />
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-4 mt-6">

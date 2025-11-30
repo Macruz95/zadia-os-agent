@@ -7,7 +7,10 @@ import { ProjectsHeader } from './ProjectsHeader';
 import { ProjectsKPICards } from './ProjectsKPICards';
 import { ProjectFilters as ProjectFiltersComponent } from './ProjectFilters';
 import { ProjectsTable } from './ProjectsTable';
+import { ProjectsKanban } from './kanban/ProjectsKanban';
 import { ProjectFormDialog } from './forms/ProjectFormDialog';
+import { Button } from '@/components/ui/button';
+import { LayoutGrid, LayoutList } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { ProjectsService } from '../services/projects.service';
@@ -18,12 +21,16 @@ import { logger } from '@/lib/logger';
  * Rule #1: Real Firebase data via useProjects hook
  * Rule #2: ShadCN UI + Lucide icons only
  * Rule #4: Modular component architecture
- * Rule #5: 289 lines (within limit)
+ * Rule #5: ~150 lines (within limit)
  */
+
+type ViewMode = 'table' | 'kanban';
+
 export function ProjectsDirectory() {
   const router = useRouter();
   const [filters, setFilters] = useState<ProjectFilters>({});
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
   
   // Real Firebase data with realtime updates
   const { projects, loading, error, totalCount } = useProjects({
@@ -38,30 +45,16 @@ export function ProjectsDirectory() {
   const kpis = useProjectsKPIs(projects);
 
   // Handlers
-  const handleNewProject = () => {
-    setShowCreateDialog(true);
-  };
-
-  const handleProjectCreated = (projectId: string) => {
-    router.push(`/projects/${projectId}`);
-  };
-
-  const handleViewProject = (projectId: string) => {
-    router.push(`/projects/${projectId}`);
-  };
-
-  const handleEditProject = () => {
-    // TODO: Open edit dialog or navigate to edit form
-    toast.info('Funcionalidad de editar proyecto en desarrollo');
-  };
-
+  const handleNewProject = () => setShowCreateDialog(true);
+  const handleProjectCreated = (projectId: string) => router.push(`/projects/${projectId}`);
+  const handleViewProject = (projectId: string) => router.push(`/projects/${projectId}`);
+  const handleEditProject = () => toast.info('Funcionalidad de editar proyecto en desarrollo');
+  
   const handleDeleteProject = async (projectId: string) => {
-    try {
-      // TODO: Add confirmation dialog before deletion
-      const confirmed = confirm('¿Estás seguro de eliminar este proyecto? Esta acción no se puede deshacer.');
-      
-      if (!confirmed) return;
+    const confirmed = confirm('¿Estás seguro de eliminar este proyecto? Esta acción no se puede deshacer.');
+    if (!confirmed) return;
 
+    try {
       await ProjectsService.deleteProject(projectId);
       toast.success('Proyecto eliminado exitosamente');
     } catch (error) {
@@ -70,20 +63,9 @@ export function ProjectsDirectory() {
     }
   };
 
-  const handleRefresh = () => {
-    // Realtime listener handles updates automatically
-    toast.success('Datos actualizados');
-  };
-
-  const handleExport = () => {
-    // TODO: Implement CSV/Excel export
-    toast.info('Funcionalidad de exportar en desarrollo');
-  };
-
-  const handleClearFilters = () => {
-    setFilters({});
-    toast.success('Filtros limpiados');
-  };
+  const handleRefresh = () => toast.success('Datos actualizados');
+  const handleExport = () => toast.info('Funcionalidad de exportar en desarrollo');
+  const handleClearFilters = () => { setFilters({}); toast.success('Filtros limpiados'); };
 
   // Error state
   if (error) {
@@ -110,30 +92,59 @@ export function ProjectsDirectory() {
       {/* KPI Cards */}
       <ProjectsKPICards kpis={kpis} loading={loading} />
 
-      {/* Filters */}
-      <ProjectFiltersComponent
-        filters={filters}
-        onFiltersChange={setFilters}
-        onClearFilters={handleClearFilters}
-      />
+      {/* Filters + View Toggle */}
+      <div className="flex items-start justify-between gap-4">
+        <ProjectFiltersComponent
+          filters={filters}
+          onFiltersChange={setFilters}
+          onClearFilters={handleClearFilters}
+        />
+        
+        {/* View Mode Toggle */}
+        <div className="flex gap-1 border rounded-lg p-1">
+          <Button
+            variant={viewMode === 'table' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('table')}
+            className="px-3"
+          >
+            <LayoutList className="h-4 w-4 mr-2" />
+            Tabla
+          </Button>
+          <Button
+            variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('kanban')}
+            className="px-3"
+          >
+            <LayoutGrid className="h-4 w-4 mr-2" />
+            Kanban
+          </Button>
+        </div>
+      </div>
 
       {/* Results Count */}
       {!loading && (
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>
-            Mostrando {projects.length} de {totalCount} proyectos
-          </span>
+        <div className="text-sm text-muted-foreground">
+          Mostrando {projects.length} de {totalCount} proyectos
         </div>
       )}
 
-      {/* Projects Table */}
-      <ProjectsTable
-        projects={projects}
-        loading={loading}
-        onViewProject={handleViewProject}
-        onEditProject={handleEditProject}
-        onDeleteProject={handleDeleteProject}
-      />
+      {/* Projects View */}
+      {viewMode === 'table' ? (
+        <ProjectsTable
+          projects={projects}
+          loading={loading}
+          onViewProject={handleViewProject}
+          onEditProject={handleEditProject}
+          onDeleteProject={handleDeleteProject}
+        />
+      ) : (
+        <ProjectsKanban
+          projects={projects}
+          onProjectClick={handleViewProject}
+        />
+      )}
 
       {/* Create Project Dialog */}
       <ProjectFormDialog
