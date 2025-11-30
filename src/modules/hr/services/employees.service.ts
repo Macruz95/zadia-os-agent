@@ -104,7 +104,7 @@ export class EmployeesService {
       );
 
       const snapshot = await getDocs(q);
-      let employees = snapshot.docs.map((doc) => ({
+      const employeesResult: Employee[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Employee[];
@@ -121,10 +121,10 @@ export class EmployeesService {
           })) as Employee[];
         
         // Merge and deduplicate
-        const existingIds = new Set(employees.map(e => e.id));
+        const existingIds = new Set(employeesResult.map(e => e.id));
         for (const legacy of legacyEmployees) {
           if (!existingIds.has(legacy.id)) {
-            employees.push(legacy);
+            employeesResult.push(legacy);
           }
         }
       } catch (legacyError) {
@@ -136,15 +136,15 @@ export class EmployeesService {
       }
 
       // Sort by lastName
-      employees.sort((a, b) => (a.lastName || '').localeCompare(b.lastName || ''));
+      employeesResult.sort((a, b) => (a.lastName || '').localeCompare(b.lastName || ''));
 
-      if (employees.length === 0) {
+      if (employeesResult.length === 0) {
         logger.info('No employees found in database', {
           component: 'EmployeesService',
         });
       }
 
-      return employees;
+      return employeesResult;
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Unknown error');
 
