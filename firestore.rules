@@ -20,7 +20,7 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      return isAuthenticated() && getUserRole() in ['admin', 'super-admin'];
+      return isAuthenticated() && getUserRole() in ['admin', 'super-admin', 'super_admin'];
     }
     
     function isOwner(ownerId) {
@@ -29,6 +29,31 @@ service cloud.firestore {
     
     function isOwnerOrAdmin(ownerId) {
       return isOwner(ownerId) || isAdmin();
+    }
+    
+    // ===========================
+    // MULTI-TENANT FUNCTIONS
+    // ===========================
+    
+    // Check if user is a member of a tenant
+    function isTenantMember(tenantId) {
+      return isAuthenticated() && exists(/databases/$(database)/documents/tenantMembers/$(tenantId + '_' + request.auth.uid));
+    }
+    
+    // Check if user is tenant owner
+    function isTenantOwner(tenantId) {
+      return isAuthenticated() && get(/databases/$(database)/documents/tenants/$(tenantId)).data.ownerId == request.auth.uid;
+    }
+    
+    // Check if user is tenant admin
+    function isTenantAdmin(tenantId) {
+      let member = get(/databases/$(database)/documents/tenantMembers/$(tenantId + '_' + request.auth.uid));
+      return member.data.role in ['owner', 'admin'];
+    }
+    
+    // Check tenant access (owner, admin, or member)
+    function hasTenantAccess(tenantId) {
+      return isTenantMember(tenantId) || isTenantOwner(tenantId);
     }
     
     // Validation helpers
@@ -46,6 +71,63 @@ service cloud.firestore {
     
     function isValidString(value) {
       return value is string && value.size() > 0;
+    }
+    
+    // ===========================
+    // TENANTS COLLECTION
+    // ===========================
+    match /tenants/{tenantId} {
+      // Anyone authenticated can read tenants they own or are members of
+      allow read: if isTenantOwner(tenantId) || isTenantMember(tenantId);
+      // Users can create tenants (they become owner)
+      allow create: if isAuthenticated() && request.resource.data.ownerId == getUserId();
+      // Only tenant owner can update
+      allow update: if isTenantOwner(tenantId);
+      // Only tenant owner can delete
+      allow delete: if isTenantOwner(tenantId);
+    }
+    
+    // ===========================
+    // TENANT MEMBERS COLLECTION
+    // ===========================
+    match /tenantMembers/{memberId} {
+      // Members can read their own membership, tenant admins can read all
+      allow read: if isAuthenticated() && (
+        resource.data.userId == getUserId() ||
+        isTenantAdmin(resource.data.tenantId)
+      );
+      // Only tenant admins can add members
+      allow create: if isAuthenticated() && isTenantAdmin(request.resource.data.tenantId);
+      // Only tenant admins can update members (except owner role)
+      allow update: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
+      // Only tenant admins can remove members
+      allow delete: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
+    }
+    
+    // ===========================
+    // TENANT INVITATIONS COLLECTION
+    // ===========================
+    match /tenantInvitations/{invitationId} {
+      // Admins can read invitations for their tenant
+      allow read: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
+      // Admins can create invitations
+      allow create: if isAuthenticated() && isTenantAdmin(request.resource.data.tenantId);
+      // Users can accept invitations sent to their email
+      allow update: if isAuthenticated();
+      // Admins can delete invitations
+      allow delete: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
+    }
+    
+    // ===========================
+    // CUSTOM ROLES COLLECTION
+    // ===========================
+    match /customRoles/{roleId} {
+      // Tenant members can read roles
+      allow read: if isAuthenticated() && hasTenantAccess(resource.data.tenantId);
+      // Only tenant admins can manage roles
+      allow create: if isAuthenticated() && isTenantAdmin(request.resource.data.tenantId);
+      allow update: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
+      allow delete: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
     }
     
     // ===========================

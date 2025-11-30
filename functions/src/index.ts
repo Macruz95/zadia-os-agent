@@ -200,3 +200,9 @@ export * from './triggers/project-triggers';
 
 // Export Backup Triggers
 export * from './triggers/backup-triggers';
+
+// Export Tenant Migration Triggers
+export * from './triggers/tenant-migration';
+
+// Export Notification Triggers
+export * from './triggers/notification-triggers';
