@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PermissionGate } from '@/modules/permissions/components/PermissionGate';
+import { TeamMembersCard } from '@/modules/tenants/components/TeamMembersCard';
 import { 
   Settings, Building2, Users, Shield, Bell, 
   CreditCard, Globe, Palette, Lock
@@ -148,7 +149,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="text-sm text-gray-400">Idioma</label>
-                <p className="text-white font-medium">{tenant?.settings?.locale || 'es'}</p>
+                <p className="text-white font-medium">{tenant?.settings?.language || 'es'}</p>
               </div>
               <div>
                 <label className="text-sm text-gray-400">Formato de fecha</label>
@@ -160,26 +161,7 @@ export default function SettingsPage() {
 
         {/* Team Tab */}
         <TabsContent value="team" className="mt-6">
-          <Card className="bg-gray-800/30 border-gray-700/50">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Miembros del Equipo
-              </CardTitle>
-              <CardDescription>
-                Gestiona los usuarios de tu organización
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Gestión de equipo próximamente</p>
-                <Button className="mt-4" disabled>
-                  Invitar miembro
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <TeamMembersCard canManage={isAdmin} />
         </TabsContent>
 
         {/* Roles Tab */}

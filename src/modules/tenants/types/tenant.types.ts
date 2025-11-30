@@ -50,6 +50,7 @@ export interface TenantSettings {
   timezone: string;
   dateFormat: string;
   language: 'es' | 'en';
+  locale?: string; // Full locale like 'es-MX'
   branding?: {
     logo?: string;
     primaryColor?: string;
@@ -60,6 +61,12 @@ export interface TenantSettings {
     push: boolean;
     sms: boolean;
   };
+  features: {
+    multiUser: boolean;
+    advancedReporting: boolean;
+    apiAccess: boolean;
+    customBranding: boolean;
+  };
 }
 
 export const DEFAULT_TENANT_SETTINGS: TenantSettings = {
@@ -67,10 +74,17 @@ export const DEFAULT_TENANT_SETTINGS: TenantSettings = {
   timezone: 'America/Mexico_City',
   dateFormat: 'DD/MM/YYYY',
   language: 'es',
+  locale: 'es-MX',
   notifications: {
     email: true,
     push: true,
     sms: false,
+  },
+  features: {
+    multiUser: false,
+    advancedReporting: false,
+    apiAccess: false,
+    customBranding: false,
   },
 };
 

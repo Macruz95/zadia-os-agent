@@ -123,8 +123,14 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         settings: {
           currency: 'USD',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          language: (navigator.language?.startsWith('es') ? 'es' : 'en') as 'es' | 'en',
           locale: navigator.language || 'en',
           dateFormat: 'DD/MM/YYYY',
+          notifications: {
+            email: true,
+            push: true,
+            sms: false,
+          },
           features: {
             multiUser: false,
             advancedReporting: false,
