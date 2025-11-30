@@ -229,7 +229,7 @@ export default function FinancePage() {
               Ver Todas las Facturas
             </Button>
           </Link>
-          <Link href="/finance/receivables">
+          <Link href="/finance/invoices">
             <Button variant="outline">
               <CreditCard className="mr-2 h-4 w-4" />
               Cuentas por Cobrar

@@ -226,22 +226,22 @@ export default function CRMPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
-          <Link href="/crm/leads/new">
+          <Link href="/sales/leads">
             <Button variant="outline">
               <UserPlus className="mr-2 h-4 w-4" />
-              Nuevo Lead
+              Gestionar Leads
             </Button>
           </Link>
-          <Link href="/clients/new">
+          <Link href="/clients">
             <Button variant="outline">
               <Users className="mr-2 h-4 w-4" />
-              Nuevo Cliente
+              Gestionar Clientes
             </Button>
           </Link>
-          <Link href="/crm/opportunities/new">
+          <Link href="/sales/opportunities">
             <Button variant="outline">
               <Lightbulb className="mr-2 h-4 w-4" />
-              Nueva Oportunidad
+              Gestionar Oportunidades
             </Button>
           </Link>
         </CardContent>
