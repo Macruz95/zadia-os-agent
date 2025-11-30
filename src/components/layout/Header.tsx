@@ -34,7 +34,6 @@ const routeNames: Record<string, string> = {
   leads: 'Leads',
   opportunities: 'Oportunidades',
   projects: 'Proyectos',
-  'work-orders': 'Work Orders',
   finance: 'Finanzas',
   invoices: 'Facturas',
   expenses: 'Gastos',

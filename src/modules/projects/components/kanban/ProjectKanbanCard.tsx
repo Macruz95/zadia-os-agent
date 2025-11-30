@@ -112,7 +112,9 @@ export function ProjectKanbanCard({ project, onClick, isDragging = false }: Proj
               {format(
                 project.estimatedEndDate instanceof Date 
                   ? project.estimatedEndDate 
-                  : project.estimatedEndDate.toDate(), 
+                  : typeof project.estimatedEndDate?.toDate === 'function'
+                    ? project.estimatedEndDate.toDate()
+                    : new Date(project.estimatedEndDate as unknown as string), 
                 'dd MMM yyyy', 
                 { locale: es }
               )}

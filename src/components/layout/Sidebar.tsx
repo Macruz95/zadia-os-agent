@@ -29,7 +29,6 @@ import {
   TrendingUp,
   UserCheck,
   Briefcase,
-  Wrench,
   DollarSign,
   UserCog,
   Bot,
@@ -63,7 +62,7 @@ const businessNav = [
   { title: 'CRM', href: '/crm', icon: UserCheck },
   { title: 'Ventas', href: '/sales', icon: TrendingUp },
   { title: 'Proyectos', href: '/projects', icon: Briefcase },
-  { title: 'Work Orders', href: '/work-orders', icon: Wrench },
+
 ];
 
 const resourcesNav = [

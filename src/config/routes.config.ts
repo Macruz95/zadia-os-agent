@@ -19,7 +19,6 @@ export const PROTECTED_ROUTES = [
   '/finance',
   '/hr',
   '/orders',
-  '/work-orders',
 ] as const;
 
 /**
