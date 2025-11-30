@@ -1,0 +1,585 @@
+{
+  "auth": {
+    "or": "Ou",
+    "login": {
+      "title": "Entrar no ZADIA OS",
+      "subtitle": "Sistema Operacional Empresarial Agêntico",
+      "email": "Endereço de e-mail",
+      "password": "Senha",
+      "submitButton": "Entrar",
+      "forgotPassword": "Esqueceu sua senha?",
+      "noAccount": "Não tem uma conta?",
+      "createAccount": "Criar conta",
+      "orContinueWith": "Ou continue com",
+      "googleButton": "Continuar com Google"
+    },
+    "register": {
+      "title": "Junte-se ao ZADIA OS",
+      "subtitle": "Crie sua conta empresarial",
+      "name": "Nome completo",
+      "email": "Endereço de e-mail",
+      "password": "Senha",
+      "confirmPassword": "Confirmar senha",
+      "role": "Sua função na organização",
+      "language": "Idioma preferido",
+      "organization": "Organização (opcional)",
+      "objective": "O que você quer alcançar?",
+      "selectObjective": "Selecione seu objetivo",
+      "selectLanguage": "Selecione seu idioma",
+      "acceptTerms": "Aceito os termos e condições",
+      "acceptPrivacy": "Aceito a política de privacidade",
+      "submit": "Criar Conta",
+      "registering": "Criando conta...",
+      "haveAccount": "Já tem uma conta?",
+      "loginLink": "Entrar",
+      "submitButton": "Criar Conta",
+      "hasAccount": "Já tem uma conta?",
+      "signIn": "Entrar",
+      "orContinueWith": "Ou continue com",
+      "googleButton": "Registrar com Google",
+      "objectives": {
+        "automation": "Automatizar processos",
+        "analytics": "Análises e relatórios",
+        "collaboration": "Colaboração em equipe",
+        "growth": "Crescimento empresarial"
+      },
+      "languages": {
+        "spanish": "Espanhol",
+        "english": "Inglês",
+        "portuguese": "Português"
+      }
+    },
+    "forgotPassword": {
+      "title": "Recuperar Senha",
+      "subtitle": "Enviaremos um link para redefinir sua senha",
+      "email": "Endereço de e-mail",
+      "submitButton": "Enviar link",
+      "backToLogin": "Voltar para o login"
+    },
+    "googleComplete": {
+      "title": "Complete seu perfil",
+      "subtitle": "Precisamos de algumas informações adicionais para configurar sua conta",
+      "role": "Sua função na organização",
+      "language": "Idioma preferido",
+      "organization": "Organização (opcional)",
+      "objective": "O que você quer alcançar com o ZADIA OS?",
+      "submitButton": "Completar registro"
+    },
+    "roles": {
+      "admin": "Administrador",
+      "manager": "Gerente",
+      "user": "Usuário"
+    },
+    "languages": {
+      "es": "Espanhol",
+      "en": "Inglês",
+      "pt": "Português"
+    },
+    "objectives": {
+      "automation": "Automatizar processos",
+      "analytics": "Análises e relatórios",
+      "collaboration": "Colaboração em equipe",
+      "growth": "Crescimento empresarial"
+    },
+    "validation": {
+      "emailRequired": "O e-mail é obrigatório",
+      "emailInvalid": "Endereço de e-mail inválido",
+      "passwordRequired": "A senha é obrigatória",
+      "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+      "passwordComplexity": "A senha deve conter pelo menos: 1 minúscula, 1 maiúscula, 1 número e 1 símbolo",
+      "passwordsNoMatch": "As senhas não coincidem",
+      "nameRequired": "O nome é obrigatório",
+      "nameMinLength": "O nome deve ter pelo menos 2 caracteres",
+      "nameMaxLength": "O nome deve ter menos de 50 caracteres",
+      "confirmPasswordRequired": "Confirmar senha é obrigatório",
+      "roleRequired": "Selecione sua função"
+    },
+    "errors": {
+      "invalidCredentials": "Credenciais inválidas",
+      "userNotFound": "Usuário não encontrado",
+      "emailAlreadyInUse": "E-mail já em uso",
+      "weakPassword": "A senha é muito fraca",
+      "generic": "Ocorreu um erro. Tente novamente",
+      "user": {
+        "permissionDenied": "Você não tem permissão para realizar esta ação",
+        "notFound": "Usuário não encontrado",
+        "alreadyExists": "O usuário já existe",
+        "resourceExhausted": "Os recursos disponíveis foram esgotados",
+        "failedPrecondition": "As condições necessárias não foram atendidas",
+        "operationAborted": "A operação foi cancelada",
+        "outOfRange": "Valor fora do intervalo permitido",
+        "unimplemented": "Funcionalidade não implementada",
+        "internalError": "Erro interno do servidor",
+        "serviceUnavailable": "Serviço temporariamente indisponível",
+        "dataLoss": "Alguns dados foram perdidos",
+        "unauthenticated": "Você deve entrar para continuar",
+        "firebaseGeneric": "Erro do serviço de autenticação",
+        "generic": "Falha ao processar dados do usuário"
+      },
+      "validation": {
+        "invalidType": "Tipo de dado inválido",
+        "invalidLiteral": "Valor literal inválido",
+        "unrecognizedKeys": "Campos não reconhecidos",
+        "invalidUnion": "Valor de união inválido",
+        "invalidUnionDiscriminator": "Discriminador de união inválido",
+        "invalidEnumValue": "Valor de enumeração inválido",
+        "invalidArguments": "Argumentos inválidos",
+        "invalidReturnType": "Tipo de retorno inválido",
+        "invalidDate": "Data inválida",
+        "invalidString": "Texto inválido",
+        "tooSmall": "Valor muito pequeno",
+        "tooBig": "Valor muito grande",
+        "invalidIntersectionTypes": "Tipos de interseção inválidos",
+        "notMultipleOf": "Não é múltiplo do valor requerido",
+        "notFinite": "O número deve ser finito",
+        "generic": "Dados inválidos"
+      },
+      "network": {
+        "connectionFailed": "Erro de conexão",
+        "timeout": "Tempo limite de solicitação",
+        "generic": "Erro de rede"
+      }
+    },
+    "success": {
+      "accountCreated": "Conta criada com sucesso",
+      "passwordResetSent": "Link de redefinição de senha enviado",
+      "loginSuccess": "Login realizado com sucesso"
+    }
+  },
+  "landing": {
+    "header": {
+      "signIn": "Entrar",
+      "getStarted": "Começar"
+    },
+    "hero": {
+      "badge": "Sistema Operacional Empresarial",
+      "title": "ZADIA OS",
+      "subtitle": "A plataforma de operações autônomas que usa IA agêntica e um Gêmeo Digital organizacional para orquestrar fluxos de trabalho complexos com autonomia e inteligência.",
+      "ctaPrimary": "Começar Grátis",
+      "ctaSecondary": "Saiba Mais",
+      "freeText": "Grátis para sempre • Não precisa de cartão de crédito"
+    },
+    "features": {
+      "title": "Potencialize sua Organização",
+      "subtitle": "Tecnologia agêntica que transforma como você opera seu negócio",
+      "ai": {
+        "title": "IA Agêntica Avançada",
+        "description": "Agentes inteligentes que executam tarefas complexas autonomamente, aprendendo e se adaptando continuamente."
+      },
+      "automation": {
+        "title": "Automação Inteligente",
+        "description": "Processos de negócios que rodam automaticamente com tomada de decisão inteligente em tempo real."
+      },
+      "analytics": {
+        "title": "Análises Preditivas",
+        "description": "Insights profundos sobre o desempenho organizacional com previsões baseadas em IA."
+      },
+      "security": {
+        "title": "Segurança Empresarial",
+        "description": "Proteção robusta de dados com criptografia ponta a ponta e conformidade regulatória."
+      },
+      "collaboration": {
+        "title": "Colaboração Unificada",
+        "description": "Ferramentas integradas que conectam equipes e departamentos em uma única plataforma."
+      },
+      "integration": {
+        "title": "Integração Universal",
+        "description": "Conecte com todas as suas ferramentas existentes através de APIs e conectores inteligentes."
+      }
+    },
+    "benefits": {
+      "title": "Por que escolher ZADIA OS?",
+      "subtitle": "Resultados comprovados que transformam organizações",
+      "efficiency": {
+        "title": "300% de Eficiência",
+        "description": "Automação inteligente que triplica a produtividade da sua equipe."
+      },
+      "decisions": {
+        "title": "Decisões Baseadas em Dados",
+        "description": "Insights em tempo real que melhoram a tomada de decisões estratégicas."
+      },
+      "scalability": {
+        "title": "Escalabilidade Ilimitada",
+        "description": "Cresça sem limites com arquitetura que se adapta à sua organização."
+      },
+      "innovation": {
+        "title": "Inovação Contínua",
+        "description": "Mantenha-se à frente com atualizações automáticas de IA."
+      }
+    },
+    "testimonials": {
+      "title": "O que nossos usuários dizem",
+      "subtitle": "Descubra como o ZADIA OS está transformando a forma como as empresas operam",
+      "alex": {
+        "comment": "O ZADIA OS revolucionou nossa forma de trabalhar. A automação inteligente nos permitiu reduzir os tempos de resposta em 70% e aumentar a produtividade da equipe."
+      },
+      "sarah": {
+        "comment": "A integração perfeita com nossas ferramentas existentes e a capacidade de criar fluxos de trabalho personalizados nos deu uma vantagem competitiva significativa."
+      },
+      "marcus": {
+        "comment": "O sistema de IA agêntica é impressionante. Pode lidar com tarefas complexas autonomamente, aprendendo continuamente e se adaptando às nossas necessidades específicas."
+      }
+    },
+    "cta": {
+      "title": "Transforme sua Organização Hoje",
+      "subtitle": "Junte-se às empresas líderes que já usam o ZADIA OS para revolucionar suas operações.",
+      "button": "Iniciar Transformação",
+      "secondary": "Saiba Mais"
+    },
+    "footer": {
+      "copyright": "© 2025 ZADIA OS. Sistema Operacional Empresarial Agêntico."
+    }
+  },
+  "metadata": {
+    "title": "ZADIA OS - Sistema Operacional Empresarial Agêntico",
+    "description": "Plataforma de Operações Autônomas que usa IA agêntica e um Gêmeo Digital organizacional para orquestrar fluxos de trabalho complexos com autonomia e inteligência."
+  },
+  "navigation": {
+    "label": "Navegação",
+    "dashboard": "Painel",
+    "clients": "Clientes",
+    "inventory": "Inventário",
+    "sales": "Vendas",
+    "profile": "Meu Perfil",
+    "settings": "Configurações"
+  },
+  "common": {
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "previous": "Anterior",
+    "notAvailable": "Não disponível",
+    "settings": "Configurações",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "import": "Importar",
+    "create": "Criar",
+    "update": "Atualizar",
+    "add": "Adicionar",
+    "remove": "Remover",
+    "view": "Ver",
+    "download": "Baixar",
+    "upload": "Enviar",
+    "confirm": "Confirmar",
+    "close": "Fechar",
+    "yes": "Sim",
+    "no": "Não",
+    "all": "Todos",
+    "none": "Nenhum",
+    "select": "Selecionar",
+    "selectAll": "Selecionar todos",
+    "clear": "Limpar",
+    "reset": "Redefinir",
+    "apply": "Aplicar",
+    "status": "Status",
+    "actions": "Ações",
+    "details": "Detalhes",
+    "description": "Descrição",
+    "date": "Data",
+    "time": "Hora",
+    "name": "Nome",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "address": "Endereço",
+    "notes": "Notas",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "tax": "Imposto",
+    "discount": "Desconto",
+    "quantity": "Quantidade",
+    "price": "Preço",
+    "amount": "Valor",
+    "success": "Sucesso",
+    "error": "Erro",
+    "warning": "Aviso",
+    "info": "Informação"
+  },
+  "dashboard": {
+    "welcome": "Bem-vindo, {{name}}",
+    "subtitle": "Gerencie sua organização com IA agêntica",
+    "userProfile": "Perfil do Usuário",
+    "quickActions": {
+      "title": "Ações Rápidas",
+      "description": "Operações frequentes do sistema",
+      "comingSoon": "Em breve"
+    },
+    "systemStatus": {
+      "title": "Status do Sistema",
+      "description": "Monitoramento em tempo real",
+      "operational": "Sistema operacional"
+    },
+    "stats": {
+      "totalClients": "Total de Clientes",
+      "totalSales": "Vendas Totais",
+      "totalRevenue": "Receita Total",
+      "pendingInvoices": "Faturas Pendentes",
+      "activeProjects": "Projetos Ativos",
+      "tasksCompleted": "Tarefas Concluídas"
+    },
+    "charts": {
+      "salesOverview": "Visão Geral de Vendas",
+      "revenueByMonth": "Receita por Mês",
+      "topProducts": "Produtos Mais Vendidos",
+      "clientsBySegment": "Clientes por Segmento"
+    }
+  },
+  "userProfile": {
+    "fields": {
+      "role": "Função",
+      "language": "Idioma",
+      "organization": "Organização",
+      "objective": "Objetivo",
+      "createdAt": "Data de registro",
+      "lastLogin": "Último acesso"
+    },
+    "errors": {
+      "loadFailed": "Falha ao carregar o perfil"
+    }
+  },
+  "clients": {
+    "title": "Clientes",
+    "subtitle": "Gerencie seus clientes e contatos",
+    "addClient": "Adicionar Cliente",
+    "editClient": "Editar Cliente",
+    "deleteClient": "Excluir Cliente",
+    "clientDetails": "Detalhes do Cliente",
+    "fields": {
+      "name": "Nome",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "company": "Empresa",
+      "address": "Endereço",
+      "city": "Cidade",
+      "state": "Estado",
+      "country": "País",
+      "postalCode": "CEP",
+      "notes": "Notas",
+      "status": "Status",
+      "segment": "Segmento",
+      "source": "Origem",
+      "createdAt": "Criado em"
+    },
+    "status": {
+      "active": "Ativo",
+      "inactive": "Inativo",
+      "prospect": "Prospect",
+      "lead": "Lead"
+    },
+    "messages": {
+      "created": "Cliente criado com sucesso",
+      "updated": "Cliente atualizado com sucesso",
+      "deleted": "Cliente excluído com sucesso",
+      "deleteConfirm": "Tem certeza que deseja excluir este cliente?"
+    }
+  },
+  "inventory": {
+    "title": "Inventário",
+    "subtitle": "Gerencie seus produtos e estoque",
+    "addProduct": "Adicionar Produto",
+    "editProduct": "Editar Produto",
+    "deleteProduct": "Excluir Produto",
+    "productDetails": "Detalhes do Produto",
+    "fields": {
+      "name": "Nome",
+      "sku": "SKU",
+      "category": "Categoria",
+      "price": "Preço",
+      "cost": "Custo",
+      "quantity": "Quantidade",
+      "minStock": "Estoque Mínimo",
+      "description": "Descrição",
+      "status": "Status"
+    },
+    "status": {
+      "inStock": "Em Estoque",
+      "lowStock": "Estoque Baixo",
+      "outOfStock": "Sem Estoque"
+    },
+    "messages": {
+      "created": "Produto criado com sucesso",
+      "updated": "Produto atualizado com sucesso",
+      "deleted": "Produto excluído com sucesso",
+      "lowStockAlert": "Alerta de estoque baixo para {{product}}"
+    }
+  },
+  "sales": {
+    "title": "Vendas",
+    "subtitle": "Gerencie suas vendas e pedidos",
+    "newSale": "Nova Venda",
+    "editSale": "Editar Venda",
+    "saleDetails": "Detalhes da Venda",
+    "fields": {
+      "client": "Cliente",
+      "products": "Produtos",
+      "subtotal": "Subtotal",
+      "tax": "Imposto",
+      "discount": "Desconto",
+      "total": "Total",
+      "status": "Status",
+      "paymentMethod": "Método de Pagamento",
+      "notes": "Notas"
+    },
+    "status": {
+      "pending": "Pendente",
+      "paid": "Pago",
+      "cancelled": "Cancelado",
+      "refunded": "Reembolsado"
+    },
+    "paymentMethods": {
+      "cash": "Dinheiro",
+      "card": "Cartão",
+      "transfer": "Transferência",
+      "pix": "PIX"
+    }
+  },
+  "invoices": {
+    "title": "Faturas",
+    "subtitle": "Gerencie suas faturas",
+    "createInvoice": "Criar Fatura",
+    "viewInvoice": "Ver Fatura",
+    "sendInvoice": "Enviar Fatura",
+    "downloadPdf": "Baixar PDF",
+    "fields": {
+      "invoiceNumber": "Número da Fatura",
+      "client": "Cliente",
+      "issueDate": "Data de Emissão",
+      "dueDate": "Data de Vencimento",
+      "items": "Itens",
+      "subtotal": "Subtotal",
+      "tax": "Imposto",
+      "total": "Total",
+      "status": "Status",
+      "notes": "Notas"
+    },
+    "status": {
+      "draft": "Rascunho",
+      "sent": "Enviada",
+      "paid": "Paga",
+      "overdue": "Vencida",
+      "cancelled": "Cancelada"
+    }
+  },
+  "projects": {
+    "title": "Projetos",
+    "subtitle": "Gerencie seus projetos",
+    "createProject": "Criar Projeto",
+    "editProject": "Editar Projeto",
+    "projectDetails": "Detalhes do Projeto",
+    "fields": {
+      "name": "Nome",
+      "client": "Cliente",
+      "startDate": "Data de Início",
+      "endDate": "Data de Término",
+      "status": "Status",
+      "budget": "Orçamento",
+      "progress": "Progresso",
+      "team": "Equipe",
+      "description": "Descrição"
+    },
+    "status": {
+      "planning": "Planejamento",
+      "inProgress": "Em Andamento",
+      "onHold": "Pausado",
+      "completed": "Concluído",
+      "cancelled": "Cancelado"
+    }
+  },
+  "workflows": {
+    "title": "Fluxos de Trabalho",
+    "subtitle": "Automatize seus processos de negócios",
+    "createWorkflow": "Criar Fluxo",
+    "editWorkflow": "Editar Fluxo",
+    "runWorkflow": "Executar Fluxo",
+    "fields": {
+      "name": "Nome",
+      "description": "Descrição",
+      "trigger": "Gatilho",
+      "steps": "Passos",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Ativo",
+      "paused": "Pausado",
+      "completed": "Concluído",
+      "archived": "Arquivado"
+    },
+    "triggers": {
+      "manual": "Manual",
+      "scheduled": "Agendado",
+      "event": "Evento",
+      "condition": "Condição"
+    },
+    "builder": {
+      "title": "Construtor Visual",
+      "addStep": "Adicionar Passo",
+      "deleteStep": "Excluir Passo",
+      "connectSteps": "Conectar Passos",
+      "stepTypes": {
+        "action": "Ação",
+        "condition": "Condição",
+        "delay": "Atraso",
+        "notification": "Notificação",
+        "dataFetch": "Buscar Dados",
+        "aiDecision": "Decisão IA"
+      }
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "subtitle": "Configure sua conta e preferências",
+    "sections": {
+      "general": "Geral",
+      "account": "Conta",
+      "notifications": "Notificações",
+      "security": "Segurança",
+      "billing": "Faturamento",
+      "integrations": "Integrações",
+      "team": "Equipe",
+      "api": "API"
+    },
+    "general": {
+      "language": "Idioma",
+      "timezone": "Fuso Horário",
+      "dateFormat": "Formato de Data",
+      "currency": "Moeda"
+    },
+    "notifications": {
+      "email": "Notificações por E-mail",
+      "push": "Notificações Push",
+      "sms": "Notificações SMS"
+    },
+    "security": {
+      "changePassword": "Alterar Senha",
+      "twoFactor": "Autenticação em Dois Fatores",
+      "sessions": "Sessões Ativas",
+      "auditLog": "Registro de Auditoria"
+    }
+  },
+  "notifications": {
+    "title": "Notificações",
+    "markAllRead": "Marcar todas como lidas",
+    "noNotifications": "Nenhuma notificação",
+    "types": {
+      "info": "Informação",
+      "success": "Sucesso",
+      "warning": "Aviso",
+      "error": "Erro"
+    }
+  },
+  "errors": {
+    "pageNotFound": "Página não encontrada",
+    "serverError": "Erro do servidor",
+    "unauthorized": "Não autorizado",
+    "forbidden": "Acesso negado",
+    "networkError": "Erro de rede",
+    "unknownError": "Erro desconhecido",
+    "tryAgain": "Tentar novamente",
+    "goBack": "Voltar",
+    "goHome": "Ir para o início"
+  }
+}
