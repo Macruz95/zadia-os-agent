@@ -4,13 +4,18 @@ import { OpportunitiesService } from '@/modules/sales/services/opportunities.ser
 import { ProjectsService } from '@/modules/projects/services/projects.service';
 import { logger } from '@/lib/logger';
 
-export async function getPriorityActions(): Promise<PriorityAction[]> {
+export async function getPriorityActions(tenantId: string): Promise<PriorityAction[]> {
     try {
+        if (!tenantId) {
+            return [];
+        }
+
         const actions: PriorityAction[] = [];
         const now = new Date();
 
         // 1. Overdue Invoices
         const overdueInvoices = await InvoicesService.searchInvoices({
+            tenantId,
             overdue: true
         });
 
@@ -29,7 +34,7 @@ export async function getPriorityActions(): Promise<PriorityAction[]> {
 
         // 2. Stalled Opportunities (No update in 7 days)
         const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        const allOpportunities = await OpportunitiesService.getOpportunities();
+        const allOpportunities = await OpportunitiesService.getOpportunities(tenantId);
         const stalledOpportunities = allOpportunities.filter(opp =>
             opp.status === 'open' && opp.updatedAt.toDate() < sevenDaysAgo
         );
@@ -47,7 +52,7 @@ export async function getPriorityActions(): Promise<PriorityAction[]> {
         });
 
         // 3. At Risk Projects
-        const allProjectsResult = await ProjectsService.searchProjects({}, 100);
+        const allProjectsResult = await ProjectsService.searchProjects({ tenantId }, 100);
         const atRiskProjects = allProjectsResult.projects.filter(p => {
             const isOverBudget = p.actualCost > p.estimatedCost;
             const isOverdue = p.estimatedEndDate && p.estimatedEndDate.toDate() < now && p.status !== 'completed' && p.status !== 'cancelled';

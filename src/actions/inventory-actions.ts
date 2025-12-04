@@ -3,7 +3,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, Transaction } from 'firebase-admin/firestore';
 import { logger } from '@/lib/logger';
 
 // Schema for validation
@@ -62,7 +62,7 @@ export async function createInventoryReservationAction(
         let finalAvailableStock = 0;
 
         // Execute Transaction
-        await adminDb.runTransaction(async (transaction) => {
+        await adminDb.runTransaction(async (transaction: Transaction) => {
             // 1. Get Item Reference (either raw material or finished product)
             const collectionName = itemType === 'raw-material' ? 'rawMaterials' : 'finishedProducts';
             const itemRef = adminDb.collection(collectionName).doc(itemId);
@@ -199,7 +199,7 @@ export async function cancelInventoryReservationAction(
     reservationId: string
 ): Promise<CreateInventoryReservationState> {
     try {
-        await adminDb.runTransaction(async (transaction) => {
+        await adminDb.runTransaction(async (transaction: Transaction) => {
             // 1. Get Reservation
             const reservationRef = adminDb.collection('inventoryReservations').doc(reservationId);
             const reservationDoc = await transaction.get(reservationRef);

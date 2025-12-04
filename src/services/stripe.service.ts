@@ -8,9 +8,7 @@
 
 import { 
   collection, 
-  addDoc, 
   doc, 
-  updateDoc, 
   getDoc,
   query,
   where,
@@ -316,7 +314,8 @@ export async function createPaymentCheckout(params: {
  */
 export async function getPayments(
   tenantId: string,
-  pageSize: number = 50
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _pageSize: number = 50
 ): Promise<Payment[]> {
   try {
     const paymentsRef = collection(db, 'payments');

@@ -21,6 +21,7 @@ import { formatUSD } from '@/lib/currency.utils';
 import { OpportunityInteractionsService } from '@/modules/sales/services/opportunity-interactions.service';
 import { QuotesService } from '@/modules/sales/services/quotes.service';
 import type { OpportunityInteraction, Quote } from '@/modules/sales/types/sales.types';
+import { useTenantId } from '@/contexts/TenantContext';
 
 interface OpportunityTimelineProps {
   opportunityId: string;
@@ -39,21 +40,26 @@ type TimelineEvent = {
 };
 
 export function OpportunityTimeline({ opportunityId }: OpportunityTimelineProps) {
+  const tenantId = useTenantId();
   const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadTimelineData();
-  }, [opportunityId]);
+    if (tenantId) {
+      loadTimelineData();
+    }
+  }, [opportunityId, tenantId]);
 
   const loadTimelineData = async () => {
+    if (!tenantId) return;
+    
     try {
       setLoading(true);
 
-      // Load interactions
-      const interactions = await OpportunityInteractionsService.getInteractionsByOpportunity(opportunityId);
+      // Load interactions with tenantId
+      const interactions = await OpportunityInteractionsService.getInteractionsByOpportunity(opportunityId, tenantId);
 
-      // Load quotes
+      // Load quotes (already has tenant isolation in its hook)
       const quotes = await QuotesService.getQuotesByOpportunity(opportunityId);
 
       // Convert to timeline events

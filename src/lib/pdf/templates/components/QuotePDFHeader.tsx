@@ -55,7 +55,6 @@ export const QuotePDFHeader: React.FC<QuotePDFHeaderProps> = ({
       <View style={styles.header}>
         <View>
           {companyInfo.logo && (
-            // eslint-disable-next-line jsx-a11y/alt-text
             <Image style={styles.logo} src={companyInfo.logo} />
           )}
         </View>

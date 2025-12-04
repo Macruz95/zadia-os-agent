@@ -11,7 +11,7 @@ export { AIModelSelector } from './components/AIModelSelector';
 
 // Hooks
 export { useAdvancedAIChat } from './hooks/use-advanced-ai-chat';
-export type { AIModelMode } from './hooks/use-advanced-ai-chat';
+export type { AIModelMode, StoredConversation } from './hooks/use-advanced-ai-chat';
 
 // Services
 export { AdvancedAIService, AI_MODELS } from './services/advanced-ai.service';

@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ClientSearchParams, ClientDirectoryState } from '../types/clients.types';
 import { ClientsService } from '../services/clients.service';
+import { useTenantId } from '@/contexts/TenantContext';
 
 export const useClients = (initialParams: ClientSearchParams = {}) => {
+  const tenantId = useTenantId();
   const [state, setState] = useState<ClientDirectoryState>({
     clients: [],
     loading: false,
@@ -17,7 +19,13 @@ export const useClients = (initialParams: ClientSearchParams = {}) => {
   const initialLoadDone = useRef(false);
 
   const fetchClients = useCallback(async (params?: ClientSearchParams) => {
-    const searchParams = params || currentParamsRef.current;
+    // Don't fetch if no tenant selected
+    if (!tenantId) {
+      setState(prev => ({ ...prev, clients: [], loading: false, totalCount: 0 }));
+      return;
+    }
+    
+    const searchParams = { ...params || currentParamsRef.current, tenantId };
     setState(prev => ({ ...prev, loading: true, error: undefined }));
 
     try {
@@ -36,7 +44,7 @@ export const useClients = (initialParams: ClientSearchParams = {}) => {
         error: error instanceof Error ? error.message : 'Error al cargar clientes',
       }));
     }
-  }, []);
+  }, [tenantId]);
 
   const updateSearchParams = useCallback((newParams: Partial<ClientSearchParams>) => {
     setState(prev => {
@@ -50,16 +58,16 @@ export const useClients = (initialParams: ClientSearchParams = {}) => {
     fetchClients();
   }, [fetchClients]);
 
-  // Effect para cargar datos iniciales solo una vez
+  // Effect para cargar datos cuando cambie el tenant
   useEffect(() => {
-    if (!initialLoadDone.current) {
+    if (tenantId) {
       fetchClients(initialParams);
-      initialLoadDone.current = true;
     }
-  }, [fetchClients, initialParams]);
+  }, [tenantId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     ...state,
+    tenantId,
     fetchClients,
     updateSearchParams,
     refresh,

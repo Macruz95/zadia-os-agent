@@ -36,7 +36,12 @@ export class DashboardRevenueService {
   /**
    * Obtiene datos de ingresos mensuales desde facturas pagadas
    */
-  static async getMonthlyRevenueData(monthsBack = 6): Promise<DashboardRevenueData> {
+  static async getMonthlyRevenueData(monthsBack = 6, tenantId?: string | null): Promise<DashboardRevenueData> {
+    // If no tenantId, return empty data
+    if (!tenantId) {
+      return this.getFallbackDataResponse(monthsBack);
+    }
+
     try {
       const endDate = new Date();
       const startDate = new Date();
@@ -49,7 +54,11 @@ export class DashboardRevenueService {
       
       try {
         // Intentar una consulta simple para verificar permisos
-        const testQuery = query(collection(db, 'invoices'), limit(1));
+        const testQuery = query(
+          collection(db, 'invoices'), 
+          where('tenantId', '==', tenantId),
+          limit(1)
+        );
         const testSnapshot = await getDocs(testQuery);
         hasData = !testSnapshot.empty;
       } catch {
@@ -62,9 +71,10 @@ export class DashboardRevenueService {
         return this.getFallbackDataResponse(monthsBack);
       }
 
-      // Consultar facturas pagadas en el rango de fechas
+      // Consultar facturas pagadas en el rango de fechas con tenant filter
       const invoicesQuery = query(
         collection(db, 'invoices'),
+        where('tenantId', '==', tenantId),
         where('status', 'in', ['paid', 'partially-paid']),
         where('issueDate', '>=', Timestamp.fromDate(startDate)),
         where('issueDate', '<=', Timestamp.fromDate(endDate))
@@ -89,6 +99,7 @@ export class DashboardRevenueService {
       try {
         const opportunitiesQuery = query(
           collection(db, 'opportunities'),
+          where('tenantId', '==', tenantId),
           where('status', '==', 'won'),
           where('closedAt', '>=', Timestamp.fromDate(startDate)),
           where('closedAt', '<=', Timestamp.fromDate(endDate))

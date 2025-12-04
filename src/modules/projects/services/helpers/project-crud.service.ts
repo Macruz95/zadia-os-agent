@@ -70,16 +70,23 @@ function toTimestampSafe(value: unknown): Timestamp | undefined {
 /**
  * Crear un nuevo proyecto
  * @param projectData - Datos del proyecto validados con Zod
+ * @param tenantId - Required tenant ID for data isolation
  * @returns ID del proyecto creado
  */
 export async function createProject(
-  projectData: CreateProjectInput
+  projectData: CreateProjectInput,
+  tenantId?: string
 ): Promise<string> {
+  if (!tenantId) {
+    throw new Error('tenantId is required for data isolation');
+  }
+  
   try {
     const projectsRef = collection(db, PROJECTS_COLLECTION);
 
     const newProject = {
       ...projectData,
+      tenantId, // CRITICAL: Add tenant isolation
       // Valores iniciales calculados
       actualCost: 0,
       materialsCost: 0,

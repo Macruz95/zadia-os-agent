@@ -12,6 +12,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { collection, query, where, orderBy, limit, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'action';
 export type NotificationPriority = 'low' | 'medium' | 'high' | 'critical';
@@ -40,13 +41,14 @@ interface NotificationsResult {
 
 export function useNotifications(maxNotifications: number = 20): NotificationsResult {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Listen to notifications in real-time
   useEffect(() => {
-    if (!user?.uid) {
+    if (!user?.uid || !tenantId) {
       setNotifications([]);
       setLoading(false);
       return;
@@ -57,8 +59,10 @@ export function useNotifications(maxNotifications: number = 20): NotificationsRe
 
     try {
       const notificationsRef = collection(db, 'notifications');
+      // Filter by tenantId for data isolation and userId for user-specific notifications
       const notificationsQuery = query(
         notificationsRef,
+        where('tenantId', '==', tenantId),
         where('userId', '==', user.uid),
         orderBy('createdAt', 'desc'),
         limit(maxNotifications)
@@ -97,7 +101,7 @@ export function useNotifications(maxNotifications: number = 20): NotificationsRe
       setError('Error cargando notificaciones');
       setLoading(false);
     }
-  }, [user?.uid, maxNotifications]);
+  }, [user?.uid, tenantId, maxNotifications]);
 
   // Mark single notification as read
   const markAsRead = useCallback(async (id: string) => {
@@ -142,6 +146,7 @@ export function useNotifications(maxNotifications: number = 20): NotificationsRe
 
 // Helper to create notification (for use in services)
 export async function createNotification(
+  tenantId: string,
   userId: string,
   notification: Omit<Notification, 'id' | 'createdAt' | 'read'>
 ): Promise<void> {
@@ -149,6 +154,7 @@ export async function createNotification(
   const { db } = await import('@/lib/firebase');
 
   await addDoc(collection(db, 'notifications'), {
+    tenantId,
     userId,
     ...notification,
     read: false,

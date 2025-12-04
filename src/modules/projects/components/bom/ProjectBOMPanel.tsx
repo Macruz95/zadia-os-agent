@@ -48,9 +48,9 @@ export function ProjectBOMPanel({ projectId, bomId }: ProjectBOMPanelProps) {
       try {
         const bomData = await BOMService.getBOMById(bomId);
         setBom(bomData);
-        logger.debug('BOM loaded for project', { projectId, bomId, bom: bomData });
+        logger.debug('BOM loaded for project', { projectId, bomId, metadata: { bom: bomData } });
       } catch (error) {
-        logger.error('Error loading BOM', { projectId, bomId, error });
+        logger.error('Error loading BOM', error instanceof Error ? error : undefined, { projectId, bomId });
         toast.error('Error al cargar el BOM');
       } finally {
         setLoading(false);
@@ -78,7 +78,7 @@ export function ProjectBOMPanel({ projectId, bomId }: ProjectBOMPanelProps) {
       const bomData = await BOMService.getBOMById(bomId);
       setBom(bomData);
       toast.success('BOM actualizado');
-    } catch (error) {
+    } catch {
       toast.error('Error al actualizar BOM');
     } finally {
       setLoading(false);

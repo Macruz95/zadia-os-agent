@@ -69,12 +69,18 @@ export class UsersTargetsService {
   }
 
   /**
-   * Get all active sales users
+   * Get all active sales users filtered by tenant
    */
-  static async getActiveSalesUsers(): Promise<SalesUser[]> {
+  static async getActiveSalesUsers(tenantId: string): Promise<SalesUser[]> {
     try {
+      if (!tenantId) {
+        logger.warn('getActiveSalesUsers called without tenantId');
+        return [];
+      }
+
       const q = query(
         collection(db, SALES_USERS_COLLECTION),
+        where('tenantId', '==', tenantId),
         where('isActive', '==', true)
       );
       
@@ -99,10 +105,14 @@ export class UsersTargetsService {
   }
 
   /**
-   * Create or update sales user
+   * Create or update sales user with tenant isolation
    */
-  static async upsertSalesUser(userId: string, userData: Partial<SalesUser>): Promise<void> {
+  static async upsertSalesUser(userId: string, userData: Partial<SalesUser>, tenantId: string): Promise<void> {
     try {
+      if (!tenantId) {
+        throw new Error('tenantId is required');
+      }
+
       const docRef = doc(db, SALES_USERS_COLLECTION, userId);
       const now = new Date();
       
@@ -110,6 +120,7 @@ export class UsersTargetsService {
       
       const data = {
         ...userData,
+        tenantId,
         updatedAt: now,
         ...(existingUser ? {} : { createdAt: now }),
       };
@@ -123,13 +134,19 @@ export class UsersTargetsService {
   }
 
   /**
-   * Get user's current monthly target
+   * Get user's current monthly target filtered by tenant
    */
-  static async getUserMonthlyTarget(userId: string, year: number, month: number): Promise<number> {
+  static async getUserMonthlyTarget(userId: string, year: number, month: number, tenantId: string): Promise<number> {
     try {
+      if (!tenantId) {
+        logger.warn('getUserMonthlyTarget called without tenantId');
+        return 50000; // Default fallback
+      }
+
       // Try to get specific monthly target first
       const q = query(
         collection(db, SALES_TARGETS_COLLECTION),
+        where('tenantId', '==', tenantId),
         where('userId', '==', userId),
         where('period', '==', 'monthly'),
         where('year', '==', year),
@@ -153,21 +170,27 @@ export class UsersTargetsService {
   }
 
   /**
-   * Set user's monthly target
+   * Set user's monthly target with tenant isolation
    */
   static async setUserMonthlyTarget(
     userId: string, 
     year: number, 
     month: number, 
-    targetValue: number
+    targetValue: number,
+    tenantId: string
   ): Promise<void> {
     try {
+      if (!tenantId) {
+        throw new Error('tenantId is required');
+      }
+
       const docId = `${userId}_${year}_${month}`;
       const docRef = doc(db, SALES_TARGETS_COLLECTION, docId);
       const now = new Date();
 
       await setDoc(docRef, {
         userId,
+        tenantId,
         period: 'monthly',
         targetValue,
         year,

@@ -67,11 +67,17 @@ function toTimestampSafe(value: unknown): Timestamp | undefined {
 
 /**
  * Crear nueva cotización
+ * @param tenantId - Required tenant ID for data isolation
  */
 export async function createQuote(
   data: QuoteFormData,
-  createdBy: string
+  createdBy: string,
+  tenantId?: string
 ): Promise<Quote> {
+  if (!tenantId) {
+    throw new Error('tenantId is required for data isolation');
+  }
+  
   try {
     const now = Timestamp.fromDate(new Date());
     const quoteNumber = generateQuoteNumber();
@@ -86,6 +92,7 @@ export async function createQuote(
     // Construir el objeto para Firestore sin campos undefined
     const quoteData: Partial<Quote> = {
       number: quoteNumber,
+      tenantId, // CRITICAL: Add tenant isolation
       items: itemsWithIds,
       ...totals,
       status: 'draft' as const,

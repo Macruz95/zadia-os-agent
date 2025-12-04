@@ -19,13 +19,21 @@ const COLLECTION_NAME = 'quote-templates';
 
 export const QuoteTemplatesService = {
   /**
-   * Get all quote templates
+   * Get all quote templates filtered by tenant
    */
-  async getTemplates(): Promise<QuoteTemplate[]> {
+  async getTemplates(tenantId: string): Promise<QuoteTemplate[]> {
     try {
+      if (!tenantId) {
+        logger.warn('getTemplates called without tenantId', {
+          component: 'QuoteTemplatesService'
+        });
+        return [];
+      }
+
       const templatesRef = collection(db, COLLECTION_NAME);
       const q = query(
         templatesRef,
+        where('tenantId', '==', tenantId),
         where('isActive', '==', true),
         orderBy('usageCount', 'desc')
       );
@@ -68,17 +76,23 @@ export const QuoteTemplatesService = {
   },
 
   /**
-   * Create new template
+   * Create new template with tenant isolation
    */
   async createTemplate(
     data: QuoteTemplateFormData,
-    userId: string
+    userId: string,
+    tenantId: string
   ): Promise<string> {
     try {
+      if (!tenantId) {
+        throw new Error('tenantId is required');
+      }
+
       const templatesRef = collection(db, COLLECTION_NAME);
       
       const templateData = {
         ...data,
+        tenantId,
         createdBy: userId,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),

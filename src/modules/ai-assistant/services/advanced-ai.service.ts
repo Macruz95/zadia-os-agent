@@ -2,11 +2,13 @@
  * ZADIA OS - Advanced AI Chat Service
  * 
  * Multi-model AI chat with:
- * - Best-in-class models (Grok 4.1, DeepSeek R1, Qwen3, Gemini 2.5)
+ * - Best-in-class FREE models (Qwen3, Gemini, Llama, DeepSeek)
  * - Function calling / Tool use
  * - Web search integration
  * - Multimodal support
  * - Full system context
+ * 
+ * Updated: December 2025 - Verified free models on OpenRouter
  */
 
 import {
@@ -18,120 +20,120 @@ import { logger } from '@/lib/logger';
 import { TOOL_DEFINITIONS, AgentToolsExecutor } from './agent-tools.service';
 import type { Conversation, AIModel } from '../types';
 
-// Available AI Models (sorted by priority - Grok 4.1 Fast first)
+// Available AI Models (sorted by priority - VERIFIED FREE Dec 2025)
 export const AI_MODELS: AIModel[] = [
   {
-    id: 'grok-4.1-fast',
-    name: 'Grok 4.1 Fast',
+    id: 'kat-coder-pro',
+    name: 'KAT Coder Pro',
     provider: 'openrouter',
-    description: '#1 OpenRouter. Ultra-rápido. Mejor balance velocidad/calidad.',
-    capabilities: ['general', 'reasoning', 'coding', 'tool-use', 'fast'],
-    contextWindow: 131072,
-    isFree: true,
-    speed: 'fast',
-    quality: 'excellent',
-  },
-  {
-    id: 'deepseek-r1',
-    name: 'DeepSeek R1',
-    provider: 'openrouter',
-    description: 'Mejor razonamiento. Equivalente a OpenAI o1. 671B params.',
-    capabilities: ['reasoning', 'analysis', 'chain-of-thought', 'problem-solving'],
-    contextWindow: 163840,
-    isFree: true,
-    speed: 'medium',
-    quality: 'excellent',
-  },
-  {
-    id: 'qwen3-coder',
-    name: 'Qwen3-Coder 480B',
-    provider: 'openrouter',
-    description: 'Mejor para agentes y código. Supera Claude 4 en SWE-Bench.',
-    capabilities: ['coding', 'function-calling', 'tool-use', 'agents'],
-    contextWindow: 262000,
-    isFree: true,
-    speed: 'medium',
-    quality: 'excellent',
-  },
-  {
-    id: 'gemini-2.5-pro',
-    name: 'Gemini 2.5 Pro',
-    provider: 'openrouter',
-    description: 'Contexto de 1M tokens. #1 en benchmarks. Multimodal.',
-    capabilities: ['long-context', 'multimodal', 'reasoning', 'vision'],
-    contextWindow: 1000000,
-    isFree: true,
-    speed: 'medium',
-    quality: 'excellent',
-  },
-  {
-    id: 'gemini-2.5-flash',
-    name: 'Gemini 2.5 Flash',
-    provider: 'openrouter',
-    description: 'Ultra rápido. 1M tokens contexto. Multimodal.',
-    capabilities: ['fast', 'multimodal', 'general', 'vision'],
-    contextWindow: 1000000,
-    isFree: true,
-    speed: 'fast',
-    quality: 'excellent',
-  },
-  {
-    id: 'glm-4.5-thinking',
-    name: 'GLM-4.5 Thinking',
-    provider: 'openrouter',
-    description: 'Mejor function calling nativo. 355B params.',
-    capabilities: ['function-calling', 'tool-use', 'workflows'],
-    contextWindow: 128000,
-    isFree: true,
-    speed: 'fast',
-    quality: 'excellent',
-  },
-  {
-    id: 'llama-4-maverick',
-    name: 'Llama 4 Maverick',
-    provider: 'openrouter',
-    description: 'Multimodal avanzado. 400B params. Visual reasoning.',
-    capabilities: ['multimodal', 'vision', 'visual-reasoning'],
+    description: '🥇 Mejor para código/agentes. 73.4% SWE-Bench. 256K contexto.',
+    capabilities: ['coding', 'function-calling', 'tool-use', 'agents', 'reasoning'],
     contextWindow: 256000,
     isFree: true,
     speed: 'medium',
     quality: 'excellent',
   },
   {
-    id: 'llama-4-scout',
-    name: 'Llama 4 Scout',
+    id: 'amazon-nova-2-lite',
+    name: 'Amazon Nova 2 Lite',
     provider: 'openrouter',
-    description: '512K tokens contexto. Ultra eficiente.',
-    capabilities: ['long-context', 'general', 'summarization'],
-    contextWindow: 512000,
+    description: '🚀 Ultra rápido. 1M tokens contexto. Multimodal.',
+    capabilities: ['fast', 'multimodal', 'general', 'vision', 'document'],
+    contextWindow: 1000000,
     isFree: true,
     speed: 'fast',
     quality: 'excellent',
   },
   {
-    id: 'grok-4.1-mini',
-    name: 'Grok 4.1 Mini',
+    id: 'gemini-2.0-flash',
+    name: 'Gemini 2.0 Flash',
     provider: 'openrouter',
-    description: 'Con búsqueda web integrada.',
-    capabilities: ['web-search', 'general', 'fast'],
+    description: 'Google. 1M tokens. Multimodal avanzado.',
+    capabilities: ['fast', 'multimodal', 'general', 'vision', 'document'],
+    contextWindow: 1050000,
+    isFree: true,
+    speed: 'fast',
+    quality: 'excellent',
+  },
+  {
+    id: 'tongyi-deepresearch',
+    name: 'Tongyi DeepResearch',
+    provider: 'openrouter',
+    description: 'Investigación profunda. Agente de búsqueda.',
+    capabilities: ['research', 'reasoning', 'agents', 'tool-use'],
     contextWindow: 131072,
+    isFree: true,
+    speed: 'medium',
+    quality: 'excellent',
+  },
+  {
+    id: 'tng-r1t-chimera',
+    name: 'TNG R1T Chimera',
+    provider: 'openrouter',
+    description: 'Razonamiento creativo. Chain-of-thought.',
+    capabilities: ['reasoning', 'creative', 'tool-use'],
+    contextWindow: 164000,
+    isFree: true,
+    speed: 'medium',
+    quality: 'excellent',
+  },
+  {
+    id: 'longcat-flash',
+    name: 'LongCat Flash Chat',
+    provider: 'openrouter',
+    description: 'MoE ultra-rápido. 560B total params.',
+    capabilities: ['fast', 'general', 'agents', 'tool-use'],
+    contextWindow: 131072,
+    isFree: true,
+    speed: 'fast',
+    quality: 'excellent',
+  },
+  {
+    id: 'olmo-3-32b',
+    name: 'AllenAI Olmo 3 32B',
+    provider: 'openrouter',
+    description: 'Open-source. Razonamiento profundo.',
+    capabilities: ['reasoning', 'general', 'coding'],
+    contextWindow: 66000,
+    isFree: true,
+    speed: 'medium',
+    quality: 'excellent',
+  },
+  {
+    id: 'nemotron-nano-12b',
+    name: 'NVIDIA Nemotron Nano 12B',
+    provider: 'openrouter',
+    description: 'Multimodal. OCR avanzado. Documentos.',
+    capabilities: ['multimodal', 'vision', 'ocr', 'documents'],
+    contextWindow: 128000,
+    isFree: true,
+    speed: 'fast',
+    quality: 'excellent',
+  },
+  {
+    id: 'groq-llama-3.3-70b',
+    name: 'Groq Llama 3.3 70B',
+    provider: 'groq',
+    description: '⚡ ULTRA-RÁPIDO. Ideal para respuestas instantáneas.',
+    capabilities: ['fast', 'general', 'coding'],
+    contextWindow: 32768,
     isFree: true,
     speed: 'fast',
     quality: 'excellent',
   },
 ];
 
-// Model ID to OpenRouter model string mapping
+// Model ID to OpenRouter/Groq model string mapping (VERIFIED Dec 2025)
 const MODEL_MAPPING: Record<string, string> = {
-  'grok-4.1-fast': 'x-ai/grok-4.1-fast:free',
-  'grok-4.1-mini': 'x-ai/grok-4.1-mini:free',
-  'deepseek-r1': 'deepseek/deepseek-r1:free',
-  'qwen3-coder': 'qwen/qwen3-coder:free',
-  'gemini-2.5-pro': 'google/gemini-2.5-pro-exp-03-25:free',
-  'gemini-2.5-flash': 'google/gemini-2.5-flash-preview-05-20:free',
-  'glm-4.5-thinking': 'z-ai/glm-4.5-thinking:free',
-  'llama-4-maverick': 'meta-llama/llama-4-maverick:free',
-  'llama-4-scout': 'meta-llama/llama-4-scout:free',
+  'kat-coder-pro': 'kwaipilot/kat-coder-pro:free',
+  'amazon-nova-2-lite': 'amazon/nova-2-lite-v1:free',
+  'gemini-2.0-flash': 'google/gemini-2.0-flash-exp:free',
+  'tongyi-deepresearch': 'alibaba/tongyi-deepresearch-30b-a3b:free',
+  'tng-r1t-chimera': 'tngtech/tng-r1t-chimera:free',
+  'longcat-flash': 'meituan/longcat-flash-chat:free',
+  'olmo-3-32b': 'allenai/olmo-3-32b-think:free',
+  'nemotron-nano-12b': 'nvidia/nemotron-nano-12b-v2-vl:free',
+  'groq-llama-3.3-70b': 'llama-3.3-70b-versatile', // Groq uses different format
 };
 
 interface ChatRequest {
@@ -157,20 +159,21 @@ interface ChatResponse {
 
 /**
  * Build comprehensive system context from all ZADIA modules
+ * Uses tenantId for data isolation between accounts
  */
-async function buildSystemContext(userId: string): Promise<string> {
+async function buildSystemContext(tenantId: string): Promise<string> {
   const context: Record<string, unknown> = {};
 
   try {
     // Get client stats
-    const clientsQ = query(collection(db, 'clients'), where('userId', '==', userId), limit(100));
+    const clientsQ = query(collection(db, 'clients'), where('tenantId', '==', tenantId), limit(100));
     const clientsSnap = await getDocs(clientsQ);
     context.totalClients = clientsSnap.size;
 
     // Get recent clients
     const recentClientsQ = query(
       collection(db, 'clients'), 
-      where('userId', '==', userId), 
+      where('tenantId', '==', tenantId), 
       orderBy('createdAt', 'desc'), 
       limit(5)
     );
@@ -181,7 +184,7 @@ async function buildSystemContext(userId: string): Promise<string> {
     }));
 
     // Get project stats
-    const projectsQ = query(collection(db, 'projects'), where('userId', '==', userId), limit(100));
+    const projectsQ = query(collection(db, 'projects'), where('tenantId', '==', tenantId), limit(100));
     const projectsSnap = await getDocs(projectsQ);
     interface ProjectData { id: string; name?: string; status?: string; }
     const projects: ProjectData[] = projectsSnap.docs.map(d => ({ id: d.id, ...d.data() as Omit<ProjectData, 'id'> }));
@@ -194,7 +197,7 @@ async function buildSystemContext(userId: string): Promise<string> {
     }));
 
     // Get task stats
-    const tasksQ = query(collection(db, 'tasks'), where('userId', '==', userId), limit(100));
+    const tasksQ = query(collection(db, 'tasks'), where('tenantId', '==', tenantId), limit(100));
     const tasksSnap = await getDocs(tasksQ);
     const tasks = tasksSnap.docs.map(d => d.data());
     context.totalTasks = tasks.length;
@@ -207,7 +210,7 @@ async function buildSystemContext(userId: string): Promise<string> {
     // Get invoice stats
     const invoicesQ = query(
       collection(db, 'invoices'), 
-      where('userId', '==', userId),
+      where('tenantId', '==', tenantId),
       orderBy('createdAt', 'desc'),
       limit(50)
     );
@@ -218,13 +221,13 @@ async function buildSystemContext(userId: string): Promise<string> {
     context.pendingInvoices = invoices.filter(i => i.status === 'pending' || i.status === 'sent').length;
 
     // Get expense stats
-    const expensesQ = query(collection(db, 'expenses'), where('userId', '==', userId), limit(100));
+    const expensesQ = query(collection(db, 'expenses'), where('tenantId', '==', tenantId), limit(100));
     const expensesSnap = await getDocs(expensesQ);
     const expenses = expensesSnap.docs.map(d => d.data());
     context.totalExpenses = expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
 
     // Get inventory stats
-    const productsQ = query(collection(db, 'products'), where('userId', '==', userId), limit(100));
+    const productsQ = query(collection(db, 'products'), where('tenantId', '==', tenantId), limit(100));
     const productsSnap = await getDocs(productsQ);
     const products = productsSnap.docs.map(d => d.data());
     context.totalProducts = products.length;
@@ -346,8 +349,9 @@ export const AdvancedAIService = {
   /**
    * Send message to AI with full capabilities
    * Supports auto (intelligent) and manual model selection
+   * @param tenantId - Tenant ID for data isolation
    */
-  async chat(userId: string, request: ChatRequest): Promise<ChatResponse> {
+  async chat(tenantId: string, request: ChatRequest): Promise<ChatResponse> {
     const { 
       messages, 
       modelId = 'deepseek-r1', 
@@ -356,8 +360,8 @@ export const AdvancedAIService = {
       mode = 'auto',
     } = request;
 
-    // Build system context
-    const contextData = await buildSystemContext(userId);
+    // Build system context with tenant isolation
+    const contextData = await buildSystemContext(tenantId);
     const systemPrompt = generateSystemPrompt(contextData);
 
     // Prepare messages array
@@ -403,8 +407,9 @@ export const AdvancedAIService = {
 
   /**
    * Process AI response and execute any tools
+   * @param tenantId - Tenant ID for data isolation
    */
-  async processResponse(userId: string, content: string): Promise<{
+  async processResponse(tenantId: string, content: string): Promise<{
     content: string;
     toolResults: Array<{ tool: string; result: unknown }>;
   }> {
@@ -420,7 +425,7 @@ export const AdvancedAIService = {
         const toolCall = JSON.parse(match[1].trim());
         
         if (toolCall.tool && typeof toolCall.tool === 'string') {
-          const executor = new AgentToolsExecutor(userId);
+          const executor = new AgentToolsExecutor(tenantId);
           const result = await executor.execute(toolCall.tool, toolCall.parameters || {});
           
           toolResults.push({
@@ -449,7 +454,7 @@ export const AdvancedAIService = {
           const toolCall = JSON.parse(trimmedContent);
           
           if (toolCall.tool && typeof toolCall.tool === 'string') {
-            const executor = new AgentToolsExecutor(userId);
+            const executor = new AgentToolsExecutor(tenantId);
             const result = await executor.execute(toolCall.tool, toolCall.parameters || {});
             
             toolResults.push({
@@ -480,7 +485,7 @@ export const AdvancedAIService = {
           const toolCall = JSON.parse(inlineMatch[0]);
           
           if (toolCall.tool && typeof toolCall.tool === 'string') {
-            const executor = new AgentToolsExecutor(userId);
+            const executor = new AgentToolsExecutor(tenantId);
             const result = await executor.execute(toolCall.tool, toolCall.parameters || {});
             
             toolResults.push({

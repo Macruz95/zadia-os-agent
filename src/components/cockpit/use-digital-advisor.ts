@@ -8,9 +8,10 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useTenantId } from '@/contexts/TenantContext';
 
 export type InsightType = 'risk' | 'opportunity' | 'info' | 'action';
 export type InsightPriority = 'critical' | 'high' | 'medium' | 'low';
@@ -45,8 +46,15 @@ export function useDigitalAdvisor(): DigitalAdvisorResult {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const tenantId = useTenantId();
 
-  const generateInsights = async () => {
+  const generateInsights = useCallback(async () => {
+    if (!tenantId) {
+      setInsights([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -57,6 +65,7 @@ export function useDigitalAdvisor(): DigitalAdvisorResult {
         const invoicesRef = collection(db, 'invoices');
         const pendingQuery = query(
           invoicesRef,
+          where('tenantId', '==', tenantId),
           where('status', 'in', ['pending', 'pendiente', 'overdue', 'vencida'])
         );
         const pendingSnap = await getDocs(pendingQuery);
@@ -98,6 +107,7 @@ export function useDigitalAdvisor(): DigitalAdvisorResult {
         const projectsRef = collection(db, 'projects');
         const activeQuery = query(
           projectsRef,
+          where('tenantId', '==', tenantId),
           where('status', 'in', ['in_progress', 'en_progreso', 'active', 'activo'])
         );
         const activeSnap = await getDocs(activeQuery);
@@ -140,6 +150,7 @@ export function useDigitalAdvisor(): DigitalAdvisorResult {
         const oppsRef = collection(db, 'opportunities');
         const openQuery = query(
           oppsRef,
+          where('tenantId', '==', tenantId),
           where('stage', 'in', ['negotiation', 'negociacion', 'proposal', 'propuesta', 'qualification'])
         );
         const openSnap = await getDocs(openQuery);
@@ -179,6 +190,7 @@ export function useDigitalAdvisor(): DigitalAdvisorResult {
         const leadsRef = collection(db, 'leads');
         const newLeadsQuery = query(
           leadsRef,
+          where('tenantId', '==', tenantId),
           where('status', 'in', ['new', 'nuevo', 'contacted', 'contactado']),
           limit(20)
         );
@@ -206,7 +218,11 @@ export function useDigitalAdvisor(): DigitalAdvisorResult {
       // 5. CHECK LOW INVENTORY (if applicable)
       try {
         const inventoryRef = collection(db, 'inventory');
-        const inventorySnap = await getDocs(inventoryRef);
+        const inventoryQuery = query(
+          inventoryRef,
+          where('tenantId', '==', tenantId)
+        );
+        const inventorySnap = await getDocs(inventoryQuery);
         
         let lowStockCount = 0;
         
@@ -254,11 +270,11 @@ export function useDigitalAdvisor(): DigitalAdvisorResult {
     } finally {
       setLoading(false);
     }
-  };
+  }, [tenantId]);
 
   useEffect(() => {
     generateInsights();
-  }, []);
+  }, [generateInsights, tenantId]);
 
   return {
     insights,

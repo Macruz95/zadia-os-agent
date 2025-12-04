@@ -60,7 +60,7 @@ interface EmployeeDetailPageProps {
 export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) {
   const resolvedParams = use(params);
   const router = useRouter();
-  const { user } = useAuth();
+  useAuth(); // Auth check
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);

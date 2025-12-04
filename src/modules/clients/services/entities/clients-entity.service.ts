@@ -10,23 +10,30 @@ import { ClientSearchService } from './client-search.service';
 export class ClientsService {
   /**
    * Create a new client with contacts
+   * @param formData - Client form data
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async createClientWithContacts(formData: ClientFormData): Promise<string> {
-    return ClientCreationService.createClientWithContacts(formData);
+  static async createClientWithContacts(formData: ClientFormData, tenantId?: string): Promise<string> {
+    return ClientCreationService.createClientWithContacts(formData, tenantId);
   }
 
   /**
    * Create a new client (legacy method - without contacts)
+   * @param clientData - Client data
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async createClient(clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
-    return ClientCreationService.createClient(clientData);
+  static async createClient(
+    clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>,
+    tenantId?: string
+  ): Promise<string> {
+    return ClientCreationService.createClient(clientData, tenantId);
   }
 
   /**
-   * Get all clients
+   * Get all clients for a tenant
    */
-  static async getClients(): Promise<Client[]> {
-    return ClientCrudService.getClients();
+  static async getClients(tenantId?: string): Promise<Client[]> {
+    return ClientCrudService.getClients(tenantId);
   }
 
   /**

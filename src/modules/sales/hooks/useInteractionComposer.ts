@@ -12,6 +12,7 @@ import { useForm, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 import { OpportunityInteractionsService } from '@/modules/sales/services/opportunity-interactions.service';
 import {
@@ -56,6 +57,7 @@ export function useInteractionComposer({
   onInteractionCreated,
 }: UseInteractionComposerProps): UseInteractionComposerReturn {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const [activeTab, setActiveTab] = useState<InteractionType>('note');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -85,6 +87,11 @@ export function useInteractionComposer({
       return;
     }
 
+    if (!tenantId) {
+      toast.error('Error: No se encontró el tenant');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
 
@@ -94,7 +101,7 @@ export function useInteractionComposer({
         summary: data.summary,
         details: data.details || '',
         performedBy: user.uid,
-      });
+      }, tenantId);
 
       toast.success(`${INTERACTION_LABELS[activeTab]} registrado correctamente`);
 

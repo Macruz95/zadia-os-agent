@@ -32,15 +32,22 @@ export class CalendarService {
 
   /**
    * Crear evento en el calendario
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async createEvent(
     event: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>,
-    userId: string
+    userId: string,
+    tenantId?: string
   ): Promise<string> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     try {
       const eventData = {
         ...event,
         userId,
+        tenantId, // CRITICAL: Add tenant isolation
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         createdBy: userId,
@@ -90,18 +97,25 @@ export class CalendarService {
 
   /**
    * Obtener eventos del usuario en un rango de fechas
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async getEventsByDateRange(
     userId: string,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
+    tenantId?: string
   ): Promise<CalendarEvent[]> {
+    if (!tenantId) {
+      return []; // Return empty if no tenant
+    }
+    
     try {
       const startTimestamp = Timestamp.fromDate(startDate);
       const endTimestamp = Timestamp.fromDate(endDate);
 
       const q = query(
         collection(db, this.COLLECTION),
+        where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant first
         where('userId', '==', userId),
         where('startDate', '>=', startTimestamp),
         where('startDate', '<=', endTimestamp),

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useTenant } from '@/contexts/TenantContext';
 import { getTenantMembers } from '@/modules/tenants/services/tenant-member.service';
+import { logger } from '@/lib/logger';
 import type { TenantMember } from '@/modules/tenants/types/tenant.types';
 import { InviteMemberDialog } from './InviteMemberDialog';
 
@@ -67,7 +68,7 @@ export function TeamMembersCard({ canManage = false }: TeamMembersCardProps) {
         const tenantMembers = await getTenantMembers(tenant.id);
         setMembers(tenantMembers);
       } catch (error) {
-        console.error('Failed to load members:', error);
+        logger.error('Failed to load members', error instanceof Error ? error : undefined);
       } finally {
         setLoading(false);
       }

@@ -63,13 +63,13 @@ function calculateTrend(data: number[]): {
  * 
  * @param collectionName - Firestore collection name
  * @param kpiField - Field name containing the KPI value
- * @param userId - Current user ID
+ * @param tenantId - Current tenant ID for data isolation
  * @param days - Number of days to fetch (default: 30)
  */
 export function useKPITrends(
   collectionName: string,
   kpiField: string,
-  userId: string | undefined,
+  tenantId: string | undefined,
   days: number = 30
 ): KPITrendResult {
   const [data, setData] = useState<number[]>([]);
@@ -80,7 +80,7 @@ export function useKPITrends(
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!userId) {
+    if (!tenantId) {
       setIsLoading(false);
       return;
     }
@@ -95,10 +95,10 @@ export function useKPITrends(
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - days);
 
-        // Query Firestore
+        // Query Firestore with tenant isolation
         const q = query(
           collection(db, collectionName),
-          where('userId', '==', userId),
+          where('tenantId', '==', tenantId),
           where('createdAt', '>=', startDate),
           where('createdAt', '<=', endDate),
           orderBy('createdAt', 'asc'),
@@ -140,7 +140,7 @@ export function useKPITrends(
     };
 
     fetchTrends();
-  }, [collectionName, kpiField, userId, days]);
+  }, [collectionName, kpiField, tenantId, days]);
 
   return {
     data,

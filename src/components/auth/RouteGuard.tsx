@@ -8,8 +8,6 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface RouteGuardProps {
@@ -19,31 +17,15 @@ interface RouteGuardProps {
 /**
  * Route Guard Component
  * 
- * Validates user permissions for current route
- * Redirects to /unauthorized if user doesn't have access
+ * Validates user is authenticated via Firebase Auth
+ * Middleware handles the actual redirect - this just shows loading state
  * 
  * Should be used in layout components to protect entire sections
  */
 export function RouteGuard({ children }: RouteGuardProps) {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const pathname = usePathname();
+  const { firebaseUser, loading } = useAuth();
   
-  useEffect(() => {
-    // Don't check while loading
-    if (loading) return;
-    
-    // Redirect to login if not authenticated
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    
-    // TEMPORARILY DISABLED: Role validation
-    // Allow all authenticated users to access all routes
-  }, [user, loading, pathname, router]);
-  
-  // Show loading skeleton while checking permissions
+  // Show loading skeleton while Firebase Auth initializes
   if (loading) {
     return (
       <div className="min-h-screen bg-background p-6">
@@ -60,14 +42,16 @@ export function RouteGuard({ children }: RouteGuardProps) {
     );
   }
   
-  // Don't render if not authenticated
-  if (!user) {
-    return null;
+  // If no firebaseUser after loading, show brief loading state
+  // Middleware ensures only authenticated users reach protected routes
+  if (!firebaseUser) {
+    return (
+      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
+        <Skeleton className="h-6 w-48" />
+      </div>
+    );
   }
   
-  // TEMPORARILY DISABLED: Role and route access validation
-  // Allow all authenticated users
-  
-  // Render children if all checks pass
+  // Render children - user is authenticated
   return <>{children}</>;
 }

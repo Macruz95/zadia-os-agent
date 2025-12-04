@@ -1,5 +1,8 @@
 import { toast } from 'sonner';
 
+// Re-export toast from sonner for direct usage
+export { toast };
+
 // Centralized toast notification system
 export const showToast = {
   success: (message: string) => {

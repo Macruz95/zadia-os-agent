@@ -13,13 +13,15 @@ import type { SearchResult } from '@/types/command-bar.types';
  */
 export async function searchClients(
   term: string,
-  userId: string,
+  tenantId: string,
   max: number
 ): Promise<SearchResult[]> {
   try {
+    if (!tenantId) return [];
+
     const q = query(
       collection(db, 'clients'),
-      where('userId', '==', userId),
+      where('tenantId', '==', tenantId),
       orderBy('name'),
       limit(max * 2) // Fetch extra for client-side filtering
     );
@@ -58,13 +60,15 @@ export async function searchClients(
  */
 export async function searchLeads(
   term: string,
-  userId: string,
+  tenantId: string,
   max: number
 ): Promise<SearchResult[]> {
   try {
+    if (!tenantId) return [];
+
     const q = query(
       collection(db, 'leads'),
-      where('userId', '==', userId),
+      where('tenantId', '==', tenantId),
       limit(max * 2)
     );
 

@@ -95,6 +95,7 @@ export type UpdateProjectData = Partial<
  * Parámetros de búsqueda de proyectos
  */
 export interface ProjectSearchParams {
+  tenantId?: string;
   query?: string;
   status?: ProjectStatus;
   priority?: ProjectPriority;

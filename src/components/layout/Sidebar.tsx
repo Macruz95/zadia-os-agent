@@ -76,7 +76,7 @@ const systemNav = [
 ];
 
 export function Sidebar() {
-  const { user, loading, logout } = useAuth();
+  const { user, firebaseUser, loading, logout } = useAuth();
   const pathname = usePathname();
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
@@ -122,11 +122,15 @@ export function Sidebar() {
     );
   }
 
-  if (!user) return null;
+  if (!firebaseUser) return null;
 
-  const userInitials = user.displayName 
-    ? user.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    : user.email?.[0]?.toUpperCase() || 'U';
+  // Use Firestore profile if available, otherwise fall back to Firebase Auth user
+  const displayName = user?.displayName || firebaseUser.displayName || '';
+  const email = user?.email || firebaseUser.email || '';
+  
+  const userInitials = displayName 
+    ? displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : email?.[0]?.toUpperCase() || 'U';
 
   return (
     <SidebarComponent 
@@ -228,10 +232,10 @@ export function Sidebar() {
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium text-white">
-                      {user.displayName || 'Usuario'}
+                      {displayName || 'Usuario'}
                     </span>
                     <span className="truncate text-xs text-gray-500">
-                      {user.email}
+                      {email}
                     </span>
                   </div>
                 </SidebarMenuButton>

@@ -13,7 +13,6 @@ import {
   Trash2, 
   Settings, 
   Save, 
-  ArrowRight,
   Zap,
   GitBranch,
   Clock,

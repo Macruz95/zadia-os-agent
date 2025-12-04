@@ -23,6 +23,11 @@ export class ClientSearchService {
   }> {
     let q: Query = collection(db, CLIENTS_COLLECTION);
 
+    // CRITICAL: Filter by tenantId for data isolation
+    if (params.tenantId) {
+      q = query(q, where('tenantId', '==', params.tenantId));
+    }
+
     // Apply filters first (before sorting to avoid composite indexes)
     if (params.filters) {
       q = this.applyFilters(q, params.filters);

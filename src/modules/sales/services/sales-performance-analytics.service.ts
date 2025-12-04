@@ -120,15 +120,21 @@ export class SalesPerformanceAnalytics {
   }
 
   /**
-   * Get revenue for date range
+   * Get revenue for date range filtered by tenant
    */
-  static async getRevenueForDateRange(startDate: Date, endDate: Date): Promise<number> {
+  static async getRevenueForDateRange(startDate: Date, endDate: Date, tenantId: string): Promise<number> {
     try {
+      if (!tenantId) {
+        logger.warn('getRevenueForDateRange called without tenantId');
+        return 0;
+      }
+
       const startTimestamp = Timestamp.fromDate(startDate);
       const endTimestamp = Timestamp.fromDate(endDate);
       
       const q = query(
         collection(db, 'opportunities'),
+        where('tenantId', '==', tenantId),
         where('status', '==', 'won'),
         where('closedAt', '>=', startTimestamp),
         where('closedAt', '<=', endTimestamp)
@@ -152,8 +158,13 @@ export class SalesPerformanceAnalytics {
   /**
    * Calculate quarter-over-quarter growth
    */
-  static async calculateQoQGrowth(): Promise<number> {
+  static async calculateQoQGrowth(tenantId: string): Promise<number> {
     try {
+      if (!tenantId) {
+        logger.warn('calculateQoQGrowth called without tenantId');
+        return 0;
+      }
+
       const now = new Date();
       const currentQuarter = Math.floor(now.getMonth() / 3);
       const currentYear = now.getFullYear();
@@ -166,8 +177,8 @@ export class SalesPerformanceAnalytics {
       const prevQuarterStart = new Date(currentYear, (currentQuarter - 1) * 3, 1);
       const prevQuarterEnd = new Date(currentYear, currentQuarter * 3, 0);
       
-      const currentRevenue = await this.getRevenueForDateRange(currentQuarterStart, currentQuarterEnd);
-      const prevRevenue = await this.getRevenueForDateRange(prevQuarterStart, prevQuarterEnd);
+      const currentRevenue = await this.getRevenueForDateRange(currentQuarterStart, currentQuarterEnd, tenantId);
+      const prevRevenue = await this.getRevenueForDateRange(prevQuarterStart, prevQuarterEnd, tenantId);
       
       if (prevRevenue === 0) return 0;
       

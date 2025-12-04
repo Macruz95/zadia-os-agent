@@ -2,668 +2,358 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // ===========================
     // HELPER FUNCTIONS
     // ===========================
-    
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function getUserId() {
       return request.auth.uid;
     }
-    
-    function getUserRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
-    }
-    
-    function isAdmin() {
-      return isAuthenticated() && getUserRole() in ['admin', 'super-admin', 'super_admin'];
-    }
-    
-    function isOwner(ownerId) {
-      return isAuthenticated() && getUserId() == ownerId;
-    }
-    
-    function isOwnerOrAdmin(ownerId) {
-      return isOwner(ownerId) || isAdmin();
-    }
-    
-    // ===========================
-    // MULTI-TENANT FUNCTIONS
-    // ===========================
-    
-    // Check if user is a member of a tenant
+
+    // Check if user is a member of the specified tenant
     function isTenantMember(tenantId) {
-      return isAuthenticated() && exists(/databases/$(database)/documents/tenantMembers/$(tenantId + '_' + request.auth.uid));
+      return isAuthenticated() &&
+        tenantId != null &&
+        exists(/databases/$(database)/documents/tenantMembers/$(tenantId + '_' + getUserId()));
     }
-    
-    // Check if user is tenant owner
-    function isTenantOwner(tenantId) {
-      return isAuthenticated() && get(/databases/$(database)/documents/tenants/$(tenantId)).data.ownerId == request.auth.uid;
+
+    // Check if the document's tenantId matches a tenant the user belongs to
+    function canAccessByTenantId() {
+      return isAuthenticated() && 
+        resource.data.tenantId != null &&
+        isTenantMember(resource.data.tenantId);
     }
-    
-    // Check if user is tenant admin
-    function isTenantAdmin(tenantId) {
-      let member = get(/databases/$(database)/documents/tenantMembers/$(tenantId + '_' + request.auth.uid));
-      return member.data.role in ['owner', 'admin'];
+
+    // Check if the incoming data's tenantId is valid for the user
+    function canWriteWithTenantId() {
+      return isAuthenticated() && 
+        request.resource.data.tenantId != null &&
+        isTenantMember(request.resource.data.tenantId);
     }
-    
-    // Check tenant access (owner, admin, or member)
-    function hasTenantAccess(tenantId) {
-      return isTenantMember(tenantId) || isTenantOwner(tenantId);
-    }
-    
-    // Validation helpers
-    function hasRequiredFields(data, fields) {
-      return data.keys().hasAll(fields);
-    }
-    
-    function isValidTimestamp(value) {
-      return value is timestamp;
-    }
-    
-    function isValidNumber(value) {
-      return value is number && value >= 0;
-    }
-    
-    function isValidString(value) {
-      return value is string && value.size() > 0;
-    }
-    
+
     // ===========================
     // TENANTS COLLECTION
     // ===========================
     match /tenants/{tenantId} {
-      // Anyone authenticated can read tenants they own or are members of
-      allow read: if isTenantOwner(tenantId) || isTenantMember(tenantId);
-      // Users can create tenants (they become owner)
+      // Read: any authenticated user can read (needed for queries and slug checks)
+      allow read: if isAuthenticated();
+      // Create: any authenticated user can create (they become owner)
       allow create: if isAuthenticated() && request.resource.data.ownerId == getUserId();
-      // Only tenant owner can update
-      allow update: if isTenantOwner(tenantId);
-      // Only tenant owner can delete
-      allow delete: if isTenantOwner(tenantId);
+      // Update/Delete: only the owner
+      allow update, delete: if isAuthenticated() && resource.data.ownerId == getUserId();
     }
-    
+
     // ===========================
     // TENANT MEMBERS COLLECTION
     // ===========================
     match /tenantMembers/{memberId} {
-      // Members can read their own membership, tenant admins can read all
+      // Read: user can read their own memberships or members of their tenant
       allow read: if isAuthenticated() && (
         resource.data.userId == getUserId() ||
-        isTenantAdmin(resource.data.tenantId)
+        isTenantMember(resource.data.tenantId)
       );
-      // Only tenant admins can add members
-      allow create: if isAuthenticated() && isTenantAdmin(request.resource.data.tenantId);
-      // Only tenant admins can update members (except owner role)
-      allow update: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
-      // Only tenant admins can remove members
-      allow delete: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
+      // Create: user can create their own membership (for new tenant) or tenant admin can add
+      allow create: if isAuthenticated() && (
+        request.resource.data.userId == getUserId() ||
+        isTenantMember(request.resource.data.tenantId)
+      );
+      // Update/Delete: only tenant members with access
+      allow update, delete: if isAuthenticated() && isTenantMember(resource.data.tenantId);
     }
-    
+
     // ===========================
-    // TENANT INVITATIONS COLLECTION
-    // ===========================
-    match /tenantInvitations/{invitationId} {
-      // Admins can read invitations for their tenant
-      allow read: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
-      // Admins can create invitations
-      allow create: if isAuthenticated() && isTenantAdmin(request.resource.data.tenantId);
-      // Users can accept invitations sent to their email
-      allow update: if isAuthenticated();
-      // Admins can delete invitations
-      allow delete: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
-    }
-    
-    // ===========================
-    // CUSTOM ROLES COLLECTION
-    // ===========================
-    match /customRoles/{roleId} {
-      // Tenant members can read roles
-      allow read: if isAuthenticated() && hasTenantAccess(resource.data.tenantId);
-      // Only tenant admins can manage roles
-      allow create: if isAuthenticated() && isTenantAdmin(request.resource.data.tenantId);
-      allow update: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
-      allow delete: if isAuthenticated() && isTenantAdmin(resource.data.tenantId);
-    }
-    
-    // ===========================
-    // USERS COLLECTION
+    // USERS COLLECTION (Personal profiles)
     // ===========================
     match /users/{userId} {
-      // Users can read their own profile, admins can read all
-      allow read: if isOwner(userId) || isAdmin();
-      // Users can update their own profile, admins can update all
-      allow update: if isOwner(userId) || isAdmin();
-      // Users can create their own profile
-      allow create: if isOwner(userId) || isAdmin();
-      // Only admins can delete users
-      allow delete: if isAdmin();
-    }
-    
-    // ===========================
-    // CLIENTS MODULE
-    // ===========================
-    match /clients/{clientId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-      
-      // Client contacts subcollection
-      match /contacts/{contactId} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
+      allow read, write: if isAuthenticated() && getUserId() == userId;
     }
 
-    // Root contacts collection (legacy compatibility)
-    match /contacts/{contactId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    // Client interactions collection
-    match /interactions/{interactionId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
     // ===========================
-    // SALES MODULE
+    // MASTER DATA COLLECTIONS (Read-only reference data)
+    // ===========================
+    match /countries/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    match /municipalities/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    match /districts/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    match /departments/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // ===========================
+    // TENANT-SCOPED BUSINESS COLLECTIONS
+    // All these collections require tenantId field for data isolation
     // ===========================
     
+    // Clients
+    match /clients/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
+    }
+
+    // Contacts (client contacts)
+    match /contacts/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
+    }
+
+    // Interactions
+    match /interactions/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
+    }
+
     // Leads
-    match /leads/{leadId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-      
-      // Lead interactions subcollection
-      match /interactions/{interactionId} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
+    match /leads/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
+
     // Opportunities
-    match /opportunities/{opportunityId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-      
-      // Opportunity interactions subcollection
-      match /interactions/{interactionId} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
+    match /opportunities/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // Quotes
-    match /quotes/{quoteId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() 
-        && hasRequiredFields(request.resource.data, ['clientId', 'total', 'status'])
-        && isValidNumber(request.resource.data.total)
-        && isValidTimestamp(request.resource.data.createdAt);
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+
+    // Projects
+    match /projects/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // Quote Templates
-    match /quote-templates/{templateId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+
+    // Project Tasks
+    match /projectTasks/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // Sales Targets
-    match /sales-targets/{targetId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+
+    // Work Orders
+    match /workOrders/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // ===========================
-    // PROJECTS MODULE
-    // ===========================
-    match /projects/{projectId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-      
-      // Project tasks subcollection
-      match /tasks/{taskId} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
-      
-      // Project timeline subcollection
-      match /timeline/{timelineId} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
-      
-      // Project documents subcollection
-      match /documents/{documentId} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
-      
-      // Project expenses subcollection
-      match /expenses/{expenseId} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
-      
-      // Project transactions subcollection (ingresos/gastos)
-      match /transactions/{transactionId} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
-      
-      // Project work sessions subcollection (timer tracking)
-      match /workSessions/{sessionId} {
-        allow read: if isAuthenticated();
-        allow write: if isAuthenticated();
-      }
+
+    // Work Sessions
+    match /workSessions/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // ===========================
-    // FINANCE MODULE
-    // ===========================
-    
+
+    // Project Expenses
+    match /projectExpenses/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
+    }
+
+    // Project Timeline
+    match /projectTimeline/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
+    }
+
     // Invoices
-    match /invoices/{invoiceId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated()
-        && hasRequiredFields(request.resource.data, ['clientId', 'total', 'status'])
-        && isValidNumber(request.resource.data.total)
-        && isValidTimestamp(request.resource.data.createdAt);
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+    match /invoices/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
+
+    // Quotes
+    match /quotes/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
+    }
+
+    // Expenses
+    match /expenses/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
+    }
+
     // Payments
-    match /payments/{paymentId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated()
-        && hasRequiredFields(request.resource.data, ['invoiceId', 'amount', 'method'])
-        && isValidNumber(request.resource.data.amount)
-        && isValidTimestamp(request.resource.data.createdAt);
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+    match /payments/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // ===========================
-    // INVENTORY MODULE
-    // ===========================
-    
-    // Raw Materials
-    match /raw-materials/{materialId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+
+    // Employees
+    match /employees/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // Finished Products
-    match /finished-products/{productId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+
+    // Work Periods
+    match /workPeriods/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // Bill of Materials
-    match /bill-of-materials/{bomId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+
+    // Loans
+    match /loans/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // Inventory Alerts
-    match /inventory-alerts/{alertId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAuthenticated();
+
+    // Bonuses
+    match /bonuses/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // Products (legacy)
-    match /products/{productId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+
+    // Inventory Products
+    match /products/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // Materials (legacy)
-    match /materials/{materialId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+
+    // Inventory Categories
+    match /categories/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
+
     // Inventory Movements
-    match /inventory-movements/{movementId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
-    }
-    
-    // BOMs (Bill of Materials - legacy)
-    match /boms/{bomId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
-    }
-    
-    // ===========================
-    // ORDERS MODULE
-    // ===========================
-    match /orders/{orderId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    // Work Orders (camelCase - estandarizado)
-    match /workOrders/{workOrderId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    // Work Orders (kebab-case - compatibilidad legacy)
-    match /work-orders/{workOrderId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    // Tasks (root collection for queries)
-    match /tasks/{taskId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    // Work Sessions (time tracking)
-    match /workSessions/{sessionId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    // Timeline (project history - root collection)
-    match /timeline/{timelineId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    // Expenses (project expenses tracking)
-    match /expenses/{expenseId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    // Project-specific collections (root level)
-    match /projectTasks/{taskId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    match /projectExpenses/{expenseId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    match /projectTimeline/{timelineId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    // ===========================
-    // HR MODULE
-    // ===========================
-    match /employees/{employeeId} {
-      // Users can read employees that belong to them OR legacy employees without userId
-      allow read: if isAuthenticated() && (
-        !('userId' in resource.data) || 
-        resource.data.userId == getUserId() || 
-        isAdmin()
-      );
-      // Users can create employees with their userId
-      allow create: if isAuthenticated() && (
-        request.resource.data.userId == getUserId() || 
-        isAdmin()
-      );
-      // Users can update their own employees or legacy employees without userId
-      allow update: if isAuthenticated() && (
-        !('userId' in resource.data) || 
-        resource.data.userId == getUserId() || 
-        isAdmin()
-      );
-      allow delete: if isAdmin();
-    }
-    
-    // Work Sessions - Time Tracking
-    match /workSessions/{sessionId} {
-      // Employees can read their own sessions, admins can read all
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
-    }
-    
-    // Payroll Records
-    match /payroll/{payrollId} {
-      // Only admins can access payroll
-      allow read: if isAdmin();
-      allow write: if isAdmin();
+    match /inventoryMovements/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
 
-    // Work Periods (Temporadas)
-    match /workPeriods/{periodId} {
-      // Simplified rules - authenticated users can manage periods
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+    // Tasks (RICE-Z)
+    match /tasks/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
 
-    // Loans (Préstamos)
-    match /loans/{loanId} {
-      // Simplified rules - authenticated users can manage loans
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+    // Events (Calendar)
+    match /events/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
 
-    // Bonuses (Bonificaciones/Aguinaldo/Gratificaciones)
-    match /bonuses/{bonusId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAdmin();
+    // Workflows
+    match /workflows/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    // ===========================
-    // GEOGRAPHICAL DATA
-    // ===========================
-    match /countries/{countryId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+
+    // Workflow Executions
+    match /workflow-executions/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    match /departments/{departmentId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+
+    // Tenant Invitations
+    match /tenantInvitations/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    match /municipalities/{municipalityId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
+
+    // Custom Roles
+    match /customRoles/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
-    
-    match /districts/{districtId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-    
-    match /phone-codes/{phoneCodeId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-    
-    // ===========================
-    // SYSTEM CONFIGURATION
-    // ===========================
-    match /system-config/{configId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-    
-    // ===========================
-    // ANALYTICS & REPORTS
-    // ===========================
-    match /analytics/{analyticsId} {
-      allow read: if isAuthenticated();
-      allow write: if isAdmin();
-    }
-    
-    // ===========================
-    // NOTIFICATIONS
-    // ===========================
-    match /notifications/{notificationId} {
-      allow read: if isOwner(resource.data.userId);
-      allow create: if isAuthenticated();
-      allow update: if isOwner(resource.data.userId);
-      allow delete: if isOwner(resource.data.userId);
+
+    // Tenant Branding
+    match /tenant-branding/{tenantId} {
+      allow read, write: if isTenantMember(tenantId);
     }
 
     // ===========================
-    // AI CONVERSATIONS
+    // AI CONVERSATIONS (Nested under tenant for persistence)
+    // Structure: tenants/{tenantId}/ai_conversations/{userId}/chats/{chatId}
     // ===========================
-    match /ai-conversations/{conversationId} {
-      allow read: if isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
-      allow update: if isOwner(resource.data.userId);
-      allow delete: if isOwner(resource.data.userId);
+    match /tenants/{tenantId}/ai_conversations/{userId}/chats/{chatId} {
+      // Users can only access their own conversations within their tenant
+      allow read, write: if isAuthenticated() && 
+        isTenantMember(tenantId) && 
+        getUserId() == userId;
     }
 
-    // ===========================
-    // AI LEARNING MEMORY
-    // ===========================
-    match /ai-semantic-memories/{memoryId} {
-      // Allow authenticated users to manage their own memories
-      allow read, write: if isAuthenticated();
+    // Notifications
+    match /notifications/{docId} {
+      allow read: if isAuthenticated() && resource.data.userId == getUserId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if isAuthenticated() && resource.data.userId == getUserId();
     }
 
-    match /ai-learned-patterns/{patternId} {
-      // Allow authenticated users to manage their own patterns
-      allow read, write: if isAuthenticated();
+    // AI Conversations
+    match /ai-conversations/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
     }
 
-    match /ai-user-preferences/{prefId} {
-      // Allow authenticated users to manage their own preferences
+    // AI Messages (subcollection)
+    match /ai-conversations/{conversationId}/messages/{messageId} {
       allow read, write: if isAuthenticated();
     }
 
     // ===========================
-    // CALENDAR MODULE (Agenda Cognitiva)
+    // AI LEARNING SYSTEM (User-scoped, not tenant-scoped)
     // ===========================
-    match /events/{eventId} {
-      // Users can read their own events, admins can read all
-      allow read: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
-      // Users can create their own events
-      allow create: if isAuthenticated() 
-        && isOwner(request.resource.data.userId)
-        && hasRequiredFields(request.resource.data, ['userId', 'title', 'startDate', 'status']);
-      // Users can update their own events, admins can update all
-      allow update: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
-      // Users can delete their own events, admins can delete all
-      allow delete: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+    
+    // AI User Preferences
+    match /ai-user-preferences/{docId} {
+      allow read: if isAuthenticated() && resource.data.userId == getUserId();
+      allow create: if isAuthenticated() && request.resource.data.userId == getUserId();
+      allow update, delete: if isAuthenticated() && resource.data.userId == getUserId();
     }
 
-    // ===========================
-    // TASKS MODULE (Gestor RICE-Z)
-    // ===========================
-    // Tasks collection (actualizar reglas existentes para incluir filtro por userId)
-    match /tasks/{taskId} {
-      // Users can read their own tasks, admins can read all
-      allow read: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
-      // Users can create their own tasks
-      allow create: if isAuthenticated() 
-        && isOwner(request.resource.data.userId)
-        && hasRequiredFields(request.resource.data, ['userId', 'title', 'status', 'priority', 'domain']);
-      // Users can update their own tasks, admins can update all
-      allow update: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
-      // Users can delete their own tasks, admins can delete all
-      allow delete: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+    // AI Learned Patterns
+    match /ai-learned-patterns/{docId} {
+      allow read: if isAuthenticated() && resource.data.userId == getUserId();
+      allow create: if isAuthenticated() && request.resource.data.userId == getUserId();
+      allow update, delete: if isAuthenticated() && resource.data.userId == getUserId();
     }
 
-    // ===========================
-    // WORKFLOWS MODULE (Biblioteca de Flujos Cognitivos)
-    // ===========================
-    match /workflows/{workflowId} {
-      // Get: Users can read their own workflows, admins can read all
-      allow get: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
-      // List: Allow authenticated users to list (query filters by userId in app code)
-      allow list: if isAuthenticated();
-      // Users can create their own workflows
-      allow create: if isAuthenticated() 
-        && isOwner(request.resource.data.userId)
-        && hasRequiredFields(request.resource.data, ['userId', 'name', 'template', 'status']);
-      // Users can update their own workflows, admins can update all
-      allow update: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
-      // Users can delete their own workflows, admins can delete all
-      allow delete: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
-    }
-
-    // Workflow executions history
-    match /workflow-executions/{executionId} {
-      // Get: Users can read their own executions, admins can read all
-      allow get: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
-      // List: Allow authenticated users to list (query filters by userId in app code)
-      allow list: if isAuthenticated();
-      // System can create executions
-      allow create: if isAuthenticated() 
-        && isOwner(request.resource.data.userId)
-        && hasRequiredFields(request.resource.data, ['userId', 'workflowId', 'status', 'startedAt']);
-      // Users can update their own executions, admins can update all
-      allow update: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
-      // Only admins can delete executions
-      allow delete: if isAdmin();
+    // AI Semantic Memories
+    match /ai-semantic-memories/{docId} {
+      allow read: if isAuthenticated() && resource.data.userId == getUserId();
+      allow create: if isAuthenticated() && request.resource.data.userId == getUserId();
+      allow update, delete: if isAuthenticated() && resource.data.userId == getUserId();
     }
   }
 }

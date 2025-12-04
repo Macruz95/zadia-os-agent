@@ -12,18 +12,21 @@ import type { Employee, EmployeeStatus } from '../types/hr.types';
 import type { EmployeeFormData } from '../validations/hr.validation';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 
 export function useEmployees(statusFilter?: EmployeeStatus) {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
+  const tenantId = useTenantId();
 
   /**
-   * Fetch employees
+   * Fetch employees for current tenant
    */
   const fetchEmployees = useCallback(async () => {
-    if (!user?.uid) {
+    if (!user?.uid || !tenantId) {
+      setEmployees([]);
       setLoading(false);
       return;
     }
@@ -33,8 +36,8 @@ export function useEmployees(statusFilter?: EmployeeStatus) {
       setError(null);
 
       const data = statusFilter
-        ? await EmployeesService.getEmployeesByStatus(statusFilter, user.uid)
-        : await EmployeesService.getAllEmployees(user.uid);
+        ? await EmployeesService.getEmployeesByStatus(statusFilter, tenantId)
+        : await EmployeesService.getAllEmployees(tenantId);
 
       setEmployees(data);
     } catch (err) {
@@ -44,7 +47,7 @@ export function useEmployees(statusFilter?: EmployeeStatus) {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, user?.uid]);
+  }, [statusFilter, user?.uid, tenantId]);
 
   /**
    * Create employee
@@ -53,8 +56,13 @@ export function useEmployees(statusFilter?: EmployeeStatus) {
     data: EmployeeFormData,
     userId: string
   ): Promise<boolean> => {
+    if (!tenantId) {
+      toast.error('No se ha seleccionado una empresa');
+      return false;
+    }
+    
     try {
-      await EmployeesService.createEmployee(data, userId);
+      await EmployeesService.createEmployee(data, userId, tenantId);
       toast.success('Empleado creado correctamente');
       await fetchEmployees();
       return true;

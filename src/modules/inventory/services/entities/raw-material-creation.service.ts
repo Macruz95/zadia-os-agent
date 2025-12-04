@@ -24,17 +24,26 @@ export class RawMaterialCreationService {
 
   /**
    * Create a new raw material
+   * @param data - Raw material form data
+   * @param createdBy - User ID creating the material
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async createRawMaterial(
     data: RawMaterialFormData,
-    createdBy: string
+    createdBy: string,
+    tenantId?: string
   ): Promise<RawMaterial> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     try {
       const sku = this.generateSKU(data.category, data.name);
       const now = new Date();
 
       const rawMaterialData: Record<string, unknown> = {
         sku,
+        tenantId, // CRITICAL: Add tenant isolation
         name: data.name,
         category: data.category,
         unitOfMeasure: data.unitOfMeasure,
@@ -72,7 +81,9 @@ export class RawMaterialCreationService {
         updatedAt: now
       } as RawMaterial;
 
-      logger.info(`Raw material created: ${newRawMaterial.name} (${newRawMaterial.sku})`);
+      logger.info(`Raw material created: ${newRawMaterial.name} (${newRawMaterial.sku})`, {
+        metadata: { tenantId }
+      });
       return newRawMaterial;
 
     } catch (error) {

@@ -9,13 +9,25 @@ import { searchInvoices } from './invoice-search.service';
 
 /**
  * Get invoice statistics
+ * @param tenantId - Required tenant ID for data isolation
  */
-export async function getInvoiceStats(clientId?: string): Promise<InvoiceStats> {
+export async function getInvoiceStats(clientId?: string, tenantId?: string): Promise<InvoiceStats> {
+  if (!tenantId) {
+    return {
+      totalInvoices: 0,
+      totalBilled: 0,
+      totalPaid: 0,
+      totalDue: 0,
+      overdueInvoices: 0,
+      overdueAmount: 0,
+    };
+  }
+  
   try {
-    const filters: InvoiceFilters = {};
+    const filters: InvoiceFilters = { tenantId };
     if (clientId) filters.clientId = clientId;
 
-    const invoices = await searchInvoices(filters);
+    const invoices = await searchInvoices(filters, tenantId);
 
     const now = new Date();
     const stats: InvoiceStats = {

@@ -2,23 +2,12 @@
  * ZADIA OS - Public API: Clients
  * 
  * CRUD operations for clients via public API
+ * Uses Firebase Admin SDK for secure server-side operations
  */
 
 import { NextRequest } from 'next/server';
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs,
-  addDoc,
-  Timestamp,
-  limit,
-  orderBy,
-  startAfter,
-  doc,
-  getDoc,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { 
   validateApiRequest, 
   createApiResponse, 
@@ -38,28 +27,34 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get('search');
   
   try {
-    let q = query(
-      collection(db, 'clients'),
-      where('tenantId', '==', tenantId),
-      orderBy('createdAt', 'desc'),
-      limit(pageSize)
-    );
+    let query = adminDb.collection('clients')
+      .where('tenantId', '==', tenantId)
+      .orderBy('createdAt', 'desc')
+      .limit(pageSize);
     
     if (cursor) {
-      const cursorDoc = await getDoc(doc(db, 'clients', cursor));
-      if (cursorDoc.exists()) {
-        q = query(q, startAfter(cursorDoc));
+      const cursorDoc = await adminDb.collection('clients').doc(cursor).get();
+      if (cursorDoc.exists) {
+        query = query.startAfter(cursorDoc);
       }
     }
     
-    const snapshot = await getDocs(q);
+    const snapshot = await query.get();
     
-    let clients = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate?.()?.toISOString(),
-      updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString(),
-    }));
+    let clients = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: data.name || '',
+        email: data.email || '',
+        phone: data.phone || '',
+        company: data.company || '',
+        status: data.status || 'active',
+        tenantId: data.tenantId,
+        createdAt: data.createdAt?.toDate?.()?.toISOString(),
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString(),
+      };
+    });
     
     // Simple search filter (in production, use Algolia/Elasticsearch)
     if (search) {
@@ -106,18 +101,18 @@ export async function POST(request: NextRequest) {
       return createApiError('Email is required', 400);
     }
     
-    // Check for duplicate email
-    const existingQuery = query(
-      collection(db, 'clients'),
-      where('tenantId', '==', tenantId),
-      where('email', '==', body.email)
-    );
-    const existing = await getDocs(existingQuery);
+    // Check for duplicate email using Admin SDK
+    const existingQuery = await adminDb.collection('clients')
+      .where('tenantId', '==', tenantId)
+      .where('email', '==', body.email)
+      .limit(1)
+      .get();
     
-    if (!existing.empty) {
+    if (!existingQuery.empty) {
       return createApiError('A client with this email already exists', 409);
     }
     
+    const now = FieldValue.serverTimestamp();
     const clientData = {
       tenantId,
       name: body.name,
@@ -134,11 +129,11 @@ export async function POST(request: NextRequest) {
       tags: body.tags || [],
       status: 'active',
       source: 'api',
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+      createdAt: now,
+      updatedAt: now,
     };
     
-    const docRef = await addDoc(collection(db, 'clients'), clientData);
+    const docRef = await adminDb.collection('clients').add(clientData);
     
     return createApiResponse({
       id: docRef.id,

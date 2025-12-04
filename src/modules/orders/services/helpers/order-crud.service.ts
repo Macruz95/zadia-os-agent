@@ -20,11 +20,17 @@ import { orderSchema } from '../../validations/orders.validation';
 /**
  * Crear nuevo pedido
  * @param orderData - Datos del pedido
+ * @param tenantId - Required tenant ID for data isolation
  * @returns ID del pedido creado
  */
 export async function createOrder(
-  orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>
+  orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>,
+  tenantId?: string
 ): Promise<string> {
+  if (!tenantId) {
+    throw new Error('tenantId is required for data isolation');
+  }
+  
   try {
     // Validar datos
     orderSchema.parse(orderData);
@@ -32,6 +38,7 @@ export async function createOrder(
     const ordersRef = collection(db, 'orders');
     const docRef = await addDoc(ordersRef, {
       ...orderData,
+      tenantId, // CRITICAL: Add tenant isolation
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     });

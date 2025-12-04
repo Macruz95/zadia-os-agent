@@ -25,7 +25,7 @@ const passwordSchema = z
   .min(8, 'auth.validation.passwordMinLength')
   .max(128, 'auth.validation.passwordTooLong')
   .regex(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&-])[A-Za-z\d@$!%*?&-]/,
     'auth.validation.passwordComplexity'
   );
 

@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 import { CalendarService } from '../services/calendar.service';
 import type { 
@@ -40,6 +41,7 @@ interface UseCalendarReturn {
 
 export function useCalendar(): UseCalendarReturn {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export function useCalendar(): UseCalendarReturn {
    * Cargar eventos del usuario
    */
   const loadEvents = useCallback(async (startDate?: Date, endDate?: Date) => {
-    if (!user?.uid) {
+    if (!user?.uid || !tenantId) {
       setLoading(false);
       return;
     }
@@ -63,7 +65,8 @@ export function useCalendar(): UseCalendarReturn {
       const loadedEvents = await CalendarService.getEventsByDateRange(
         user.uid,
         start,
-        end
+        end,
+        tenantId
       );
 
       setEvents(loadedEvents);
@@ -74,7 +77,7 @@ export function useCalendar(): UseCalendarReturn {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid]);
+  }, [user?.uid, tenantId]);
 
   /**
    * Crear evento
@@ -85,9 +88,12 @@ export function useCalendar(): UseCalendarReturn {
     if (!user?.uid) {
       throw new Error('Usuario no autenticado');
     }
+    if (!tenantId) {
+      throw new Error('No tenant ID');
+    }
 
     try {
-      const eventId = await CalendarService.createEvent(event, user.uid);
+      const eventId = await CalendarService.createEvent(event, user.uid, tenantId);
       await loadEvents(); // Recargar eventos
       return eventId;
     } catch (err) {
@@ -95,7 +101,7 @@ export function useCalendar(): UseCalendarReturn {
       setError(errorMessage);
       throw err;
     }
-  }, [user?.uid, loadEvents]);
+  }, [user?.uid, tenantId, loadEvents]);
 
   /**
    * Actualizar evento

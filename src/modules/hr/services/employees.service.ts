@@ -31,15 +31,24 @@ const COLLECTION = 'employees';
 export class EmployeesService {
   /**
    * Create new employee
+   * @param data - Employee form data
+   * @param userId - User creating the employee
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async createEmployee(
     data: EmployeeFormData,
-    userId: string
+    userId: string,
+    tenantId?: string
   ): Promise<Employee> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     try {
       const employeeData = {
         ...data,
-        userId, // Add userId for data isolation
+        tenantId, // CRITICAL: Add tenant isolation
+        userId,
         birthDate: Timestamp.fromDate(data.birthDate),
         hireDate: Timestamp.fromDate(data.hireDate),
         terminationDate: data.terminationDate
@@ -53,7 +62,7 @@ export class EmployeesService {
       const docRef = await addDoc(collection(db, COLLECTION), employeeData);
 
       logger.info('Employee created', {
-        metadata: { employeeId: docRef.id },
+        metadata: { employeeId: docRef.id, tenantId },
       });
 
       return {
@@ -91,15 +100,21 @@ export class EmployeesService {
   }
 
   /**
-   * Get all employees
-   * Includes both user-owned employees and legacy employees without userId
+   * Get all employees for a tenant
+   * @param tenantId - Required tenant ID for data isolation
+   * @param userId - Optional user ID for additional filtering
    */
-  static async getAllEmployees(userId: string): Promise<Employee[]> {
+  static async getAllEmployees(tenantId: string, userId?: string): Promise<Employee[]> {
+    if (!tenantId) {
+      logger.warn('getAllEmployees called without tenantId', { component: 'EmployeesService' });
+      return [];
+    }
+    
     try {
-      // First, try to get employees with userId filter
+      // Filter by tenantId for data isolation
       const q = query(
         collection(db, COLLECTION),
-        where('userId', '==', userId),
+        where('tenantId', '==', tenantId),
         orderBy('lastName', 'asc')
       );
 
@@ -109,38 +124,13 @@ export class EmployeesService {
         ...doc.data(),
       })) as Employee[];
 
-      // Also try to get legacy employees without userId field
-      // This handles employees created before userId was required
-      try {
-        const allDocsSnapshot = await getDocs(collection(db, COLLECTION));
-        const legacyEmployees = allDocsSnapshot.docs
-          .filter(doc => !doc.data().userId) // Only those without userId
-          .map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          })) as Employee[];
-        
-        // Merge and deduplicate
-        const existingIds = new Set(employeesResult.map(e => e.id));
-        for (const legacy of legacyEmployees) {
-          if (!existingIds.has(legacy.id)) {
-            employeesResult.push(legacy);
-          }
-        }
-      } catch (legacyError) {
-        // If we can't get legacy employees, that's ok - just use the filtered ones
-        logger.warn('Could not fetch legacy employees', {
-          component: 'EmployeesService',
-          metadata: { error: String(legacyError) }
-        });
-      }
-
       // Sort by lastName
       employeesResult.sort((a, b) => (a.lastName || '').localeCompare(b.lastName || ''));
 
       if (employeesResult.length === 0) {
-        logger.info('No employees found in database', {
+        logger.info('No employees found for tenant', {
           component: 'EmployeesService',
+          metadata: { tenantId }
         });
       }
 
@@ -159,19 +149,19 @@ export class EmployeesService {
         });
 
         try {
-          // Fallback: get all employees and filter/sort manually
-          const snapshot = await getDocs(collection(db, COLLECTION));
-          const employees = snapshot.docs
-            .map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            })) as Employee[];
-          
-          // Filter: only show user's employees OR legacy employees without userId
-          const filtered = employees.filter(e => !e.userId || e.userId === userId);
+          // Fallback: get all employees for tenant and sort manually
+          const fallbackQ = query(
+            collection(db, COLLECTION),
+            where('tenantId', '==', tenantId)
+          );
+          const snapshot = await getDocs(fallbackQ);
+          const employees = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as Employee[];
           
           // Sort manually by lastName
-          return filtered.sort((a, b) => 
+          return employees.sort((a, b) => 
             (a.lastName || '').localeCompare(b.lastName || '')
           );
         } catch (retryError) {
@@ -191,16 +181,20 @@ export class EmployeesService {
   }
 
   /**
-   * Get employees by status
+   * Get employees by status for a tenant
    */
   static async getEmployeesByStatus(
     status: EmployeeStatus,
-    userId: string
+    tenantId: string
   ): Promise<Employee[]> {
+    if (!tenantId) {
+      return [];
+    }
+    
     try {
       const q = query(
         collection(db, COLLECTION),
-        where('userId', '==', userId),
+        where('tenantId', '==', tenantId),
         where('status', '==', status),
         orderBy('lastName', 'asc')
       );
@@ -213,7 +207,7 @@ export class EmployeesService {
       })) as Employee[];
     } catch (error) {
       const err = error instanceof Error ? error : new Error('Error fetching employees by status');
-      logger.error('Error fetching employees by status', err, { status });
+      logger.error('Error fetching employees by status', err, { status, tenantId });
       throw err;
     }
   }

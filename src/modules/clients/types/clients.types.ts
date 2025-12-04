@@ -160,6 +160,7 @@ export interface ClientFilters {
 }
 
 export interface ClientSearchParams {
+  tenantId?: string;
   query?: string;
   filters?: ClientFilters;
   sortBy?: 'name' | 'documentId' | 'lastInteractionDate' | 'birthDate';

@@ -47,7 +47,7 @@ import { toast } from 'sonner';
 const inviteFormSchema = z.object({
   email: z.string().email('Ingresa un email válido'),
   role: z.enum(['admin', 'manager', 'member', 'viewer'], {
-    required_error: 'Selecciona un rol',
+    message: 'Selecciona un rol',
   }),
 });
 

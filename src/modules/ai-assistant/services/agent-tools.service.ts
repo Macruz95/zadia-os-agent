@@ -237,10 +237,10 @@ export const TOOL_DEFINITIONS: AgentToolDefinition[] = [
 
 // Tool execution functions
 export class AgentToolsExecutor {
-  private userId: string;
+  private tenantId: string;
 
-  constructor(userId: string) {
-    this.userId = userId;
+  constructor(tenantId: string) {
+    this.tenantId = tenantId;
   }
 
   async execute(toolName: AgentToolName, params: Record<string, unknown>): Promise<AgentToolResult> {
@@ -279,12 +279,12 @@ export class AgentToolsExecutor {
 
     const data = parsed.data;
     const taskData = {
-      userId: this.userId,
+      tenantId: this.tenantId,
       title: data.title,
       description: data.description || '',
       status: 'pending',
       priority: data.priority || 'medium',
-      assignedTo: data.assigneeId || this.userId,
+      assignedTo: data.assigneeId || null,
       projectId: data.projectId || null,
       tags: data.tags || [],
       dueDate: data.dueDate ? Timestamp.fromDate(new Date(data.dueDate)) : null,
@@ -296,7 +296,7 @@ export class AgentToolsExecutor {
 
     return {
       success: true,
-      message: `✅ Tarea creada: "${data.title}"`,
+      message: `Tarea creada: "${data.title}"`,
       data: { taskId: docRef.id },
       redirectUrl: `/tasks`,
     };
@@ -310,7 +310,7 @@ export class AgentToolsExecutor {
 
     const data = parsed.data;
     const projectData = {
-      userId: this.userId,
+      tenantId: this.tenantId,
       name: data.name,
       description: data.description || '',
       clientId: data.clientId || null,
@@ -326,7 +326,7 @@ export class AgentToolsExecutor {
 
     return {
       success: true,
-      message: `📁 Proyecto creado: "${data.name}"`,
+      message: `Proyecto creado: "${data.name}"`,
       data: { projectId: docRef.id },
       redirectUrl: `/projects/${docRef.id}`,
     };
@@ -343,7 +343,7 @@ export class AgentToolsExecutor {
     const endDate = data.endTime ? new Date(data.endTime) : new Date(startDate.getTime() + 60 * 60 * 1000);
 
     const eventData = {
-      userId: this.userId,
+      tenantId: this.tenantId,
       title: data.title,
       description: data.description || '',
       startDate: Timestamp.fromDate(startDate),
@@ -355,10 +355,9 @@ export class AgentToolsExecutor {
     };
 
     const docRef = await addDoc(collection(db, 'events'), eventData);
-
     return {
       success: true,
-      message: `📅 Reunión agendada: "${data.title}" el ${startDate.toLocaleString('es-MX')}`,
+      message: `Reunión agendada: "${data.title}" el ${startDate.toLocaleString('es-MX')}`,
       data: { eventId: docRef.id },
       redirectUrl: `/calendar`,
     };
@@ -372,11 +371,11 @@ export class AgentToolsExecutor {
 
     const data = parsed.data;
     const notificationData = {
-      userId: this.userId,
+      tenantId: this.tenantId,
       title: data.title,
       message: data.message,
       type: data.type || 'info',
-      targetUsers: data.targetUsers || [this.userId],
+      targetUsers: data.targetUsers || [],
       read: false,
       createdAt: Timestamp.now(),
     };
@@ -385,7 +384,7 @@ export class AgentToolsExecutor {
 
     return {
       success: true,
-      message: `🔔 Notificación enviada: "${data.title}"`,
+      message: `Notificación enviada: "${data.title}"`,
       data: { type: data.type },
     };
   }
@@ -398,7 +397,7 @@ export class AgentToolsExecutor {
       if (error?.code === 'invalid_value' || error?.message?.includes('Invalid enum value')) {
         return { 
           success: false, 
-          message: `❌ Valor inválido para "dataType". Usa uno de: sales, expenses, projects, clients, inventory. Recibido: "${params.dataType}"` 
+          message: `Valor inválido para "dataType". Usa uno de: sales, expenses, projects, clients, inventory. Recibido: "${params.dataType}"` 
         };
       }
       return { success: false, message: error?.message || 'Datos inválidos' };
@@ -407,27 +406,8 @@ export class AgentToolsExecutor {
     const { dataType, period = 'month' } = parsed.data;
     
     // Calculate date range (for future filtering)
-    const now = new Date();
-    let _startDate: Date;
-    switch (period) {
-      case 'today':
-        _startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        break;
-      case 'week':
-        _startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        break;
-      case 'month':
-        _startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-        break;
-      case 'quarter':
-        _startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
-        break;
-      case 'year':
-        _startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-        break;
-      default:
-        _startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-    }
+    // Note: period is available for future filtering implementation
+    void period;
 
     let metrics: Record<string, unknown> = {};
 
@@ -594,7 +574,7 @@ export class AgentToolsExecutor {
           const top5 = Object.entries(clientStats)
             .sort((a, b) => b[1].total - a[1].total)
             .slice(0, 5)
-            .map(([_id, stats], i) => ({
+            .map(([, stats], i) => ({
               posicion: i + 1,
               nombre: stats.name,
               facturacionTotal: `$${stats.total.toLocaleString()}`,
@@ -650,7 +630,7 @@ export class AgentToolsExecutor {
       };
     }
 
-    // Format response - Clean format without markdown
+    // Format response - Clean professional format
     const formatValue = (value: unknown): string => {
       if (Array.isArray(value)) {
         return '\n' + value.map((item, i) => 
@@ -673,11 +653,13 @@ export class AgentToolsExecutor {
         .trim();
     };
 
+    const formattedLines = Object.entries(metrics).map(([key, value]) => 
+      `${formatKey(key)}:${formatValue(value)}`
+    ).join('\n\n');
+
     return {
       success: true,
-      message: `📊 Análisis de ${dataType.toUpperCase()} (período: ${period})\n\n${Object.entries(metrics).map(([key, value]) => 
-        `${formatKey(key)}: ${formatValue(value)}`
-      ).join('\n\n')}`,
+      message: `ANALISIS DE ${dataType.toUpperCase()} (periodo: ${period})\n\n${formattedLines}`,
       data: metrics,
     };
   }
@@ -712,11 +694,8 @@ export class AgentToolsExecutor {
           
           return {
             success: true,
-            message: `🔍 Búsqueda web: "${searchQuery}"
-
-${data.answer ? `📝 Resumen: ${data.answer}\n\n` : ''}Fuentes encontradas:
-${results.map((r: { title: string; url: string; content: string }, i: number) => 
-  `${i + 1}. ${r.title}\n   🔗 ${r.url}\n   ${r.content?.slice(0, 150)}...`
+            message: `BUSQUEDA WEB: "${searchQuery}"\n\n${data.answer ? `RESUMEN:\n${data.answer}\n\n` : ''}FUENTES ENCONTRADAS:\n${results.map((r: { title: string; url: string; content: string }, i: number) => 
+  `${i + 1}. ${r.title}\n   ${r.url}\n   ${r.content?.slice(0, 150)}...`
 ).join('\n\n')}`,
             data: { results, answer: data.answer },
           };
@@ -742,10 +721,7 @@ ${results.map((r: { title: string; url: string; content: string }, i: number) =>
           
           return {
             success: true,
-            message: `🔍 Búsqueda: "${searchQuery}"
-
-${data.Abstract ? `📝 ${data.Abstract}\n\n` : ''}${topics.length > 0 ? `Temas relacionados:
-${topics.map((t: { Text?: string; FirstURL?: string }, i: number) => 
+            message: `BUSQUEDA: "${searchQuery}"\n\n${data.Abstract ? `RESUMEN:\n${data.Abstract}\n\n` : ''}${topics.length > 0 ? `TEMAS RELACIONADOS:\n${topics.map((t: { Text?: string; FirstURL?: string }, i: number) => 
   t.Text ? `${i + 1}. ${t.Text}` : ''
 ).filter(Boolean).join('\n')}` : ''}`,
             data: { abstract: data.Abstract, topics },
@@ -761,7 +737,7 @@ ${topics.map((t: { Text?: string; FirstURL?: string }, i: number) =>
 
     return {
       success: true,
-      message: `🔍 No se encontraron resultados específicos para: "${searchQuery}". Intenta reformular tu búsqueda.`,
+      message: `BUSQUEDA: "${searchQuery}" - No se encontraron resultados específicos. Intenta reformular tu búsqueda.`,
       data: { results: [] },
     };
   }
@@ -889,6 +865,7 @@ CAPACIDADES ACTIVAS:
 
       // Save to a sent_emails collection for tracking
       await addDoc(collection(db, 'sentEmails'), {
+        tenantId: this.tenantId,
         to: recipientEmail,
         clientName,
         subject,
@@ -896,7 +873,6 @@ CAPACIDADES ACTIVAS:
         emailType: emailType || 'general',
         status: 'simulated', // Not actually sent
         createdAt: Timestamp.now(),
-        createdBy: this.userId,
       });
 
       return {
@@ -944,6 +920,7 @@ ${body.substring(0, 200)}${body.length > 200 ? '...' : ''}
 
       // Log sent email
       await addDoc(collection(db, 'sentEmails'), {
+        tenantId: this.tenantId,
         to: recipientEmail,
         clientName,
         subject,
@@ -952,7 +929,6 @@ ${body.substring(0, 200)}${body.length > 200 ? '...' : ''}
         status: 'sent',
         resendId: result.id,
         createdAt: Timestamp.now(),
-        createdBy: this.userId,
       });
 
       return {

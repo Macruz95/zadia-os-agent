@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 import { TasksService } from '../services/tasks.service';
 import type { 
@@ -40,6 +41,7 @@ interface UseTasksReturn {
 
 export function useTasks(filters?: TaskFilters): UseTasksReturn {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export function useTasks(filters?: TaskFilters): UseTasksReturn {
    * Cargar tareas
    */
   const loadTasks = useCallback(async () => {
-    if (!user?.uid) {
+    if (!user?.uid || !tenantId) {
       setLoading(false);
       return;
     }
@@ -57,7 +59,7 @@ export function useTasks(filters?: TaskFilters): UseTasksReturn {
       setLoading(true);
       setError(null);
 
-      const loadedTasks = await TasksService.getTasks(user.uid, filters);
+      const loadedTasks = await TasksService.getTasks(user.uid, tenantId, filters);
       setTasks(loadedTasks);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar tareas';
@@ -66,7 +68,7 @@ export function useTasks(filters?: TaskFilters): UseTasksReturn {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid, filters]);
+  }, [user?.uid, tenantId, filters]);
 
   /**
    * Crear tarea
@@ -78,9 +80,12 @@ export function useTasks(filters?: TaskFilters): UseTasksReturn {
     if (!user?.uid) {
       throw new Error('Usuario no autenticado');
     }
+    if (!tenantId) {
+      throw new Error('No tenant ID');
+    }
 
     try {
-      const taskId = await TasksService.createTask(task, user.uid, autoScore);
+      const taskId = await TasksService.createTask(task, user.uid, tenantId, autoScore);
       await loadTasks(); // Recargar tareas
       return taskId;
     } catch (err) {
@@ -88,7 +93,7 @@ export function useTasks(filters?: TaskFilters): UseTasksReturn {
       setError(errorMessage);
       throw err;
     }
-  }, [user?.uid, loadTasks]);
+  }, [user?.uid, tenantId, loadTasks]);
 
   /**
    * Actualizar tarea

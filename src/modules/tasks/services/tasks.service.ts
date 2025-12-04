@@ -260,16 +260,23 @@ Responde SOLO con JSON válido:
 
   /**
    * Crear tarea
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async createTask(
     task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'ricezScore'>,
     userId: string,
+    tenantId?: string,
     autoScore: boolean = true
   ): Promise<string> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     try {
       const taskData: Omit<Task, 'id'> = {
         ...task,
         userId,
+        tenantId, // CRITICAL: Add tenant isolation
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         createdBy: userId,
@@ -323,13 +330,20 @@ Responde SOLO con JSON válido:
 
   /**
    * Obtener tareas del usuario con filtros
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async getTasks(
     userId: string,
+    tenantId?: string,
     filters?: TaskFilters
   ): Promise<Task[]> {
+    if (!tenantId) {
+      return []; // Return empty if no tenant
+    }
+    
     try {
       const constraints: Parameters<typeof query>[1][] = [
+        where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant first
         where('userId', '==', userId)
       ];
 
@@ -375,10 +389,11 @@ Responde SOLO con JSON válido:
         // Fallback: query without orderBy if index is not ready
         logger.warn('Index not ready, falling back to unordered query', {
           component: 'TasksService',
-          metadata: { userId, error: String(indexError) }
+          metadata: { tenantId, userId, error: String(indexError) }
         });
         
         const basicConstraints: Parameters<typeof query>[1][] = [
+          where('tenantId', '==', tenantId), // CRITICAL: Always filter by tenant
           where('userId', '==', userId)
         ];
         

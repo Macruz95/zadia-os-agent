@@ -3,7 +3,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, Transaction } from 'firebase-admin/firestore';
 import { logger } from '@/lib/logger';
 
 // Schema for validation
@@ -52,7 +52,7 @@ export async function createExpenseAction(prevState: CreateExpenseState, formDat
         const { projectId, amount, description, category, createdBy, createdByName } = validated.data;
 
         // Execute Transaction
-        await adminDb.runTransaction(async (transaction) => {
+        await adminDb.runTransaction(async (transaction: Transaction) => {
             // 1. Get Project Reference
             const projectRef = adminDb.collection('projects').doc(projectId);
             const projectDoc = await transaction.get(projectRef);

@@ -51,7 +51,7 @@ const TenantContext = createContext<TenantContextType | undefined>(undefined);
 const TENANT_STORAGE_KEY = 'zadia_active_tenant';
 
 export function TenantProvider({ children }: { children: React.ReactNode }) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, firebaseUser, loading: authLoading } = useAuth();
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [membership, setMembership] = useState<TenantMember | null>(null);
   const [userTenants, setUserTenants] = useState<Tenant[]>([]);
@@ -84,7 +84,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
 
   // Switch to a different tenant
   const switchTenant = useCallback(async (tenantId: string) => {
-    if (!user?.uid) return;
+    if (!firebaseUser?.uid) return;
 
     setLoading(true);
     try {
@@ -93,7 +93,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Tenant not found');
       }
 
-      const member = await loadMembership(tenantId, user.uid);
+      const member = await loadMembership(tenantId, firebaseUser.uid);
       if (!member) {
         throw new Error('No membership in this tenant');
       }
@@ -107,11 +107,11 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid, loadMembership]);
+  }, [firebaseUser?.uid, loadMembership]);
 
   // Create a new tenant
   const createTenant = useCallback(async (name: string, slug: string): Promise<Tenant> => {
-    if (!user?.uid) {
+    if (!firebaseUser?.uid) {
       throw new Error('Not authenticated');
     }
 
@@ -139,26 +139,28 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           },
         },
       },
-      user.uid
+      firebaseUser.uid,
+      firebaseUser.email || undefined,
+      firebaseUser.displayName || undefined
     );
 
     // Refresh tenants list
-    await loadUserTenants(user.uid);
+    await loadUserTenants(firebaseUser.uid);
     
     // Switch to new tenant
     await switchTenant(newTenant.id);
 
     return newTenant;
-  }, [user?.uid, loadUserTenants, switchTenant]);
+  }, [firebaseUser?.uid, loadUserTenants, switchTenant]);
 
   // Refresh current tenant data
   const refreshTenant = useCallback(async () => {
-    if (!tenant?.id || !user?.uid) return;
+    if (!tenant?.id || !firebaseUser?.uid) return;
 
     try {
       const [refreshedTenant, refreshedMembership] = await Promise.all([
         getTenantById(tenant.id),
-        getTenantMember(tenant.id, user.uid),
+        getTenantMember(tenant.id, firebaseUser.uid),
       ]);
 
       if (refreshedTenant) setTenant(refreshedTenant);
@@ -166,7 +168,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       logger.error('Failed to refresh tenant', err as Error);
     }
-  }, [tenant?.id, user?.uid]);
+  }, [tenant?.id, firebaseUser?.uid]);
 
   // Check if user has specific role(s)
   const hasRole = useCallback((roles: TenantRole | TenantRole[]): boolean => {
@@ -183,7 +185,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (authLoading) return;
 
-    if (!user?.uid) {
+    if (!firebaseUser?.uid) {
       setTenant(null);
       setMembership(null);
       setUserTenants([]);
@@ -194,7 +196,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     const initializeTenant = async () => {
       setLoading(true);
       try {
-        const tenants = await loadUserTenants(user.uid);
+        const tenants = await loadUserTenants(firebaseUser.uid);
 
         if (tenants.length === 0) {
           // No tenants - user needs to create one or be invited
@@ -215,7 +217,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         setTenant(activeTenant);
 
         // Load membership
-        await loadMembership(activeTenant.id, user.uid);
+        await loadMembership(activeTenant.id, firebaseUser.uid);
         
         localStorage.setItem(TENANT_STORAGE_KEY, activeTenant.id);
         setError(null);
@@ -228,7 +230,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     };
 
     initializeTenant();
-  }, [user?.uid, authLoading, loadUserTenants, loadMembership]);
+  }, [firebaseUser?.uid, authLoading, loadUserTenants, loadMembership]);
 
   const value: TenantContextType = {
     tenant,

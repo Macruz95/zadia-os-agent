@@ -38,9 +38,9 @@ const mapQuoteStatus = (status: ModuleQuoteStatus): ClientQuoteStatus => {
 };
 
 export const ClientActivitiesService = {
-    async getClientProjects(clientId: string): Promise<ClientProject[]> {
+    async getClientProjects(clientId: string, tenantId?: string): Promise<ClientProject[]> {
         try {
-            const result = await ProjectsService.searchProjects({ clientId }, 100);
+            const result = await ProjectsService.searchProjects({ clientId, tenantId }, 100);
             return result.projects.map(p => ({
                 id: p.id,
                 clientId: p.clientId,
@@ -57,9 +57,9 @@ export const ClientActivitiesService = {
         }
     },
 
-    async getClientQuotes(clientId: string): Promise<ClientQuote[]> {
+    async getClientQuotes(clientId: string, tenantId?: string): Promise<ClientQuote[]> {
         try {
-            const quotes = await QuotesService.getQuotesByClient(clientId);
+            const quotes = await QuotesService.getQuotesByClient(clientId, tenantId);
             return quotes.map(q => ({
                 id: q.id,
                 clientId: q.clientId,
@@ -75,9 +75,9 @@ export const ClientActivitiesService = {
         }
     },
 
-    async getClientTransactions(clientId: string): Promise<Transaction[]> {
+    async getClientTransactions(clientId: string, tenantId?: string): Promise<Transaction[]> {
         try {
-            const invoices = await InvoicesService.searchInvoices({ clientId });
+            const invoices = await InvoicesService.searchInvoices({ clientId, tenantId });
 
             return invoices.map(inv => {
                 let status: 'Pendiente' | 'Pagada' | 'Vencida' = 'Pendiente';
@@ -100,13 +100,23 @@ export const ClientActivitiesService = {
         }
     },
 
-    async getClientTasks(clientId: string): Promise<Task[]> {
+    async getClientTasks(clientId: string, tenantId?: string): Promise<Task[]> {
         try {
-            const q = query(
-                collection(db, 'tasks'),
-                where('clientId', '==', clientId),
-                orderBy('createdAt', 'desc')
-            );
+            let q;
+            if (tenantId) {
+                q = query(
+                    collection(db, 'tasks'),
+                    where('tenantId', '==', tenantId),
+                    where('clientId', '==', clientId),
+                    orderBy('createdAt', 'desc')
+                );
+            } else {
+                q = query(
+                    collection(db, 'tasks'),
+                    where('clientId', '==', clientId),
+                    orderBy('createdAt', 'desc')
+                );
+            }
             const snapshot = await getDocs(q);
             return snapshot.docs.map(doc => {
                 const data = doc.data();
@@ -124,15 +134,25 @@ export const ClientActivitiesService = {
         }
     },
 
-    async getClientMeetings(clientId: string): Promise<Meeting[]> {
+    async getClientMeetings(clientId: string, tenantId?: string): Promise<Meeting[]> {
         try {
-            // Fetch interactions of type 'Reunión'
-            const q = query(
-                collection(db, 'interactions'),
-                where('clientId', '==', clientId),
-                where('type', '==', 'Reunión'),
-                orderBy('date', 'desc')
-            );
+            let q;
+            if (tenantId) {
+                q = query(
+                    collection(db, 'interactions'),
+                    where('tenantId', '==', tenantId),
+                    where('clientId', '==', clientId),
+                    where('type', '==', 'Reunión'),
+                    orderBy('date', 'desc')
+                );
+            } else {
+                q = query(
+                    collection(db, 'interactions'),
+                    where('clientId', '==', clientId),
+                    where('type', '==', 'Reunión'),
+                    orderBy('date', 'desc')
+                );
+            }
             const snapshot = await getDocs(q);
             return snapshot.docs.map(doc => {
                 const data = doc.data();

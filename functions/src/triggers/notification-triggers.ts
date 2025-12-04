@@ -4,6 +4,7 @@ import * as admin from 'firebase-admin';
 const db = admin.firestore();
 
 interface NotificationData {
+  tenantId: string;
   userId: string;
   type: 'info' | 'success' | 'warning' | 'error' | 'action';
   priority: 'low' | 'medium' | 'high' | 'critical';
@@ -15,7 +16,7 @@ interface NotificationData {
 }
 
 /**
- * Create a notification in Firestore
+ * Create a notification in Firestore with tenant isolation
  */
 async function createNotification(data: NotificationData): Promise<void> {
   await db.collection('notifications').add({
@@ -47,10 +48,12 @@ export const notifyOverdueInvoices = functions.scheduler.onSchedule(
     for (const invoiceDoc of overdueSnapshot.docs) {
       const invoice = invoiceDoc.data();
       const userId = invoice.userId || invoice.createdBy;
+      const tenantId = invoice.tenantId;
       
-      if (!userId) continue;
+      if (!userId || !tenantId) continue;
 
       await createNotification({
+        tenantId,
         userId,
         type: 'warning',
         priority: 'high',
@@ -89,9 +92,11 @@ export const notifyLowInventory = functions.scheduler.onSchedule(
       
       if (currentStock <= minStock && minStock > 0) {
         const userId = material.userId || material.createdBy;
-        if (!userId) continue;
+        const tenantId = material.tenantId;
+        if (!userId || !tenantId) continue;
 
         await createNotification({
+          tenantId,
           userId,
           type: 'warning',
           priority: currentStock === 0 ? 'critical' : 'high',
@@ -118,9 +123,11 @@ export const notifyLowInventory = functions.scheduler.onSchedule(
       
       if (currentStock <= minStock && minStock > 0) {
         const userId = product.userId || product.createdBy;
-        if (!userId) continue;
+        const tenantId = product.tenantId;
+        if (!userId || !tenantId) continue;
 
         await createNotification({
+          tenantId,
           userId,
           type: 'warning',
           priority: currentStock === 0 ? 'critical' : 'high',
@@ -154,7 +161,11 @@ export const notifyLeadAssigned = functions.firestore.onDocumentUpdated(
     
     // Check if assignedTo changed
     if (beforeData.assignedTo !== afterData.assignedTo && afterData.assignedTo) {
+      const tenantId = afterData.tenantId;
+      if (!tenantId) return;
+      
       await createNotification({
+        tenantId,
         userId: afterData.assignedTo,
         type: 'info',
         priority: 'medium',
@@ -195,9 +206,11 @@ export const notifyUpcomingMilestones = functions.scheduler.onSchedule(
         
         if (dueDate >= now && dueDate <= threeDaysFromNow) {
           const userId = project.managerId || project.userId || project.createdBy;
-          if (!userId) continue;
+          const tenantId = project.tenantId;
+          if (!userId || !tenantId) continue;
 
           await createNotification({
+            tenantId,
             userId,
             type: 'action',
             priority: 'high',
@@ -229,7 +242,8 @@ export const notifyPaymentReceived = functions.firestore.onDocumentCreated(
     if (!payment) return;
 
     const userId = payment.userId || payment.createdBy;
-    if (!userId) return;
+    const tenantId = payment.tenantId;
+    if (!userId || !tenantId) return;
 
     // Get invoice details
     const invoiceRef = db.collection('invoices').doc(payment.invoiceId);
@@ -237,6 +251,7 @@ export const notifyPaymentReceived = functions.firestore.onDocumentCreated(
     const invoice = invoiceDoc.exists ? invoiceDoc.data() : null;
 
     await createNotification({
+      tenantId,
       userId,
       type: 'success',
       priority: 'medium',
@@ -267,10 +282,12 @@ export const notifyQuoteStatusChange = functions.firestore.onDocumentUpdated(
     // Check if status changed to approved or rejected
     if (beforeData.status !== afterData.status) {
       const userId = afterData.userId || afterData.createdBy;
-      if (!userId) return;
+      const tenantId = afterData.tenantId;
+      if (!userId || !tenantId) return;
 
       if (afterData.status === 'approved') {
         await createNotification({
+          tenantId,
           userId,
           type: 'success',
           priority: 'high',
@@ -285,6 +302,7 @@ export const notifyQuoteStatusChange = functions.firestore.onDocumentUpdated(
         });
       } else if (afterData.status === 'rejected') {
         await createNotification({
+          tenantId,
           userId,
           type: 'error',
           priority: 'high',

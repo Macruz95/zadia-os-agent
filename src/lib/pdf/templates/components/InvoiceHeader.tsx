@@ -30,7 +30,6 @@ export function InvoiceHeader({
     <>
       <View style={invoiceStyles.header}>
         {logoUrl && (
-          // eslint-disable-next-line jsx-a11y/alt-text
           <Image
             src={logoUrl}
             style={invoiceStyles.logo}

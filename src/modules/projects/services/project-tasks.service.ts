@@ -27,12 +27,17 @@ const TASKS_COLLECTION = 'projectTasks';
 
 export class ProjectTasksService {
   /**
-   * Crear una nueva tarea
+   * Crear una nueva tarea con tenant isolation
    */
-  static async createTask(data: CreateTaskData): Promise<string> {
+  static async createTask(data: CreateTaskData, tenantId: string): Promise<string> {
     try {
+      if (!tenantId) {
+        throw new Error('tenantId is required');
+      }
+
       const taskData = {
         ...data,
+        tenantId,
         status: data.status || 'todo',
         priority: data.priority || 'medium',
         progressPercent: 0,
@@ -51,12 +56,18 @@ export class ProjectTasksService {
   }
 
   /**
-   * Obtener tareas de un proyecto
+   * Obtener tareas de un proyecto filtradas por tenant
    */
-  static async getProjectTasks(projectId: string): Promise<ProjectTask[]> {
+  static async getProjectTasks(projectId: string, tenantId: string): Promise<ProjectTask[]> {
     try {
+      if (!tenantId) {
+        logger.warn('getProjectTasks called without tenantId');
+        return [];
+      }
+
       const q = query(
         collection(db, TASKS_COLLECTION),
+        where('tenantId', '==', tenantId),
         where('projectId', '==', projectId),
         orderBy('createdAt', 'desc')
       );
@@ -74,12 +85,18 @@ export class ProjectTasksService {
   }
 
   /**
-   * Obtener tareas de una orden de trabajo
+   * Obtener tareas de una orden de trabajo filtradas por tenant
    */
-  static async getWorkOrderTasks(workOrderId: string): Promise<ProjectTask[]> {
+  static async getWorkOrderTasks(workOrderId: string, tenantId: string): Promise<ProjectTask[]> {
     try {
+      if (!tenantId) {
+        logger.warn('getWorkOrderTasks called without tenantId');
+        return [];
+      }
+
       const q = query(
         collection(db, TASKS_COLLECTION),
+        where('tenantId', '==', tenantId),
         where('workOrderId', '==', workOrderId),
         orderBy('createdAt', 'desc')
       );
@@ -191,9 +208,13 @@ export class ProjectTasksService {
   /**
    * Eliminar todas las tareas de un proyecto
    */
-  static async deleteProjectTasks(projectId: string): Promise<void> {
+  static async deleteProjectTasks(projectId: string, tenantId: string): Promise<void> {
     try {
-      const tasks = await this.getProjectTasks(projectId);
+      if (!tenantId) {
+        throw new Error('tenantId is required');
+      }
+
+      const tasks = await this.getProjectTasks(projectId, tenantId);
       const batch = writeBatch(db);
 
       tasks.forEach((task) => {

@@ -4,11 +4,12 @@
  * Manages opportunities state and operations
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Opportunity } from '../types/sales.types';
 import { OpportunityFormData } from '../validations/sales.schema';
 import { OpportunitiesService } from '../services/opportunities.service';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 
 interface UseOpportunitiesReturn {
@@ -25,17 +26,20 @@ interface UseOpportunitiesReturn {
 
 export function useOpportunities(): UseOpportunitiesReturn {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [totalCount, setTotalCount] = useState(0);
 
   const searchOpportunities = useCallback(async () => {
+    if (!tenantId) return; // Wait for tenant
+    
     try {
       setLoading(true);
       setError(undefined);
 
-      const result = await OpportunitiesService.getOpportunities();
+      const result = await OpportunitiesService.getOpportunities(tenantId);
       setOpportunities(result);
       setTotalCount(result.length);
     } catch (err) {
@@ -45,16 +49,25 @@ export function useOpportunities(): UseOpportunitiesReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
+
+  // Reload when tenant changes
+  useEffect(() => {
+    if (tenantId) {
+      searchOpportunities();
+    }
+  }, [tenantId, searchOpportunities]);
 
   const createOpportunity = useCallback(async (
     data: OpportunityFormData
   ): Promise<Opportunity> => {
+    if (!tenantId) throw new Error('No tenant ID');
+    
     try {
       setLoading(true);
       setError(undefined);
 
-      const newOpportunity = await OpportunitiesService.createOpportunity(data, user?.uid || '');
+      const newOpportunity = await OpportunitiesService.createOpportunity(data, user?.uid || '', tenantId);
       
       setOpportunities(prev => [newOpportunity, ...prev]);
       setTotalCount(prev => prev + 1);
@@ -68,7 +81,7 @@ export function useOpportunities(): UseOpportunitiesReturn {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid]);
+  }, [user?.uid, tenantId]);
 
   const updateOpportunity = useCallback(async (
     id: string,

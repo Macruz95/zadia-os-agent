@@ -21,12 +21,13 @@ const BrandingContext = createContext<BrandingContextType | undefined>(undefined
 
 interface BrandingProviderProps {
   children: ReactNode;
+  tenantId?: string;
 }
 
-export function BrandingProvider({ children }: BrandingProviderProps) {
+export function BrandingProvider({ children, tenantId }: BrandingProviderProps) {
   const [branding, setBranding] = useState<BrandingConfig>(DEFAULT_BRANDING);
   const [loading, setLoading] = useState(true);
-  const { user, tenantId } = useAuth();
+  const { user } = useAuth();
 
   // Load branding on mount or tenant change
   useEffect(() => {

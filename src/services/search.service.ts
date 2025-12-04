@@ -5,7 +5,6 @@ import {
   where,
   orderBy,
   limit,
-  or,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
@@ -146,7 +145,7 @@ export async function globalSearch(
           maxResultsPerType
         );
         return results;
-      } catch (error) {
+      } catch {
         logger.warn(`Search failed for ${config.collection}`, { 
           action: 'globalSearch',
           metadata: { collection: config.collection } 
@@ -184,22 +183,20 @@ async function searchCollection(
   tenantId?: string,
   maxResults: number = 5
 ): Promise<SearchResult[]> {
+  // CRITICAL: Require tenantId for data isolation
+  if (!tenantId) {
+    return [];
+  }
+  
   const collectionRef = collection(db, config.collection);
   
-  // Build query - Firestore doesn't support full-text search natively
-  // We'll fetch recent documents and filter client-side
-  const baseQuery = tenantId
-    ? query(
-        collectionRef,
-        where('tenantId', '==', tenantId),
-        orderBy('createdAt', 'desc'),
-        limit(100)
-      )
-    : query(
-        collectionRef,
-        orderBy('createdAt', 'desc'),
-        limit(100)
-      );
+  // Build query with tenant isolation
+  const baseQuery = query(
+    collectionRef,
+    where('tenantId', '==', tenantId),
+    orderBy('createdAt', 'desc'),
+    limit(100)
+  );
 
   const snapshot = await getDocs(baseQuery);
   const results: SearchResult[] = [];
@@ -245,6 +242,11 @@ export async function getRecentItems(
   tenantId?: string,
   maxItems: number = 10
 ): Promise<SearchResult[]> {
+  // CRITICAL: Require tenantId for data isolation
+  if (!tenantId) {
+    return [];
+  }
+  
   const results: SearchResult[] = [];
   
   try {
@@ -254,18 +256,12 @@ export async function getRecentItems(
     for (const config of priorityConfigs) {
       try {
         const collectionRef = collection(db, config.collection);
-        const q = tenantId
-          ? query(
-              collectionRef,
-              where('tenantId', '==', tenantId),
-              orderBy('createdAt', 'desc'),
-              limit(2)
-            )
-          : query(
-              collectionRef,
-              orderBy('createdAt', 'desc'),
-              limit(2)
-            );
+        const q = query(
+          collectionRef,
+          where('tenantId', '==', tenantId),
+          orderBy('createdAt', 'desc'),
+          limit(2)
+        );
 
         const snapshot = await getDocs(q);
 

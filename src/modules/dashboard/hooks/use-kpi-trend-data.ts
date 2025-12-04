@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
+import { useTenantId } from '@/contexts/TenantContext';
 
 export interface KPITrendData {
   totalLeadsTrend: number[];
@@ -27,7 +28,7 @@ export interface KPITrendData {
  * Hook to fetch historical KPI data for sparklines
  * Fetches data from last 30 days
  */
-export function useKPITrendData(userId?: string) {
+export function useKPITrendData() {
   const [trendData, setTrendData] = useState<KPITrendData>({
     totalLeadsTrend: [],
     totalClientsTrend: [],
@@ -40,9 +41,10 @@ export function useKPITrendData(userId?: string) {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const tenantId = useTenantId();
 
   useEffect(() => {
-    if (!userId) {
+    if (!tenantId) {
       setLoading(false);
       return;
     }
@@ -56,19 +58,19 @@ export function useKPITrendData(userId?: string) {
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
         // Fetch revenue trend from invoices (last 30 days by week)
-        const revenueTrend = await fetchRevenueByWeek(thirtyDaysAgo);
+        const revenueTrend = await fetchRevenueByWeek(thirtyDaysAgo, tenantId);
         
         // Fetch leads trend (last 30 days by week)
-        const leadsTrend = await fetchLeadsByWeek(thirtyDaysAgo);
+        const leadsTrend = await fetchLeadsByWeek(thirtyDaysAgo, tenantId);
 
         // Fetch clients trend (cumulative last 30 days)
-        const clientsTrend = await fetchClientsByWeek();
+        const clientsTrend = await fetchClientsByWeek(tenantId);
 
         // Fetch projects trend
-        const projectsTrend = await fetchProjectsByWeek();
+        const projectsTrend = await fetchProjectsByWeek(tenantId);
 
         // Fetch opportunities trend
-        const opportunitiesTrend = await fetchOpportunitiesByWeek();
+        const opportunitiesTrend = await fetchOpportunitiesByWeek(tenantId);
 
         setTrendData({
           totalLeadsTrend: leadsTrend,
@@ -97,7 +99,7 @@ export function useKPITrendData(userId?: string) {
     };
 
     fetchTrendData();
-  }, [userId]);
+  }, [tenantId]);
 
   return { trendData, loading, error };
 }
@@ -105,11 +107,12 @@ export function useKPITrendData(userId?: string) {
 /**
  * Fetch revenue by week for last 30 days
  */
-async function fetchRevenueByWeek(startDate: Date): Promise<number[]> {
+async function fetchRevenueByWeek(startDate: Date, tenantId: string): Promise<number[]> {
   try {
     const invoicesRef = collection(db, 'invoices');
     const q = query(
       invoicesRef,
+      where('tenantId', '==', tenantId),
       where('status', '==', 'paid'),
       where('paidAt', '>=', Timestamp.fromDate(startDate))
     );
@@ -141,11 +144,12 @@ async function fetchRevenueByWeek(startDate: Date): Promise<number[]> {
 /**
  * Fetch leads by week
  */
-async function fetchLeadsByWeek(startDate: Date): Promise<number[]> {
+async function fetchLeadsByWeek(startDate: Date, tenantId: string): Promise<number[]> {
   try {
     const leadsRef = collection(db, 'leads');
     const q = query(
       leadsRef,
+      where('tenantId', '==', tenantId),
       where('createdAt', '>=', Timestamp.fromDate(startDate))
     );
 
@@ -175,10 +179,10 @@ async function fetchLeadsByWeek(startDate: Date): Promise<number[]> {
 /**
  * Fetch clients by week (cumulative)
  */
-async function fetchClientsByWeek(): Promise<number[]> {
+async function fetchClientsByWeek(tenantId: string): Promise<number[]> {
   try {
     const clientsRef = collection(db, 'clients');
-    const q = query(clientsRef);
+    const q = query(clientsRef, where('tenantId', '==', tenantId));
 
     const snapshot = await getDocs(q);
     
@@ -211,11 +215,12 @@ async function fetchClientsByWeek(): Promise<number[]> {
 /**
  * Fetch projects by week
  */
-async function fetchProjectsByWeek(): Promise<number[]> {
+async function fetchProjectsByWeek(tenantId: string): Promise<number[]> {
   try {
     const projectsRef = collection(db, 'projects');
     const q = query(
       projectsRef,
+      where('tenantId', '==', tenantId),
       where('status', 'in', ['Planificación', 'En Progreso', 'En Revisión'])
     );
 
@@ -231,11 +236,12 @@ async function fetchProjectsByWeek(): Promise<number[]> {
 /**
  * Fetch opportunities by week
  */
-async function fetchOpportunitiesByWeek(): Promise<number[]> {
+async function fetchOpportunitiesByWeek(tenantId: string): Promise<number[]> {
   try {
     const oppsRef = collection(db, 'opportunities');
     const q = query(
       oppsRef,
+      where('tenantId', '==', tenantId),
       where('status', 'in', ['Calificación', 'Negociación', 'Propuesta'])
     );
 

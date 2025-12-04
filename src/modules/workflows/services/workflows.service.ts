@@ -35,12 +35,18 @@ export class WorkflowsService {
 
   /**
    * Crear flujo desde template
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async createFromTemplate(
     template: WorkflowTemplate,
     userId: string,
+    tenantId?: string,
     customizations?: Partial<Workflow>
   ): Promise<string> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     try {
       const baseTemplate = workflowTemplates[template];
       if (!baseTemplate) {
@@ -51,6 +57,7 @@ export class WorkflowsService {
         ...baseTemplate,
         ...customizations,
         userId,
+        tenantId, // CRITICAL: Add tenant isolation
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         createdBy: userId,
@@ -73,15 +80,22 @@ export class WorkflowsService {
 
   /**
    * Crear flujo personalizado
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async createWorkflow(
     workflow: Omit<Workflow, 'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'executionCount'>,
-    userId: string
+    userId: string,
+    tenantId?: string
   ): Promise<string> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     try {
       const workflowData: Omit<Workflow, 'id'> = {
         ...workflow,
         userId,
+        tenantId, // CRITICAL: Add tenant isolation
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         createdBy: userId,
@@ -126,16 +140,23 @@ export class WorkflowsService {
 
   /**
    * Obtener flujos del usuario
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async getWorkflows(
     userId: string,
+    tenantId?: string,
     filters?: {
       status?: Workflow['status'][];
       template?: WorkflowTemplate[];
     }
   ): Promise<Workflow[]> {
+    if (!tenantId) {
+      return []; // Return empty if no tenant
+    }
+    
     try {
       const constraints: Parameters<typeof query>[1][] = [
+        where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant first
         where('userId', '==', userId)
       ];
 
@@ -214,12 +235,18 @@ export class WorkflowsService {
   /**
    * Ejecutar flujo
    * Usa Qwen3-Coder para ejecución de agentes complejos
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async executeWorkflow(
     workflowId: string,
     userId: string,
+    tenantId?: string,
     context: Record<string, unknown> = {}
   ): Promise<string> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     try {
       const workflow = await this.getWorkflow(workflowId);
       if (!workflow) {
@@ -229,6 +256,7 @@ export class WorkflowsService {
       // Crear ejecución
       const execution: Omit<WorkflowExecution, 'id'> = {
         userId,
+        tenantId, // CRITICAL: Add tenant isolation
         workflowId,
         workflowName: workflow.name,
         status: 'running',
@@ -324,13 +352,20 @@ Responde en formato JSON:
 
   /**
    * Obtener ejecuciones de un flujo
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async getExecutions(
     userId: string,
+    tenantId?: string,
     workflowId?: string
   ): Promise<WorkflowExecution[]> {
+    if (!tenantId) {
+      return []; // Return empty if no tenant
+    }
+    
     try {
       const constraints: Parameters<typeof query>[1][] = [
+        where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant first
         where('userId', '==', userId)
       ];
 

@@ -2,10 +2,33 @@
  * ZADIA OS - Public API Middleware
  * 
  * Validates API keys and rate limits for public API
+ * Uses Firebase Admin SDK for secure server-side operations
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { validateApiKey, hasPermission, ApiPermission } from '@/services/api-keys.service';
+import { adminDb } from '@/lib/firebase-admin';
+import crypto from 'crypto';
+
+export type ApiPermission = 
+  | 'clients:read' 
+  | 'clients:write' 
+  | 'invoices:read' 
+  | 'invoices:write'
+  | 'projects:read'
+  | 'projects:write'
+  | 'inventory:read'
+  | 'inventory:write'
+  | '*';
+
+interface ApiKeyData {
+  id: string;
+  tenantId: string;
+  name: string;
+  permissions: ApiPermission[];
+  rateLimit: number;
+  status: 'active' | 'revoked';
+  lastUsed?: Date;
+}
 
 // Simple in-memory rate limiter (use Redis in production)
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
@@ -14,6 +37,62 @@ export interface ApiContext {
   tenantId: string;
   apiKeyId: string;
   permissions: ApiPermission[];
+}
+
+/**
+ * Hash API key for secure comparison
+ */
+function hashApiKey(key: string): string {
+  return crypto.createHash('sha256').update(key).digest('hex');
+}
+
+/**
+ * Validate API key using Firebase Admin SDK
+ */
+async function validateApiKeyWithAdmin(apiKey: string): Promise<ApiKeyData | null> {
+  try {
+    // Hash the key for lookup
+    const hashedKey = hashApiKey(apiKey);
+    
+    // Query by hashed key
+    const snapshot = await adminDb.collection('apiKeys')
+      .where('hashedKey', '==', hashedKey)
+      .where('status', '==', 'active')
+      .limit(1)
+      .get();
+    
+    if (snapshot.empty) {
+      return null;
+    }
+    
+    const doc = snapshot.docs[0];
+    const data = doc.data();
+    
+    // Update last used timestamp
+    await doc.ref.update({ 
+      lastUsed: new Date(),
+      usageCount: (data.usageCount || 0) + 1,
+    });
+    
+    return {
+      id: doc.id,
+      tenantId: data.tenantId,
+      name: data.name,
+      permissions: data.permissions || [],
+      rateLimit: data.rateLimit || 100,
+      status: data.status,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Check if API key has required permission
+ */
+function hasPermission(keyData: ApiKeyData, required: ApiPermission): boolean {
+  if (keyData.permissions.includes('*')) return true;
+  return keyData.permissions.includes(required);
 }
 
 /**
@@ -41,8 +120,8 @@ export async function validateApiRequest(
   
   const apiKey = authHeader.substring(7); // Remove "Bearer "
   
-  // Validate API key
-  const keyData = await validateApiKey(apiKey);
+  // Validate API key using Admin SDK
+  const keyData = await validateApiKeyWithAdmin(apiKey);
   
   if (!keyData) {
     return {

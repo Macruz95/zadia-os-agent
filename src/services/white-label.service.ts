@@ -249,7 +249,8 @@ export class WhiteLabelService {
   /**
    * Verify custom domain ownership
    */
-  static async verifyDomain(tenantId: string, domain: string): Promise<{
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static async verifyDomain(tenantId: string, _domain: string): Promise<{
     verified: boolean;
     txtRecord?: string;
     cnameRecord?: string;

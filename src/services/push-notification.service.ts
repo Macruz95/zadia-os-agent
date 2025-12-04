@@ -8,7 +8,7 @@
 
 import { getMessaging, getToken, onMessage, Messaging } from 'firebase/messaging';
 import { doc, setDoc, deleteDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { app, db } from '@/lib/firebase';
+import firebaseApp, { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
 
 const VAPID_KEY = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
@@ -24,8 +24,8 @@ function getMessagingInstance(): Messaging | null {
   
   if (!messaging) {
     try {
-      messaging = getMessaging(app);
-    } catch (error) {
+      messaging = getMessaging(firebaseApp);
+    } catch {
       logger.warn('FCM not supported in this browser', { 
         action: 'getMessagingInstance' 
       });

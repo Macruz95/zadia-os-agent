@@ -12,11 +12,20 @@ const COLLECTION = 'invoices';
 
 /**
  * Search invoices with filters
+ * @param filters - Search filters (can include tenantId)
+ * @param tenantIdOverride - Optional tenant ID override (for backwards compatibility)
  */
-export async function searchInvoices(filters: InvoiceFilters = {}): Promise<Invoice[]> {
+export async function searchInvoices(filters: InvoiceFilters = {}, tenantIdOverride?: string): Promise<Invoice[]> {
+  // Accept tenantId from filters or as override parameter
+  const tenantId = tenantIdOverride || filters.tenantId;
+  if (!tenantId) {
+    return []; // Return empty if no tenant
+  }
+  
   try {
     const invoicesRef = collection(db, COLLECTION);
-    let q = query(invoicesRef, orderBy('createdAt', 'desc'));
+    // CRITICAL: Filter by tenantId first
+    let q = query(invoicesRef, where('tenantId', '==', tenantId), orderBy('createdAt', 'desc'));
 
     // Apply filters
     if (filters.clientId) {

@@ -80,7 +80,7 @@ function CommandSearchTrigger({ onClick }: { onClick: () => void }) {
 }
 
 export function Header() {
-  const { user, loading } = useAuth();
+  const { user, firebaseUser, loading } = useAuth();
   const pathname = usePathname();
 
   // Generar breadcrumbs dinámicos
@@ -157,7 +157,7 @@ export function Header() {
       {/* Actions */}
       <div className="flex items-center gap-2">
         <NotificationsDropdown />
-        {user && <UserNav />}
+        {firebaseUser && <UserNav />}
       </div>
     </header>
   );

@@ -7,6 +7,7 @@ import {
   getDoc,
   getDocs,
   query,
+  where,
   orderBy,
   Timestamp
 } from 'firebase/firestore';
@@ -18,10 +19,20 @@ import { CLIENTS_COLLECTION, docToClient } from '../utils/firestore.utils';
  */
 export class ClientCrudService {
   /**
-   * Get all clients
+   * Get all clients for a tenant
    */
-  static async getClients(): Promise<Client[]> {
-    const q = query(collection(db, CLIENTS_COLLECTION), orderBy('lastInteractionDate', 'desc'));
+  static async getClients(tenantId?: string): Promise<Client[]> {
+    let q;
+    if (tenantId) {
+      q = query(
+        collection(db, CLIENTS_COLLECTION),
+        where('tenantId', '==', tenantId),
+        orderBy('lastInteractionDate', 'desc')
+      );
+    } else {
+      // Fallback for legacy - but should always have tenantId
+      q = query(collection(db, CLIENTS_COLLECTION), orderBy('lastInteractionDate', 'desc'));
+    }
     const querySnapshot = await getDocs(q);
     const clients = querySnapshot.docs.map(docToClient);
     

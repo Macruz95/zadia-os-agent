@@ -24,7 +24,7 @@ export interface KPIValue {
   trend: 'up' | 'down' | 'stable';
 }
 
-export interface KPICard {
+export interface KPICardData {
   id: string;
   title: string;
   value: KPIValue;

@@ -13,16 +13,18 @@ export interface DashboardMetrics {
         expenseGrowth: number;
     };
     sales: {
-        activeLeads: number;
-        pipelineValue: number;
-        opportunitiesCount: number;
+        totalLeads: number;
+        totalOpportunities: number;
         conversionRate: number;
+        pipelineValue: number;
+        leadsGrowth: number;
+        opportunitiesGrowth: number;
     };
     projects: {
-        active: number;
-        atRisk: number;
-        completedThisMonth: number;
-        totalTasksPending: number;
+        activeProjects: number;
+        completedTasks: number;
+        pendingTasks: number;
+        projectProgress: number;
     };
     priorityActions: PriorityAction[];
 }
@@ -32,7 +34,7 @@ export interface PriorityAction {
     type: 'finance' | 'sales' | 'project' | 'system';
     title: string;
     description: string;
-    priority: 'critical' | 'high' | 'medium';
+    priority: 'critical' | 'high' | 'medium' | 'low';
     actionLabel: string;
     actionUrl: string; // Ruta interna para resolver la acción
     dueDate?: Date;

@@ -57,11 +57,17 @@ function docToQuote(doc: QueryDocumentSnapshot<DocumentData>): Quote {
 
 /**
  * Obtener todas las cotizaciones
+ * @param tenantId - Required tenant ID for data isolation
  */
-export async function getAllQuotes(): Promise<Quote[]> {
+export async function getAllQuotes(tenantId?: string): Promise<Quote[]> {
+  if (!tenantId) {
+    return []; // Return empty if no tenant
+  }
+  
   try {
     const q = query(
       collection(db, QUOTES_COLLECTION),
+      where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant
       orderBy('createdAt', 'desc')
     );
 
@@ -84,13 +90,20 @@ export async function getAllQuotes(): Promise<Quote[]> {
 
 /**
  * Obtener cotizaciones por oportunidad
+ * @param tenantId - Required tenant ID for data isolation
  */
 export async function getQuotesByOpportunity(
-  opportunityId: string
+  opportunityId: string,
+  tenantId?: string
 ): Promise<Quote[]> {
+  if (!tenantId) {
+    return []; // Return empty if no tenant
+  }
+  
   try {
     const q = query(
       collection(db, QUOTES_COLLECTION),
+      where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant
       where('opportunityId', '==', opportunityId),
       orderBy('createdAt', 'desc')
     );
@@ -115,13 +128,20 @@ export async function getQuotesByOpportunity(
 
 /**
  * Obtener cotizaciones por estado
+ * @param tenantId - Required tenant ID for data isolation
  */
 export async function getQuotesByStatus(
-  status: Quote['status']
+  status: Quote['status'],
+  tenantId?: string
 ): Promise<Quote[]> {
+  if (!tenantId) {
+    return []; // Return empty if no tenant
+  }
+  
   try {
     const q = query(
       collection(db, QUOTES_COLLECTION),
+      where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant
       where('status', '==', status),
       orderBy('createdAt', 'desc')
     );
@@ -146,13 +166,20 @@ export async function getQuotesByStatus(
 
 /**
  * Obtener cotizaciones por cliente
+ * @param tenantId - Required tenant ID for data isolation
  */
 export async function getQuotesByClient(
-  clientId: string
+  clientId: string,
+  tenantId?: string
 ): Promise<Quote[]> {
+  if (!tenantId) {
+    return []; // Return empty if no tenant
+  }
+  
   try {
     const q = query(
       collection(db, QUOTES_COLLECTION),
+      where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant
       where('clientId', '==', clientId),
       orderBy('createdAt', 'desc')
     );

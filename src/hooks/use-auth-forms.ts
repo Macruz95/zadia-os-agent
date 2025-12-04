@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
+import { auth } from '@/lib/firebase';
 import { 
   loginFormSchema, 
   registerFormSchema, 
@@ -16,6 +17,46 @@ import {
 } from '@/validations/auth.schema';
 import { useAuth } from '@/contexts/AuthContext';
 import { showToast } from '@/lib/toast';
+
+/**
+ * Wait for auth session cookie to be set before redirecting
+ */
+async function waitForSession(maxWaitMs = 3000): Promise<boolean> {
+  const startTime = Date.now();
+  
+  while (Date.now() - startTime < maxWaitMs) {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        // Get fresh token and set cookie
+        const token = await user.getIdToken(true);
+        const response = await fetch('/api/auth/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+        
+        if (response.ok) {
+          // Verify cookie was set
+          const verifyResponse = await fetch('/api/auth/session', { method: 'GET' });
+          if (verifyResponse.ok) {
+            const data = await verifyResponse.json();
+            if (data.authenticated) {
+              return true;
+            }
+          }
+        }
+      }
+    } catch {
+      // Ignore errors and retry
+    }
+    
+    // Wait 100ms before retrying
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  
+  return false;
+}
 
 /**
  * Hook for login form management
@@ -37,8 +78,15 @@ export function useLoginForm() {
     try {
       await login(data.email, data.password);
       showToast.success(t('auth.success.loginSuccess'));
-      // Redirect to dashboard after successful login
-      router.push('/dashboard');
+      
+      // Wait for session cookie to be set before redirecting
+      const sessionReady = await waitForSession();
+      if (sessionReady) {
+        router.push('/dashboard');
+      } else {
+        // Fallback: try redirect anyway (cookie might work on next request)
+        router.push('/dashboard');
+      }
     } catch (error) {
       const message = error instanceof Error ? t(error.message) : t('auth.errors.generic');
       showToast.error(message);
@@ -79,8 +127,14 @@ export function useRegisterForm() {
     try {
       await register(data);
       showToast.success(t('auth.success.accountCreated'));
-      // Redirect to dashboard after successful registration
-      router.push('/dashboard');
+      
+      // Wait for session cookie to be set before redirecting
+      const sessionReady = await waitForSession();
+      if (sessionReady) {
+        router.push('/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (error) {
       const message = error instanceof Error ? t(error.message) : t('auth.errors.generic');
       showToast.error(message);
@@ -147,8 +201,14 @@ export function useGoogleCompleteForm() {
     try {
       await completeGoogleProfile(data);
       showToast.success(t('auth.success.accountCreated'));
-      // Redirect to dashboard after successful Google profile completion
-      router.push('/dashboard');
+      
+      // Wait for session cookie to be set before redirecting
+      const sessionReady = await waitForSession();
+      if (sessionReady) {
+        router.push('/dashboard');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (error) {
       const message = error instanceof Error ? t(error.message) : t('auth.errors.generic');
       showToast.error(message);

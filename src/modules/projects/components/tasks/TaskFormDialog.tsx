@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ProjectTasksService } from '../../services/project-tasks.service';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import type { ProjectTask } from '../../types/projects.types';
@@ -49,6 +50,7 @@ export function TaskFormDialog({
   task,
 }: TaskFormDialogProps) {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const isEditing = !!task;
 
   const form = useForm<TaskFormData>({
@@ -65,6 +67,11 @@ export function TaskFormDialog({
 
   const onSubmit = async (values: TaskFormData) => {
     try {
+      if (!tenantId) {
+        toast.error('Error: No se encontró el tenant');
+        return;
+      }
+      
       if (isEditing && task) {
         await ProjectTasksService.updateTask(task.id, values);
         toast.success('Tarea actualizada');
@@ -74,7 +81,7 @@ export function TaskFormDialog({
           projectId,
           workOrderId,
           createdBy: user?.uid || '',
-        });
+        }, tenantId);
         toast.success('Tarea creada');
       }
 

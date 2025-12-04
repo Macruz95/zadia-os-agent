@@ -5,6 +5,7 @@ import { ClientFormData, ClientFormSchema } from '../validations/clients.schema'
 import { ClientsService } from '../services/clients.service';
 import { notificationService } from '@/lib/notifications';
 import { getDefaultFormValues } from './ClientFormConstants';
+import { useTenantId } from '@/contexts/TenantContext';
 
 interface UseClientFormProps {
   onSuccess?: () => void;
@@ -13,6 +14,7 @@ interface UseClientFormProps {
 export function useClientForm({ onSuccess }: UseClientFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const tenantId = useTenantId();
 
   const form = useForm<ClientFormData>({
     resolver: zodResolver(ClientFormSchema),
@@ -31,12 +33,17 @@ export function useClientForm({ onSuccess }: UseClientFormProps) {
   }, [clientType, clientName, form]);
 
   const handleSubmit = async () => {
+    if (!tenantId) {
+      notificationService.error('No se ha seleccionado una empresa');
+      return;
+    }
+    
     try {
       setIsSubmitting(true);
       const formData = form.getValues();
       
-      // Create client with contacts using new function
-      await ClientsService.createClientWithContacts(formData);
+      // Create client with contacts using new function with tenantId
+      await ClientsService.createClientWithContacts(formData, tenantId);
       
       notificationService.success('Cliente y contactos creados exitosamente');
       onSuccess?.();

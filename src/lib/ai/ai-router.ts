@@ -81,183 +81,193 @@ export interface RoutingDecision {
 
 export const MODEL_REGISTRY: Record<string, ModelConfig> = {
   // ═══════════════════════════════════════════════════════════════════════
-  // 🏆 TIER S - TOP MODELS (Free on OpenRouter)
+  // 🏆 TIER S - TOP MODELS (Free on OpenRouter - VERIFIED DEC 2025)
   // ═══════════════════════════════════════════════════════════════════════
   
-  'grok-4.1-fast': {
-    id: 'grok-4.1-fast',
-    name: 'Grok 4.1 Fast',
-    model: 'x-ai/grok-4.1-fast:free',
+  'kat-coder-pro': {
+    id: 'kat-coder-pro',
+    name: 'KAT Coder Pro',
+    model: 'kwaipilot/kat-coder-pro:free',
     provider: 'openrouter',
-    contextTokens: 131072,
-    capabilities: ['general', 'reasoning', 'coding', 'data-analysis', 'tool-use', 'fast'],
-    speed: 'ultra-fast',
+    contextTokens: 256000,
+    capabilities: ['coding', 'tool-use', 'reasoning', 'general'],
+    speed: 'medium',
     quality: 'top-tier',
-    supportsReasoning: true,
     supportsFunctionCalling: true,
     isFree: true,
-    priority: 100, // Highest priority - new default
+    priority: 100, // Best for agents/coding
   },
 
-  'deepseek-r1': {
-    id: 'deepseek-r1',
-    name: 'DeepSeek R1',
-    model: 'deepseek/deepseek-r1:free',
+  'amazon-nova-2-lite': {
+    id: 'amazon-nova-2-lite',
+    name: 'Amazon Nova 2 Lite',
+    model: 'amazon/nova-2-lite-v1:free',
     provider: 'openrouter',
-    contextTokens: 163840,
-    capabilities: ['reasoning', 'math', 'data-analysis', 'coding'],
-    speed: 'slow',
+    contextTokens: 1000000,
+    capabilities: ['fast', 'general', 'document', 'image-analysis'],
+    speed: 'fast',
     quality: 'top-tier',
-    supportsReasoning: true,
+    supportsImages: true,
+    isFree: true,
+    priority: 98,
+  },
+
+  'gemini-2.0-flash': {
+    id: 'gemini-2.0-flash',
+    name: 'Gemini 2.0 Flash',
+    model: 'google/gemini-2.0-flash-exp:free',
+    provider: 'openrouter',
+    contextTokens: 1050000,
+    capabilities: ['document', 'image-analysis', 'fast', 'coding', 'general'],
+    speed: 'fast',
+    quality: 'top-tier',
+    supportsImages: true,
     isFree: true,
     priority: 95,
   },
 
-  'qwen3-coder': {
-    id: 'qwen3-coder',
-    name: 'Qwen3-Coder 480B',
-    model: 'qwen/qwen3-coder:free',
+  'tongyi-deepresearch': {
+    id: 'tongyi-deepresearch',
+    name: 'Tongyi DeepResearch',
+    model: 'alibaba/tongyi-deepresearch-30b-a3b:free',
     provider: 'openrouter',
-    contextTokens: 262000,
-    capabilities: ['coding', 'tool-use', 'reasoning'],
+    contextTokens: 131072,
+    capabilities: ['reasoning', 'tool-use', 'general'],
     speed: 'medium',
-    quality: 'top-tier',
+    quality: 'excellent',
     supportsFunctionCalling: true,
     isFree: true,
     priority: 90,
   },
 
-  'gemini-2.5-pro': {
-    id: 'gemini-2.5-pro',
-    name: 'Gemini 2.5 Pro',
-    model: 'google/gemini-2.5-pro-exp-03-25:free',
+  'tng-r1t-chimera': {
+    id: 'tng-r1t-chimera',
+    name: 'TNG R1T Chimera',
+    model: 'tngtech/tng-r1t-chimera:free',
     provider: 'openrouter',
-    contextTokens: 1000000,
-    capabilities: ['document', 'image-analysis', 'reasoning', 'coding', 'general'],
+    contextTokens: 164000,
+    capabilities: ['reasoning', 'general', 'tool-use'],
     speed: 'medium',
-    quality: 'top-tier',
-    supportsImages: true,
-    supportsReasoning: true,
-    isFree: true,
-    priority: 92,
-  },
-
-  'gemini-2.5-flash': {
-    id: 'gemini-2.5-flash',
-    name: 'Gemini 2.5 Flash',
-    model: 'google/gemini-2.5-flash-preview-05-20:free',
-    provider: 'openrouter',
-    contextTokens: 1000000,
-    capabilities: ['general', 'fast', 'image-analysis', 'coding'],
-    speed: 'fast',
     quality: 'excellent',
-    supportsImages: true,
+    supportsReasoning: true,
     isFree: true,
     priority: 88,
   },
 
-  'llama-4-maverick': {
-    id: 'llama-4-maverick',
-    name: 'Llama 4 Maverick',
-    model: 'meta-llama/llama-4-maverick:free',
+  'longcat-flash': {
+    id: 'longcat-flash',
+    name: 'LongCat Flash Chat',
+    model: 'meituan/longcat-flash-chat:free',
     provider: 'openrouter',
-    contextTokens: 256000,
-    capabilities: ['image-analysis', 'general', 'coding'],
-    speed: 'medium',
-    quality: 'top-tier',
-    supportsImages: true,
+    contextTokens: 131072,
+    capabilities: ['fast', 'general', 'tool-use'],
+    speed: 'fast',
+    quality: 'excellent',
+    supportsFunctionCalling: true,
     isFree: true,
     priority: 85,
   },
 
-  'glm-4.5-thinking': {
-    id: 'glm-4.5-thinking',
-    name: 'GLM-4.5 Thinking',
-    model: 'z-ai/glm-4.5-thinking:free',
+  'olmo-3-32b': {
+    id: 'olmo-3-32b',
+    name: 'AllenAI Olmo 3 32B',
+    model: 'allenai/olmo-3-32b-think:free',
     provider: 'openrouter',
-    contextTokens: 128000,
-    capabilities: ['tool-use', 'reasoning', 'coding'],
+    contextTokens: 66000,
+    capabilities: ['reasoning', 'math', 'data-analysis', 'coding'],
     speed: 'medium',
-    quality: 'top-tier',
-    supportsFunctionCalling: true,
+    quality: 'excellent',
     supportsReasoning: true,
+    isFree: true,
+    priority: 88,
+  },
+
+  'gpt-oss-20b': {
+    id: 'gpt-oss-20b',
+    name: 'OpenAI GPT-OSS 20B',
+    model: 'openai/gpt-oss-20b:free',
+    provider: 'openrouter',
+    contextTokens: 131072,
+    capabilities: ['general', 'tool-use', 'reasoning', 'coding'],
+    speed: 'fast',
+    quality: 'excellent',
+    supportsFunctionCalling: true,
+    isFree: true,
+    priority: 85,
+  },
+
+  'gemma-3-27b': {
+    id: 'gemma-3-27b',
+    name: 'Gemma 3 27B',
+    model: 'google/gemma-3-27b-it:free',
+    provider: 'openrouter',
+    contextTokens: 131072,
+    capabilities: ['general', 'image-analysis', 'reasoning', 'coding'],
+    speed: 'medium',
+    quality: 'excellent',
+    supportsImages: true,
     isFree: true,
     priority: 82,
   },
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // 🥈 TIER A - EXCELLENT MODELS
-  // ═══════════════════════════════════════════════════════════════════════
-
-  'grok-4.1-mini': {
-    id: 'grok-4.1-mini',
-    name: 'Grok 4.1 Mini',
-    model: 'x-ai/grok-4.1-mini:free',
+  'mistral-small-3.1': {
+    id: 'mistral-small-3.1',
+    name: 'Mistral Small 3.1 24B',
+    model: 'mistralai/mistral-small-3.1-24b-instruct:free',
     provider: 'openrouter',
-    contextTokens: 131072,
-    capabilities: ['web-search', 'general', 'fast'],
+    contextTokens: 128000,
+    capabilities: ['fast', 'general', 'image-analysis', 'coding'],
     speed: 'fast',
     quality: 'excellent',
-    supportsWebSearch: true,
+    supportsImages: true,
+    isFree: true,
+    priority: 80,
+  },
+
+  'nous-hermes-405b': {
+    id: 'nous-hermes-405b',
+    name: 'Nous Hermes 3 405B',
+    model: 'nousresearch/hermes-3-llama-3.1-405b:free',
+    provider: 'openrouter',
+    contextTokens: 131072,
+    capabilities: ['general', 'tool-use', 'creative', 'coding'],
+    speed: 'slow',
+    quality: 'top-tier',
+    supportsFunctionCalling: true,
     isFree: true,
     priority: 78,
   },
 
-  'llama-4-scout': {
-    id: 'llama-4-scout',
-    name: 'Llama 4 Scout',
-    model: 'meta-llama/llama-4-scout:free',
+  'nemotron-nano-12b': {
+    id: 'nemotron-nano-12b',
+    name: 'NVIDIA Nemotron Nano 12B VL',
+    model: 'nvidia/nemotron-nano-12b-v2-vl:free',
     provider: 'openrouter',
-    contextTokens: 512000,
-    capabilities: ['document', 'general', 'summarization'],
+    contextTokens: 128000,
+    capabilities: ['image-analysis', 'document', 'general'],
     speed: 'fast',
     quality: 'excellent',
-    isFree: true,
-    priority: 75,
-  },
-
-  'qwen-2.5-72b': {
-    id: 'qwen-2.5-72b',
-    name: 'Qwen 2.5 72B',
-    model: 'qwen/qwen-2.5-72b-instruct:free',
-    provider: 'openrouter',
-    contextTokens: 32768,
-    capabilities: ['general', 'coding', 'translation'],
-    speed: 'medium',
-    quality: 'excellent',
+    supportsImages: true,
     isFree: true,
     priority: 72,
   },
 
-  'deepseek-r1-distill-70b': {
-    id: 'deepseek-r1-distill-70b',
-    name: 'DeepSeek R1 Distill 70B',
-    model: 'deepseek/deepseek-r1-distill-llama-70b:free',
+  'arcee-trinity-mini': {
+    id: 'arcee-trinity-mini',
+    name: 'Arcee AI Trinity Mini',
+    model: 'arcee-ai/trinity-mini:free',
     provider: 'openrouter',
     contextTokens: 131072,
-    capabilities: ['reasoning', 'general', 'math'],
-    speed: 'medium',
+    capabilities: ['reasoning', 'tool-use', 'general'],
+    speed: 'fast',
     quality: 'excellent',
-    supportsReasoning: true,
+    supportsFunctionCalling: true,
     isFree: true,
     priority: 70,
   },
 
-  'llama-3.3-70b': {
-    id: 'llama-3.3-70b',
-    name: 'Llama 3.3 70B',
-    model: 'meta-llama/llama-3.3-70b-instruct:free',
-    provider: 'openrouter',
-    contextTokens: 131072,
-    capabilities: ['general', 'coding', 'reasoning'],
-    speed: 'medium',
-    quality: 'excellent',
-    isFree: true,
-    priority: 68,
-  },
-
   // ═══════════════════════════════════════════════════════════════════════
-  // ⚡ GROQ - ULTRA-FAST (Separate Provider)
+  // ⚡ GROQ - ULTRA-FAST (Separate Provider) - KEEP ALL
   // ═══════════════════════════════════════════════════════════════════════
 
   'groq-llama-3.3-70b': {
@@ -270,20 +280,7 @@ export const MODEL_REGISTRY: Record<string, ModelConfig> = {
     speed: 'ultra-fast',
     quality: 'excellent',
     isFree: true,
-    priority: 80,
-  },
-
-  'groq-llama-3.1-8b': {
-    id: 'groq-llama-3.1-8b',
-    name: 'Groq Llama 3.1 8B Instant',
-    model: 'llama-3.1-8b-instant',
-    provider: 'groq',
-    contextTokens: 8192,
-    capabilities: ['fast'],
-    speed: 'ultra-fast',
-    quality: 'good',
-    isFree: true,
-    priority: 65,
+    priority: 93, // High priority for speed
   },
 
   'groq-deepseek-r1-distill': {
@@ -292,21 +289,34 @@ export const MODEL_REGISTRY: Record<string, ModelConfig> = {
     model: 'deepseek-r1-distill-llama-70b',
     provider: 'groq',
     contextTokens: 32768,
-    capabilities: ['reasoning', 'fast'],
+    capabilities: ['reasoning', 'fast', 'coding'],
     speed: 'ultra-fast',
     quality: 'excellent',
     supportsReasoning: true,
     isFree: true,
-    priority: 77,
+    priority: 91,
+  },
+
+  'groq-llama-3.1-8b': {
+    id: 'groq-llama-3.1-8b',
+    name: 'Groq Llama 3.1 8B Instant',
+    model: 'llama-3.1-8b-instant',
+    provider: 'groq',
+    contextTokens: 8192,
+    capabilities: ['fast', 'general'],
+    speed: 'ultra-fast',
+    quality: 'good',
+    isFree: true,
+    priority: 70,
   },
 
   // ═══════════════════════════════════════════════════════════════════════
-  // 🌈 GOOGLE AI STUDIO
+  // 🌈 GOOGLE AI STUDIO (Direct)
   // ═══════════════════════════════════════════════════════════════════════
 
   'google-gemini-2.0-flash': {
     id: 'google-gemini-2.0-flash',
-    name: 'Gemini 2.0 Flash (Google)',
+    name: 'Gemini 2.0 Flash (Direct)',
     model: 'gemini-2.0-flash',
     provider: 'google',
     contextTokens: 1000000,
@@ -315,12 +325,26 @@ export const MODEL_REGISTRY: Record<string, ModelConfig> = {
     quality: 'excellent',
     supportsImages: true,
     isFree: true,
-    priority: 73,
+    priority: 87,
   },
 
   // ═══════════════════════════════════════════════════════════════════════
-  // 🎭 SPECIALIZED
+  // 🎯 SPECIALIZED MODELS
   // ═══════════════════════════════════════════════════════════════════════
+
+  'olmo-3-32b-think': {
+    id: 'olmo-3-32b-think',
+    name: 'OLMo 3 32B Think',
+    model: 'allenai/olmo-3-32b-think:free',
+    provider: 'openrouter',
+    contextTokens: 66000,
+    capabilities: ['reasoning', 'general'],
+    speed: 'medium',
+    quality: 'excellent',
+    supportsReasoning: true,
+    isFree: true,
+    priority: 65,
+  },
 
   'deepseek-prover': {
     id: 'deepseek-prover',
@@ -547,20 +571,20 @@ export class AIRouter {
       .filter(model => this.isModelSuitable(model, analysis, config))
       .map(model => ({
         model,
-        score: this.scoreModel(model, analysis, config),
+        score: this.scoreModel(model, analysis),
       }))
       .sort((a, b) => b.score - a.score);
     
     if (candidates.length === 0) {
       // Fallback to default
-      const defaultModel = MODEL_REGISTRY['grok-4.1-fast'];
+      const defaultModel = MODEL_REGISTRY['kat-coder-pro'];
       return {
         model: defaultModel.model,
         modelId: defaultModel.id,
         modelName: defaultModel.name,
         provider: defaultModel.provider,
         reason: 'No suitable model found, using default',
-        fallbacks: ['gemini-2.5-flash', 'groq-llama-3.3-70b'],
+        fallbacks: ['gemini-2.0-flash', 'groq-llama-3.3-70b'],
         estimatedSpeed: defaultModel.speed,
         capabilities: defaultModel.capabilities,
       };
@@ -625,7 +649,7 @@ export class AIRouter {
   /**
    * Score a model for the task (higher = better)
    */
-  private static scoreModel(model: ModelConfig, analysis: TaskAnalysis, config: AIRouterConfig): number {
+  private static scoreModel(model: ModelConfig, analysis: TaskAnalysis): number {
     let score = model.priority;
     
     // Capability match bonus

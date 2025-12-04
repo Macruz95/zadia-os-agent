@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SalesAnalyticsService } from '../../services/analytics.service';
 import type { SalesAnalyticsData } from '../../services/analytics.service';
 import { toast } from 'sonner';
+import { useTenantId } from '@/contexts/TenantContext';
 
 import { AnalyticsHeader } from './AnalyticsHeader';
 import { KPIsOverview } from './KPIsOverview';
@@ -21,6 +22,7 @@ import { SourcesTab } from './SourcesTab';
 import { TeamTab } from './TeamTab';
 
 export function SalesAnalytics() {
+  const tenantId = useTenantId();
   const [timeRange, setTimeRange] = useState('6m');
   const [analyticsData, setAnalyticsData] = useState<SalesAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,9 +30,14 @@ export function SalesAnalytics() {
   // Load analytics data
   useEffect(() => {
     const loadAnalytics = async () => {
+      if (!tenantId) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        const data = await SalesAnalyticsService.getSalesAnalytics();
+        const data = await SalesAnalyticsService.getSalesAnalytics(tenantId);
         setAnalyticsData(data);
       } catch (error) {
         logger.error('Error loading sales analytics', error as Error, {
@@ -44,7 +51,7 @@ export function SalesAnalytics() {
     };
 
     loadAnalytics();
-  }, [timeRange]);
+  }, [timeRange, tenantId]);
 
   if (loading) {
     return (

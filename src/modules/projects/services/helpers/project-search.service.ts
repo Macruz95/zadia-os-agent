@@ -57,19 +57,29 @@ function docToProject(doc: QueryDocumentSnapshot<DocumentData>): Project {
 
 /**
  * Buscar proyectos con filtros
- * @param params - Parámetros de búsqueda validados
+ * @param params - Parámetros de búsqueda validados (puede incluir tenantId)
+ * @param pageSize - Límite de resultados
+ * @param tenantIdOverride - Optional tenant ID override (for backwards compatibility)
  * @returns Lista de proyectos y total
  */
 export async function searchProjects(
   params: ProjectSearchParams = {},
-  pageSize?: number
+  pageSize?: number,
+  tenantIdOverride?: string
 ): Promise<{
   projects: Project[];
   totalCount: number;
 }> {
+  // Accept tenantId from params or as override parameter
+  const tenantId = tenantIdOverride || params.tenantId;
+  if (!tenantId) {
+    return { projects: [], totalCount: 0 };
+  }
+  
   try {
     const projectsRef = collection(db, PROJECTS_COLLECTION);
-    let q = query(projectsRef);
+    // CRITICAL: Filter by tenantId first
+    let q = query(projectsRef, where('tenantId', '==', tenantId));
 
     // Aplicar filtros
     if (params.status) {

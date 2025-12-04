@@ -3,9 +3,18 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
 
-export async function getProjectMetrics() {
+export async function getProjectMetrics(tenantId: string) {
     try {
-        const allProjectsResult = await ProjectsService.searchProjects({}, 1000);
+        if (!tenantId) {
+            return {
+                activeProjects: 0,
+                completedTasks: 0,
+                pendingTasks: 0,
+                projectProgress: 0
+            };
+        }
+
+        const allProjectsResult = await ProjectsService.searchProjects({ tenantId }, 1000);
         const allProjects = allProjectsResult.projects;
 
         // 1. Active Projects
@@ -26,27 +35,28 @@ export async function getProjectMetrics() {
             return p.updatedAt.toDate() >= startOfMonth;
         }).length;
 
-        // 4. Total Tasks Pending
+        // 4. Total Tasks Pending with tenantId filter
         const tasksQuery = query(
             collection(db, 'projectTasks'),
+            where('tenantId', '==', tenantId),
             where('status', 'in', ['pending', 'in-progress'])
         );
         const tasksSnap = await getDocs(tasksQuery);
         const totalTasksPending = tasksSnap.size;
 
         return {
-            active,
-            atRisk,
-            completedThisMonth,
-            totalTasksPending
+            activeProjects: active,
+            completedTasks: completedThisMonth,
+            pendingTasks: totalTasksPending,
+            projectProgress: active > 0 ? Math.round((completedThisMonth / (completedThisMonth + active)) * 100) : 0
         };
     } catch (error) {
         logger.error('Error calculating project metrics', error as Error);
         return {
-            active: 0,
-            atRisk: 0,
-            completedThisMonth: 0,
-            totalTasksPending: 0
+            activeProjects: 0,
+            completedTasks: 0,
+            pendingTasks: 0,
+            projectProgress: 0
         };
     }
 }

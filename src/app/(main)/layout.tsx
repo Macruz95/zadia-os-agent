@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { TenantProvider } from "@/contexts/TenantContext";
 import { Header } from "@/components/layout/Header";
@@ -9,6 +7,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RouteGuard } from "@/components/auth/RouteGuard";
+import { TenantGuard } from "@/components/auth/TenantGuard";
 import { CommandBar } from "@/components/CommandBar";
 import { ZadiaSystemInitializer } from "@/components/system/ZadiaSystemInitializer";
 import { ZadiaAgenticProvider } from "@/contexts/ZadiaAgenticContext";
@@ -18,25 +17,10 @@ export default function MainLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user, firebaseUser, loading } = useAuth();
-  const router = useRouter();
+  const { firebaseUser, loading } = useAuth();
 
-  useEffect(() => {
-    if (loading) {
-      return;
-    }
-
-    if (!firebaseUser) {
-      router.replace('/login');
-      return;
-    }
-
-    // TEMPORARILY DISABLED: Pending activation check
-    // Allow users without complete profiles to access the system
-  }, [loading, firebaseUser, user, router]);
-
-  // Show loading skeleton while checking authentication
-  // Middleware handles redirects for unauthenticated users
+  // Show loading skeleton while Firebase Auth initializes
+  // Middleware already validated the session cookie, so we just wait for Firebase client
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -62,13 +46,14 @@ export default function MainLayout({
     );
   }
 
-  // If auth state resolved but no session, await redirect
+  // If loading finished but no firebaseUser, show brief loading state
+  // This can happen briefly during hydration - middleware ensures valid session
   if (!firebaseUser) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="space-y-3 text-center">
           <Skeleton className="h-6 w-48" />
-          <p className="text-sm text-muted-foreground">Redirigiendo...</p>
+          <p className="text-sm text-muted-foreground">Cargando sesión...</p>
         </div>
       </div>
     );
@@ -77,22 +62,24 @@ export default function MainLayout({
   return (
     <RouteGuard>
       <TenantProvider>
-        <ZadiaAgenticProvider>
-          <ZadiaSystemInitializer>
-            <SidebarProvider>
-              <div className="flex min-h-screen w-full bg-[#0a0f1a]">
-                <Sidebar />
-                <SidebarInset className="bg-[#0a0f1a]">
-                  <Header />
-                  <main className="flex-1">
-                    {children}
-                  </main>
-                </SidebarInset>
-              </div>
-              <CommandBar />
-            </SidebarProvider>
-          </ZadiaSystemInitializer>
-        </ZadiaAgenticProvider>
+        <TenantGuard>
+          <ZadiaAgenticProvider>
+            <ZadiaSystemInitializer>
+              <SidebarProvider>
+                <div className="flex min-h-screen w-full bg-[#0a0f1a]">
+                  <Sidebar />
+                  <SidebarInset className="bg-[#0a0f1a]">
+                    <Header />
+                    <main className="flex-1">
+                      {children}
+                    </main>
+                  </SidebarInset>
+                </div>
+                <CommandBar />
+              </SidebarProvider>
+            </ZadiaSystemInitializer>
+          </ZadiaAgenticProvider>
+        </TenantGuard>
       </TenantProvider>
     </RouteGuard>
   );

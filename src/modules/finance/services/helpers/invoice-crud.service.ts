@@ -13,13 +13,20 @@ const COLLECTION = 'invoices';
 
 /**
  * Create a new invoice
+ * @param invoiceData - Invoice data
+ * @param tenantId - Required tenant ID for data isolation
  */
-export async function createInvoice(invoiceData: CreateInvoiceInput): Promise<string> {
+export async function createInvoice(invoiceData: CreateInvoiceInput, tenantId?: string): Promise<string> {
+  if (!tenantId) {
+    throw new Error('tenantId is required for data isolation');
+  }
+  
   try {
     const invoicesRef = collection(db, COLLECTION);
 
     const newInvoice = {
       ...invoiceData,
+      tenantId, // CRITICAL: Add tenant isolation
       // Initial values
       amountPaid: 0,
       amountDue: invoiceData.total,

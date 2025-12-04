@@ -11,7 +11,8 @@ import {
   where,
   orderBy,
   limit,
-  Timestamp
+  Timestamp,
+  QueryConstraint
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
@@ -22,12 +23,19 @@ const COLLECTION_NAME = 'finished-products';
 export class FinishedProductSearchService {
   /**
    * Get all finished products with search and filtering
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async searchFinishedProducts(
-    searchParams: InventorySearchParams = {}
+    searchParams: InventorySearchParams = {},
+    tenantId?: string
   ): Promise<{ finishedProducts: FinishedProduct[]; totalCount: number }> {
+    if (!tenantId) {
+      return { finishedProducts: [], totalCount: 0 }; // Return empty if no tenant
+    }
+    
     try {
-      const constraints = [];
+      // CRITICAL: Filter by tenantId first
+      const constraints: QueryConstraint[] = [where('tenantId', '==', tenantId)];
 
       // Apply filters
       if (searchParams.filters?.category) {
@@ -116,11 +124,20 @@ export class FinishedProductSearchService {
 
   /**
    * Get finished products with low stock
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async getLowStockFinishedProducts(): Promise<FinishedProduct[]> {
+  static async getLowStockFinishedProducts(tenantId?: string): Promise<FinishedProduct[]> {
+    if (!tenantId) {
+      return []; // Return empty if no tenant
+    }
+    
     try {
       const querySnapshot = await getDocs(
-        query(collection(db, COLLECTION_NAME), where('isActive', '==', true))
+        query(
+          collection(db, COLLECTION_NAME),
+          where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant
+          where('isActive', '==', true)
+        )
       );
 
       const finishedProducts = querySnapshot.docs

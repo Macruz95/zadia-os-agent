@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
 export function UserNav() {
-  const { user, logout } = useAuth();
+  const { user, firebaseUser, logout } = useAuth();
   const { t, i18n } = useTranslation();
   const router = useRouter();
 
@@ -36,9 +36,15 @@ export function UserNav() {
     i18n.changeLanguage(newLang);
   };
 
-  if (!user) return null;
+  if (!firebaseUser) return null;
 
-  const userInitials = user.displayName
+  // Use Firestore profile if available, otherwise fall back to Firebase Auth user
+  const displayName = user?.displayName || firebaseUser.displayName || firebaseUser.email || 'Usuario';
+  const email = user?.email || firebaseUser.email || '';
+  const photoURL = user?.photoURL || firebaseUser.photoURL || undefined;
+  const role = user?.role || 'user';
+
+  const userInitials = displayName
     .split(' ')
     .map(name => name.charAt(0).toUpperCase())
     .join('')
@@ -49,7 +55,7 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-9 w-9 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src={user.photoURL} alt={user.displayName} />
+            <AvatarImage src={photoURL} alt={displayName} />
             <AvatarFallback>{userInitials}</AvatarFallback>
           </Avatar>
         </Button>
@@ -57,10 +63,10 @@ export function UserNav() {
       <DropdownMenuContent className="w-56" align="end">
         <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1 leading-none">
-            <p className="font-medium">{user.displayName}</p>
-            <p className="text-xs text-muted-foreground">{user.email}</p>
+            <p className="font-medium">{displayName}</p>
+            <p className="text-xs text-muted-foreground">{email}</p>
             <p className="text-xs text-muted-foreground capitalize">
-              {t(`auth.roles.${user.role}`)}
+              {t(`auth.roles.${role}`)}
             </p>
           </div>
         </div>

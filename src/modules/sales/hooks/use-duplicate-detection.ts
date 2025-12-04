@@ -12,6 +12,7 @@ import {
   DuplicateSearchInput 
 } from '../validations/lead-conversion.schema';
 import { logger } from '@/lib/logger';
+import { useTenantId } from '@/contexts/TenantContext';
 
 interface UseDuplicateDetectionReturn {
   duplicates: DuplicateClient[];
@@ -23,6 +24,7 @@ interface UseDuplicateDetectionReturn {
 }
 
 export function useDuplicateDetection(): UseDuplicateDetectionReturn {
+  const tenantId = useTenantId();
   const [duplicates, setDuplicates] = useState<DuplicateClient[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,11 +33,16 @@ export function useDuplicateDetection(): UseDuplicateDetectionReturn {
    * Search for potential duplicate clients
    */
   const searchForDuplicates = useCallback(async (searchData: DuplicateSearchInput) => {
+    if (!tenantId) {
+      setError('No se pudo identificar el tenant');
+      return;
+    }
+
     setIsSearching(true);
     setError(null);
 
     try {
-      const results = await DuplicateDetectionService.findDuplicates(searchData);
+      const results = await DuplicateDetectionService.findDuplicates(searchData, tenantId);
       setDuplicates(results);
       
       logger.info(`Found ${results.length} potential duplicates`);
@@ -49,7 +56,7 @@ export function useDuplicateDetection(): UseDuplicateDetectionReturn {
     } finally {
       setIsSearching(false);
     }
-  }, []);
+  }, [tenantId]);
 
   /**
    * Clear duplicate results

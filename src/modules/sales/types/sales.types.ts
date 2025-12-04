@@ -123,6 +123,7 @@ export interface QuoteItem {
 // Quote Interface
 export interface Quote {
   id: string;
+  tenantId?: string; // For tenant isolation
   number: string; // Auto-generated (COT-2025-001)
   opportunityId?: string; // Optional - quote can be created directly
   opportunityName?: string; // For display when created from opportunity
@@ -153,6 +154,7 @@ export interface Quote {
 
 // Search and Filter Types
 export interface LeadFilters {
+  tenantId?: string;
   status?: LeadStatus[];
   source?: LeadSource[];
   priority?: LeadPriority[];

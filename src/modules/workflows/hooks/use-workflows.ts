@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 import { WorkflowsService } from '../services/workflows.service';
 import type { 
@@ -38,6 +39,7 @@ interface UseWorkflowsReturn {
 
 export function useWorkflows(): UseWorkflowsReturn {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +48,7 @@ export function useWorkflows(): UseWorkflowsReturn {
    * Cargar flujos
    */
   const loadWorkflows = useCallback(async () => {
-    if (!user?.uid) {
+    if (!user?.uid || !tenantId) {
       setLoading(false);
       return;
     }
@@ -55,7 +57,7 @@ export function useWorkflows(): UseWorkflowsReturn {
       setLoading(true);
       setError(null);
 
-      const loadedWorkflows = await WorkflowsService.getWorkflows(user.uid);
+      const loadedWorkflows = await WorkflowsService.getWorkflows(user.uid, tenantId);
       setWorkflows(loadedWorkflows);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al cargar flujos';
@@ -64,7 +66,7 @@ export function useWorkflows(): UseWorkflowsReturn {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid]);
+  }, [user?.uid, tenantId]);
 
   /**
    * Crear desde template
@@ -76,9 +78,12 @@ export function useWorkflows(): UseWorkflowsReturn {
     if (!user?.uid) {
       throw new Error('Usuario no autenticado');
     }
+    if (!tenantId) {
+      throw new Error('No tenant ID');
+    }
 
     try {
-      const workflowId = await WorkflowsService.createFromTemplate(template, user.uid, customizations);
+      const workflowId = await WorkflowsService.createFromTemplate(template, user.uid, tenantId, customizations);
       await loadWorkflows();
       return workflowId;
     } catch (err) {
@@ -86,7 +91,7 @@ export function useWorkflows(): UseWorkflowsReturn {
       setError(errorMessage);
       throw err;
     }
-  }, [user?.uid, loadWorkflows]);
+  }, [user?.uid, tenantId, loadWorkflows]);
 
   /**
    * Crear flujo personalizado
@@ -97,9 +102,12 @@ export function useWorkflows(): UseWorkflowsReturn {
     if (!user?.uid) {
       throw new Error('Usuario no autenticado');
     }
+    if (!tenantId) {
+      throw new Error('No tenant ID');
+    }
 
     try {
-      const workflowId = await WorkflowsService.createWorkflow(workflow, user.uid);
+      const workflowId = await WorkflowsService.createWorkflow(workflow, user.uid, tenantId);
       await loadWorkflows();
       return workflowId;
     } catch (err) {
@@ -107,7 +115,7 @@ export function useWorkflows(): UseWorkflowsReturn {
       setError(errorMessage);
       throw err;
     }
-  }, [user?.uid, loadWorkflows]);
+  }, [user?.uid, tenantId, loadWorkflows]);
 
   /**
    * Actualizar flujo
@@ -150,16 +158,19 @@ export function useWorkflows(): UseWorkflowsReturn {
     if (!user?.uid) {
       throw new Error('Usuario no autenticado');
     }
+    if (!tenantId) {
+      throw new Error('No tenant ID');
+    }
 
     try {
-      const executionId = await WorkflowsService.executeWorkflow(workflowId, user.uid, context);
+      const executionId = await WorkflowsService.executeWorkflow(workflowId, user.uid, tenantId, context);
       return executionId;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error al ejecutar flujo';
       setError(errorMessage);
       throw err;
     }
-  }, [user?.uid]);
+  }, [user?.uid, tenantId]);
 
   /**
    * Obtener ejecuciones
@@ -167,17 +178,17 @@ export function useWorkflows(): UseWorkflowsReturn {
   const getExecutions = useCallback(async (
     workflowId?: string
   ): Promise<WorkflowExecution[]> => {
-    if (!user?.uid) {
+    if (!user?.uid || !tenantId) {
       return [];
     }
 
     try {
-      return await WorkflowsService.getExecutions(user.uid, workflowId);
+      return await WorkflowsService.getExecutions(user.uid, tenantId, workflowId);
     } catch (err) {
       logger.error('Failed to get executions', err as Error);
       return [];
     }
-  }, [user?.uid]);
+  }, [user?.uid, tenantId]);
 
   /**
    * Obtener flujo por ID

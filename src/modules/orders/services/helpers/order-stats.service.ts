@@ -11,14 +11,27 @@ import { searchOrders } from './order-search.service';
 /**
  * Obtener estadísticas de pedidos
  * @param clientId - ID del cliente (opcional)
+ * @param tenantId - Required tenant ID for data isolation
  * @returns Estadísticas calculadas
  */
-export async function getOrderStats(clientId?: string): Promise<OrderStats> {
+export async function getOrderStats(clientId?: string, tenantId?: string): Promise<OrderStats> {
+  if (!tenantId) {
+    return {
+      totalOrders: 0,
+      totalRevenue: 0,
+      pendingOrders: 0,
+      shippedOrders: 0,
+      deliveredOrders: 0,
+      cancelledOrders: 0,
+      averageOrderValue: 0,
+    };
+  }
+  
   try {
     const filters: OrderFilters = {};
     if (clientId) filters.clientId = clientId;
 
-    const orders = await searchOrders(filters);
+    const orders = await searchOrders(filters, tenantId);
 
     const stats: OrderStats = {
       totalOrders: orders.length,

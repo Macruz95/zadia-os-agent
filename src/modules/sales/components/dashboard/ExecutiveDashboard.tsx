@@ -16,16 +16,23 @@ import { DashboardInsights } from './DashboardInsights';
 import { SalesAnalyticsService } from '../../services/analytics.service';
 import type { SalesAnalyticsData } from '../../services/analytics.service';
 import { toast } from 'sonner';
+import { useTenantId } from '@/contexts/TenantContext';
 
 export function ExecutiveDashboard() {
   const router = useRouter();
+  const tenantId = useTenantId();
   const [analyticsData, setAnalyticsData] = useState<SalesAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadDashboardData = async () => {
+      if (!tenantId) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const data = await SalesAnalyticsService.getSalesAnalytics();
+        const data = await SalesAnalyticsService.getSalesAnalytics(tenantId);
         setAnalyticsData(data);
       } catch (error) {
         logger.error('Error loading executive dashboard data', error as Error, {
@@ -39,7 +46,7 @@ export function ExecutiveDashboard() {
     };
 
     loadDashboardData();
-  }, []);
+  }, [tenantId]);
 
   if (loading) {
     return (

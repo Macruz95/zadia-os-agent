@@ -11,8 +11,9 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useTenantId } from '@/contexts/TenantContext';
 
 interface ScoreMetrics {
   profitability: number;         // 0-100 (25% weight)
@@ -51,9 +52,15 @@ export function useZadiaScore(): ZadiaScoreResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasData, setHasData] = useState(false);
+  const tenantId = useTenantId();
 
   useEffect(() => {
     async function calculateMetrics() {
+      if (!tenantId) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
@@ -64,7 +71,8 @@ export function useZadiaScore(): ZadiaScoreResult {
         let profitabilityScore = 0;
         try {
           const invoicesRef = collection(db, 'invoices');
-          const allInvoicesSnap = await getDocs(invoicesRef);
+          const invoicesQ = query(invoicesRef, where('tenantId', '==', tenantId));
+          const allInvoicesSnap = await getDocs(invoicesQ);
           
           if (allInvoicesSnap.size > 0) {
             dataFound = true;
@@ -92,7 +100,8 @@ export function useZadiaScore(): ZadiaScoreResult {
         let liquidityScore = 0;
         try {
           const invoicesRef = collection(db, 'invoices');
-          const allInvoicesSnap = await getDocs(invoicesRef);
+          const invoicesQ2 = query(invoicesRef, where('tenantId', '==', tenantId));
+          const allInvoicesSnap = await getDocs(invoicesQ2);
           
           if (allInvoicesSnap.size > 0) {
             dataFound = true;
@@ -111,7 +120,8 @@ export function useZadiaScore(): ZadiaScoreResult {
         let operationalScore = 0;
         try {
           const projectsRef = collection(db, 'projects');
-          const allProjectsSnap = await getDocs(projectsRef);
+          const projectsQ = query(projectsRef, where('tenantId', '==', tenantId));
+          const allProjectsSnap = await getDocs(projectsQ);
           
           if (allProjectsSnap.size > 0) {
             dataFound = true;
@@ -130,7 +140,8 @@ export function useZadiaScore(): ZadiaScoreResult {
         let satisfactionScore = 0;
         try {
           const clientsRef = collection(db, 'clients');
-          const allClientsSnap = await getDocs(clientsRef);
+          const clientsQ = query(clientsRef, where('tenantId', '==', tenantId));
+          const allClientsSnap = await getDocs(clientsQ);
           
           if (allClientsSnap.size > 0) {
             dataFound = true;
@@ -150,7 +161,8 @@ export function useZadiaScore(): ZadiaScoreResult {
         let salesGrowthScore = 0;
         try {
           const opportunitiesRef = collection(db, 'opportunities');
-          const allOppsSnap = await getDocs(opportunitiesRef);
+          const oppsQ = query(opportunitiesRef, where('tenantId', '==', tenantId));
+          const allOppsSnap = await getDocs(oppsQ);
           
           if (allOppsSnap.size > 0) {
             dataFound = true;
@@ -163,7 +175,8 @@ export function useZadiaScore(): ZadiaScoreResult {
           } else {
             // Try leads as fallback
             const leadsRef = collection(db, 'leads');
-            const allLeadsSnap = await getDocs(leadsRef);
+            const leadsQ = query(leadsRef, where('tenantId', '==', tenantId));
+            const allLeadsSnap = await getDocs(leadsQ);
             
             if (allLeadsSnap.size > 0) {
               dataFound = true;
@@ -199,7 +212,7 @@ export function useZadiaScore(): ZadiaScoreResult {
     }
 
     calculateMetrics();
-  }, []);
+  }, [tenantId]);
 
   const score = useMemo(() => {
     return (

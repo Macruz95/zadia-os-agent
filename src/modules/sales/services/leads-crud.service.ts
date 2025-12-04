@@ -34,11 +34,17 @@ const LEADS_COLLECTION = 'leads';
 export class LeadsCrudService {
   /**
    * Create a new lead
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async createLead(data: LeadFormData, createdBy: string): Promise<Lead> {
+  static async createLead(data: LeadFormData, createdBy: string, tenantId?: string): Promise<Lead> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     try {
       const leadData = {
         ...data,
+        tenantId, // CRITICAL: Add tenant isolation
         status: 'new' as const,
         createdAt: Timestamp.fromDate(new Date()),
         updatedAt: Timestamp.fromDate(new Date()),
@@ -141,14 +147,21 @@ export class LeadsCrudService {
 
   /**
    * Search leads with filters and pagination
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async searchLeads(
     filters: LeadFilters = {},
     pageSize: number = 20,
-    lastDocId?: string
+    lastDocId?: string,
+    tenantId?: string
   ): Promise<LeadSearchResult> {
+    if (!tenantId) {
+      return { leads: [], totalCount: 0 }; // Return empty if no tenant
+    }
+    
     try {
-      let q = query(collection(db, LEADS_COLLECTION));
+      // CRITICAL: Filter by tenantId first
+      let q = query(collection(db, LEADS_COLLECTION), where('tenantId', '==', tenantId));
 
       // Apply filters
       if (filters.status && filters.status.length > 0) {
@@ -209,11 +222,17 @@ export class LeadsCrudService {
 
   /**
    * Get leads by assigned salesperson
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async getLeadsByUser(userId: string): Promise<Lead[]> {
+  static async getLeadsByUser(userId: string, tenantId?: string): Promise<Lead[]> {
+    if (!tenantId) {
+      return []; // Return empty if no tenant
+    }
+    
     try {
       const q = query(
         collection(db, LEADS_COLLECTION),
+        where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant
         where('assignedTo', '==', userId),
         where('status', 'in', ['new', 'contacted', 'qualifying']),
         orderBy('createdAt', 'desc')

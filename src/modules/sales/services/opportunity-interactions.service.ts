@@ -28,12 +28,17 @@ const INTERACTIONS_COLLECTION = 'opportunityInteractions';
 
 export class OpportunityInteractionsService {
   /**
-   * Create a new opportunity interaction
+   * Create a new opportunity interaction with tenant isolation
    */
   static async createInteraction(
-    data: CreateOpportunityInteractionInput
+    data: CreateOpportunityInteractionInput,
+    tenantId: string
   ): Promise<OpportunityInteraction> {
     try {
+      if (!tenantId) {
+        throw new Error('tenantId is required');
+      }
+
       const interactionData = {
         opportunityId: data.opportunityId,
         type: data.type,
@@ -41,6 +46,7 @@ export class OpportunityInteractionsService {
         details: data.details || '',
         performedAt: serverTimestamp(),
         performedBy: data.performedBy,
+        tenantId,
       };
 
       const docRef = await addDoc(
@@ -67,12 +73,17 @@ export class OpportunityInteractionsService {
   }
 
   /**
-   * Create a stage change interaction
+   * Create a stage change interaction with tenant isolation
    */
   static async createStageChangeInteraction(
-    data: StageChangeInteractionInput
+    data: StageChangeInteractionInput,
+    tenantId: string
   ): Promise<OpportunityInteraction> {
     try {
+      if (!tenantId) {
+        throw new Error('tenantId is required');
+      }
+
       const interactionData = {
         opportunityId: data.opportunityId,
         type: 'stage-change' as const,
@@ -82,6 +93,7 @@ export class OpportunityInteractionsService {
         performedBy: data.performedBy,
         previousStage: data.previousStage,
         newStage: data.newStage,
+        tenantId,
       };
 
       const docRef = await addDoc(
@@ -112,14 +124,21 @@ export class OpportunityInteractionsService {
   }
 
   /**
-   * Get all interactions for an opportunity
+   * Get all interactions for an opportunity filtered by tenant
    */
   static async getInteractionsByOpportunity(
-    opportunityId: string
+    opportunityId: string,
+    tenantId: string
   ): Promise<OpportunityInteraction[]> {
     try {
+      if (!tenantId) {
+        logger.warn('getInteractionsByOpportunity called without tenantId');
+        return [];
+      }
+
       const q = query(
         collection(db, INTERACTIONS_COLLECTION),
+        where('tenantId', '==', tenantId),
         where('opportunityId', '==', opportunityId),
         orderBy('performedAt', 'desc')
       );

@@ -12,6 +12,7 @@ import {
   where, 
   getDocs,
   or,
+  and,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
@@ -74,22 +75,32 @@ function levenshteinDistance(str1: string, str2: string): number {
 
 export class DuplicateDetectionService {
   /**
-   * Search for potential duplicate clients
+   * Search for potential duplicate clients filtered by tenant
    */
   static async findDuplicates(
-    searchData: DuplicateSearchInput
+    searchData: DuplicateSearchInput,
+    tenantId: string
   ): Promise<DuplicateClient[]> {
     try {
+      if (!tenantId) {
+        logger.warn('findDuplicates called without tenantId');
+        return [];
+      }
+
       logger.info('Searching for duplicate clients');
 
       const clientsRef = collection(db, CLIENTS_COLLECTION);
       
-      // Build query to find exact matches
+      // Build query to find exact matches with tenant filter
+      // Using and() to combine tenant filter with or() for duplicate matching
       const q = query(
         clientsRef,
-        or(
-          where('email', '==', searchData.email),
-          where('phone', '==', searchData.phone)
+        and(
+          where('tenantId', '==', tenantId),
+          or(
+            where('email', '==', searchData.email),
+            where('phone', '==', searchData.phone)
+          )
         )
       );
 
@@ -162,12 +173,21 @@ export class DuplicateDetectionService {
   }
 
   /**
-   * Check if email exists
+   * Check if email exists in tenant
    */
-  static async emailExists(email: string): Promise<boolean> {
+  static async emailExists(email: string, tenantId: string): Promise<boolean> {
     try {
+      if (!tenantId) {
+        logger.warn('emailExists called without tenantId');
+        return false;
+      }
+
       const clientsRef = collection(db, CLIENTS_COLLECTION);
-      const q = query(clientsRef, where('email', '==', email));
+      const q = query(
+        clientsRef, 
+        where('tenantId', '==', tenantId),
+        where('email', '==', email)
+      );
       const snapshot = await getDocs(q);
       return !snapshot.empty;
     } catch (error) {
@@ -177,12 +197,21 @@ export class DuplicateDetectionService {
   }
 
   /**
-   * Check if phone exists
+   * Check if phone exists in tenant
    */
-  static async phoneExists(phone: string): Promise<boolean> {
+  static async phoneExists(phone: string, tenantId: string): Promise<boolean> {
     try {
+      if (!tenantId) {
+        logger.warn('phoneExists called without tenantId');
+        return false;
+      }
+
       const clientsRef = collection(db, CLIENTS_COLLECTION);
-      const q = query(clientsRef, where('phone', '==', phone));
+      const q = query(
+        clientsRef,
+        where('tenantId', '==', tenantId),
+        where('phone', '==', phone)
+      );
       const snapshot = await getDocs(q);
       return !snapshot.empty;
     } catch (error) {

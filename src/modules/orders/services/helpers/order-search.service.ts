@@ -19,12 +19,18 @@ import type { Order, OrderFilters } from '../../types/orders.types';
 /**
  * Buscar pedidos con filtros
  * @param filters - Filtros opcionales
+ * @param tenantId - Required tenant ID for data isolation
  * @returns Array de pedidos
  */
-export async function searchOrders(filters: OrderFilters = {}): Promise<Order[]> {
+export async function searchOrders(filters: OrderFilters = {}, tenantId?: string): Promise<Order[]> {
+  if (!tenantId) {
+    return []; // Return empty if no tenant
+  }
+  
   try {
     const ordersRef = collection(db, 'orders');
-    let q = query(ordersRef, orderBy('orderDate', 'desc'));
+    // CRITICAL: Filter by tenantId first
+    let q = query(ordersRef, where('tenantId', '==', tenantId), orderBy('orderDate', 'desc'));
 
     // Aplicar filtros Firestore
     if (filters.clientId) {

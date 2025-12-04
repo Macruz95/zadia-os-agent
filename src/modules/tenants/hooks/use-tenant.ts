@@ -3,14 +3,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { logger } from '@/lib/logger';
-import { Tenant } from '../types';
+import { Tenant, CreateTenantData, UpdateTenantData } from '../types';
 import {
   getTenantById,
   getUserTenants,
   createTenant,
   updateTenant,
-  CreateTenantData,
-  UpdateTenantData,
 } from '../services/tenant.service';
 
 const CURRENT_TENANT_KEY = 'zadia_current_tenant';

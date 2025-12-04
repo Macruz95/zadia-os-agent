@@ -4,10 +4,11 @@
  * Manages sales analytics and metrics
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { SalesPipelineKPIs } from '../types/sales.types';
 import { SalesAnalyticsService } from '../services/analytics.service';
 import { logger } from '@/lib/logger';
+import { useTenantId } from '@/contexts/TenantContext';
 
 interface UseSalesAnalyticsReturn {
   metrics: SalesPipelineKPIs | null;
@@ -18,17 +19,23 @@ interface UseSalesAnalyticsReturn {
 }
 
 export function useSalesAnalytics(): UseSalesAnalyticsReturn {
+  const tenantId = useTenantId();
   const [metrics, setMetrics] = useState<SalesPipelineKPIs | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
 
   const loadMetrics = useCallback(async () => {
+    if (!tenantId) {
+      setMetrics(null);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(undefined);
 
-      // Usar método existente del servicio
-      const salesData = await SalesAnalyticsService.getSalesAnalytics();
+      // Usar método existente del servicio con tenantId
+      const salesData = await SalesAnalyticsService.getSalesAnalytics(tenantId);
       
       // Convertir a formato SalesPipelineKPIs usando los datos disponibles
       const salesMetrics: SalesPipelineKPIs = {
@@ -54,11 +61,18 @@ export function useSalesAnalytics(): UseSalesAnalyticsReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   const refresh = useCallback(async () => {
     await loadMetrics();
   }, [loadMetrics]);
+
+  // Reload when tenant changes
+  useEffect(() => {
+    if (tenantId) {
+      loadMetrics();
+    }
+  }, [tenantId, loadMetrics]);
 
   return {
     metrics,

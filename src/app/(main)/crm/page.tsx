@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useTenantId } from '@/contexts/TenantContext';
 
 interface CRMStats {
   activeLeads: number;
@@ -22,6 +23,7 @@ interface CRMStats {
 }
 
 export default function CRMPage() {
+  const tenantId = useTenantId();
   const [stats, setStats] = useState<CRMStats>({
     activeLeads: 0,
     totalClients: 0,
@@ -31,31 +33,47 @@ export default function CRMPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadStats();
-  }, []);
+    if (tenantId) {
+      loadStats();
+    }
+  }, [tenantId]);
 
   const loadStats = async () => {
+    if (!tenantId) return;
+    
     try {
       setLoading(true);
       
-      // Contar leads activos (no converted, no lost)
+      // Contar leads activos (no converted, no lost) filtered by tenant
       const leadsSnapshot = await getDocs(
-        query(collection(db, 'leads'), where('status', 'in', ['new', 'contacted', 'qualified']))
+        query(
+          collection(db, 'leads'), 
+          where('tenantId', '==', tenantId),
+          where('status', 'in', ['new', 'contacted', 'qualified'])
+        )
       );
       const activeLeads = leadsSnapshot.size;
       
-      // Contar total de clientes
-      const clientsSnapshot = await getDocs(collection(db, 'clients'));
+      // Contar total de clientes filtered by tenant
+      const clientsSnapshot = await getDocs(
+        query(collection(db, 'clients'), where('tenantId', '==', tenantId))
+      );
       const totalClients = clientsSnapshot.size;
       
-      // Contar oportunidades activas (no won, no lost)
+      // Contar oportunidades activas (no won, no lost) filtered by tenant
       const oppsSnapshot = await getDocs(
-        query(collection(db, 'opportunities'), where('status', 'in', ['prospecting', 'qualification', 'proposal', 'negotiation']))
+        query(
+          collection(db, 'opportunities'), 
+          where('tenantId', '==', tenantId),
+          where('status', 'in', ['prospecting', 'qualification', 'proposal', 'negotiation'])
+        )
       );
       const activeOpportunities = oppsSnapshot.size;
       
-      // Calcular tasa de conversión (leads totales vs clientes)
-      const allLeadsSnapshot = await getDocs(collection(db, 'leads'));
+      // Calcular tasa de conversión (leads totales vs clientes) filtered by tenant
+      const allLeadsSnapshot = await getDocs(
+        query(collection(db, 'leads'), where('tenantId', '==', tenantId))
+      );
       const totalLeads = allLeadsSnapshot.size;
       const conversionRate = totalLeads > 0 
         ? Math.round((totalClients / totalLeads) * 100)

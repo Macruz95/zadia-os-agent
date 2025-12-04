@@ -7,7 +7,6 @@ import { ArrowLeft, Shield, Database, Eye, Lock, Bell, Trash2 } from 'lucide-rea
 
 /**
  * Privacy Policy Page
- * Basic privacy policy for ZADIA OS
  */
 export default function PrivacyPage() {
   return (
@@ -22,7 +21,7 @@ export default function PrivacyPage() {
             </Button>
           </Link>
           <h1 className="text-4xl font-bold text-white mb-2">Política de Privacidad</h1>
-          <p className="text-gray-400">Última actualización: 30 de Noviembre, 2025</p>
+          <p className="text-gray-400">Última actualización: 30 de noviembre, 2025</p>
         </div>
 
         {/* Content */}
@@ -36,8 +35,8 @@ export default function PrivacyPage() {
             </CardHeader>
             <CardContent className="text-gray-300 space-y-3">
               <p>
-                En ZADIA OS, nos tomamos muy en serio la privacidad de nuestros usuarios. 
-                Esta Política de Privacidad describe cómo recopilamos, usamos, almacenamos 
+                En ZADIA OS, nos tomamos muy en serio la privacidad de nuestros usuarios.
+                Esta Política de Privacidad describe cómo recopilamos, usamos, almacenamos
                 y protegemos su información personal cuando utiliza nuestra plataforma.
               </p>
               <p>
@@ -61,10 +60,10 @@ export default function PrivacyPage() {
                 <li>Contraseña (encriptada)</li>
                 <li>Nombre de empresa (opcional)</li>
               </ul>
-              
+
               <p className="mt-4"><strong className="text-white">Información de uso:</strong></p>
               <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>Datos de clientes, proyectos, inventario que usted ingrese</li>
+                <li>Datos de clientes, proyectos e inventario que usted ingrese</li>
                 <li>Registros de actividad dentro de la plataforma</li>
                 <li>Preferencias de configuración</li>
               </ul>
@@ -108,7 +107,7 @@ export default function PrivacyPage() {
             </CardHeader>
             <CardContent className="text-gray-300 space-y-3">
               <p>
-                Implementamos medidas de seguridad técnicas y organizativas para proteger 
+                Implementamos medidas de seguridad técnicas y organizativas para proteger
                 su información, incluyendo:
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4">
@@ -130,9 +129,7 @@ export default function PrivacyPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="text-gray-300 space-y-3">
-              <p>
-                Utilizamos cookies y tecnologías similares para:
-              </p>
+              <p>Utilizamos cookies y tecnologías similares para:</p>
               <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>Mantener su sesión iniciada</li>
                 <li>Recordar sus preferencias</li>
@@ -140,7 +137,7 @@ export default function PrivacyPage() {
                 <li>Mejorar el rendimiento de la plataforma</li>
               </ul>
               <p className="mt-2">
-                Puede configurar su navegador para rechazar cookies, aunque esto puede 
+                Puede configurar su navegador para rechazar cookies, aunque esto puede
                 afectar la funcionalidad del servicio.
               </p>
             </CardContent>
@@ -174,7 +171,7 @@ export default function PrivacyPage() {
             </CardHeader>
             <CardContent className="text-gray-300">
               <p>
-                Si tiene preguntas sobre esta Política de Privacidad o sobre cómo 
+                Si tiene preguntas sobre esta Política de Privacidad o sobre cómo
                 manejamos sus datos, puede contactarnos en:
               </p>
               <p className="mt-2 text-cyan-400">privacidad@zadia.app</p>

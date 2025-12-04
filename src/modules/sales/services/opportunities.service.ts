@@ -27,12 +27,18 @@ const OPPORTUNITIES_COLLECTION = 'opportunities';
 export class OpportunitiesService {
   /**
    * Create a new opportunity
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async createOpportunity(data: OpportunityFormData, createdBy: string): Promise<Opportunity> {
+  static async createOpportunity(data: OpportunityFormData, createdBy: string, tenantId?: string): Promise<Opportunity> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     try {
       const now = Timestamp.fromDate(new Date());
       const opportunityData = {
         ...data,
+        tenantId, // CRITICAL: Add tenant isolation
         expectedCloseDate: data.expectedCloseDate ? Timestamp.fromDate(data.expectedCloseDate) : undefined,
         status: 'open' as const,
         createdAt: now,
@@ -58,11 +64,17 @@ export class OpportunitiesService {
 
   /**
    * Get all opportunities
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async getOpportunities(): Promise<Opportunity[]> {
+  static async getOpportunities(tenantId?: string): Promise<Opportunity[]> {
+    if (!tenantId) {
+      return []; // Return empty if no tenant
+    }
+    
     try {
       const q = query(
         collection(db, OPPORTUNITIES_COLLECTION),
+        where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant
         orderBy('createdAt', 'desc')
       );
       
@@ -168,11 +180,17 @@ export class OpportunitiesService {
 
   /**
    * Get opportunities by stage
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async getOpportunitiesByStage(stage: string): Promise<Opportunity[]> {
+  static async getOpportunitiesByStage(stage: string, tenantId?: string): Promise<Opportunity[]> {
+    if (!tenantId) {
+      return []; // Return empty if no tenant
+    }
+    
     try {
       const q = query(
         collection(db, OPPORTUNITIES_COLLECTION),
+        where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant
         where('stage', '==', stage),
         orderBy('createdAt', 'desc')
       );
@@ -200,11 +218,17 @@ export class OpportunitiesService {
 
   /**
    * Get opportunities by assigned user
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async getOpportunitiesByAssignedUser(userId: string): Promise<Opportunity[]> {
+  static async getOpportunitiesByAssignedUser(userId: string, tenantId?: string): Promise<Opportunity[]> {
+    if (!tenantId) {
+      return []; // Return empty if no tenant
+    }
+    
     try {
       const q = query(
         collection(db, OPPORTUNITIES_COLLECTION),
+        where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant
         where('assignedTo', '==', userId),
         orderBy('createdAt', 'desc')
       );

@@ -61,6 +61,20 @@ interface LogContext {
   type?: string;
   // Client fields
   clientName?: string;
+  // Tenant/Multi-tenancy fields
+  tenantId?: string;
+  invitationId?: string;
+  role?: string;
+  plan?: string;
+  ownerId?: string;
+  email?: string;
+  // Settings/Integration fields
+  sessionId?: string;
+  integrationId?: string;
+  webhookId?: string;
+  keyId?: string;
+  // Inventory/BOM fields
+  bomId?: string;
   // Generic metadata for any additional fields
   metadata?: Record<string, unknown>;
 }

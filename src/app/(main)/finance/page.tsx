@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { InvoicesService } from '@/modules/finance/services/invoices.service';
 import { formatCurrency } from '@/lib/utils';
+import { useTenantId } from '@/contexts/TenantContext';
 
 interface FinanceStats {
   activeInvoices: number;
@@ -22,6 +23,7 @@ interface FinanceStats {
 }
 
 export default function FinancePage() {
+  const tenantId = useTenantId();
   const [stats, setStats] = useState<FinanceStats>({
     activeInvoices: 0,
     totalDue: 0,
@@ -31,13 +33,17 @@ export default function FinancePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadStats();
-  }, []);
+    if (tenantId) {
+      loadStats();
+    }
+  }, [tenantId]);
 
   const loadStats = async () => {
+    if (!tenantId) return;
+    
     try {
       setLoading(true);
-      const invoiceStats = await InvoicesService.getInvoiceStats();
+      const invoiceStats = await InvoicesService.getInvoiceStats(undefined, tenantId);
       
       // Calcular facturas activas (total - canceladas, considerando overdueInvoices)
       const activeInvoices = invoiceStats.totalInvoices + invoiceStats.overdueInvoices;

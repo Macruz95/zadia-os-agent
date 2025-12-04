@@ -12,12 +12,16 @@ import { RawMaterialCrudService } from './raw-material-crud.service';
 export class RawMaterialsService {
   /**
    * Create a new raw material
+   * @param data - Raw material form data
+   * @param createdBy - User ID creating the material
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async createRawMaterial(
     data: RawMaterialFormData,
-    createdBy: string
+    createdBy: string,
+    tenantId?: string
   ): Promise<RawMaterial> {
-    return RawMaterialCreationService.createRawMaterial(data, createdBy);
+    return RawMaterialCreationService.createRawMaterial(data, createdBy, tenantId);
   }
 
   /**
@@ -69,7 +73,7 @@ export class RawMaterialsService {
   /**
    * Get raw materials with low stock
    */
-  static async getLowStockRawMaterials(): Promise<RawMaterial[]> {
-    return RawMaterialSearchService.getLowStockRawMaterials();
+  static async getLowStockRawMaterials(tenantId?: string): Promise<RawMaterial[]> {
+    return RawMaterialSearchService.getLowStockRawMaterials(tenantId);
   }
 }

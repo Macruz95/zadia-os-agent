@@ -17,8 +17,14 @@ import type { ClientFormData } from '../../validations/clients.schema';
 export class ClientCreationService {
   /**
    * Create a new client with contacts
+   * @param formData - Client form data
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async createClientWithContacts(formData: ClientFormData): Promise<string> {
+  static async createClientWithContacts(formData: ClientFormData, tenantId?: string): Promise<string> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     try {
       const batch = writeBatch(db);
       
@@ -31,10 +37,11 @@ export class ClientCreationService {
       const validatedClient = validationResult.data;
       const now = Timestamp.now();
       
-      // Create client document
+      // Create client document with tenantId
       const clientRef = doc(collection(db, CLIENTS_COLLECTION));
       const clientDoc = {
         ...validatedClient,
+        tenantId, // CRITICAL: Add tenant isolation
         birthDate: validatedClient.birthDate ? Timestamp.fromDate(validatedClient.birthDate) : null,
         lastInteractionDate: now,
         createdAt: now,
@@ -43,7 +50,7 @@ export class ClientCreationService {
       
       batch.set(clientRef, clientDoc);
       
-      // Create contact documents
+      // Create contact documents with tenantId
       if (contacts && contacts.length > 0) {
         for (const contactData of contacts) {
           // Skip empty contacts
@@ -54,6 +61,7 @@ export class ClientCreationService {
           const contactRef = doc(collection(db, 'contacts'));
           const contactDoc = {
             clientId: clientRef.id,
+            tenantId, // CRITICAL: Add tenant isolation
             name: contactData.name || '',
             role: contactData.role || '',
             email: contactData.email || '',
@@ -79,8 +87,17 @@ export class ClientCreationService {
 
   /**
    * Create a new client (legacy method - without contacts)
+   * @param clientData - Client data
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async createClient(clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  static async createClient(
+    clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>,
+    tenantId?: string
+  ): Promise<string> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     const validationResult = ClientSchema.safeParse(clientData);
     if (!validationResult.success) {
       throw new Error(`Validation failed: ${validationResult.error.message}`);
@@ -89,8 +106,9 @@ export class ClientCreationService {
     const now = Timestamp.now();
     const docRef = await addDoc(collection(db, CLIENTS_COLLECTION), {
       ...validated,
+      tenantId, // CRITICAL: Add tenant isolation
       birthDate: validated.birthDate ? Timestamp.fromDate(validated.birthDate) : null,
-      lastInteractionDate: now, // Set to creation time by default
+      lastInteractionDate: now,
       createdAt: now,
       updatedAt: now,
     });

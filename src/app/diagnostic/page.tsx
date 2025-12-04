@@ -9,7 +9,6 @@ import { useEffect, useState } from 'react';
 import { auth } from '@/lib/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 
 interface User {

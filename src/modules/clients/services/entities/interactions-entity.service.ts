@@ -37,16 +37,31 @@ export class InteractionsService {
 
   /**
    * Get interactions by client ID
+   * @param clientId - The client ID
+   * @param limitCount - Maximum number of results
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async getInteractionsByClient(clientId: string, limitCount = 10): Promise<Interaction[]> {
-    logger.serviceCall('InteractionsEntityService', 'getInteractionsByClient', { clientId, limitCount });
+  static async getInteractionsByClient(clientId: string, limitCount = 10, tenantId?: string): Promise<Interaction[]> {
+    logger.serviceCall('InteractionsEntityService', 'getInteractionsByClient', { clientId, limitCount, tenantId });
     try {
-      const q = query(
-        collection(db, INTERACTIONS_COLLECTION),
-        where('clientId', '==', clientId),
-        orderBy('date', 'desc'),
-        limit(limitCount)
-      );
+      let q;
+      if (tenantId) {
+        q = query(
+          collection(db, INTERACTIONS_COLLECTION),
+          where('tenantId', '==', tenantId),
+          where('clientId', '==', clientId),
+          orderBy('date', 'desc'),
+          limit(limitCount)
+        );
+      } else {
+        // Fallback for legacy - may fail with security rules
+        q = query(
+          collection(db, INTERACTIONS_COLLECTION),
+          where('clientId', '==', clientId),
+          orderBy('date', 'desc'),
+          limit(limitCount)
+        );
+      }
       const querySnapshot = await getDocs(q);
       const interactions = querySnapshot.docs.map(docToInteraction);
       logger.debug(`Interactions retrieved for client ${clientId}`, { 

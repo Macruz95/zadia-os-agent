@@ -13,13 +13,15 @@ import type { SearchResult } from '@/types/command-bar.types';
  */
 export async function searchProjects(
   term: string,
-  userId: string,
+  tenantId: string,
   max: number
 ): Promise<SearchResult[]> {
   try {
+    if (!tenantId) return [];
+
     const q = query(
       collection(db, 'projects'),
-      where('userId', '==', userId),
+      where('tenantId', '==', tenantId),
       orderBy('name'),
       limit(max * 2)
     );
@@ -56,13 +58,15 @@ export async function searchProjects(
  */
 export async function searchTasks(
   term: string,
-  userId: string,
+  tenantId: string,
   max: number
 ): Promise<SearchResult[]> {
   try {
+    if (!tenantId) return [];
+
     const q = query(
       collection(db, 'tasks'),
-      where('userId', '==', userId),
+      where('tenantId', '==', tenantId),
       limit(max * 2)
     );
 

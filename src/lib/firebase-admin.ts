@@ -1,42 +1,138 @@
-import 'server-only';
-import { initializeApp, getApps, cert, App } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import { logger } from '@/lib/logger';
+import { getApps, initializeApp, cert, type AppOptions, type App } from 'firebase-admin/app';
+import { getAuth, type Auth } from 'firebase-admin/auth';
+import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 
-// Initialize Firebase Admin
-// Note: In production (Vercel), we should use environment variables for the service account
-// For local development without service account, we might need to rely on default credentials or mock
-// However, for this "Free Plan" pivot, we will try to use the standard initialization
-// which works if GOOGLE_APPLICATION_CREDENTIALS is set, or if we pass the config object.
+/**
+ * Firebase Admin initialization (server-side only)
+ * Parses FIREBASE_SERVICE_ACCOUNT_KEY JSON from environment.
+ * Uses lazy initialization to avoid build-time errors.
+ */
 
-let app: App;
+let _adminApp: App | null = null;
+let _adminAuth: Auth | null = null;
+let _adminDb: Firestore | null = null;
+let _initFailed = false;
 
-if (!getApps().length) {
-    // Check if we have the service account key in environment variables
-    const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-
-    if (serviceAccountKey) {
-        try {
-            const serviceAccount = JSON.parse(serviceAccountKey);
-            app = initializeApp({
-                credential: cert(serviceAccount),
-                projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-            });
-        } catch (error) {
-            logger.error('Error parsing FIREBASE_SERVICE_ACCOUNT_KEY', error as Error);
-            // Fallback to default initialization (might fail locally without setup)
-            app = initializeApp({
-                projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-            });
-        }
-    } else {
-        // Fallback for when no specific key is provided (e.g. local dev with gcloud auth)
-        app = initializeApp({
-            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-        });
+function initializeAdminApp(): App | null {
+  if (_initFailed) {
+    return null;
+  }
+  
+  if (getApps().length > 0) {
+    return getApps()[0];
+  }
+  
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+  
+  if (!serviceAccountJson) {
+    // In development, allow app to run without server-side auth validation
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[firebase-admin] FIREBASE_SERVICE_ACCOUNT_KEY not set - server-side auth validation disabled');
+      _initFailed = true;
+      return null;
     }
-} else {
-    app = getApps()[0];
+    throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is required for server-side auth validation');
+  }
+  
+  let appOptions: AppOptions;
+  try {
+    const credentials = JSON.parse(serviceAccountJson);
+    appOptions = { credential: cert(credentials) };
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[firebase-admin] Invalid FIREBASE_SERVICE_ACCOUNT_KEY - server-side auth validation disabled');
+      _initFailed = true;
+      return null;
+    }
+    throw new Error(`Invalid FIREBASE_SERVICE_ACCOUNT_KEY JSON: ${String(error)}`);
+  }
+  
+  return initializeApp(appOptions);
 }
 
-export const adminDb = getFirestore(app);
+/**
+ * Get the Firebase Admin App instance (lazy initialization)
+ * Returns null if initialization failed (e.g., missing credentials in dev)
+ */
+export function getAdminApp(): App | null {
+  if (_adminApp === null && !_initFailed) {
+    _adminApp = initializeAdminApp();
+  }
+  return _adminApp;
+}
+
+/**
+ * Get the Firebase Admin Auth instance (lazy initialization)
+ * Returns null if admin app is not available
+ */
+export function getAdminAuth(): Auth | null {
+  if (_adminAuth === null) {
+    const app = getAdminApp();
+    if (app) {
+      _adminAuth = getAuth(app);
+    }
+  }
+  return _adminAuth;
+}
+
+/**
+ * Get the Firebase Admin Firestore instance (lazy initialization)
+ * Returns null if admin app is not available
+ */
+export function getAdminDb(): Firestore | null {
+  if (_adminDb === null) {
+    const app = getAdminApp();
+    if (app) {
+      _adminDb = getFirestore(app);
+    }
+  }
+  return _adminDb;
+}
+
+/**
+ * Check if Firebase Admin is available
+ */
+export function isAdminAvailable(): boolean {
+  return getAdminApp() !== null;
+}
+
+// Proxy objects for backwards compatibility
+// These allow using adminAuth/adminDb as if they were directly initialized
+// Will throw helpful errors if admin is not available
+export const adminApp = new Proxy({} as App, {
+  get(_, prop) {
+    const app = getAdminApp();
+    if (!app) {
+      throw new Error('Firebase Admin not available - FIREBASE_SERVICE_ACCOUNT_KEY not configured');
+    }
+    return (app as unknown as Record<string, unknown>)[prop as string];
+  },
+});
+
+export const adminAuth = new Proxy({} as Auth, {
+  get(_, prop) {
+    const auth = getAdminAuth();
+    if (!auth) {
+      throw new Error('Firebase Admin Auth not available - FIREBASE_SERVICE_ACCOUNT_KEY not configured');
+    }
+    const value = (auth as unknown as Record<string, unknown>)[prop as string];
+    if (typeof value === 'function') {
+      return value.bind(auth);
+    }
+    return value;
+  },
+});
+
+export const adminDb = new Proxy({} as Firestore, {
+  get(_, prop) {
+    const db = getAdminDb();
+    if (!db) {
+      throw new Error('Firebase Admin Firestore not available - FIREBASE_SERVICE_ACCOUNT_KEY not configured');
+    }
+    const value = (db as unknown as Record<string, unknown>)[prop as string];
+    if (typeof value === 'function') {
+      return value.bind(db);
+    }
+    return value;
+  },
+});

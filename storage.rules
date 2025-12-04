@@ -8,56 +8,47 @@ service firebase.storage {
       return request.auth != null;
     }
     
-    // Helper function to check user role via Custom Claims
-    function hasRole(role) {
-      return isAuthenticated() && request.auth.token.role == role;
-    }
-    
-    // Helper function to check if user is admin
-    function isAdmin() {
-      return hasRole('admin');
-    }
-    
-    // Helper function to check if user is manager or admin
-    function isManagerOrAdmin() {
-      return hasRole('manager') || hasRole('admin');
-    }
-    
     // User profile images - users can only access their own files
     match /users/{userId}/{allPaths=**} {
-      allow read, write: if isAuthenticated() && 
-        (request.auth.uid == userId || isAdmin());
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId;
     }
     
-    // Project files - only project members can access
+    // Tenant-scoped files - organized by tenant
+    match /tenants/{tenantId}/{allPaths=**} {
+      // For now, allow authenticated users to access tenant files
+      // In production, validate tenant membership via custom claims or Firestore lookup
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Project files - organized under tenants
     match /projects/{projectId}/{allPaths=**} {
-      allow read, write: if isAuthenticated() && 
-        (isProjectMember(projectId) || isManagerOrAdmin());
-      
-      function isProjectMember(projectId) {
-        return request.auth.uid in 
-          firestore.get(/databases/(default)/documents/projects/$(projectId)).data.members;
-      }
+      allow read, write: if isAuthenticated();
     }
     
-    // Client files - manager/admin only
+    // Client files - organized under tenants
     match /clients/{clientId}/{allPaths=**} {
-      allow read, write: if isManagerOrAdmin();
+      allow read, write: if isAuthenticated();
     }
     
-    // System files - admin only
-    match /system/{allPaths=**} {
-      allow read, write: if isAdmin();
+    // Invoice/Quote attachments
+    match /invoices/{invoiceId}/{allPaths=**} {
+      allow read, write: if isAuthenticated();
     }
     
-    // Analytics and reports - admin only
-    match /analytics/{allPaths=**} {
-      allow read, write: if isAdmin();
+    match /quotes/{quoteId}/{allPaths=**} {
+      allow read, write: if isAuthenticated();
     }
     
     // Temp uploads - authenticated users for their own temp files only
     match /temp/{userId}/{allPaths=**} {
       allow read, write, delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Public assets (logos, etc) - read-only
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
     }
     
     // Default deny for any other paths

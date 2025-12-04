@@ -19,10 +19,12 @@ import {
   UpdateTenantData,
   DEFAULT_TENANT_SETTINGS,
   SubscriptionPlan,
+  TenantMember,
 } from '../types';
 import { createTenantSchema, updateTenantSchema } from '../schemas';
 
 const COLLECTION_NAME = 'tenants';
+const MEMBERS_COLLECTION = 'tenantMembers';
 
 /**
  * Generate a URL-friendly slug from a name
@@ -52,11 +54,13 @@ async function isSlugTaken(slug: string, excludeId?: string): Promise<boolean> {
 }
 
 /**
- * Create a new tenant
+ * Create a new tenant and add the owner as a member
  */
 export async function createTenant(
   data: CreateTenantData,
-  ownerId: string
+  ownerId: string,
+  ownerEmail?: string,
+  ownerDisplayName?: string
 ): Promise<Tenant> {
   const validated = createTenantSchema.parse(data);
   
@@ -95,7 +99,24 @@ export async function createTenant(
   
   await setDoc(tenantRef, tenant);
   
-  logger.info('Tenant created', { tenantId: tenant.id, ownerId });
+  // Create owner membership
+  const memberRef = doc(db, MEMBERS_COLLECTION, `${tenant.id}_${ownerId}`);
+  const member: TenantMember = {
+    id: memberRef.id,
+    tenantId: tenant.id,
+    userId: ownerId,
+    email: ownerEmail || '',
+    displayName: ownerDisplayName || 'Owner',
+    role: 'owner',
+    permissions: [],
+    joinedAt: now,
+    invitedBy: ownerId,
+    isActive: true,
+  };
+  
+  await setDoc(memberRef, member);
+  
+  logger.info('Tenant created with owner membership', { tenantId: tenant.id, ownerId });
   
   return tenant;
 }

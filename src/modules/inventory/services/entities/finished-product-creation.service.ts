@@ -24,11 +24,17 @@ export class FinishedProductCreationService {
 
   /**
    * Create a new finished product
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async createFinishedProduct(
     data: FinishedProductFormData,
-    createdBy: string
+    createdBy: string,
+    tenantId?: string
   ): Promise<FinishedProduct> {
+    if (!tenantId) {
+      throw new Error('tenantId is required for data isolation');
+    }
+    
     try {
       const sku = this.generateSKU(data.category, data.name);
       const now = new Date();
@@ -38,6 +44,7 @@ export class FinishedProductCreationService {
 
       const finishedProductData: Record<string, unknown> = {
         sku,
+        tenantId, // CRITICAL: Add tenant isolation
         name: data.name,
         category: data.category,
         currentStock: 0, // Always start with 0 stock

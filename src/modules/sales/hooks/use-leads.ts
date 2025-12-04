@@ -4,10 +4,11 @@
  * Manages leads state and operations
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Lead, LeadFilters } from '../types/sales.types';
 import { LeadFormData } from '../validations/sales.schema';
 import { LeadsService } from '../services/leads.service';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 
 interface UseLeadsReturn {
@@ -26,6 +27,7 @@ interface UseLeadsReturn {
 }
 
 export function useLeads(): UseLeadsReturn {
+  const tenantId = useTenantId();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
@@ -36,6 +38,8 @@ export function useLeads(): UseLeadsReturn {
     filters: LeadFilters = {},
     reset: boolean = false
   ) => {
+    if (!tenantId) return; // Wait for tenant
+    
     try {
       setLoading(true);
       setError(undefined);
@@ -45,7 +49,7 @@ export function useLeads(): UseLeadsReturn {
         setCurrentFilters(filters);
       }
 
-      const result = await LeadsService.searchLeads(filters);
+      const result = await LeadsService.searchLeads(filters, 20, undefined, tenantId);
       
       if (reset) {
         setLeads(result.leads);
@@ -62,17 +66,26 @@ export function useLeads(): UseLeadsReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
+
+  // Reload when tenant changes
+  useEffect(() => {
+    if (tenantId) {
+      searchLeads({}, true);
+    }
+  }, [tenantId, searchLeads]);
 
   const createLead = useCallback(async (
     data: LeadFormData,
     createdBy: string
   ): Promise<Lead> => {
+    if (!tenantId) throw new Error('No tenant ID');
+    
     try {
       setLoading(true);
       setError(undefined);
 
-      const newLead = await LeadsService.createLead(data, createdBy);
+      const newLead = await LeadsService.createLead(data, createdBy, tenantId);
       
       // Add to current list if it matches filters
       setLeads(prev => [newLead, ...prev]);
@@ -87,7 +100,7 @@ export function useLeads(): UseLeadsReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   const updateLead = useCallback(async (
     id: string,

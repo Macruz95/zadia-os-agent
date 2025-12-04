@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { logger } from '@/lib/logger';
+import { useTenantId } from '@/contexts/TenantContext';
 import { ClientProfileState } from '../types/clients.types';
 import { ClientsService } from '../services/clients.service';
 import { ContactsService } from '../services/entities/contacts-entity.service';
@@ -7,6 +8,7 @@ import { InteractionsService } from '../services/entities/interactions-entity.se
 import { ClientActivitiesService } from '../services/client-activities.service';
 
 export const useClientProfile = (clientId: string | null) => {
+  const tenantId = useTenantId();
   const [state, setState] = useState<ClientProfileState>({
     client: undefined,
     contacts: [],
@@ -21,6 +23,11 @@ export const useClientProfile = (clientId: string | null) => {
   });
 
   const fetchClientProfile = useCallback(async (id: string) => {
+    if (!tenantId) {
+      setState(prev => ({ ...prev, loading: false, error: 'No tenant selected' }));
+      return;
+    }
+
     setState(prev => ({ ...prev, loading: true, error: undefined }));
 
     try {
@@ -35,13 +42,13 @@ export const useClientProfile = (clientId: string | null) => {
         meetings
       ] = await Promise.all([
         ClientsService.getClientById(id),
-        ContactsService.getContactsByClient(id),
-        InteractionsService.getInteractionsByClient(id),
-        ClientActivitiesService.getClientProjects(id),
-        ClientActivitiesService.getClientQuotes(id),
-        ClientActivitiesService.getClientTransactions(id),
-        ClientActivitiesService.getClientTasks(id),
-        ClientActivitiesService.getClientMeetings(id)
+        ContactsService.getContactsByClient(id, tenantId),
+        InteractionsService.getInteractionsByClient(id, 10, tenantId),
+        ClientActivitiesService.getClientProjects(id, tenantId),
+        ClientActivitiesService.getClientQuotes(id, tenantId),
+        ClientActivitiesService.getClientTransactions(id, tenantId),
+        ClientActivitiesService.getClientTasks(id, tenantId),
+        ClientActivitiesService.getClientMeetings(id, tenantId)
       ]);
 
       setState({

@@ -20,8 +20,8 @@ import { Zap, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth();
-  const { stats, projectStatus, loading } = useDashboardData(user?.uid);
+  const { user, firebaseUser, loading: authLoading } = useAuth();
+  const { stats, projectStatus, loading } = useDashboardData(firebaseUser?.uid);
   const { data: revenueData, monthlyRevenue, loading: revenueLoading } = useDashboardRevenue(6);
   const { metrics, loading: metricsLoading } = useDashboardMetrics();
 
@@ -31,9 +31,13 @@ export default function DashboardPage() {
     return <DashboardLoading />;
   }
 
-  if (!user) {
+  // Use firebaseUser for auth check (user profile may not exist yet)
+  if (!firebaseUser) {
     return null;
   }
+
+  // Get display name from user profile or firebaseUser
+  const displayName = user?.displayName || firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Usuario';
 
   return (
     <div className="space-y-6 p-6">
@@ -48,7 +52,7 @@ export default function DashboardPage() {
               Centro de Mando
             </h1>
             <p className="text-sm text-gray-500">
-              Bienvenido, {user.displayName || user.email?.split('@')[0] || 'CEO'}
+              Bienvenido, {displayName}
             </p>
           </div>
         </div>

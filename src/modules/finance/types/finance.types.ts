@@ -163,6 +163,7 @@ export type UpdatePaymentData = Partial<
  * Filtros de búsqueda de facturas
  */
 export interface InvoiceFilters {
+  tenantId?: string;
   clientId?: string;
   status?: InvoiceStatus;
   projectId?: string;

@@ -18,22 +18,30 @@ export class CommandAIService {
    */
   static async processQuestion(
     question: string,
-    userId: string
+    tenantId: string
   ): Promise<QuestionResponse> {
     try {
+      if (!tenantId) {
+        return {
+          type: 'text',
+          answer: 'No se pudo identificar tu cuenta. Por favor, inicia sesión nuevamente.',
+          confidence: 0,
+        };
+      }
+
       const normalized = question.toLowerCase().trim();
 
       // Simple queries (direct DTO lookup)
       if (this.isSimpleContactQuery(normalized)) {
-        return await this.answerContactQuery(question, userId);
+        return await this.answerContactQuery(question, tenantId);
       }
 
       if (this.isSimpleMetricQuery(normalized)) {
-        return await this.answerMetricQuery(question, userId);
+        return await this.answerMetricQuery(question, tenantId);
       }
 
       // Complex queries (AI analysis)
-      return await this.answerComplexQuery(question, userId);
+      return await this.answerComplexQuery(question, tenantId);
     } catch (error) {
       logger.error('Question processing failed', error as Error, {
         component: 'CommandAIService',
@@ -74,7 +82,7 @@ export class CommandAIService {
    */
   private static async answerContactQuery(
     question: string,
-    userId: string
+    tenantId: string
   ): Promise<QuestionResponse> {
     try {
       // Extract name from question
@@ -89,10 +97,10 @@ export class CommandAIService {
 
       const searchName = nameMatch[1].toLowerCase();
 
-      // Search in clients
+      // Search in clients with tenant isolation
       const clientsQuery = query(
         collection(db, 'clients'),
-        where('userId', '==', userId),
+        where('tenantId', '==', tenantId),
         limit(10)
       );
 
@@ -142,7 +150,7 @@ export class CommandAIService {
    */
   private static async answerMetricQuery(
     question: string,
-    userId: string
+    tenantId: string
   ): Promise<QuestionResponse> {
     try {
       const normalized = question.toLowerCase();
@@ -151,7 +159,7 @@ export class CommandAIService {
       if (normalized.includes('proyecto') && (normalized.includes('activo') || normalized.includes('en curso'))) {
         const q = query(
           collection(db, 'projects'),
-          where('userId', '==', userId),
+          where('tenantId', '==', tenantId),
           where('status', '==', 'in_progress')
         );
 
@@ -170,7 +178,7 @@ export class CommandAIService {
       if (normalized.includes('cliente')) {
         const q = query(
           collection(db, 'clients'),
-          where('userId', '==', userId)
+          where('tenantId', '==', tenantId)
         );
 
         const snapshot = await getDocs(q);
@@ -188,7 +196,7 @@ export class CommandAIService {
       if (normalized.includes('factura') && normalized.includes('pendiente')) {
         const q = query(
           collection(db, 'invoices'),
-          where('userId', '==', userId),
+          where('tenantId', '==', tenantId),
           where('status', '==', 'pending')
         );
 
@@ -224,14 +232,14 @@ export class CommandAIService {
    */
   private static async answerComplexQuery(
     question: string,
-    userId: string
+    tenantId: string
   ): Promise<QuestionResponse> {
     try {
-      // Fetch relevant data from DTO
+      // Fetch relevant data from DTO with tenant isolation
       const [projects, invoices, clients] = await Promise.all([
-        this.fetchProjects(userId),
-        this.fetchInvoices(userId),
-        this.fetchClients(userId),
+        this.fetchProjects(tenantId),
+        this.fetchInvoices(tenantId),
+        this.fetchClients(tenantId),
       ]);
 
       // Build context for AI
@@ -271,12 +279,12 @@ Responde de forma directa y concisa en español. Si la pregunta requiere cálcul
   }
 
   /**
-   * Fetch projects for AI context
+   * Fetch projects for AI context with tenant isolation
    */
-  private static async fetchProjects(userId: string) {
+  private static async fetchProjects(tenantId: string) {
     const q = query(
       collection(db, 'projects'),
-      where('userId', '==', userId),
+      where('tenantId', '==', tenantId),
       orderBy('createdAt', 'desc'),
       limit(20)
     );
@@ -286,12 +294,12 @@ Responde de forma directa y concisa en español. Si la pregunta requiere cálcul
   }
 
   /**
-   * Fetch invoices for AI context
+   * Fetch invoices for AI context with tenant isolation
    */
-  private static async fetchInvoices(userId: string) {
+  private static async fetchInvoices(tenantId: string) {
     const q = query(
       collection(db, 'invoices'),
-      where('userId', '==', userId),
+      where('tenantId', '==', tenantId),
       orderBy('createdAt', 'desc'),
       limit(20)
     );
@@ -301,12 +309,12 @@ Responde de forma directa y concisa en español. Si la pregunta requiere cálcul
   }
 
   /**
-   * Fetch clients for AI context
+   * Fetch clients for AI context with tenant isolation
    */
-  private static async fetchClients(userId: string) {
+  private static async fetchClients(tenantId: string) {
     const q = query(
       collection(db, 'clients'),
-      where('userId', '==', userId),
+      where('tenantId', '==', tenantId),
       orderBy('createdAt', 'desc'),
       limit(20)
     );

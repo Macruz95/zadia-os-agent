@@ -39,16 +39,28 @@ export class ContactsService {
 
   /**
    * Get contacts by client ID
+   * @param clientId - The client ID
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async getContactsByClient(clientId: string): Promise<Contact[]> {
+  static async getContactsByClient(clientId: string, tenantId?: string): Promise<Contact[]> {
     try {
-      // First try without orderBy to avoid composite index issues
-      const simpleQuery = query(
-        collection(db, CONTACTS_COLLECTION),
-        where('clientId', '==', clientId)
-      );
+      // Build query with tenantId if provided
+      let q;
+      if (tenantId) {
+        q = query(
+          collection(db, CONTACTS_COLLECTION),
+          where('tenantId', '==', tenantId),
+          where('clientId', '==', clientId)
+        );
+      } else {
+        // Fallback for legacy - may fail with security rules
+        q = query(
+          collection(db, CONTACTS_COLLECTION),
+          where('clientId', '==', clientId)
+        );
+      }
 
-      const querySnapshot = await getDocs(simpleQuery);
+      const querySnapshot = await getDocs(q);
 
       const contacts = querySnapshot.docs.map(docToContact);
 

@@ -29,6 +29,11 @@ export class RawMaterialSearchService {
     try {
       const constraints = [];
 
+      // CRITICAL: Filter by tenantId for data isolation
+      if (searchParams.tenantId) {
+        constraints.push(where('tenantId', '==', searchParams.tenantId));
+      }
+
       // Apply filters
       if (searchParams.filters?.category) {
         constraints.push(where('category', '==', searchParams.filters.category));
@@ -117,10 +122,17 @@ export class RawMaterialSearchService {
   /**
    * Get raw materials with low stock
    */
-  static async getLowStockRawMaterials(): Promise<RawMaterial[]> {
+  static async getLowStockRawMaterials(tenantId?: string): Promise<RawMaterial[]> {
     try {
+      const constraints = [where('isActive', '==', true)];
+      
+      // CRITICAL: Filter by tenantId for data isolation
+      if (tenantId) {
+        constraints.push(where('tenantId', '==', tenantId));
+      }
+      
       const querySnapshot = await getDocs(
-        query(collection(db, COLLECTION_NAME), where('isActive', '==', true))
+        query(collection(db, COLLECTION_NAME), ...constraints)
       );
 
       const rawMaterials = querySnapshot.docs

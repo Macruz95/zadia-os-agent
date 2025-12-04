@@ -6,6 +6,8 @@
 import { 
   collection, 
   getDocs, 
+  query,
+  where,
   Timestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -39,14 +41,25 @@ export class AnalyticsService {
   /**
    * Get comprehensive sales analytics
    */
-  static async getSalesAnalytics(): Promise<SalesAnalytics> {
+  static async getSalesAnalytics(tenantId: string): Promise<SalesAnalytics> {
     try {
+      if (!tenantId) {
+        logger.warn('getSalesAnalytics called without tenantId');
+        return {
+          overview: { totalRevenue: 0, totalDeals: 0, conversionRate: 0, avgDealSize: 0 },
+          monthlyRevenue: [],
+          pipelineStages: [],
+          leadSources: [],
+          salesPerformance: []
+        };
+      }
+
       logger.info('Calculating sales analytics...');
 
       // Fetch all data in parallel
       const [leads, opportunities] = await Promise.all([
-        this.getLeads(),
-        this.getOpportunities()
+        this.getLeads(tenantId),
+        this.getOpportunities(tenantId)
       ]);
 
       // Calculate all analytics using specialized services
@@ -78,11 +91,15 @@ export class AnalyticsService {
   }
 
   /**
-   * Get all leads
+   * Get all leads filtered by tenant
    */
-  private static async getLeads(): Promise<Lead[]> {
+  private static async getLeads(tenantId: string): Promise<Lead[]> {
     try {
-      const querySnapshot = await getDocs(collection(db, this.COLLECTIONS.leads));
+      const q = query(
+        collection(db, this.COLLECTIONS.leads),
+        where('tenantId', '==', tenantId)
+      );
+      const querySnapshot = await getDocs(q);
       const leads: Lead[] = [];
       
       querySnapshot.forEach((doc) => {
@@ -103,11 +120,15 @@ export class AnalyticsService {
   }
 
   /**
-   * Get all opportunities
+   * Get all opportunities filtered by tenant
    */
-  private static async getOpportunities(): Promise<Opportunity[]> {
+  private static async getOpportunities(tenantId: string): Promise<Opportunity[]> {
     try {
-      const querySnapshot = await getDocs(collection(db, this.COLLECTIONS.opportunities));
+      const q = query(
+        collection(db, this.COLLECTIONS.opportunities),
+        where('tenantId', '==', tenantId)
+      );
+      const querySnapshot = await getDocs(q);
       const opportunities: Opportunity[] = [];
       
       querySnapshot.forEach((doc) => {
@@ -128,11 +149,15 @@ export class AnalyticsService {
   }
 
   /**
-   * Get all quotes
+   * Get all quotes filtered by tenant
    */
-  private static async getQuotes(): Promise<Quote[]> {
+  private static async getQuotes(tenantId: string): Promise<Quote[]> {
     try {
-      const querySnapshot = await getDocs(collection(db, this.COLLECTIONS.quotes));
+      const q = query(
+        collection(db, this.COLLECTIONS.quotes),
+        where('tenantId', '==', tenantId)
+      );
+      const querySnapshot = await getDocs(q);
       const quotes: Quote[] = [];
       
       querySnapshot.forEach((doc) => {

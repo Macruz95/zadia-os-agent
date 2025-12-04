@@ -24,7 +24,37 @@ interface PageProps {
   params: Promise<{ token: string }>;
 }
 
-async function getInvoiceByToken(token: string) {
+interface InvoiceData {
+  id: string;
+  invoiceNumber: string;
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  issueDate: { seconds: number };
+  dueDate: { seconds: number };
+  paidAt?: { seconds: number };
+  tenantId: string;
+  tenantName?: string;
+  tenantAddress?: string;
+  clientName: string;
+  clientEmail: string;
+  clientAddress?: string;
+  currency: string;
+  subtotal: number;
+  taxAmount: number;
+  taxRate?: number;
+  discount: number;
+  total: number;
+  items?: Array<{
+    id: string;
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+  }>;
+  notes?: string;
+  publicToken?: string;
+}
+
+async function getInvoiceByToken(token: string): Promise<InvoiceData | null> {
   try {
     // Token is the invoice ID + a hash for security
     // In production, use a proper token system
@@ -35,17 +65,36 @@ async function getInvoiceByToken(token: string) {
     
     if (!invoiceSnap.exists()) return null;
     
-    const invoice = invoiceSnap.data();
+    const data = invoiceSnap.data();
     
     // Verify token matches (simple implementation)
     // In production, use cryptographic verification
-    if (invoice.publicToken !== token) {
+    if (data.publicToken !== token) {
       return null;
     }
     
     return {
       id: invoiceSnap.id,
-      ...invoice,
+      invoiceNumber: data.invoiceNumber || '',
+      status: data.status || 'draft',
+      issueDate: data.issueDate,
+      dueDate: data.dueDate,
+      paidAt: data.paidAt,
+      tenantId: data.tenantId || '',
+      tenantName: data.tenantName,
+      tenantAddress: data.tenantAddress,
+      clientName: data.clientName || '',
+      clientEmail: data.clientEmail || '',
+      clientAddress: data.clientAddress,
+      currency: data.currency || 'USD',
+      subtotal: data.subtotal || 0,
+      taxAmount: data.taxAmount || 0,
+      taxRate: data.taxRate,
+      discount: data.discount || 0,
+      total: data.total || 0,
+      items: data.items,
+      notes: data.notes,
+      publicToken: data.publicToken,
     };
   } catch {
     return null;
@@ -273,7 +322,7 @@ async function InvoiceContent({ token }: { token: string }) {
               <div>
                 <h3 className="font-semibold text-green-800">Factura Pagada</h3>
                 <p className="text-sm text-green-600">
-                  Pago recibido el {formatDate(invoice.paidAt)}
+                  Pago recibido el {invoice.paidAt ? formatDate(invoice.paidAt) : '-'}
                 </p>
               </div>
             </div>

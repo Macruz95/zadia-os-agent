@@ -21,6 +21,7 @@ const messaging = firebase.messaging();
 
 // Handle background messages
 messaging.onBackgroundMessage((payload) => {
+  // eslint-disable-next-line no-console
   console.log('[SW] Background message received:', payload);
   
   const notificationTitle = payload.notification?.title || 'ZADIA OS';
@@ -40,6 +41,7 @@ messaging.onBackgroundMessage((payload) => {
 
 // Handle notification click
 self.addEventListener('notificationclick', (event) => {
+  // eslint-disable-next-line no-console
   console.log('[SW] Notification clicked:', event);
   
   event.notification.close();
@@ -124,4 +126,5 @@ self.addEventListener('notificationclick', (event) => {
   // Handle other actions...
 });
 
+// eslint-disable-next-line no-console
 console.log('[SW] Firebase Messaging Service Worker loaded');

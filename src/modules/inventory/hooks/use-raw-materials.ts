@@ -4,11 +4,12 @@
  * Manages raw materials state and operations
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { RawMaterial } from '../types/inventory.types';
 import { RawMaterialFormData } from '../validations/inventory.schema';
 import { RawMaterialsService } from '../services/entities/raw-materials-entity.service';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 
 interface UseRawMaterialsReturn {
@@ -27,6 +28,7 @@ interface UseRawMaterialsReturn {
 
 export function useRawMaterials(): UseRawMaterialsReturn {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const [rawMaterials, setRawMaterials] = useState<RawMaterial[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
@@ -34,11 +36,17 @@ export function useRawMaterials(): UseRawMaterialsReturn {
   const [lastQuery, setLastQuery] = useState<string>('search');
 
   const searchRawMaterials = useCallback(async () => {
+    if (!tenantId) {
+      setRawMaterials([]);
+      setTotalCount(0);
+      return;
+    }
+    
     try {
       setLoading(true);
       setError(undefined);
 
-      const result = await RawMaterialsService.searchRawMaterials();
+      const result = await RawMaterialsService.searchRawMaterials({ tenantId });
       setRawMaterials(result.rawMaterials);
       setTotalCount(result.totalCount);
       setLastQuery('search');
@@ -49,16 +57,20 @@ export function useRawMaterials(): UseRawMaterialsReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   const createRawMaterial = useCallback(async (
     data: RawMaterialFormData
   ): Promise<RawMaterial> => {
+    if (!tenantId) {
+      throw new Error('No se ha seleccionado una empresa');
+    }
+    
     try {
       setLoading(true);
       setError(undefined);
 
-      const newMaterial = await RawMaterialsService.createRawMaterial(data, user?.uid || '');
+      const newMaterial = await RawMaterialsService.createRawMaterial(data, user?.uid || '', tenantId);
       
       setRawMaterials(prev => [newMaterial, ...prev]);
       setTotalCount(prev => prev + 1);
@@ -72,7 +84,7 @@ export function useRawMaterials(): UseRawMaterialsReturn {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid]);
+  }, [user?.uid, tenantId]);
 
   const updateRawMaterial = useCallback(async (
     id: string,
@@ -136,11 +148,17 @@ export function useRawMaterials(): UseRawMaterialsReturn {
   }, [user?.uid]);
 
   const getLowStockMaterials = useCallback(async () => {
+    if (!tenantId) {
+      setRawMaterials([]);
+      setTotalCount(0);
+      return;
+    }
+    
     try {
       setLoading(true);
       setError(undefined);
 
-      const result = await RawMaterialsService.getLowStockRawMaterials();
+      const result = await RawMaterialsService.getLowStockRawMaterials(tenantId);
       setRawMaterials(result);
       setTotalCount(result.length);
       setLastQuery('lowStock');
@@ -151,7 +169,7 @@ export function useRawMaterials(): UseRawMaterialsReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   const refresh = useCallback(async () => {
     switch (lastQuery) {
@@ -162,6 +180,13 @@ export function useRawMaterials(): UseRawMaterialsReturn {
         await searchRawMaterials();
     }
   }, [lastQuery, searchRawMaterials, getLowStockMaterials]);
+
+  // Load data when tenant changes
+  useEffect(() => {
+    if (tenantId) {
+      searchRawMaterials();
+    }
+  }, [tenantId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     rawMaterials,

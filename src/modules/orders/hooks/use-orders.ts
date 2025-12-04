@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { OrdersService } from '../services/orders.service';
+import { useTenantId } from '@/contexts/TenantContext';
 import type {
   Order,
   OrderFilters,
@@ -10,6 +11,7 @@ import type {
 } from '../types/orders.types';
 
 export function useOrders(filters?: OrderFilters) {
+  const tenantId = useTenantId();
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState<OrderStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -19,10 +21,12 @@ export function useOrders(filters?: OrderFilters) {
    * Cargar pedidos
    */
   const fetchOrders = async () => {
+    if (!tenantId) return; // Wait for tenant
+    
     try {
       setLoading(true);
       setError(null);
-      const data = await OrdersService.searchOrders(filters);
+      const data = await OrdersService.searchOrders(filters, tenantId);
       setOrders(data);
     } catch (err) {
       const errorMessage =
@@ -38,8 +42,10 @@ export function useOrders(filters?: OrderFilters) {
    * Cargar estadísticas
    */
   const fetchStats = async (clientId?: string) => {
+    if (!tenantId) return; // Wait for tenant
+    
     try {
-      const data = await OrdersService.getOrderStats(clientId);
+      const data = await OrdersService.getOrderStats(clientId, tenantId);
       setStats(data);
     } catch {
       toast.error('Error al cargar estadísticas');
@@ -52,8 +58,13 @@ export function useOrders(filters?: OrderFilters) {
   const createOrder = async (
     orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<string | null> => {
+    if (!tenantId) {
+      toast.error('No tenant ID');
+      return null;
+    }
+    
     try {
-      const orderId = await OrdersService.createOrder(orderData);
+      const orderId = await OrdersService.createOrder(orderData, tenantId);
       toast.success('Pedido creado exitosamente');
       await fetchOrders();
       return orderId;
@@ -160,10 +171,12 @@ export function useOrders(filters?: OrderFilters) {
     }
   };
 
-  // Cargar datos iniciales
+  // Cargar datos iniciales y cuando cambie el tenant
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    if (tenantId) {
+      fetchOrders();
+    }
+  }, [tenantId]);
 
   return {
     orders,

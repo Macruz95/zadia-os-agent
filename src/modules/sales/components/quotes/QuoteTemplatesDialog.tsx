@@ -25,6 +25,7 @@ import { QuoteTemplate } from '../../types/quote-template.types';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import { formatCurrency } from '@/lib/utils';
+import { useTenantId } from '@/contexts/TenantContext';
 
 interface QuoteTemplatesDialogProps {
   open: boolean;
@@ -39,6 +40,7 @@ export function QuoteTemplatesDialog({
   onSelectTemplate,
   onCreateFromQuote
 }: QuoteTemplatesDialogProps) {
+  const tenantId = useTenantId();
   const [templates, setTemplates] = useState<QuoteTemplate[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,15 +48,17 @@ export function QuoteTemplatesDialog({
 
   // Load templates
   useEffect(() => {
-    if (open) {
+    if (open && tenantId) {
       loadTemplates();
     }
-  }, [open]);
+  }, [open, tenantId]);
 
   const loadTemplates = async () => {
+    if (!tenantId) return;
+    
     try {
       setLoading(true);
-      const data = await QuoteTemplatesService.getTemplates();
+      const data = await QuoteTemplatesService.getTemplates(tenantId);
       setTemplates(data);
     } catch (error) {
       logger.error('Error loading templates', error as Error, {

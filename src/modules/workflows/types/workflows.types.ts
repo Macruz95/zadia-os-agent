@@ -81,6 +81,7 @@ export interface StepCondition {
  */
 export interface Workflow {
   id: string;
+  tenantId?: string; // For tenant isolation
   userId: string;
   name: string;
   description?: string;
@@ -137,6 +138,7 @@ export interface WorkflowTrigger {
  */
 export interface WorkflowExecution {
   id: string;
+  tenantId?: string; // For tenant isolation
   userId: string;
   workflowId: string;
   workflowName: string;

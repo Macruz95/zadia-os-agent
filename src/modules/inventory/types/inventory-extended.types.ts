@@ -50,6 +50,7 @@ export interface InventoryFilters {
 }
 
 export interface InventorySearchParams {
+  tenantId?: string;
   query?: string;
   filters?: InventoryFilters;
   sortBy?: 'name' | 'sku' | 'currentStock' | 'unitCost' | 'lastMovementDate';

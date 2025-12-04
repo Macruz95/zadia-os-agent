@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
         );
     }
     
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       headers: {
         'Content-Type': contentType,
         'Content-Disposition': `attachment; filename="${filename}"`
@@ -154,6 +154,7 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Report export error:', error);
     return NextResponse.json(
       { error: 'Failed to generate report' },

@@ -83,6 +83,7 @@ export interface TaskDependency {
  */
 export interface Task {
   id: string;
+  tenantId?: string; // For tenant isolation
   userId: string;
   title: string;
   description?: string;

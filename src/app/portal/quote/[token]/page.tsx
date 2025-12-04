@@ -24,7 +24,38 @@ interface PageProps {
   params: Promise<{ token: string }>;
 }
 
-async function getQuoteByToken(token: string) {
+interface QuoteData {
+  id: string;
+  quoteNumber: string;
+  status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired';
+  createdAt: { seconds: number };
+  expiresAt: { seconds: number };
+  acceptedAt?: { seconds: number };
+  validityDays?: number;
+  tenantId: string;
+  tenantName?: string;
+  tenantEmail?: string;
+  clientName: string;
+  clientEmail: string;
+  currency: string;
+  subtotal: number;
+  taxAmount: number;
+  taxRate?: number;
+  discount: number;
+  total: number;
+  items?: Array<{
+    id: string;
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+  }>;
+  terms?: string;
+  notes?: string;
+  publicToken?: string;
+}
+
+async function getQuoteByToken(token: string): Promise<QuoteData | null> {
   try {
     const quoteId = token.split('-')[0];
     
@@ -33,15 +64,35 @@ async function getQuoteByToken(token: string) {
     
     if (!quoteSnap.exists()) return null;
     
-    const quote = quoteSnap.data();
+    const data = quoteSnap.data();
     
-    if (quote.publicToken !== token) {
+    if (data.publicToken !== token) {
       return null;
     }
     
     return {
       id: quoteSnap.id,
-      ...quote,
+      quoteNumber: data.quoteNumber || '',
+      status: data.status || 'draft',
+      createdAt: data.createdAt,
+      expiresAt: data.expiresAt,
+      acceptedAt: data.acceptedAt,
+      validityDays: data.validityDays,
+      tenantId: data.tenantId || '',
+      tenantName: data.tenantName,
+      tenantEmail: data.tenantEmail,
+      clientName: data.clientName || '',
+      clientEmail: data.clientEmail || '',
+      currency: data.currency || 'USD',
+      subtotal: data.subtotal || 0,
+      taxAmount: data.taxAmount || 0,
+      taxRate: data.taxRate,
+      discount: data.discount || 0,
+      total: data.total || 0,
+      items: data.items,
+      terms: data.terms,
+      notes: data.notes,
+      publicToken: data.publicToken,
     };
   } catch {
     return null;
@@ -273,7 +324,7 @@ async function QuoteContent({ token }: { token: string }) {
               <div>
                 <h3 className="font-semibold text-green-800">Cotización Aceptada</h3>
                 <p className="text-sm text-green-600">
-                  Aceptada el {formatDate(quote.acceptedAt)}
+                  Aceptada el {quote.acceptedAt ? formatDate(quote.acceptedAt) : '-'}
                 </p>
               </div>
             </div>

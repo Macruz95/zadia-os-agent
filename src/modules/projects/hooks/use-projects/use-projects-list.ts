@@ -7,9 +7,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, query, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
+import { useTenantId } from '@/contexts/TenantContext';
 import type { Project } from '../../types/projects.types';
 import type { UseProjectsState, UseProjectsOptions } from './types';
 import { buildQueryConstraints } from './query-builder';
@@ -30,6 +31,8 @@ export function useProjects(options: UseProjectsOptions = {}): UseProjectsState 
     realtime = true,
   } = options;
 
+  const tenantId = useTenantId();
+
   const [state, setState] = useState<UseProjectsState>({
     projects: [],
     loading: true,
@@ -38,6 +41,17 @@ export function useProjects(options: UseProjectsOptions = {}): UseProjectsState 
   });
 
   useEffect(() => {
+    // Wait for tenant ID
+    if (!tenantId) {
+      setState({
+        projects: [],
+        loading: false,
+        error: null,
+        totalCount: 0,
+      });
+      return;
+    }
+
     // Build query constraints
     const constraints = buildQueryConstraints(filters, {
       pageSize,
@@ -45,9 +59,9 @@ export function useProjects(options: UseProjectsOptions = {}): UseProjectsState 
       sortOrder,
     });
 
-    // Create query
+    // Create query with tenant filter FIRST
     const projectsRef = collection(db, 'projects');
-    const q = query(projectsRef, ...constraints);
+    const q = query(projectsRef, where('tenantId', '==', tenantId), ...constraints);
 
     // Set up realtime listener
     if (realtime) {
@@ -95,6 +109,7 @@ export function useProjects(options: UseProjectsOptions = {}): UseProjectsState 
       logger.info('One-time fetch mode not implemented - using realtime by default');
     }
   }, [
+    tenantId,
     filters.status,
     filters.priority,
     filters.clientId,

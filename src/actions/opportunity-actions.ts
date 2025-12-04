@@ -3,7 +3,7 @@
 import { adminDb } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp, Transaction } from 'firebase-admin/firestore';
 import { logger } from '@/lib/logger';
 
 // Schema for validation
@@ -58,7 +58,7 @@ export async function markOpportunityAsWonAction(
         let createdProjectId: string | null = null;
 
         // Execute Transaction
-        await adminDb.runTransaction(async (transaction) => {
+        await adminDb.runTransaction(async (transaction: Transaction) => {
             // 1. Get Opportunity Reference
             const opportunityRef = adminDb.collection('opportunities').doc(opportunityId);
             const opportunityDoc = await transaction.get(opportunityRef);
