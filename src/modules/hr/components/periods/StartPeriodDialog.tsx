@@ -19,6 +19,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { WorkPeriodsService } from '@/modules/hr/services/work-periods.service';
+import { useTenantId } from '@/contexts/TenantContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const startPeriodSchema = z.object({
     startDate: z.string(),
@@ -43,6 +45,8 @@ export function StartPeriodDialog({
     onSuccess,
 }: StartPeriodDialogProps) {
     const [loading, setLoading] = useState(false);
+    const tenantId = useTenantId();
+    const { firebaseUser } = useAuth();
 
     const { register, handleSubmit, formState: { errors } } = useForm<StartPeriodFormData>({
         resolver: zodResolver(startPeriodSchema),
@@ -62,7 +66,9 @@ export function StartPeriodDialog({
             await WorkPeriodsService.startPeriod(
                 employeeId,
                 data.dailyRate,
-                localDate
+                localDate,
+                firebaseUser?.uid,
+                tenantId || undefined
             );
 
             toast.success('Temporada iniciada correctamente');

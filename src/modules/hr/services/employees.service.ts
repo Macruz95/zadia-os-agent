@@ -245,7 +245,8 @@ export class EmployeesService {
    */
   static async updateEmployee(
     id: string,
-    data: Partial<EmployeeFormData>
+    data: Partial<EmployeeFormData>,
+    tenantId?: string
   ): Promise<void> {
     try {
       const docRef = doc(db, COLLECTION, id);
@@ -284,7 +285,7 @@ export class EmployeesService {
         try {
           // Import dynamically to avoid circular dependency
           const { WorkPeriodsService } = await import('./work-periods.service');
-          const activePeriod = await WorkPeriodsService.getActivePeriod(id);
+          const activePeriod = await WorkPeriodsService.getActivePeriod(id, tenantId);
           
           logger.info('Checking for active period to sync salary', {
             component: 'EmployeesService',

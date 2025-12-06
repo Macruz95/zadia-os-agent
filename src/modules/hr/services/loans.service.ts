@@ -31,7 +31,8 @@ export class LoansService {
         workPeriodId: string,
         amount: number,
         reason: string,
-        approvedBy: string
+        approvedBy: string,
+        tenantId?: string
     ): Promise<Loan> {
         try {
             const loanData = {
@@ -42,6 +43,7 @@ export class LoansService {
                 date: Timestamp.now(),
                 status: 'pending' as const, // Will be deducted on period close
                 approvedBy,
+                tenantId: tenantId || '',
                 createdAt: Timestamp.now(),
             };
 
@@ -49,7 +51,7 @@ export class LoansService {
 
             // Import dynamically to avoid circular dependency
             const { WorkPeriodsService } = await import('./work-periods.service');
-            await WorkPeriodsService.recalculateTotals(workPeriodId);
+            await WorkPeriodsService.recalculateTotals(workPeriodId, tenantId);
 
             logger.info('Loan added', { 
                 component: 'LoansService',
@@ -145,13 +147,13 @@ export class LoansService {
     /**
      * Delete loan (if mistake made)
      */
-    static async deleteLoan(loanId: string, workPeriodId: string): Promise<void> {
+    static async deleteLoan(loanId: string, workPeriodId: string, tenantId?: string): Promise<void> {
         try {
             await deleteDoc(doc(db, COLLECTION, loanId));
 
             // Import dynamically to avoid circular dependency
             const { WorkPeriodsService } = await import('./work-periods.service');
-            await WorkPeriodsService.recalculateTotals(workPeriodId);
+            await WorkPeriodsService.recalculateTotals(workPeriodId, tenantId);
 
             logger.info('Loan deleted', { 
                 component: 'LoansService',

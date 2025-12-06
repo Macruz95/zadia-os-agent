@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { LoansService } from '@/modules/hr/services/loans.service';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 
 const loanSchema = z.object({
     amount: z.number().min(0.01, 'Monto requerido'),
@@ -45,6 +46,7 @@ export function AddLoanDialog({
     onSuccess,
 }: AddLoanDialogProps) {
     const { user } = useAuth();
+    const tenantId = useTenantId();
     const [loading, setLoading] = useState(false);
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm<LoanFormData>({
@@ -65,7 +67,8 @@ export function AddLoanDialog({
                 periodId,
                 data.amount,
                 data.reason,
-                user.uid
+                user.uid,
+                tenantId || undefined
             );
 
             toast.success('Préstamo registrado correctamente');

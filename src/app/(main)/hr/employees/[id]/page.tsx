@@ -116,7 +116,7 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
   const handleEditSubmit = async (data: EmployeeFormData) => {
     if (!employee) return;
     try {
-      await EmployeesService.updateEmployee(employee.id, data);
+      await EmployeesService.updateEmployee(employee.id, data, tenantId || undefined);
       toast.success('Empleado actualizado');
       setShowEditDialog(false);
       await fetchData(); // Refresh data

@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { WorkPeriodsService } from '@/modules/hr/services/work-periods.service';
+import { useTenantId } from '@/contexts/TenantContext';
 import type { WorkPeriod } from '@/modules/hr/types/hr.types';
 
 interface EndPeriodDialogProps {
@@ -45,11 +46,12 @@ export function EndPeriodDialog({
     const [loading, setLoading] = useState(false);
     const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     const [carryDebt, setCarryDebt] = useState(true);
+    const tenantId = useTenantId();
 
     const handleEndPeriod = async () => {
         try {
             setLoading(true);
-            await WorkPeriodsService.endPeriod(period.id, new Date(endDate), carryDebt);
+            await WorkPeriodsService.endPeriod(period.id, new Date(endDate), carryDebt, tenantId || undefined);
 
             toast.success('Temporada finalizada correctamente');
             onSuccess();

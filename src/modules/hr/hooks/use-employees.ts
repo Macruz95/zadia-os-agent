@@ -92,7 +92,7 @@ export function useEmployees(statusFilter?: EmployeeStatus) {
     data: Partial<EmployeeFormData>
   ): Promise<boolean> => {
     try {
-      await EmployeesService.updateEmployee(id, data);
+      await EmployeesService.updateEmployee(id, data, tenantId || undefined);
       toast.success('Empleado actualizado correctamente');
       await fetchEmployees();
       return true;

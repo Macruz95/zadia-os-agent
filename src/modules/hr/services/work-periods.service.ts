@@ -34,19 +34,20 @@ export class WorkPeriodsService {
         employeeId: string,
         dailyRate: number,
         startDate: Date = new Date(),
-        userId?: string
+        userId?: string,
+        tenantId?: string
     ): Promise<WorkPeriod> {
         try {
             // Check if there's already an active period
-            const activePeriod = await this.getActivePeriod(employeeId);
+            const activePeriod = await this.getActivePeriod(employeeId, tenantId);
             if (activePeriod) {
                 throw new Error('El empleado ya tiene una temporada activa');
             }
 
             // Check for carried debt from previous periods
-            const previousPeriods = await this.getPeriodsByEmployee(employeeId);
+            const previousPeriods = await this.getPeriodsByEmployee(employeeId, tenantId);
             let carriedDebt = 0;
-            let previousPeriodId: string | undefined;
+            let previousPeriodId: string | null = null;
 
             // Find the most recent completed period with remaining debt
             const lastPeriodWithDebt = previousPeriods.find(
@@ -72,8 +73,9 @@ export class WorkPeriodsService {
                 });
             }
 
-            const periodData = {
+            const periodData: Record<string, unknown> = {
                 employeeId,
+                tenantId, // CRITICAL: Add tenant isolation
                 startDate: Timestamp.fromDate(startDate),
                 status: 'active' as const,
                 dailyRate,
@@ -85,11 +87,15 @@ export class WorkPeriodsService {
                 carriedDebt,
                 netPayable: -carriedDebt, // Start negative if there's carried debt
                 remainingDebt: 0,
-                previousPeriodId,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
                 userId,
             };
+            
+            // Only add previousPeriodId if it exists
+            if (previousPeriodId) {
+                periodData.previousPeriodId = previousPeriodId;
+            }
 
             const docRef = await addDoc(collection(db, COLLECTION), periodData);
 
@@ -116,7 +122,8 @@ export class WorkPeriodsService {
     static async endPeriod(
         periodId: string,
         endDate: Date = new Date(),
-        carryDebtToNextPeriod: boolean = true // Option to carry debt
+        carryDebtToNextPeriod: boolean = true, // Option to carry debt
+        tenantId?: string
     ): Promise<WorkPeriod> {
         try {
             const period = await this.getPeriodById(periodId);
@@ -136,8 +143,8 @@ export class WorkPeriodsService {
 
             const totalSalary = diffDays * period.dailyRate;
 
-            // Get loans
-            const loans = await LoansService.getLoansByPeriod(periodId);
+            // Get loans (pass tenantId for security rules)
+            const loans = await LoansService.getLoansByPeriod(periodId, tenantId);
             const totalLoans = loans.reduce((sum, loan) => sum + loan.amount, 0);
 
             // Get bonuses
@@ -198,15 +205,20 @@ export class WorkPeriodsService {
     /**
      * Get active period for employee
      */
-    static async getActivePeriod(employeeId: string): Promise<WorkPeriod | null> {
+    static async getActivePeriod(employeeId: string, tenantId?: string): Promise<WorkPeriod | null> {
         try {
-            // First try with orderBy (requires composite index)
-            const q = query(
-                collection(db, COLLECTION),
+            // Build constraints with tenantId if provided
+            const constraints = [
                 where('employeeId', '==', employeeId),
                 where('status', '==', 'active'),
                 orderBy('startDate', 'desc')
-            );
+            ];
+            
+            if (tenantId) {
+                constraints.unshift(where('tenantId', '==', tenantId));
+            }
+            
+            const q = query(collection(db, COLLECTION), ...constraints);
 
             const snapshot = await getDocs(q);
 
@@ -237,11 +249,16 @@ export class WorkPeriodsService {
             });
             
             try {
-                const q = query(
-                    collection(db, COLLECTION),
+                const fallbackConstraints = [
                     where('employeeId', '==', employeeId),
                     where('status', '==', 'active')
-                );
+                ];
+                
+                if (tenantId) {
+                    fallbackConstraints.unshift(where('tenantId', '==', tenantId));
+                }
+                
+                const q = query(collection(db, COLLECTION), ...fallbackConstraints);
                 const snapshot = await getDocs(q);
                 
                 if (snapshot.empty) return null;
@@ -315,7 +332,7 @@ export class WorkPeriodsService {
     /**
      * Recalculate totals (useful when adding loans or bonuses)
      */
-    static async recalculateTotals(periodId: string): Promise<void> {
+    static async recalculateTotals(periodId: string, tenantId?: string): Promise<void> {
         try {
             const period = await this.getPeriodById(periodId);
             if (!period) return;
@@ -329,8 +346,8 @@ export class WorkPeriodsService {
 
             const totalSalary = diffDays * period.dailyRate;
 
-            // Get loans
-            const loans = await LoansService.getLoansByPeriod(periodId);
+            // Get loans (pass tenantId for security rules)
+            const loans = await LoansService.getLoansByPeriod(periodId, tenantId);
             const totalLoans = loans.reduce((sum, loan) => sum + loan.amount, 0);
 
             // Get bonuses
