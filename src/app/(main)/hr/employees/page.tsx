@@ -8,14 +8,18 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EmployeesList } from '@/modules/hr/components/employees/EmployeesList';
 import { EmployeeFormDialog } from '@/modules/hr/components/employees/EmployeeFormDialog';
 import { useEmployees } from '@/modules/hr/hooks/use-employees';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTenant } from '@/contexts/TenantContext';
 import type { Employee } from '@/modules/hr/types/hr.types';
 import type { EmployeeFormData } from '@/modules/hr/validations/hr.validation';
+import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export default function EmployeesPage() {
   const {
@@ -26,10 +30,79 @@ export default function EmployeesPage() {
     updateEmployee,
     deleteEmployee,
   } = useEmployees();
+  
+  const { user } = useAuth();
+  const { tenant } = useTenant();
+  const [debugInfo, setDebugInfo] = useState<Record<string, unknown>>({});
 
   const [formOpen, setFormOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [showDebug, setShowDebug] = useState(false);
+
+  // Debug: verificar conexión Firebase y datos
+  useEffect(() => {
+    async function runDiagnostics() {
+      if (!user?.uid || !tenant?.id) {
+        setDebugInfo({
+          status: 'waiting',
+          userId: user?.uid || 'NO USER',
+          tenantId: tenant?.id || 'NO TENANT',
+        });
+        return;
+      }
+
+      const info: Record<string, unknown> = {
+        userId: user.uid,
+        tenantId: tenant.id,
+        tenantName: tenant.name,
+      };
+
+      try {
+        // 1. Verificar si existe el documento tenantMember
+        const memberDocId = `${tenant.id}_${user.uid}`;
+        const memberRef = doc(db, 'tenantMembers', memberDocId);
+        const memberSnap = await getDoc(memberRef);
+        info.tenantMemberExists = memberSnap.exists();
+        info.tenantMemberDocId = memberDocId;
+        if (memberSnap.exists()) {
+          info.tenantMemberData = memberSnap.data();
+        }
+
+        // 2. Query directa a employees sin filtro (solo para debug)
+        const allEmployeesSnap = await getDocs(collection(db, 'employees'));
+        info.totalEmployeesInCollection = allEmployeesSnap.size;
+        info.allEmployeesTenantIds = allEmployeesSnap.docs.map(d => ({
+          id: d.id,
+          tenantId: d.data().tenantId,
+          firstName: d.data().firstName,
+          lastName: d.data().lastName,
+        }));
+
+        // 3. Query filtrada por tenantId
+        const filteredQuery = query(
+          collection(db, 'employees'),
+          where('tenantId', '==', tenant.id)
+        );
+        const filteredSnap = await getDocs(filteredQuery);
+        info.employeesForThisTenant = filteredSnap.size;
+        info.filteredEmployees = filteredSnap.docs.map(d => ({
+          id: d.id,
+          ...d.data(),
+        }));
+
+        info.status = 'success';
+      } catch (err) {
+        info.status = 'error';
+        info.error = err instanceof Error ? err.message : String(err);
+      }
+
+      setDebugInfo(info);
+    }
+
+    if (showDebug) {
+      runDiagnostics();
+    }
+  }, [user?.uid, tenant?.id, tenant?.name, showDebug]);
 
   const handleDelete = async (id: string) => {
     await deleteEmployee(id);
@@ -49,8 +122,8 @@ export default function EmployeesPage() {
     if (selectedEmployee) {
       await updateEmployee(selectedEmployee.id, data);
     } else {
-      // Get userId from localStorage or context
-      const userId = localStorage.getItem('userId') || 'system';
+      // Use authenticated user's ID - NOT localStorage
+      const userId = user?.uid || 'system';
       await createEmployee(data, userId);
     }
   };
@@ -104,9 +177,52 @@ export default function EmployeesPage() {
       />
 
       {showDebug && (
-        <div className="mt-4 p-4 rounded border bg-muted/10">
-          <h3 className="text-sm font-semibold">RAW employees</h3>
-          <pre className="mt-2 max-h-72 overflow-auto text-xs">{JSON.stringify(employees, null, 2)}</pre>
+        <div className="mt-4 p-4 rounded border bg-muted/10 space-y-4">
+          <h3 className="text-sm font-semibold">Diagnóstico Firebase</h3>
+          
+          <div className="grid grid-cols-2 gap-4 text-xs">
+            <div>
+              <strong>User ID:</strong> {debugInfo.userId as string || 'N/A'}
+            </div>
+            <div>
+              <strong>Tenant ID:</strong> {debugInfo.tenantId as string || 'N/A'}
+            </div>
+            <div>
+              <strong>Tenant Member Exists:</strong>{' '}
+              <span className={debugInfo.tenantMemberExists ? 'text-green-500' : 'text-red-500'}>
+                {debugInfo.tenantMemberExists ? 'SÍ' : 'NO'}
+              </span>
+            </div>
+            <div>
+              <strong>Total Employees (all tenants):</strong> {debugInfo.totalEmployeesInCollection as number ?? 'N/A'}
+            </div>
+            <div>
+              <strong>Employees for THIS tenant:</strong> {debugInfo.employeesForThisTenant as number ?? 'N/A'}
+            </div>
+            <div>
+              <strong>Status:</strong> {debugInfo.status as string || 'N/A'}
+            </div>
+          </div>
+
+          {debugInfo.error && (
+            <div className="p-2 bg-red-500/10 rounded text-red-500 text-xs">
+              <strong>Error:</strong> {debugInfo.error as string}
+            </div>
+          )}
+
+          <details className="text-xs">
+            <summary className="cursor-pointer font-medium">Ver datos completos</summary>
+            <pre className="mt-2 max-h-72 overflow-auto bg-black/20 p-2 rounded">
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
+          </details>
+
+          <details className="text-xs">
+            <summary className="cursor-pointer font-medium">Empleados del hook useEmployees</summary>
+            <pre className="mt-2 max-h-72 overflow-auto bg-black/20 p-2 rounded">
+              {JSON.stringify(employees, null, 2)}
+            </pre>
+          </details>
         </div>
       )}
 

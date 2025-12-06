@@ -44,6 +44,9 @@ export class EmployeesService {
       throw new Error('tenantId is required for data isolation');
     }
     
+    // DEBUG: Log the exact tenantId being used
+    console.log('[EmployeesService.createEmployee] Creating with tenantId:', tenantId, 'userId:', userId);
+    
     try {
       const employeeData = {
         ...data,
@@ -60,6 +63,9 @@ export class EmployeesService {
       };
 
       const docRef = await addDoc(collection(db, COLLECTION), employeeData);
+      
+      // DEBUG: Log success with document ID
+      console.log('[EmployeesService.createEmployee] SUCCESS - Doc ID:', docRef.id, 'tenantId stored:', tenantId);
 
       logger.info('Employee created', {
         metadata: { employeeId: docRef.id, tenantId },
@@ -110,6 +116,9 @@ export class EmployeesService {
       return [];
     }
     
+    // DEBUG: Log the tenantId being queried
+    console.log('[EmployeesService.getAllEmployees] Querying with tenantId:', tenantId);
+    
     try {
       // Filter by tenantId for data isolation
       const q = query(
@@ -119,6 +128,10 @@ export class EmployeesService {
       );
 
       const snapshot = await getDocs(q);
+      
+      // DEBUG: Log raw results
+      console.log('[EmployeesService.getAllEmployees] Query returned', snapshot.size, 'documents');
+      
       const employeesResult: Employee[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
