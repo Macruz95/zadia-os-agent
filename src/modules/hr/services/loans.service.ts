@@ -69,13 +69,18 @@ export class LoansService {
     /**
      * Get loans by period
      */
-    static async getLoansByPeriod(workPeriodId: string): Promise<Loan[]> {
+    static async getLoansByPeriod(workPeriodId: string, tenantId?: string): Promise<Loan[]> {
         try {
-            const q = query(
-                collection(db, COLLECTION),
+            const constraints = [
                 where('workPeriodId', '==', workPeriodId),
                 orderBy('date', 'desc')
-            );
+            ];
+            
+            if (tenantId) {
+                constraints.unshift(where('tenantId', '==', tenantId));
+            }
+            
+            const q = query(collection(db, COLLECTION), ...constraints);
 
             const snapshot = await getDocs(q);
 
@@ -92,13 +97,18 @@ export class LoansService {
     /**
      * Get all loans for an employee (across all periods)
      */
-    static async getLoansByEmployee(employeeId: string): Promise<Loan[]> {
+    static async getLoansByEmployee(employeeId: string, tenantId?: string): Promise<Loan[]> {
         try {
-            const q = query(
-                collection(db, COLLECTION),
+            const constraints = [
                 where('employeeId', '==', employeeId),
                 orderBy('date', 'desc')
-            );
+            ];
+            
+            if (tenantId) {
+                constraints.unshift(where('tenantId', '==', tenantId));
+            }
+            
+            const q = query(collection(db, COLLECTION), ...constraints);
 
             const snapshot = await getDocs(q);
 

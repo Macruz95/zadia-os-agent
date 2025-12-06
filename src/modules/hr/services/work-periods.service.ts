@@ -267,13 +267,20 @@ export class WorkPeriodsService {
     /**
      * Get all periods for employee
      */
-    static async getPeriodsByEmployee(employeeId: string): Promise<WorkPeriod[]> {
+    static async getPeriodsByEmployee(employeeId: string, tenantId?: string): Promise<WorkPeriod[]> {
         try {
-            const q = query(
-                collection(db, COLLECTION),
+            // Build query with tenantId filter if provided (required for Firestore rules)
+            const constraints = [
                 where('employeeId', '==', employeeId),
                 orderBy('startDate', 'desc')
-            );
+            ];
+            
+            // Add tenantId filter if provided
+            if (tenantId) {
+                constraints.unshift(where('tenantId', '==', tenantId));
+            }
+            
+            const q = query(collection(db, COLLECTION), ...constraints);
 
             const snapshot = await getDocs(q);
 

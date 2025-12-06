@@ -52,6 +52,7 @@ import { PeriodsHistory } from '@/modules/hr/components/periods/PeriodsHistory';
 import { StartPeriodDialog } from '@/modules/hr/components/periods/StartPeriodDialog';
 import { EmployeeFormDialog } from '@/modules/hr/components/employees/EmployeeFormDialog';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 
 interface EmployeeDetailPageProps {
   params: Promise<{ id: string }>;
@@ -61,6 +62,7 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
   const resolvedParams = use(params);
   const router = useRouter();
   useAuth(); // Auth check
+  const tenantId = useTenantId();
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -72,19 +74,21 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
   const [showStartPeriod, setShowStartPeriod] = useState(false);
 
   const fetchData = async () => {
+    if (!tenantId) return;
+    
     try {
       const empData = await EmployeesService.getEmployeeById(resolvedParams.id);
       setEmployee(empData);
 
-      // Load periods
-      const periodsData = await WorkPeriodsService.getPeriodsByEmployee(resolvedParams.id);
+      // Load periods with tenantId for Firestore rules
+      const periodsData = await WorkPeriodsService.getPeriodsByEmployee(resolvedParams.id, tenantId);
       setPeriods(periodsData);
 
       const active = periodsData.find(p => p.status === 'active') || null;
       setActivePeriod(active);
 
       if (active) {
-        const loansData = await LoansService.getLoansByPeriod(active.id);
+        const loansData = await LoansService.getLoansByPeriod(active.id, tenantId);
         setActiveLoans(loansData);
       }
     } catch {
@@ -96,7 +100,7 @@ export default function EmployeeDetailPage({ params }: EmployeeDetailPageProps) 
 
   useEffect(() => {
     fetchData();
-  }, [resolvedParams.id]);
+  }, [resolvedParams.id, tenantId]);
 
   const handleDelete = async () => {
     if (!employee) return;
