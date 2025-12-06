@@ -15,9 +15,6 @@ export const useClients = (initialParams: ClientSearchParams = {}) => {
   const currentParamsRef = useRef(state.searchParams);
   currentParamsRef.current = state.searchParams;
 
-  // Ref para evitar múltiples cargas iniciales
-  const initialLoadDone = useRef(false);
-
   const fetchClients = useCallback(async (params?: ClientSearchParams) => {
     // Don't fetch if no tenant selected
     if (!tenantId) {

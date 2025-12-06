@@ -51,7 +51,7 @@ const TenantContext = createContext<TenantContextType | undefined>(undefined);
 const TENANT_STORAGE_KEY = 'zadia_active_tenant';
 
 export function TenantProvider({ children }: { children: React.ReactNode }) {
-  const { user, firebaseUser, loading: authLoading } = useAuth();
+  const { firebaseUser, loading: authLoading } = useAuth();
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [membership, setMembership] = useState<TenantMember | null>(null);
   const [userTenants, setUserTenants] = useState<Tenant[]>([]);

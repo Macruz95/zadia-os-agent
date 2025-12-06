@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { logger } from '@/lib/logger';
-import { getAdminAuth, isAdminAvailable } from '@/lib/firebase-admin';
+import { getAdminAuth } from '@/lib/firebase-admin';
 
 // Cookie configuration
 const AUTH_COOKIE_NAME = 'auth-token';

@@ -20,9 +20,9 @@ export async function getProjectMetrics(tenantId: string) {
         // 1. Active Projects
         const active = allProjects.filter(p => p.status === 'in-progress').length;
 
-        // 2. At Risk Projects
+        // 2. At Risk Projects (calculated for future use)
         const now = new Date();
-        const atRisk = allProjects.filter(p => {
+        const _atRiskCount = allProjects.filter(p => {
             const isOverBudget = (p.actualCost || 0) > (p.estimatedCost || 0);
             const isOverdue = p.estimatedEndDate && p.estimatedEndDate.toDate && p.estimatedEndDate.toDate() < now && p.status !== 'completed' && p.status !== 'cancelled';
             return isOverBudget || isOverdue;

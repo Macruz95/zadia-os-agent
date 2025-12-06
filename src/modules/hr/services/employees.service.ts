@@ -44,8 +44,8 @@ export class EmployeesService {
       throw new Error('tenantId is required for data isolation');
     }
     
-    // DEBUG: Log the exact tenantId being used
-    console.log('[EmployeesService.createEmployee] Creating with tenantId:', tenantId, 'userId:', userId);
+    // Log the exact tenantId being used
+    logger.debug('Creating employee', { component: 'EmployeesService', tenantId, userId });
     
     try {
       const employeeData = {
@@ -64,8 +64,8 @@ export class EmployeesService {
 
       const docRef = await addDoc(collection(db, COLLECTION), employeeData);
       
-      // DEBUG: Log success with document ID
-      console.log('[EmployeesService.createEmployee] SUCCESS - Doc ID:', docRef.id, 'tenantId stored:', tenantId);
+      // Log success with document ID
+      logger.debug('Employee created successfully', { component: 'EmployeesService', employeeId: docRef.id, tenantId });
 
       logger.info('Employee created', {
         metadata: { employeeId: docRef.id, tenantId },
@@ -108,16 +108,15 @@ export class EmployeesService {
   /**
    * Get all employees for a tenant
    * @param tenantId - Required tenant ID for data isolation
-   * @param userId - Optional user ID for additional filtering
    */
-  static async getAllEmployees(tenantId: string, userId?: string): Promise<Employee[]> {
+  static async getAllEmployees(tenantId: string): Promise<Employee[]> {
     if (!tenantId) {
       logger.warn('getAllEmployees called without tenantId', { component: 'EmployeesService' });
       return [];
     }
     
     // DEBUG: Log the tenantId being queried
-    console.log('[EmployeesService.getAllEmployees] Querying with tenantId:', tenantId);
+    logger.debug('getAllEmployees querying', { component: 'EmployeesService', tenantId });
     
     try {
       // Filter by tenantId for data isolation
@@ -129,8 +128,8 @@ export class EmployeesService {
 
       const snapshot = await getDocs(q);
       
-      // DEBUG: Log raw results
-      console.log('[EmployeesService.getAllEmployees] Query returned', snapshot.size, 'documents');
+      // Log raw results
+      logger.debug('Query returned documents', { component: 'EmployeesService', count: snapshot.size });
       
       const employeesResult: Employee[] = snapshot.docs.map((doc) => ({
         id: doc.id,

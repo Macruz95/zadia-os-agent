@@ -80,7 +80,7 @@ function CommandSearchTrigger({ onClick }: { onClick: () => void }) {
 }
 
 export function Header() {
-  const { user, firebaseUser, loading } = useAuth();
+  const { firebaseUser, loading } = useAuth();
   const pathname = usePathname();
 
   // Generar breadcrumbs dinámicos

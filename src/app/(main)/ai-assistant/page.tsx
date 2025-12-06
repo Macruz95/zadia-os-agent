@@ -79,7 +79,7 @@ export default function AIAssistantPage() {
     setModel,
     clearChat,
     regenerateLastResponse,
-    conversationTitle,
+    conversationTitle: _conversationTitle,
     modelMode,
     setModelMode,
     // Persistence

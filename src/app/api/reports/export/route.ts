@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 // Extend jsPDF with autoTable
 declare module 'jspdf' {
@@ -80,15 +80,33 @@ async function generatePDF(data: { headers: string[]; rows: string[][]; title: s
   return Buffer.from(doc.output('arraybuffer'));
 }
 
-function generateExcel(data: { headers: string[]; rows: string[][]; title: string }): Buffer {
-  const ws = XLSX.utils.aoa_to_sheet([data.headers, ...data.rows]);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, data.title.substring(0, 31));
+async function generateExcel(data: { headers: string[]; rows: string[][]; title: string }): Promise<Buffer> {
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'ZADIA OS';
+  workbook.created = new Date();
   
-  // Add some styling metadata
-  ws['!cols'] = data.headers.map(() => ({ wch: 15 }));
+  const worksheet = workbook.addWorksheet(data.title.substring(0, 31));
   
-  return Buffer.from(XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }));
+  // Add headers with styling
+  worksheet.addRow(data.headers);
+  const headerRow = worksheet.getRow(1);
+  headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+  headerRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FF06B6D4' } // Cyan
+  };
+  
+  // Add data rows
+  data.rows.forEach(row => worksheet.addRow(row));
+  
+  // Set column widths
+  worksheet.columns.forEach(column => {
+    column.width = 15;
+  });
+  
+  const buffer = await workbook.xlsx.writeBuffer();
+  return Buffer.from(buffer);
 }
 
 function generateCSV(data: { headers: string[]; rows: string[][] }): Buffer {
@@ -120,7 +138,7 @@ export async function POST(request: NextRequest) {
         break;
         
       case 'excel':
-        buffer = generateExcel(data);
+        buffer = await generateExcel(data);
         contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
         filename = `${type}.xlsx`;
         break;
