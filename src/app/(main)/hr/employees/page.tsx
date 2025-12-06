@@ -210,11 +210,11 @@ export default function EmployeesPage() {
             </div>
           </div>
 
-          {debugInfo.error && (
+          {debugInfo.error ? (
             <div className="p-2 bg-red-500/10 rounded text-red-500 text-xs">
-              <strong>Error:</strong> {debugInfo.error as string}
+              <strong>Error:</strong> {String(debugInfo.error)}
             </div>
-          )}
+          ) : null}
 
           <details className="text-xs">
             <summary className="cursor-pointer font-medium">Ver datos completos</summary>

@@ -143,7 +143,7 @@ export class EmployeesService {
       logger.info('getAllEmployees: query returned', {
         component: 'EmployeesService',
         tenantId,
-        count: employeesResult.length,
+        count: employeesResult.length
       });
 
       if (employeesResult.length === 0) {
@@ -187,7 +187,7 @@ export class EmployeesService {
           logger.info('getAllEmployees (fallback): returned', {
             component: 'EmployeesService',
             tenantId,
-            count: sorted.length,
+            count: sorted.length
           });
 
           return sorted;

@@ -75,6 +75,13 @@ interface LogContext {
   keyId?: string;
   // Inventory/BOM fields
   bomId?: string;
+  // AI/Conversation fields
+  id?: string;
+  count?: number;
+  messageCount?: number;
+  conversationId?: string;
+  // Additional HR fields
+  fullName?: string;
   // Generic metadata for any additional fields
   metadata?: Record<string, unknown>;
 }

@@ -8,41 +8,64 @@ service firebase.storage {
       return request.auth != null;
     }
     
+    // Helper to check file size (max 10MB)
+    function isValidFileSize() {
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+    
+    // Helper to check allowed content types
+    function isValidContentType() {
+      return request.resource.contentType.matches('image/.*') ||
+             request.resource.contentType.matches('application/pdf') ||
+             request.resource.contentType.matches('application/vnd.openxmlformats.*') ||
+             request.resource.contentType.matches('application/msword') ||
+             request.resource.contentType.matches('text/.*');
+    }
+    
     // User profile images - users can only access their own files
     match /users/{userId}/{allPaths=**} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && request.auth.uid == userId;
+      allow write: if isAuthenticated() && request.auth.uid == userId && isValidFileSize();
     }
     
     // Tenant-scoped files - organized by tenant
+    // NOTE: Full tenant membership validation requires custom claims or Cloud Functions
+    // For production, implement custom claims with tenantIds array
     match /tenants/{tenantId}/{allPaths=**} {
-      // For now, allow authenticated users to access tenant files
-      // In production, validate tenant membership via custom claims or Firestore lookup
-      allow read, write: if isAuthenticated();
+      // Read: authenticated users (tenant validation should be done via custom claims in production)
+      allow read: if isAuthenticated();
+      // Write: authenticated with file validation
+      allow write: if isAuthenticated() && isValidFileSize() && isValidContentType();
     }
     
-    // Project files - organized under tenants
+    // Project files - should be nested under tenants in production
     match /projects/{projectId}/{allPaths=**} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isValidFileSize() && isValidContentType();
     }
     
-    // Client files - organized under tenants
+    // Client files - should be nested under tenants in production
     match /clients/{clientId}/{allPaths=**} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isValidFileSize() && isValidContentType();
     }
     
     // Invoice/Quote attachments
     match /invoices/{invoiceId}/{allPaths=**} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isValidFileSize() && isValidContentType();
     }
     
     match /quotes/{quoteId}/{allPaths=**} {
-      allow read, write: if isAuthenticated();
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isValidFileSize() && isValidContentType();
     }
     
     // Temp uploads - authenticated users for their own temp files only
     match /temp/{userId}/{allPaths=**} {
-      allow read, write, delete: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow write: if isAuthenticated() && request.auth.uid == userId && isValidFileSize();
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
     }
     
     // Public assets (logos, etc) - read-only

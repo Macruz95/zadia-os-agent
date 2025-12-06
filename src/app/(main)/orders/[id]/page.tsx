@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -50,16 +50,16 @@ export default function OrderDetailsPage() {
   /**
    * Cargar pedido
    */
-  useEffect(() => {
-    loadOrder();
-  }, [orderId]);
-
-  const loadOrder = async () => {
+  const loadOrder = useCallback(async () => {
     setLoading(true);
     const data = await OrdersService.getOrderById(orderId);
     setOrder(data);
     setLoading(false);
-  };
+  }, [orderId]);
+
+  useEffect(() => {
+    loadOrder();
+  }, [loadOrder]);
 
   /**
    * Guardar tracking

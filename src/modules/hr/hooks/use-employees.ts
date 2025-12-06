@@ -29,10 +29,10 @@ export function useEmployees(statusFilter?: EmployeeStatus) {
    * Fetch employees for current tenant
    */
   const fetchEmployees = useCallback(async () => {
-    logger.debug('fetchEmployees called', { component: 'useEmployees', userId, tenantId });
+    logger.debug('fetchEmployees called', { component: 'useEmployees', userId, tenantId: tenantId ?? undefined });
 
     if (!userId || !tenantId) {
-      logger.debug('fetchEmployees: missing userId or tenantId', { component: 'useEmployees', userId, tenantId });
+      logger.debug('fetchEmployees: missing userId or tenantId', { component: 'useEmployees', userId, tenantId: tenantId ?? undefined });
       setEmployees([]);
       setLoading(false);
       return;
@@ -69,7 +69,7 @@ export function useEmployees(statusFilter?: EmployeeStatus) {
     }
     
     try {
-      logger.info('Creating employee', { component: 'useEmployees', userId, tenantId, fullName: `${data.firstName} ${data.lastName}` });
+      logger.info('Creating employee', { component: 'useEmployees', userId, tenantId: tenantId ?? undefined, fullName: `${data.firstName} ${data.lastName}` });
 
       const created = await EmployeesService.createEmployee(data, userId, tenantId);
       logger.info('Employee created successfully', { component: 'useEmployees', employeeId: created.id, tenantId });
