@@ -546,3 +546,111 @@
   }
 }
 
+/* ============================================
+ * UTILITY CLASSES - ZADIA DESIGN SYSTEM
+ * Clases reutilizables para consistencia UI
+ * ============================================ */
+
+/* Card elevada estándar */
+.zadia-card-elevated {
+  background: hsl(230 20% 12%);
+  border: 1px solid rgba(55, 65, 81, 0.5);
+  border-radius: 0.5rem;
+}
+
+.zadia-card-elevated:hover {
+  border-color: rgba(6, 182, 212, 0.3);
+}
+
+/* Input estándar */
+.zadia-input {
+  background: hsl(230 25% 8%);
+  border-color: rgba(55, 65, 81, 0.5);
+}
+
+.zadia-input:focus {
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+}
+
+/* Badge cyan (accent) */
+.zadia-badge-accent {
+  background: rgba(6, 182, 212, 0.2);
+  color: rgb(34, 211, 238);
+  border-color: rgba(6, 182, 212, 0.3);
+}
+
+/* Badge success */
+.zadia-badge-success {
+  background: rgba(34, 197, 94, 0.2);
+  color: rgb(74, 222, 128);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+/* Badge warning */
+.zadia-badge-warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: rgb(251, 191, 36);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+/* Badge error/destructive */
+.zadia-badge-error {
+  background: rgba(239, 68, 68, 0.2);
+  color: rgb(248, 113, 113);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Badge neutral/gray */
+.zadia-badge-neutral {
+  background: rgba(107, 114, 128, 0.2);
+  color: rgb(156, 163, 175);
+  border-color: rgba(107, 114, 128, 0.3);
+}
+
+/* Page wrapper estándar */
+.zadia-page {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Container con ancho máximo */
+.zadia-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Grid de KPIs */
+.zadia-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .zadia-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .zadia-kpi-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Hover con borde cyan */
+.zadia-hover-accent {
+  transition: border-color 0.2s ease;
+}
+
+.zadia-hover-accent:hover {
+  border-color: rgba(6, 182, 212, 0.3);
+}
+

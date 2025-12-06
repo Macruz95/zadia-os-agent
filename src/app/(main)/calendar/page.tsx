@@ -7,7 +7,7 @@ import { CognitiveCalendar } from '@/modules/calendar/components/CognitiveCalend
 
 export default function CalendarPage() {
   return (
-    <div className="container mx-auto p-6">
+    <div className="p-6 space-y-6">
       <CognitiveCalendar />
     </div>
   );

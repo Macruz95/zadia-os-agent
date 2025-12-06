@@ -7,7 +7,7 @@ import { WorkflowGallery } from '@/modules/workflows/components/WorkflowGallery'
 
 export default function WorkflowsPage() {
   return (
-    <div className="container mx-auto p-6">
+    <div className="p-6 space-y-6">
       <WorkflowGallery />
     </div>
   );
