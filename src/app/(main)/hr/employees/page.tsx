@@ -29,6 +29,7 @@ export default function EmployeesPage() {
 
   const [formOpen, setFormOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [showDebug, setShowDebug] = useState(false);
 
   const handleDelete = async (id: string) => {
     await deleteEmployee(id);
@@ -87,11 +88,27 @@ export default function EmployeesPage() {
       </div>
 
       {/* List */}
+      <div className="flex items-center gap-2 justify-end">
+        <button
+          type="button"
+          onClick={() => setShowDebug((s) => !s)}
+          className="text-xs text-muted-foreground underline"
+        >
+          {showDebug ? 'Ocultar debug' : 'Mostrar debug'}
+        </button>
+      </div>
       <EmployeesList
         employees={employees}
         onDelete={handleDelete}
         onEdit={handleEdit}
       />
+
+      {showDebug && (
+        <div className="mt-4 p-4 rounded border bg-muted/10">
+          <h3 className="text-sm font-semibold">RAW employees</h3>
+          <pre className="mt-2 max-h-72 overflow-auto text-xs">{JSON.stringify(employees, null, 2)}</pre>
+        </div>
+      )}
 
       {/* Form Dialog */}
       <EmployeeFormDialog

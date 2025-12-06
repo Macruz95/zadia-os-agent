@@ -11,6 +11,7 @@ import { EmployeesService } from '../services/employees.service';
 import type { Employee, EmployeeStatus } from '../types/hr.types';
 import type { EmployeeFormData } from '../validations/hr.validation';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTenantId } from '@/contexts/TenantContext';
 
@@ -25,6 +26,8 @@ export function useEmployees(statusFilter?: EmployeeStatus) {
    * Fetch employees for current tenant
    */
   const fetchEmployees = useCallback(async () => {
+    logger.debug('fetchEmployees called', { component: 'useEmployees', userId: user?.uid, tenantId });
+
     if (!user?.uid || !tenantId) {
       setEmployees([]);
       setLoading(false);
@@ -62,7 +65,11 @@ export function useEmployees(statusFilter?: EmployeeStatus) {
     }
     
     try {
-      await EmployeesService.createEmployee(data, userId, tenantId);
+      logger.info('Creating employee', { component: 'useEmployees', userId, tenantId, fullName: `${data.firstName} ${data.lastName}` });
+
+      const created = await EmployeesService.createEmployee(data, userId, tenantId);
+      logger.info('Employee created successfully', { component: 'useEmployees', employeeId: created.id, tenantId });
+
       toast.success('Empleado creado correctamente');
       await fetchEmployees();
       return true;

@@ -58,21 +58,7 @@ export function PersonalInfoSection({
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="correo@ejemplo.com (opcional)"
-            value={formData.email || ''}
-            onChange={(e) => updateField('email', e.target.value)}
-          />
-          {errors.email && (
-            <p className="text-sm text-destructive">{errors.email}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
+        <div className="space-y-2 col-span-2">
           <PhoneInput
             value={formData.phone}
             countryCode={formData.phoneCountryId || 'SV'}
@@ -84,6 +70,20 @@ export function PersonalInfoSection({
             required
             error={errors.phone}
           />
+        </div>
+
+        <div className="space-y-2 col-span-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="correo@ejemplo.com (opcional)"
+            value={formData.email || ''}
+            onChange={(e) => updateField('email', e.target.value)}
+          />
+          {errors.email && (
+            <p className="text-sm text-destructive">{errors.email}</p>
+          )}
         </div>
 
         <div className="space-y-2">

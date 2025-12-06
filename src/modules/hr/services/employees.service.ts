@@ -127,6 +127,12 @@ export class EmployeesService {
       // Sort by lastName
       employeesResult.sort((a, b) => (a.lastName || '').localeCompare(b.lastName || ''));
 
+      logger.info('getAllEmployees: query returned', {
+        component: 'EmployeesService',
+        tenantId,
+        count: employeesResult.length,
+      });
+
       if (employeesResult.length === 0) {
         logger.info('No employees found for tenant', {
           component: 'EmployeesService',
@@ -161,9 +167,17 @@ export class EmployeesService {
           })) as Employee[];
           
           // Sort manually by lastName
-          return employees.sort((a, b) => 
+          const sorted = employees.sort((a, b) =>
             (a.lastName || '').localeCompare(b.lastName || '')
           );
+
+          logger.info('getAllEmployees (fallback): returned', {
+            component: 'EmployeesService',
+            tenantId,
+            count: sorted.length,
+          });
+
+          return sorted;
         } catch (retryError) {
           logger.error(
             'Retry without orderBy failed',

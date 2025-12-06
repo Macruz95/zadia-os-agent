@@ -45,8 +45,11 @@ export function CompensationSection({
             id="salary"
             type="number"
             step="0.01"
-            value={formData.salary}
-            onChange={(e) => updateField('salary', parseFloat(e.target.value))}
+            value={formData.salary ?? ''}
+            onChange={(e) => {
+              const val = e.target.value;
+              updateField('salary', val === '' ? 0 : parseFloat(val));
+            }}
           />
           {errors.salary && (
             <p className="text-sm text-destructive">{errors.salary}</p>
