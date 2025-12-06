@@ -15,7 +15,7 @@ import {
   getTenantById,
   getUserTenants 
 } from '@/modules/tenants/services/tenant.service';
-import { getTenantMember } from '@/modules/tenants/services/tenant-member.service';
+import { getTenantMember, ensureTenantMemberExists } from '@/modules/tenants/services/tenant-member.service';
 import type { Tenant, TenantMember, TenantRole } from '@/modules/tenants/types/tenant.types';
 import { logger } from '@/lib/logger';
 
@@ -70,17 +70,32 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Load membership for current tenant
-  const loadMembership = useCallback(async (tenantId: string, userId: string) => {
+  // Load membership for current tenant (auto-creates if user is owner)
+  const loadMembership = useCallback(async (tenantId: string, userId: string, tenantData?: Tenant | null) => {
     try {
-      const member = await getTenantMember(tenantId, userId);
+      let member = await getTenantMember(tenantId, userId);
+      
+      // If no membership exists, check if user is the tenant owner
+      if (!member && tenantData) {
+        if (tenantData.ownerId === userId) {
+          logger.info('Auto-creating missing owner membership', { tenantId, userId });
+          member = await ensureTenantMemberExists(
+            tenantId,
+            userId,
+            firebaseUser?.email || '',
+            firebaseUser?.displayName || 'Owner',
+            'owner'
+          );
+        }
+      }
+      
       setMembership(member);
       return member;
     } catch (err) {
       logger.error('Failed to load membership', err as Error);
       return null;
     }
-  }, []);
+  }, [firebaseUser?.email, firebaseUser?.displayName]);
 
   // Switch to a different tenant
   const switchTenant = useCallback(async (tenantId: string) => {
@@ -93,7 +108,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Tenant not found');
       }
 
-      const member = await loadMembership(tenantId, firebaseUser.uid);
+      const member = await loadMembership(tenantId, firebaseUser.uid, newTenant);
       if (!member) {
         throw new Error('No membership in this tenant');
       }
@@ -216,8 +231,8 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
         const activeTenant = savedTenant || tenants[0];
         setTenant(activeTenant);
 
-        // Load membership
-        await loadMembership(activeTenant.id, firebaseUser.uid);
+        // Load membership (auto-creates if user is owner)
+        await loadMembership(activeTenant.id, firebaseUser.uid, activeTenant);
         
         localStorage.setItem(TENANT_STORAGE_KEY, activeTenant.id);
         setError(null);

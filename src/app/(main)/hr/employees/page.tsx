@@ -31,7 +31,7 @@ export default function EmployeesPage() {
     deleteEmployee,
   } = useEmployees();
   
-  const { user } = useAuth();
+  const { user, firebaseUser } = useAuth();
   const { tenant } = useTenant();
   const [debugInfo, setDebugInfo] = useState<Record<string, unknown>>({});
 
@@ -42,24 +42,30 @@ export default function EmployeesPage() {
   // Debug: verificar conexión Firebase y datos
   useEffect(() => {
     async function runDiagnostics() {
-      if (!user?.uid || !tenant?.id) {
+      const userId = firebaseUser?.uid || user?.uid;
+      
+      if (!userId || !tenant?.id) {
         setDebugInfo({
           status: 'waiting',
-          userId: user?.uid || 'NO USER',
+          userId: userId || 'NO USER',
+          firebaseUserUid: firebaseUser?.uid || 'NO FIREBASE USER',
+          userProfileUid: user?.uid || 'NO USER PROFILE',
           tenantId: tenant?.id || 'NO TENANT',
         });
         return;
       }
 
       const info: Record<string, unknown> = {
-        userId: user.uid,
+        userId,
+        firebaseUserUid: firebaseUser?.uid,
+        userProfileUid: user?.uid,
         tenantId: tenant.id,
         tenantName: tenant.name,
       };
 
       try {
         // 1. Verificar si existe el documento tenantMember
-        const memberDocId = `${tenant.id}_${user.uid}`;
+        const memberDocId = `${tenant.id}_${userId}`;
         const memberRef = doc(db, 'tenantMembers', memberDocId);
         const memberSnap = await getDoc(memberRef);
         info.tenantMemberExists = memberSnap.exists();
@@ -102,7 +108,7 @@ export default function EmployeesPage() {
     if (showDebug) {
       runDiagnostics();
     }
-  }, [user?.uid, tenant?.id, tenant?.name, showDebug]);
+  }, [firebaseUser?.uid, user?.uid, tenant?.id, tenant?.name, showDebug]);
 
   const handleDelete = async (id: string) => {
     await deleteEmployee(id);
@@ -122,8 +128,8 @@ export default function EmployeesPage() {
     if (selectedEmployee) {
       await updateEmployee(selectedEmployee.id, data);
     } else {
-      // Use authenticated user's ID - NOT localStorage
-      const userId = user?.uid || 'system';
+      // Use authenticated user's ID from firebaseUser
+      const userId = firebaseUser?.uid || user?.uid || 'system';
       await createEmployee(data, userId);
     }
   };

@@ -25,6 +25,28 @@ const MEMBERS_COLLECTION = 'tenantMembers';
 const INVITATIONS_COLLECTION = 'tenantInvitations';
 
 /**
+ * Ensure a tenant member exists - creates if missing (for owner auto-fix)
+ */
+export async function ensureTenantMemberExists(
+  tenantId: string,
+  userId: string,
+  email: string,
+  displayName: string,
+  role: TenantRole = 'member'
+): Promise<TenantMember> {
+  const existing = await getTenantMember(tenantId, userId);
+  
+  if (existing) {
+    logger.debug('Tenant member already exists', { tenantId, userId });
+    return existing;
+  }
+  
+  // Create the member
+  logger.info('Creating missing tenant member', { tenantId, userId, role });
+  return addTenantMember(tenantId, userId, email, displayName, role, userId);
+}
+
+/**
  * Add a member to a tenant
  */
 export async function addTenantMember(

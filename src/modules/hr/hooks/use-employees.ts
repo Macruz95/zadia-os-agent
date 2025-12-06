@@ -19,16 +19,20 @@ export function useEmployees(statusFilter?: EmployeeStatus) {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
+  const { user, firebaseUser } = useAuth();
   const tenantId = useTenantId();
+  
+  // Use firebaseUser.uid as primary, fallback to user.uid
+  const userId = firebaseUser?.uid || user?.uid;
 
   /**
    * Fetch employees for current tenant
    */
   const fetchEmployees = useCallback(async () => {
-    logger.debug('fetchEmployees called', { component: 'useEmployees', userId: user?.uid, tenantId });
+    logger.debug('fetchEmployees called', { component: 'useEmployees', userId, tenantId });
 
-    if (!user?.uid || !tenantId) {
+    if (!userId || !tenantId) {
+      logger.debug('fetchEmployees: missing userId or tenantId', { component: 'useEmployees', userId, tenantId });
       setEmployees([]);
       setLoading(false);
       return;
@@ -50,7 +54,7 @@ export function useEmployees(statusFilter?: EmployeeStatus) {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, user?.uid, tenantId]);
+  }, [statusFilter, userId, tenantId]);
 
   /**
    * Create employee
