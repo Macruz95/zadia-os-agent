@@ -28,6 +28,48 @@ service cloud.firestore {
         isTenantMember(resource.data.tenantId);
     }
 
+    // Check access via project's tenantId (for project-related subcollections without direct tenantId)
+    function canAccessViaProject(projectId) {
+      return isAuthenticated() && 
+        projectId != null &&
+        isTenantMember(get(/databases/$(database)/documents/projects/$(projectId)).data.tenantId);
+    }
+
+    // Check if can access by projectId field in document
+    function canAccessByProjectId() {
+      return isAuthenticated() && 
+        resource.data.projectId != null &&
+        canAccessViaProject(resource.data.projectId);
+    }
+
+    // Check if can write with projectId field
+    function canWriteByProjectId() {
+      return isAuthenticated() && 
+        request.resource.data.projectId != null &&
+        canAccessViaProject(request.resource.data.projectId);
+    }
+
+    // Check access via workPeriod's tenantId (for HR-related collections)
+    function canAccessViaWorkPeriod(workPeriodId) {
+      return isAuthenticated() && 
+        workPeriodId != null &&
+        isTenantMember(get(/databases/$(database)/documents/workPeriods/$(workPeriodId)).data.tenantId);
+    }
+
+    // Check if can access by workPeriodId field in document
+    function canAccessByWorkPeriodId() {
+      return isAuthenticated() && 
+        resource.data.workPeriodId != null &&
+        canAccessViaWorkPeriod(resource.data.workPeriodId);
+    }
+
+    // Check if can write with workPeriodId field
+    function canWriteByWorkPeriodId() {
+      return isAuthenticated() && 
+        request.resource.data.workPeriodId != null &&
+        canAccessViaWorkPeriod(request.resource.data.workPeriodId);
+    }
+
     // Check if the incoming data's tenantId is valid for the user
     function canWriteWithTenantId() {
       return isAuthenticated() && 
@@ -140,41 +182,51 @@ service cloud.firestore {
       allow read: if canAccessByTenantId();
       allow create: if canWriteWithTenantId();
       allow update, delete: if canAccessByTenantId();
+      
+      // Work Sessions subcollection within projects
+      match /workSessions/{sessionId} {
+        allow read: if isAuthenticated() && 
+          isTenantMember(get(/databases/$(database)/documents/projects/$(docId)).data.tenantId);
+        allow create: if isAuthenticated() && 
+          isTenantMember(get(/databases/$(database)/documents/projects/$(docId)).data.tenantId);
+        allow update, delete: if isAuthenticated() && 
+          isTenantMember(get(/databases/$(database)/documents/projects/$(docId)).data.tenantId);
+      }
     }
 
-    // Project Tasks
+    // Project Tasks (has projectId field, may not have tenantId)
     match /projectTasks/{docId} {
-      allow read: if canAccessByTenantId();
-      allow create: if canWriteWithTenantId();
-      allow update, delete: if canAccessByTenantId();
+      allow read: if canAccessByTenantId() || canAccessByProjectId();
+      allow create: if canWriteWithTenantId() || canWriteByProjectId();
+      allow update, delete: if canAccessByTenantId() || canAccessByProjectId();
     }
 
-    // Work Orders
+    // Work Orders (has projectId field, may not have tenantId)
     match /workOrders/{docId} {
-      allow read: if canAccessByTenantId();
-      allow create: if canWriteWithTenantId();
-      allow update, delete: if canAccessByTenantId();
+      allow read: if canAccessByTenantId() || canAccessByProjectId();
+      allow create: if canWriteWithTenantId() || canWriteByProjectId();
+      allow update, delete: if canAccessByTenantId() || canAccessByProjectId();
     }
 
-    // Work Sessions
+    // Work Sessions (has projectId field, may not have tenantId)
     match /workSessions/{docId} {
-      allow read: if canAccessByTenantId();
-      allow create: if canWriteWithTenantId();
-      allow update, delete: if canAccessByTenantId();
+      allow read: if canAccessByTenantId() || canAccessByProjectId();
+      allow create: if canWriteWithTenantId() || canWriteByProjectId();
+      allow update, delete: if canAccessByTenantId() || canAccessByProjectId();
     }
 
-    // Project Expenses
+    // Project Expenses (has projectId field, may not have tenantId)
     match /projectExpenses/{docId} {
-      allow read: if canAccessByTenantId();
-      allow create: if canWriteWithTenantId();
-      allow update, delete: if canAccessByTenantId();
+      allow read: if canAccessByTenantId() || canAccessByProjectId();
+      allow create: if canWriteWithTenantId() || canWriteByProjectId();
+      allow update, delete: if canAccessByTenantId() || canAccessByProjectId();
     }
 
-    // Project Timeline
+    // Project Timeline (has projectId field, may not have tenantId)
     match /projectTimeline/{docId} {
-      allow read: if canAccessByTenantId();
-      allow create: if canWriteWithTenantId();
-      allow update, delete: if canAccessByTenantId();
+      allow read: if canAccessByTenantId() || canAccessByProjectId();
+      allow create: if canWriteWithTenantId() || canWriteByProjectId();
+      allow update, delete: if canAccessByTenantId() || canAccessByProjectId();
     }
 
     // Invoices
@@ -219,18 +271,25 @@ service cloud.firestore {
       allow update, delete: if canAccessByTenantId();
     }
 
-    // Loans
+    // Loans (has workPeriodId field, may not have valid tenantId)
     match /loans/{docId} {
-      allow read: if canAccessByTenantId();
-      allow create: if canWriteWithTenantId();
-      allow update, delete: if canAccessByTenantId();
+      allow read: if canAccessByTenantId() || canAccessByWorkPeriodId();
+      allow create: if canWriteWithTenantId() || canWriteByWorkPeriodId();
+      allow update, delete: if canAccessByTenantId() || canAccessByWorkPeriodId();
     }
 
-    // Bonuses
+    // Bonuses (has workPeriodId field, may not have tenantId)
     match /bonuses/{docId} {
-      allow read: if canAccessByTenantId();
-      allow create: if canWriteWithTenantId();
-      allow update, delete: if canAccessByTenantId();
+      allow read: if canAccessByTenantId() || canAccessByWorkPeriodId();
+      allow create: if canWriteWithTenantId() || canWriteByWorkPeriodId();
+      allow update, delete: if canAccessByTenantId() || canAccessByWorkPeriodId();
+    }
+
+    // Loan Payments (abonos a préstamos - has workPeriodId field)
+    match /loanPayments/{docId} {
+      allow read: if canAccessByTenantId() || canAccessByWorkPeriodId();
+      allow create: if canWriteWithTenantId() || canWriteByWorkPeriodId();
+      allow update, delete: if canAccessByTenantId() || canAccessByWorkPeriodId();
     }
 
     // Inventory Products

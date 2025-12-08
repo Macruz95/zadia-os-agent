@@ -22,18 +22,35 @@ interface ProjectStatusChartProps {
   data: StatusDistribution[];
 }
 
-const COLORS = {
-  completed: '#10b981',
-  in_progress: '#3b82f6',
-  pending: '#f59e0b',
-  cancelled: '#ef4444',
+// Colores que coinciden con los estados reales de ProjectStatus
+const COLORS: Record<string, string> = {
+  // Por clave técnica
+  planning: '#f59e0b',      // Amarillo - Planificación
+  'in-progress': '#3b82f6', // Azul - En Progreso
+  'on-hold': '#8b5cf6',     // Violeta - En Espera
+  completed: '#10b981',     // Verde - Completado
+  cancelled: '#ef4444',     // Rojo - Cancelado
+  // Por nombre traducido (el hook ya traduce antes de enviar)
+  'Planificación': '#f59e0b',
+  'En Progreso': '#3b82f6',
+  'En Espera': '#8b5cf6',
+  'Completados': '#10b981',
+  'Cancelados': '#ef4444',
 };
 
+// Nombres traducidos para mostrar en el gráfico
 const STATUS_NAMES: Record<string, string> = {
+  planning: 'Planificación',
+  'in-progress': 'En Progreso',
+  'on-hold': 'En Espera',
   completed: 'Completados',
-  in_progress: 'En Progreso',
-  pending: 'Pendientes',
   cancelled: 'Cancelados',
+  // Fallback para nombres que ya vienen traducidos del hook
+  'Planificación': 'Planificación',
+  'En Progreso': 'En Progreso',
+  'En Espera': 'En Espera',
+  'Completados': 'Completados',
+  'Cancelados': 'Cancelados',
 };
 
 export function ProjectStatusChart({ data }: ProjectStatusChartProps) {

@@ -302,10 +302,28 @@ export interface Loan {
   employeeId: string;
   workPeriodId: string;
   amount: number;
+  remainingBalance: number;    // Saldo pendiente
   date: Timestamp;
   reason: string;
-  status: 'pending' | 'deducted' | 'paid' | 'carried'; // NEW: 'carried' = transferido a siguiente temporada
+  status: 'pending' | 'deducted' | 'paid' | 'partial' | 'carried'; // 'partial' = parcialmente pagado
   approvedBy: string;
+  createdAt: Timestamp;
+}
+
+/**
+ * Loan Payment (Abono a Préstamo)
+ */
+export interface LoanPayment {
+  id: string;
+  loanId: string;
+  employeeId: string;
+  workPeriodId: string;        // Período en que se hizo el abono
+  amount: number;              // Monto del abono
+  paymentType: 'deduction' | 'cash' | 'transfer'; // Tipo: descuento nómina, efectivo, transferencia
+  balanceBefore: number;       // Saldo antes del abono
+  balanceAfter: number;        // Saldo después del abono
+  notes?: string;
+  processedBy: string;
   createdAt: Timestamp;
 }
 

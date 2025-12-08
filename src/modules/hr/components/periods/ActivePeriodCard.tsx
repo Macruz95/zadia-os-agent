@@ -17,6 +17,7 @@ import {
     Gift,
     AlertTriangle,
     Pencil,
+    CreditCard,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,7 @@ import { AddLoanDialog } from './AddLoanDialog';
 import { AddBonusDialog } from './AddBonusDialog';
 import { EndPeriodDialog } from './EndPeriodDialog';
 import { EditPeriodDialog } from './EditPeriodDialog';
+import { AddLoanPaymentDialog } from './AddLoanPaymentDialog';
 
 interface ActivePeriodCardProps {
     period: WorkPeriod;
@@ -47,6 +49,8 @@ export function ActivePeriodCard({
     const [showBonusDialog, setShowBonusDialog] = useState(false);
     const [showEndDialog, setShowEndDialog] = useState(false);
     const [showEditDialog, setShowEditDialog] = useState(false);
+    const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+    const [selectedLoanForPayment, setSelectedLoanForPayment] = useState<Loan | null>(null);
     const [bonuses, setBonuses] = useState<Bonus[]>([]);
 
     // Fetch bonuses
@@ -63,12 +67,16 @@ export function ActivePeriodCard({
     const today = new Date();
     const daysElapsed = differenceInDays(today, startDate) + 1;
     const currentSalary = daysElapsed * period.dailyRate;
-    const totalLoans = loans.reduce((sum, loan) => sum + loan.amount, 0);
+    // Use remaining balance for loans (not original amount)
+    const totalLoansRemaining = loans.reduce((sum, loan) => sum + (loan.remainingBalance ?? loan.amount), 0);
     const totalBonuses = bonuses.reduce((sum, bonus) => sum + bonus.amount, 0);
     const carriedDebt = period.carriedDebt || 0;
     
-    // Net = Salary + Bonuses - Loans - Carried Debt
-    const currentNet = currentSalary + totalBonuses - totalLoans - carriedDebt;
+    // Net = Salary + Bonuses - Loans Remaining - Carried Debt
+    const currentNet = currentSalary + totalBonuses - totalLoansRemaining - carriedDebt;
+
+    // Filter loans with pending balance
+    const pendingLoans = loans.filter(loan => (loan.remainingBalance ?? loan.amount) > 0);
 
     const handleBonusAdded = async () => {
         const data = await BonusesService.getBonusesByPeriod(period.id);
@@ -190,21 +198,71 @@ export function ActivePeriodCard({
                             Préstamos / Adelantos
                         </h4>
                         <span className="font-bold text-orange-600">
-                            -${totalLoans.toFixed(2)}
+                            -${totalLoansRemaining.toFixed(2)}
                         </span>
                     </div>
 
                     {loans.length > 0 ? (
                         <div className="space-y-2">
-                            {loans.slice(0, 3).map((loan) => (
-                                <div key={loan.id} className="flex justify-between text-sm bg-orange-50 dark:bg-orange-950/20 p-2 rounded">
-                                    <span>{format(loan.date.toDate(), 'dd MMM', { locale: es })} - {loan.reason}</span>
-                                    <span className="font-medium text-orange-600">-${loan.amount.toFixed(2)}</span>
-                                </div>
-                            ))}
-                            {loans.length > 3 && (
+                            {loans.slice(0, 5).map((loan) => {
+                                const remaining = loan.remainingBalance ?? loan.amount;
+                                const isPaid = remaining === 0;
+                                const isPartial = remaining > 0 && remaining < loan.amount;
+                                
+                                return (
+                                    <div 
+                                        key={loan.id} 
+                                        className={`flex items-center justify-between text-sm p-2 rounded ${
+                                            isPaid 
+                                                ? 'bg-green-50 dark:bg-green-950/20' 
+                                                : 'bg-orange-50 dark:bg-orange-950/20'
+                                        }`}
+                                    >
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <span>{format(loan.date.toDate(), 'dd MMM', { locale: es })} - {loan.reason}</span>
+                                                {isPaid && (
+                                                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                                                        Pagado
+                                                    </Badge>
+                                                )}
+                                                {isPartial && (
+                                                    <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-700">
+                                                        Parcial
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                            {isPartial && (
+                                                <p className="text-xs text-muted-foreground mt-1">
+                                                    Original: ${loan.amount.toFixed(2)} | Saldo: ${remaining.toFixed(2)}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`font-medium ${isPaid ? 'text-green-600 line-through' : 'text-orange-600'}`}>
+                                                -${remaining.toFixed(2)}
+                                            </span>
+                                            {!isPaid && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-7 px-2"
+                                                    onClick={() => {
+                                                        setSelectedLoanForPayment(loan);
+                                                        setShowPaymentDialog(true);
+                                                    }}
+                                                    title="Registrar abono"
+                                                >
+                                                    <CreditCard className="h-3 w-3" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            {loans.length > 5 && (
                                 <p className="text-xs text-center text-muted-foreground">
-                                    + {loans.length - 3} préstamos más...
+                                    + {loans.length - 5} préstamos más...
                                 </p>
                             )}
                         </div>
@@ -229,10 +287,10 @@ export function ActivePeriodCard({
                             <span className="text-blue-600">+${totalBonuses.toFixed(2)}</span>
                         </div>
                     )}
-                    {totalLoans > 0 && (
+                    {totalLoansRemaining > 0 && (
                         <div className="flex justify-between text-sm">
-                            <span>Préstamos</span>
-                            <span className="text-orange-600">-${totalLoans.toFixed(2)}</span>
+                            <span>Préstamos (saldo pendiente)</span>
+                            <span className="text-orange-600">-${totalLoansRemaining.toFixed(2)}</span>
                         </div>
                     )}
                     {carriedDebt > 0 && (
@@ -306,7 +364,7 @@ export function ActivePeriodCard({
                 open={showEndDialog}
                 onOpenChange={setShowEndDialog}
                 period={period}
-                currentLoans={totalLoans}
+                currentLoans={totalLoansRemaining}
                 currentBonuses={totalBonuses}
                 carriedDebt={carriedDebt}
                 onSuccess={onPeriodEnded}
@@ -318,6 +376,19 @@ export function ActivePeriodCard({
                 period={period}
                 onSuccess={handlePeriodEdited}
             />
+
+            {selectedLoanForPayment && (
+                <AddLoanPaymentDialog
+                    open={showPaymentDialog}
+                    onOpenChange={(open) => {
+                        setShowPaymentDialog(open);
+                        if (!open) setSelectedLoanForPayment(null);
+                    }}
+                    loan={selectedLoanForPayment}
+                    currentPeriodId={period.id}
+                    onSuccess={onLoanAdded}
+                />
+            )}
         </Card>
     );
 }

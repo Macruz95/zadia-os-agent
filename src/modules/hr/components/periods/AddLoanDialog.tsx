@@ -45,7 +45,7 @@ export function AddLoanDialog({
     employeeId,
     onSuccess,
 }: AddLoanDialogProps) {
-    const { user } = useAuth();
+    const { user, firebaseUser } = useAuth();
     const tenantId = useTenantId();
     const [loading, setLoading] = useState(false);
 
@@ -58,7 +58,12 @@ export function AddLoanDialog({
     });
 
     const onSubmit = async (data: LoanFormData) => {
-        if (!user) return;
+        // Use firebaseUser for auth check (user profile may not exist yet)
+        const currentUserId = user?.uid || firebaseUser?.uid;
+        if (!currentUserId) {
+            toast.error('No se pudo identificar al usuario');
+            return;
+        }
 
         try {
             setLoading(true);
@@ -67,7 +72,7 @@ export function AddLoanDialog({
                 periodId,
                 data.amount,
                 data.reason,
-                user.uid,
+                currentUserId,
                 tenantId || undefined
             );
 
@@ -75,7 +80,8 @@ export function AddLoanDialog({
             reset();
             onSuccess();
             onOpenChange(false);
-        } catch {
+        } catch (error) {
+            console.error('Error registrando préstamo:', error);
             toast.error('Error al registrar préstamo');
         } finally {
             setLoading(false);

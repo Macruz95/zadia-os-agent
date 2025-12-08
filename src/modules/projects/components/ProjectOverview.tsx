@@ -85,7 +85,7 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
           <CardContent>
             <div className="text-2xl font-bold">Project Manager</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {project.teamMembers.length} miembros del equipo
+              {project.teamMembers?.length ?? 0} miembros del equipo
             </p>
           </CardContent>
         </Card>

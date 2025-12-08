@@ -39,6 +39,7 @@ export class LoansService {
                 employeeId,
                 workPeriodId,
                 amount,
+                remainingBalance: amount, // Inicialmente el saldo es igual al monto
                 reason,
                 date: Timestamp.now(),
                 status: 'pending' as const, // Will be deducted on period close
