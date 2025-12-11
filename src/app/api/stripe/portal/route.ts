@@ -6,13 +6,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { 
-  collection, 
-  query,
-  where,
-  getDocs, 
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { cookies } from 'next/headers';
+import { adminDb, getAdminAuth } from '@/lib/firebase-admin';
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY || '');
@@ -20,6 +15,28 @@ function getStripe() {
 
 export async function POST(request: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth-token')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const adminAuth = getAdminAuth();
+    if (!adminAuth) {
+      return NextResponse.json(
+        { error: 'Server auth not configured' },
+        { status: 501 }
+      );
+    }
+
+    let userId: string;
+    try {
+      const decoded = await adminAuth.verifyIdToken(token, true);
+      userId = decoded.uid;
+    } catch {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { tenantId, returnUrl } = body;
 
@@ -30,19 +47,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get Stripe customer
-    const customersRef = collection(db, 'stripeCustomers');
-    const q = query(customersRef, where('tenantId', '==', tenantId));
-    const snapshot = await getDocs(q);
+    // Verify user has access to tenant
+    const tenantDoc = await adminDb.collection('tenants').doc(tenantId).get();
+    if (!tenantDoc.exists) {
+      return NextResponse.json({ error: 'Tenant not found' }, { status: 404 });
+    }
 
-    if (snapshot.empty) {
+    const tenantData = tenantDoc.data();
+    const isTenantOwner = tenantData?.ownerId === userId;
+    const memberDoc = await adminDb.collection('tenantMembers').doc(`${tenantId}_${userId}`).get();
+    const isTenantMember = memberDoc.exists;
+    if (!isTenantOwner && !isTenantMember) {
+      return NextResponse.json(
+        { error: 'Forbidden - Not a tenant member' },
+        { status: 403 }
+      );
+    }
+
+    // Get Stripe customer from Admin Firestore
+    const customersQuery = await adminDb.collection('stripeCustomers')
+      .where('tenantId', '==', tenantId)
+      .limit(1)
+      .get();
+
+    if (customersQuery.empty) {
       return NextResponse.json(
         { error: 'No Stripe customer found for this tenant' },
         { status: 404 }
       );
     }
 
-    const customerId = snapshot.docs[0].data().stripeCustomerId;
+    const customerId = customersQuery.docs[0].data().stripeCustomerId;
 
     // Create portal session
     const stripe = getStripe();

@@ -5,14 +5,8 @@
  */
 
 import { NextRequest } from 'next/server';
-import { 
-  doc,
-  getDoc,
-  updateDoc,
-  deleteDoc,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { 
   validateApiRequest, 
   createApiResponse, 
@@ -32,14 +26,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   
   try {
-    const docRef = doc(db, 'clients', id);
-    const docSnap = await getDoc(docRef);
+    const docSnap = await adminDb.collection('clients').doc(id).get();
     
-    if (!docSnap.exists()) {
+    if (!docSnap.exists) {
       return createApiError('Client not found', 404);
     }
     
     const client = docSnap.data();
+    if (!client) {
+      return createApiError('Client not found', 404);
+    }
     
     // Verify tenant ownership
     if (client.tenantId !== tenantId) {
@@ -49,8 +45,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return createApiResponse({
       id: docSnap.id,
       ...client,
-      createdAt: client.createdAt?.toDate?.()?.toISOString(),
-      updatedAt: client.updatedAt?.toDate?.()?.toISOString(),
+      createdAt: client.createdAt?.toDate?.()?.toISOString?.() ?? null,
+      updatedAt: client.updatedAt?.toDate?.()?.toISOString?.() ?? null,
     });
   } catch {
     return createApiError('Failed to fetch client', 500);
@@ -66,14 +62,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   
   try {
-    const docRef = doc(db, 'clients', id);
-    const docSnap = await getDoc(docRef);
+    const docRef = adminDb.collection('clients').doc(id);
+    const docSnap = await docRef.get();
     
-    if (!docSnap.exists()) {
+    if (!docSnap.exists) {
       return createApiError('Client not found', 404);
     }
     
     const client = docSnap.data();
+    if (!client) {
+      return createApiError('Client not found', 404);
+    }
     
     if (client.tenantId !== tenantId) {
       return createApiError('Client not found', 404);
@@ -89,7 +88,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     ];
     
     const updates: Record<string, unknown> = {
-      updatedAt: Timestamp.now(),
+      updatedAt: FieldValue.serverTimestamp(),
     };
     
     for (const field of allowedFields) {
@@ -98,16 +97,16 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       }
     }
     
-    await updateDoc(docRef, updates);
-    
-    const updatedSnap = await getDoc(docRef);
+    await docRef.update(updates);
+
+    const updatedSnap = await docRef.get();
     const updated = updatedSnap.data();
     
     return createApiResponse({
       id: updatedSnap.id,
       ...updated,
-      createdAt: updated?.createdAt?.toDate?.()?.toISOString(),
-      updatedAt: updated?.updatedAt?.toDate?.()?.toISOString(),
+      createdAt: updated?.createdAt?.toDate?.()?.toISOString?.() ?? null,
+      updatedAt: updated?.updatedAt?.toDate?.()?.toISOString?.() ?? null,
     });
   } catch {
     return createApiError('Failed to update client', 500);
@@ -123,20 +122,23 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   
   try {
-    const docRef = doc(db, 'clients', id);
-    const docSnap = await getDoc(docRef);
+    const docRef = adminDb.collection('clients').doc(id);
+    const docSnap = await docRef.get();
     
-    if (!docSnap.exists()) {
+    if (!docSnap.exists) {
       return createApiError('Client not found', 404);
     }
     
     const client = docSnap.data();
+    if (!client) {
+      return createApiError('Client not found', 404);
+    }
     
     if (client.tenantId !== tenantId) {
       return createApiError('Client not found', 404);
     }
     
-    await deleteDoc(docRef);
+    await docRef.delete();
     
     return createApiResponse({ deleted: true });
   } catch {

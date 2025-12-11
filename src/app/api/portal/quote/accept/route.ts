@@ -5,16 +5,18 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  doc, 
-  getDoc, 
-  updateDoc,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb, getAdminDb } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST(request: NextRequest) {
   try {
+    if (!getAdminDb()) {
+      return NextResponse.json(
+        { error: 'Server database not configured' },
+        { status: 501 }
+      );
+    }
+
     const body = await request.json();
     const { quoteId, token } = body;
 
@@ -26,10 +28,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify quote and token
-    const quoteRef = doc(db, 'quotes', quoteId);
-    const quoteSnap = await getDoc(quoteRef);
+    const quoteRef = adminDb.collection('quotes').doc(quoteId);
+    const quoteSnap = await quoteRef.get();
 
-    if (!quoteSnap.exists()) {
+    if (!quoteSnap.exists) {
       return NextResponse.json(
         { error: 'Quote not found' },
         { status: 404 }
@@ -37,6 +39,12 @@ export async function POST(request: NextRequest) {
     }
 
     const quote = quoteSnap.data();
+    if (!quote) {
+      return NextResponse.json(
+        { error: 'Quote not found' },
+        { status: 404 }
+      );
+    }
 
     // Verify token
     if (quote.publicToken !== token) {
@@ -56,7 +64,9 @@ export async function POST(request: NextRequest) {
 
     // Check if expired
     if (quote.expiresAt) {
-      const expiresAt = new Date(quote.expiresAt.seconds * 1000);
+      const expiresAt = typeof quote.expiresAt?.toDate === 'function'
+        ? quote.expiresAt.toDate()
+        : new Date(quote.expiresAt.seconds * 1000);
       if (expiresAt < new Date()) {
         return NextResponse.json(
           { error: 'Quote has expired' },
@@ -66,9 +76,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Update quote status
-    await updateDoc(quoteRef, {
+    await quoteRef.update({
       status: 'accepted',
-      acceptedAt: Timestamp.now(),
+      acceptedAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     });
 
     // TODO: Send notification to tenant about accepted quote

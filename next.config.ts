@@ -43,9 +43,8 @@ const nextConfig: NextConfig = {
 
   // TypeScript configuration - exclude functions directory from type checking
   typescript: {
-    // Temporarily ignore build errors from functions directory
-    // The functions directory has its own tsconfig.json and should be built separately
-    ignoreBuildErrors: true,
+    // Do not ignore build errors; `functions/` is already excluded via tsconfig.
+    ignoreBuildErrors: false,
   },
 
   // Disable server-side compilation for specific modules that cause issues

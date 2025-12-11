@@ -6,17 +6,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { 
-  collection, 
-  addDoc, 
-  updateDoc,
-  query,
-  where,
-  getDocs,
-  doc,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb, getAdminDb } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY || '');
@@ -28,6 +19,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
     const signature = request.headers.get('stripe-signature') || '';
+
+    // Ensure Admin DB is available for webhook processing
+    if (!getAdminDb()) {
+      return NextResponse.json(
+        { error: 'Server database not configured' },
+        { status: 501 }
+      );
+    }
 
     let event: Stripe.Event;
 
@@ -83,30 +82,32 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   if (!tenantId) return;
 
   // Update checkout session status
-  const sessionsRef = collection(db, 'checkoutSessions');
-  const q = query(sessionsRef, where('stripeSessionId', '==', session.id));
-  const snapshot = await getDocs(q);
-  
-  if (!snapshot.empty) {
-    await updateDoc(doc(db, 'checkoutSessions', snapshot.docs[0].id), {
+  const sessionsQuery = await adminDb.collection('checkoutSessions')
+    .where('stripeSessionId', '==', session.id)
+    .limit(1)
+    .get();
+  if (!sessionsQuery.empty) {
+    await sessionsQuery.docs[0].ref.update({
       status: 'complete',
+      updatedAt: FieldValue.serverTimestamp(),
     });
   }
 
   // Create customer record if needed
   if (session.customer && typeof session.customer === 'string') {
-    const customersRef = collection(db, 'stripeCustomers');
-    const customerQuery = query(customersRef, where('tenantId', '==', tenantId));
-    const customerSnapshot = await getDocs(customerQuery);
-    
+    const customerSnapshot = await adminDb.collection('stripeCustomers')
+      .where('tenantId', '==', tenantId)
+      .limit(1)
+      .get();
+
     if (customerSnapshot.empty) {
-      await addDoc(customersRef, {
+      await adminDb.collection('stripeCustomers').add({
         tenantId,
         stripeCustomerId: session.customer,
         email: session.customer_email || '',
         name: session.customer_details?.name || '',
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
       });
     }
   }
@@ -137,33 +138,35 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
     amount: subscription.items.data[0]?.price?.unit_amount || 0,
     currency: subscription.currency,
     cancelAtPeriodEnd: subscription.cancel_at_period_end,
-    updatedAt: Timestamp.now(),
+    updatedAt: FieldValue.serverTimestamp(),
   };
 
   // Check if subscription exists
-  const subsRef = collection(db, 'subscriptions');
-  const q = query(subsRef, where('stripeSubscriptionId', '==', subscription.id));
-  const snapshot = await getDocs(q);
+  const subsSnapshot = await adminDb.collection('subscriptions')
+    .where('stripeSubscriptionId', '==', subscription.id)
+    .limit(1)
+    .get();
 
-  if (snapshot.empty) {
-    await addDoc(subsRef, {
+  if (subsSnapshot.empty) {
+    await adminDb.collection('subscriptions').add({
       ...subscriptionData,
-      createdAt: Timestamp.now(),
+      createdAt: FieldValue.serverTimestamp(),
     });
   } else {
-    await updateDoc(doc(db, 'subscriptions', snapshot.docs[0].id), subscriptionData);
+    await subsSnapshot.docs[0].ref.update(subscriptionData);
   }
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  const subsRef = collection(db, 'subscriptions');
-  const q = query(subsRef, where('stripeSubscriptionId', '==', subscription.id));
-  const snapshot = await getDocs(q);
+  const subsSnapshot = await adminDb.collection('subscriptions')
+    .where('stripeSubscriptionId', '==', subscription.id)
+    .limit(1)
+    .get();
 
-  if (!snapshot.empty) {
-    await updateDoc(doc(db, 'subscriptions', snapshot.docs[0].id), {
+  if (!subsSnapshot.empty) {
+    await subsSnapshot.docs[0].ref.update({
       status: 'canceled',
-      updatedAt: Timestamp.now(),
+      updatedAt: FieldValue.serverTimestamp(),
     });
   }
 }
@@ -173,7 +176,7 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
   if (!tenantId) return;
 
   // Record payment
-  await addDoc(collection(db, 'payments'), {
+  await adminDb.collection('payments').add({
     tenantId,
     stripeInvoiceId: invoice.id,
     stripeCustomerId: typeof invoice.customer === 'string' 
@@ -188,8 +191,8 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     metadata: {
       invoiceNumber: invoice.number || '',
     },
-    createdAt: Timestamp.now(),
-    updatedAt: Timestamp.now(),
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
   });
 }
 
@@ -197,7 +200,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   const tenantId = invoice.metadata?.tenantId;
   if (!tenantId) return;
 
-  await addDoc(collection(db, 'payments'), {
+  await adminDb.collection('payments').add({
     tenantId,
     stripeInvoiceId: invoice.id,
     amount: invoice.amount_due,
@@ -205,8 +208,8 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
     status: 'failed',
     paymentMethodType: 'card',
     description: `Factura ${invoice.number} - Pago fallido`,
-    createdAt: Timestamp.now(),
-    updatedAt: Timestamp.now(),
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
   });
 }
 
@@ -219,21 +222,23 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   // Check if this payment was for an invoice
   if (invoiceId) {
     // Update invoice status
-    const invoicesRef = collection(db, 'invoices');
-    const q = query(invoicesRef, where('id', '==', invoiceId));
-    const snapshot = await getDocs(q);
-    
-    if (!snapshot.empty) {
-      await updateDoc(doc(db, 'invoices', snapshot.docs[0].id), {
-        status: 'paid',
-        paidAt: Timestamp.now(),
-        stripePaymentIntentId: paymentIntent.id,
-      });
+    const invoiceRef = adminDb.collection('invoices').doc(invoiceId);
+    const invoiceSnap = await invoiceRef.get();
+    if (invoiceSnap.exists) {
+      const invoiceData = invoiceSnap.data();
+      if (invoiceData?.tenantId === tenantId) {
+        await invoiceRef.update({
+          status: 'paid',
+          paidAt: FieldValue.serverTimestamp(),
+          stripePaymentIntentId: paymentIntent.id,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+      }
     }
   }
 
   // Record payment
-  await addDoc(collection(db, 'payments'), {
+  await adminDb.collection('payments').add({
     tenantId,
     stripePaymentIntentId: paymentIntent.id,
     invoiceId: invoiceId || null,
@@ -241,7 +246,7 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
     currency: paymentIntent.currency,
     status: 'succeeded',
     paymentMethodType: paymentIntent.payment_method_types?.[0] || 'card',
-    createdAt: Timestamp.now(),
-    updatedAt: Timestamp.now(),
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
   });
 }

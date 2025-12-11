@@ -5,20 +5,8 @@
  */
 
 import { NextRequest } from 'next/server';
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs,
-  addDoc,
-  Timestamp,
-  limit,
-  orderBy,
-  startAfter,
-  doc,
-  getDoc,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { adminDb } from '@/lib/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { 
   validateApiRequest, 
   createApiResponse, 
@@ -39,39 +27,40 @@ export async function GET(request: NextRequest) {
   const clientId = searchParams.get('clientId');
   
   try {
-    let q = query(
-      collection(db, 'invoices'),
-      where('tenantId', '==', tenantId),
-      orderBy('createdAt', 'desc'),
-      limit(pageSize)
-    );
-    
+    let queryRef = adminDb.collection('invoices')
+      .where('tenantId', '==', tenantId)
+      .orderBy('createdAt', 'desc')
+      .limit(pageSize);
+
     if (status) {
-      q = query(q, where('status', '==', status));
+      queryRef = queryRef.where('status', '==', status);
     }
-    
+
     if (clientId) {
-      q = query(q, where('clientId', '==', clientId));
+      queryRef = queryRef.where('clientId', '==', clientId);
     }
-    
+
     if (cursor) {
-      const cursorDoc = await getDoc(doc(db, 'invoices', cursor));
-      if (cursorDoc.exists()) {
-        q = query(q, startAfter(cursorDoc));
+      const cursorDoc = await adminDb.collection('invoices').doc(cursor).get();
+      if (cursorDoc.exists) {
+        queryRef = queryRef.startAfter(cursorDoc);
       }
     }
-    
-    const snapshot = await getDocs(q);
-    
-    const invoices = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      issueDate: doc.data().issueDate?.toDate?.()?.toISOString(),
-      dueDate: doc.data().dueDate?.toDate?.()?.toISOString(),
-      paidAt: doc.data().paidAt?.toDate?.()?.toISOString(),
-      createdAt: doc.data().createdAt?.toDate?.()?.toISOString(),
-      updatedAt: doc.data().updatedAt?.toDate?.()?.toISOString(),
-    }));
+
+    const snapshot = await queryRef.get();
+
+    const invoices = snapshot.docs.map(d => {
+      const data = d.data();
+      return {
+        id: d.id,
+        ...data,
+        issueDate: data.issueDate?.toDate?.()?.toISOString?.() ?? null,
+        dueDate: data.dueDate?.toDate?.()?.toISOString?.() ?? null,
+        paidAt: data.paidAt?.toDate?.()?.toISOString?.() ?? null,
+        createdAt: data.createdAt?.toDate?.()?.toISOString?.() ?? null,
+        updatedAt: data.updatedAt?.toDate?.()?.toISOString?.() ?? null,
+      };
+    });
     
     const nextCursor = snapshot.docs.length === pageSize 
       ? snapshot.docs[snapshot.docs.length - 1].id 
@@ -110,12 +99,15 @@ export async function POST(request: NextRequest) {
     }
     
     // Verify client exists
-    const clientDoc = await getDoc(doc(db, 'clients', body.clientId));
-    if (!clientDoc.exists() || clientDoc.data().tenantId !== tenantId) {
+    const clientDoc = await adminDb.collection('clients').doc(body.clientId).get();
+    if (!clientDoc.exists) {
       return createApiError('Client not found', 404);
     }
-    
+
     const client = clientDoc.data();
+    if (client?.tenantId !== tenantId) {
+      return createApiError('Client not found', 404);
+    }
     
     // Calculate totals
     const items = body.items.map((item: {
@@ -137,7 +129,12 @@ export async function POST(request: NextRequest) {
     
     // Generate invoice number
     const invoiceNumber = `INV-${Date.now().toString(36).toUpperCase()}`;
-    
+
+    const issueDate = body.issueDate ? new Date(body.issueDate) : new Date();
+    const dueDate = body.dueDate
+      ? new Date(body.dueDate)
+      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
     const invoiceData = {
       tenantId,
       invoiceNumber,
@@ -153,25 +150,21 @@ export async function POST(request: NextRequest) {
       total,
       currency: body.currency || 'USD',
       status: 'draft',
-      issueDate: body.issueDate 
-        ? Timestamp.fromDate(new Date(body.issueDate))
-        : Timestamp.now(),
-      dueDate: body.dueDate 
-        ? Timestamp.fromDate(new Date(body.dueDate))
-        : Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)), // 30 days
+      issueDate,
+      dueDate,
       notes: body.notes || null,
       source: 'api',
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     };
-    
-    const docRef = await addDoc(collection(db, 'invoices'), invoiceData);
+
+    const docRef = await adminDb.collection('invoices').add(invoiceData);
     
     return createApiResponse({
       id: docRef.id,
       ...invoiceData,
-      issueDate: new Date().toISOString(),
-      dueDate: invoiceData.dueDate.toDate().toISOString(),
+      issueDate: issueDate.toISOString(),
+      dueDate: dueDate.toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }, 201);
