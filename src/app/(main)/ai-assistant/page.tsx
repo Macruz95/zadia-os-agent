@@ -240,7 +240,7 @@ export default function AIAssistantPage() {
       {/* ═══════════════════════════════════════════════════════════════════
           MAIN CHAT AREA
           ═══════════════════════════════════════════════════════════════════ */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
         {/* Header */}
         <header className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-background/80 backdrop-blur-sm">
           <div className="flex items-center gap-2">
@@ -321,7 +321,7 @@ export default function AIAssistantPage() {
         </header>
 
         {/* Messages Area */}
-        <ScrollArea ref={scrollRef} className="flex-1">
+        <ScrollArea ref={scrollRef} className="flex-1 min-h-0">
           {messages.length === 0 ? (
             /* Welcome Screen */
             <div className="h-full flex flex-col items-center justify-center p-6">
@@ -376,7 +376,7 @@ export default function AIAssistantPage() {
         </ScrollArea>
 
         {/* Input Area */}
-        <div className="border-t border-border p-4">
+        <div className="border-t border-border p-4 bg-background">
           <div className="max-w-3xl mx-auto">
             <div className={cn(
               "flex items-end gap-2 rounded-xl border bg-background transition-all",

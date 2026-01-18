@@ -6,7 +6,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { Lead, LeadFilters } from '../types/sales.types';
-import { LeadFormData } from '../validations/sales.schema';
+import { CreateLeadFormData } from '../validations/sales.schema';
 import { LeadsService } from '../services/leads.service';
 import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
@@ -17,7 +17,7 @@ interface UseLeadsReturn {
   error?: string;
   totalCount: number;
   searchLeads: (filters?: LeadFilters, reset?: boolean) => Promise<void>;
-  createLead: (data: LeadFormData, createdBy: string) => Promise<Lead>;
+  createLead: (data: CreateLeadFormData, createdBy: string) => Promise<Lead>;
   updateLead: (id: string, data: Partial<Lead>) => Promise<void>;
   convertLead: (id: string) => Promise<{ clientId: string; opportunityId: string }>;
   disqualifyLead: (id: string, reason: string) => Promise<void>;
@@ -39,7 +39,7 @@ export function useLeads(): UseLeadsReturn {
     reset: boolean = false
   ) => {
     if (!tenantId) return; // Wait for tenant
-    
+
     try {
       setLoading(true);
       setError(undefined);
@@ -50,13 +50,13 @@ export function useLeads(): UseLeadsReturn {
       }
 
       const result = await LeadsService.searchLeads(filters, 20, undefined, tenantId);
-      
+
       if (reset) {
         setLeads(result.leads);
       } else {
         setLeads(prev => [...prev, ...result.leads]);
       }
-      
+
       setTotalCount(result.totalCount);
       setCurrentFilters(filters);
     } catch (err) {
@@ -76,17 +76,17 @@ export function useLeads(): UseLeadsReturn {
   }, [tenantId, searchLeads]);
 
   const createLead = useCallback(async (
-    data: LeadFormData,
+    data: CreateLeadFormData,
     createdBy: string
   ): Promise<Lead> => {
     if (!tenantId) throw new Error('No tenant ID');
-    
+
     try {
       setLoading(true);
       setError(undefined);
 
       const newLead = await LeadsService.createLead(data, createdBy, tenantId);
-      
+
       // Add to current list if it matches filters
       setLeads(prev => [newLead, ...prev]);
       setTotalCount(prev => prev + 1);
@@ -110,9 +110,9 @@ export function useLeads(): UseLeadsReturn {
       setError(undefined);
 
       await LeadsService.updateLead(id, data);
-      
+
       // Update in current list
-      setLeads(prev => prev.map(lead => 
+      setLeads(prev => prev.map(lead =>
         lead.id === id ? { ...lead, ...data } : lead
       ));
 
@@ -130,9 +130,9 @@ export function useLeads(): UseLeadsReturn {
       setError(undefined);
 
       const result = await LeadsService.convertLead(id);
-      
+
       // Update lead status in list
-      setLeads(prev => prev.map(lead => 
+      setLeads(prev => prev.map(lead =>
         lead.id === id ? { ...lead, status: 'converted' } : lead
       ));
 
@@ -151,9 +151,9 @@ export function useLeads(): UseLeadsReturn {
       setError(undefined);
 
       await LeadsService.disqualifyLead(id, reason);
-      
+
       // Update lead status in list
-      setLeads(prev => prev.map(lead => 
+      setLeads(prev => prev.map(lead =>
         lead.id === id ? { ...lead, status: 'disqualified' } : lead
       ));
 
@@ -171,7 +171,7 @@ export function useLeads(): UseLeadsReturn {
       setError(undefined);
 
       await LeadsService.deleteLead(id);
-      
+
       // Remove from list
       setLeads(prev => prev.filter(lead => lead.id !== id));
       setTotalCount(prev => prev - 1);
@@ -190,10 +190,10 @@ export function useLeads(): UseLeadsReturn {
       setError(undefined);
 
       await LeadsService.updateLeadScore(id, score);
-      
+
       // Update score and priority in list
       const priority = score >= 80 ? 'hot' : score >= 50 ? 'warm' : 'cold';
-      setLeads(prev => prev.map(lead => 
+      setLeads(prev => prev.map(lead =>
         lead.id === id ? { ...lead, score, priority } : lead
       ));
 

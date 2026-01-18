@@ -32,21 +32,21 @@ export function BOMCostSummary({
       <CardContent className="space-y-3">
         <div className="flex justify-between">
           <span>Costo de Materiales:</span>
-          <Badge variant="outline">${totalMaterialCost.toFixed(2)}</Badge>
+          <Badge variant="outline">${(totalMaterialCost ?? 0).toFixed(2)}</Badge>
         </div>
         <div className="flex justify-between">
           <span>Costo de Mano de Obra:</span>
-          <Badge variant="outline">${totalLaborCost.toFixed(2)}</Badge>
+          <Badge variant="outline">${(totalLaborCost ?? 0).toFixed(2)}</Badge>
         </div>
         <div className="flex justify-between">
           <span>Gastos Indirectos:</span>
-          <Badge variant="outline">${totalOverheadCost.toFixed(2)}</Badge>
+          <Badge variant="outline">${(totalOverheadCost ?? 0).toFixed(2)}</Badge>
         </div>
         <hr className="my-2" />
         <div className="flex justify-between font-medium text-lg">
           <span>Costo Total:</span>
           <Badge className="text-lg px-3 py-1">
-            ${totalCost.toFixed(2)}
+            ${(totalCost ?? 0).toFixed(2)}
           </Badge>
         </div>
       </CardContent>

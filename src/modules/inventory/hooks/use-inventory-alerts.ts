@@ -10,7 +10,7 @@ import { RawMaterial, FinishedProduct } from '../types/inventory.types';
 import { InventoryAlertsService } from '../services/entities/inventory-alerts.service';
 import { logger } from '@/lib/logger';
 import { useAuth } from '@/contexts/AuthContext';
-import { auth } from '@/lib/firebase';
+import { useTenant } from '@/contexts/TenantContext';
 
 interface UseInventoryAlertsReturn {
   alerts: InventoryAlert[];
@@ -27,22 +27,21 @@ interface UseInventoryAlertsReturn {
 
 export function useInventoryAlerts(): UseInventoryAlertsReturn {
   const { firebaseUser, loading: authLoading } = useAuth();
+  const { tenant, membership, loading: tenantLoading } = useTenant();
+  const tenantId = tenant?.id || null;
+  const hasMembership = !!membership;
   const [alerts, setAlerts] = useState<InventoryAlert[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
 
   const refreshAlerts = useCallback(async () => {
-    // 🔥 CRITICAL: Don't fetch if user is not authenticated
-    if (!firebaseUser || authLoading) {
+    // 🔥 CRITICAL: Don't fetch if user is not authenticated, tenant is loading, or no membership
+    if (!firebaseUser || authLoading || tenantLoading || !hasMembership) {
       return;
     }
 
-    // 🔥 CRITICAL: Ensure Firebase Auth token is ready
-    try {
-      await auth.currentUser?.getIdToken(true); // Force token refresh
-      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for token propagation
-    } catch {
-      // Auth token refresh failed, return early
+    if (!tenantId) {
+      setAlerts([]);
       return;
     }
 
@@ -50,7 +49,7 @@ export function useInventoryAlerts(): UseInventoryAlertsReturn {
       setLoading(true);
       setError(undefined);
       
-      const unreadAlerts = await InventoryAlertsService.getUnreadAlerts(100);
+      const unreadAlerts = await InventoryAlertsService.getUnreadAlerts(tenantId, 100);
       setAlerts(unreadAlerts);
     } catch (err) {
       const errorMessage = 'Error al cargar alertas de inventario';
@@ -59,7 +58,7 @@ export function useInventoryAlerts(): UseInventoryAlertsReturn {
     } finally {
       setLoading(false);
     }
-  }, [firebaseUser, authLoading]);
+  }, [firebaseUser, authLoading, tenantLoading, hasMembership, tenantId]);
 
   const markAsRead = useCallback(async (alertId: string, readBy: string) => {
     try {
@@ -100,10 +99,30 @@ export function useInventoryAlerts(): UseInventoryAlertsReturn {
   const highAlerts = alerts.filter(alert => alert.priority === 'high');
   const totalUnread = alerts.length;
 
-  // Load alerts on mount
+  // Load alerts only when tenant is fully ready
+  // Using tenantId directly in effect to avoid stale closure issues
   useEffect(() => {
-    refreshAlerts();
-  }, [refreshAlerts]);
+    // Only fetch when auth AND tenant are fully loaded AND membership exists
+    if (authLoading || tenantLoading) {
+      return;
+    }
+    
+    if (!firebaseUser || !tenantId || !hasMembership) {
+      return;
+    }
+    
+    // Call the service directly instead of through refreshAlerts to avoid dependency issues
+    const loadAlerts = async () => {
+      try {
+        const unreadAlerts = await InventoryAlertsService.getUnreadAlerts(tenantId, 100);
+        setAlerts(unreadAlerts);
+      } catch (err) {
+        logger.error('Error loading inventory alerts:', err as Error);
+      }
+    };
+    
+    loadAlerts();
+  }, [authLoading, tenantLoading, firebaseUser, tenantId, hasMembership]);
 
   return {
     alerts,

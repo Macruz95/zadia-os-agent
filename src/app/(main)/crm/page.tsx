@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  UserPlus, 
-  Users, 
+import {
+  UserPlus,
+  Users,
   Lightbulb,
   TrendingUp,
-  ArrowRight 
+  ArrowRight
 } from 'lucide-react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -32,53 +32,47 @@ export default function CRMPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (tenantId) {
-      loadStats();
-    }
-  }, [tenantId]);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     if (!tenantId) return;
-    
+
     try {
       setLoading(true);
-      
+
       // Contar leads activos (no converted, no lost) filtered by tenant
       const leadsSnapshot = await getDocs(
         query(
-          collection(db, 'leads'), 
+          collection(db, 'leads'),
           where('tenantId', '==', tenantId),
           where('status', 'in', ['new', 'contacted', 'qualified'])
         )
       );
       const activeLeads = leadsSnapshot.size;
-      
+
       // Contar total de clientes filtered by tenant
       const clientsSnapshot = await getDocs(
         query(collection(db, 'clients'), where('tenantId', '==', tenantId))
       );
       const totalClients = clientsSnapshot.size;
-      
+
       // Contar oportunidades activas (no won, no lost) filtered by tenant
       const oppsSnapshot = await getDocs(
         query(
-          collection(db, 'opportunities'), 
+          collection(db, 'opportunities'),
           where('tenantId', '==', tenantId),
           where('status', 'in', ['prospecting', 'qualification', 'proposal', 'negotiation'])
         )
       );
       const activeOpportunities = oppsSnapshot.size;
-      
+
       // Calcular tasa de conversión (leads totales vs clientes) filtered by tenant
       const allLeadsSnapshot = await getDocs(
         query(collection(db, 'leads'), where('tenantId', '==', tenantId))
       );
       const totalLeads = allLeadsSnapshot.size;
-      const conversionRate = totalLeads > 0 
+      const conversionRate = totalLeads > 0
         ? Math.round((totalClients / totalLeads) * 100)
         : 0;
-      
+
       setStats({
         activeLeads,
         totalClients,
@@ -88,7 +82,13 @@ export default function CRMPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [tenantId]);
+
+  useEffect(() => {
+    if (tenantId) {
+      loadStats();
+    }
+  }, [tenantId, loadStats]);
   const modules = [
     {
       title: 'Leads',

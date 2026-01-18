@@ -9,7 +9,6 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
   limit,
   Timestamp
 } from 'firebase/firestore';
@@ -27,12 +26,16 @@ export class RawMaterialSearchService {
     searchParams: InventorySearchParams = {}
   ): Promise<{ rawMaterials: RawMaterial[]; totalCount: number }> {
     try {
+      // CRITICAL: tenantId is REQUIRED for Firestore security rules
+      if (!searchParams.tenantId) {
+        logger.warn('searchRawMaterials called without tenantId - returning empty results');
+        return { rawMaterials: [], totalCount: 0 };
+      }
+
       const constraints = [];
 
-      // CRITICAL: Filter by tenantId for data isolation
-      if (searchParams.tenantId) {
-        constraints.push(where('tenantId', '==', searchParams.tenantId));
-      }
+      // CRITICAL: Always filter by tenantId for data isolation
+      constraints.push(where('tenantId', '==', searchParams.tenantId));
 
       // Apply filters
       if (searchParams.filters?.category) {
@@ -43,18 +46,12 @@ export class RawMaterialSearchService {
         constraints.push(where('supplierId', '==', searchParams.filters.supplier));
       }
 
-      // Only add orderBy if we have other constraints (to avoid index requirement)
-      if (constraints.length > 0) {
-        const sortField = searchParams.sortBy || 'name';
-        const sortDirection = searchParams.sortOrder || 'asc';
-        constraints.push(orderBy(sortField, sortDirection));
-      }
+      // NOTE: We do NOT add orderBy here to avoid requiring composite indexes
+      // Sorting is done client-side after fetching the data
 
       // Apply pagination
       const pageSize = searchParams.pageSize || 50;
-      if (constraints.length > 0) {
-        constraints.push(limit(pageSize));
-      }
+      constraints.push(limit(pageSize));
 
       const q = constraints.length > 0 
         ? query(collection(db, COLLECTION_NAME), ...constraints)
@@ -89,24 +86,22 @@ export class RawMaterialSearchService {
         );
       }
 
-      // Client-side sorting if no server-side orderBy was applied
-      if (constraints.length === 0 || !searchParams.sortBy) {
-        const sortField = (searchParams.sortBy || 'name') as keyof RawMaterial;
-        const sortDirection = searchParams.sortOrder || 'asc';
-        rawMaterials.sort((a, b) => {
-          const aVal = a[sortField];
-          const bVal = b[sortField];
-          if (typeof aVal === 'string' && typeof bVal === 'string') {
-            return sortDirection === 'asc' 
-              ? aVal.localeCompare(bVal) 
-              : bVal.localeCompare(aVal);
-          }
-          if (typeof aVal === 'number' && typeof bVal === 'number') {
-            return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
-          }
-          return 0;
-        });
-      }
+      // Client-side sorting (always, since we don't use server-side orderBy)
+      const sortField = (searchParams.sortBy || 'name') as keyof RawMaterial;
+      const sortDirection = searchParams.sortOrder || 'asc';
+      rawMaterials.sort((a, b) => {
+        const aVal = a[sortField];
+        const bVal = b[sortField];
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          return sortDirection === 'asc' 
+            ? aVal.localeCompare(bVal) 
+            : bVal.localeCompare(aVal);
+        }
+        if (typeof aVal === 'number' && typeof bVal === 'number') {
+          return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+        }
+        return 0;
+      });
 
       return {
         rawMaterials,

@@ -5,29 +5,29 @@
  * Following ZADIA OS Rule 5: Max 200 lines per file
  */
 
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  limit,
   startAfter,
-  Timestamp 
+  Timestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
-import { 
-  Lead, 
+import {
+  Lead,
   LeadFilters,
-  LeadSearchResult 
+  LeadSearchResult
 } from '../types/sales.types';
-import { LeadFormData } from '../validations/sales.schema';
+import { CreateLeadFormData } from '../validations/sales.schema';
 
 const LEADS_COLLECTION = 'leads';
 
@@ -36,23 +36,25 @@ export class LeadsCrudService {
    * Create a new lead
    * @param tenantId - Required tenant ID for data isolation
    */
-  static async createLead(data: LeadFormData, createdBy: string, tenantId?: string): Promise<Lead> {
+  static async createLead(data: CreateLeadFormData, createdBy: string, tenantId?: string): Promise<Lead> {
     if (!tenantId) {
       throw new Error('tenantId is required for data isolation');
     }
-    
+
     try {
       const leadData = {
         ...data,
         tenantId, // CRITICAL: Add tenant isolation
         status: 'new' as const,
+        score: 50, // Default score
+        assignedTo: createdBy, // Default to creator
         createdAt: Timestamp.fromDate(new Date()),
         updatedAt: Timestamp.fromDate(new Date()),
         createdBy,
       };
 
       const docRef = await addDoc(collection(db, LEADS_COLLECTION), leadData);
-      
+
       const createdLead = {
         id: docRef.id,
         ...leadData,
@@ -62,7 +64,7 @@ export class LeadsCrudService {
         component: 'LeadsCrudService',
         action: 'createLead'
       });
-      
+
       return createdLead;
     } catch (error) {
       logger.error('Error creating lead:', error as Error, {
@@ -85,7 +87,7 @@ export class LeadsCrudService {
       };
 
       await updateDoc(docRef, updateData);
-      
+
       logger.info(`Lead updated: ${id}`, {
         component: 'LeadsCrudService',
         action: 'updateLead'
@@ -131,7 +133,7 @@ export class LeadsCrudService {
     try {
       const docRef = doc(db, LEADS_COLLECTION, id);
       await deleteDoc(docRef);
-      
+
       logger.info(`Lead deleted: ${id}`, {
         component: 'LeadsCrudService',
         action: 'deleteLead'
@@ -158,7 +160,7 @@ export class LeadsCrudService {
     if (!tenantId) {
       return { leads: [], totalCount: 0 }; // Return empty if no tenant
     }
-    
+
     try {
       // CRITICAL: Filter by tenantId first
       let q = query(collection(db, LEADS_COLLECTION), where('tenantId', '==', tenantId));
@@ -228,7 +230,7 @@ export class LeadsCrudService {
     if (!tenantId) {
       return []; // Return empty if no tenant
     }
-    
+
     try {
       const q = query(
         collection(db, LEADS_COLLECTION),

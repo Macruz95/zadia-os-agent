@@ -44,10 +44,10 @@ export function PricingSupplierFields({ form, type }: PricingSupplierFieldsProps
                 />
               </FormControl>
               <FormDescription>
-                {form.watch('sellingPrice') > 0 && form.watch('unitCost') > 0 && (
+                {(form.watch('sellingPrice') ?? 0) > 0 && (form.watch('unitCost') ?? 0) > 0 && (
                   <span className="text-sm text-muted-foreground">
                     Margen: {(
-                      ((form.watch('sellingPrice') - form.watch('unitCost')) / form.watch('sellingPrice')) * 100
+                      (((form.watch('sellingPrice') ?? 0) - (form.watch('unitCost') ?? 0)) / (form.watch('sellingPrice') ?? 1)) * 100
                     ).toFixed(1)}%
                   </span>
                 )}

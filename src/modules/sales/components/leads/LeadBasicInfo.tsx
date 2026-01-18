@@ -8,7 +8,7 @@ interface LeadBasicInfoProps {
   onFullNameChange: (value: string) => void;
   entityName: string;
   onEntityNameChange: (value: string) => void;
-  email: string;
+  email?: string;
   onEmailChange: (value: string) => void;
   phone: string;
   onPhoneChange: (value: string) => void;

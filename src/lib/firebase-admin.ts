@@ -17,36 +17,36 @@ function initializeAdminApp(): App | null {
   if (_initFailed) {
     return null;
   }
-  
+
   if (getApps().length > 0) {
     return getApps()[0];
   }
-  
+
   const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-  
+
   if (!serviceAccountJson) {
     // In development, allow app to run without server-side auth validation
     if (process.env.NODE_ENV === 'development') {
-      console.warn('[firebase-admin] FIREBASE_SERVICE_ACCOUNT_KEY not set - server-side auth validation disabled');
+      console.warn('[firebase-admin] FIREBASE_SERVICE_ACCOUNT_KEY not set - server-side auth validation disabled'); // eslint-disable-line no-console
       _initFailed = true;
       return null;
     }
     throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY is required for server-side auth validation');
   }
-  
+
   let appOptions: AppOptions;
   try {
     const credentials = JSON.parse(serviceAccountJson);
     appOptions = { credential: cert(credentials) };
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {
-      console.warn('[firebase-admin] Invalid FIREBASE_SERVICE_ACCOUNT_KEY - server-side auth validation disabled');
+      console.warn('[firebase-admin] Invalid FIREBASE_SERVICE_ACCOUNT_KEY - server-side auth validation disabled'); // eslint-disable-line no-console
       _initFailed = true;
       return null;
     }
     throw new Error(`Invalid FIREBASE_SERVICE_ACCOUNT_KEY JSON: ${String(error)}`);
   }
-  
+
   return initializeApp(appOptions);
 }
 

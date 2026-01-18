@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  FileText, 
-  DollarSign, 
+import {
+  FileText,
+  DollarSign,
   CreditCard,
   TrendingUp,
-  ArrowRight 
+  ArrowRight
 } from 'lucide-react';
 import { InvoicesService } from '@/modules/finance/services/invoices.service';
 import { formatCurrency } from '@/lib/utils';
@@ -32,33 +32,27 @@ export default function FinancePage() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (tenantId) {
-      loadStats();
-    }
-  }, [tenantId]);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     if (!tenantId) return;
-    
+
     try {
       setLoading(true);
       const invoiceStats = await InvoicesService.getInvoiceStats(undefined, tenantId);
-      
+
       // Calcular facturas activas (total - canceladas, considerando overdueInvoices)
       const activeInvoices = invoiceStats.totalInvoices + invoiceStats.overdueInvoices;
-      
+
       // Total por cobrar
       const totalDue = invoiceStats.totalDue;
-      
+
       // Cobrado (total pagado)
       const collectedThisMonth = invoiceStats.totalPaid;
-      
+
       // Tasa de cobro (totalPaid / totalBilled * 100)
-      const collectionRate = invoiceStats.totalBilled > 0 
+      const collectionRate = invoiceStats.totalBilled > 0
         ? Math.round((invoiceStats.totalPaid / invoiceStats.totalBilled) * 100)
         : 0;
-      
+
       setStats({
         activeInvoices,
         totalDue,
@@ -68,7 +62,13 @@ export default function FinancePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [tenantId]);
+
+  useEffect(() => {
+    if (tenantId) {
+      loadStats();
+    }
+  }, [tenantId, loadStats]);
   const modules = [
     {
       title: 'Facturas',

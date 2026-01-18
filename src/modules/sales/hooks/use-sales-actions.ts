@@ -36,15 +36,15 @@ export function useSalesActions() {
 
   const createLead = useCallback(async (data: LeadFormData): Promise<Lead> => {
     const lead = await LeadsService.createLead(data, userId || '');
-    
+
     // Use fullName for person or entityName for company/institution
     const displayName = lead.fullName || lead.entityName || 'Sin nombre';
-    
+
     await EventBus.emit('lead:created', {
       id: lead.id,
       name: displayName,
       company: lead.company,
-      email: lead.email,
+      email: lead.email || '',
       source: lead.source,
       score: lead.score
     }, {
@@ -59,7 +59,7 @@ export function useSalesActions() {
 
   const updateLead = useCallback(async (id: string, data: Partial<Lead>): Promise<void> => {
     await LeadsService.updateLead(id, data);
-    
+
     await EventBus.emit('lead:updated', {
       id,
       changes: Object.keys(data),
@@ -75,7 +75,7 @@ export function useSalesActions() {
 
   const convertLead = useCallback(async (id: string): Promise<{ clientId: string; opportunityId: string }> => {
     const result = await LeadsService.convertLead(id);
-    
+
     await EventBus.emit('lead:converted', {
       leadId: id,
       clientId: result.clientId,
@@ -94,7 +94,7 @@ export function useSalesActions() {
 
   const createOpportunity = useCallback(async (data: OpportunityFormData): Promise<Opportunity> => {
     const opportunity = await OpportunitiesService.createOpportunity(data, userId || '');
-    
+
     await EventBus.emit('opportunity:created', {
       id: opportunity.id,
       title: opportunity.name,
@@ -117,7 +117,7 @@ export function useSalesActions() {
     data: Partial<OpportunityFormData>
   ): Promise<void> => {
     await OpportunitiesService.updateOpportunity(id, data);
-    
+
     await EventBus.emit('opportunity:updated', {
       id,
       changes: Object.keys(data),
@@ -133,7 +133,7 @@ export function useSalesActions() {
 
   const winOpportunity = useCallback(async (id: string, value: number, clientId: string, title: string): Promise<void> => {
     await OpportunitiesService.updateOpportunity(id, { stage: 'closed-won' });
-    
+
     await EventBus.emit('opportunity:won', {
       id,
       value,
@@ -150,7 +150,7 @@ export function useSalesActions() {
 
   const loseOpportunity = useCallback(async (id: string, reason: string): Promise<void> => {
     await OpportunitiesService.updateOpportunity(id, { stage: 'closed-lost' });
-    
+
     await EventBus.emit('opportunity:lost', {
       id,
       reason
@@ -167,7 +167,7 @@ export function useSalesActions() {
 
   const createQuote = useCallback(async (data: QuoteFormData): Promise<Quote> => {
     const quote = await QuotesService.createQuote(data, userId || '');
-    
+
     await EventBus.emit('quote:created', {
       id: quote.id,
       clientId: quote.clientId,
@@ -186,7 +186,7 @@ export function useSalesActions() {
 
   const sendQuote = useCallback(async (id: string, clientId: string, total: number): Promise<void> => {
     await QuotesService.updateQuoteStatus(id, 'sent');
-    
+
     await EventBus.emit('quote:sent', {
       id,
       clientId,
@@ -202,7 +202,7 @@ export function useSalesActions() {
 
   const approveQuote = useCallback(async (id: string, clientId: string, total: number): Promise<void> => {
     await QuotesService.updateQuoteStatus(id, 'accepted');
-    
+
     await EventBus.emit('quote:approved', {
       id,
       clientId,
@@ -218,7 +218,7 @@ export function useSalesActions() {
 
   const rejectQuote = useCallback(async (id: string, reason: string): Promise<void> => {
     await QuotesService.updateQuoteStatus(id, 'rejected');
-    
+
     await EventBus.emit('quote:rejected', {
       id,
       reason

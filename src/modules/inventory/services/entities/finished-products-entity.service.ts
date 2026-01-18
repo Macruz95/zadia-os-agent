@@ -12,12 +12,16 @@ import { FinishedProductCrudService } from './finished-product-crud.service';
 export class FinishedProductsService {
   /**
    * Create a new finished product
+   * @param data - Finished product form data
+   * @param createdBy - User ID creating the product
+   * @param tenantId - Required tenant ID for data isolation
    */
   static async createFinishedProduct(
     data: FinishedProductFormData,
-    createdBy: string
+    createdBy: string,
+    tenantId?: string
   ): Promise<FinishedProduct> {
-    return FinishedProductCreationService.createFinishedProduct(data, createdBy);
+    return FinishedProductCreationService.createFinishedProduct(data, createdBy, tenantId);
   }
 
   /**
@@ -78,8 +82,9 @@ export class FinishedProductsService {
 
   /**
    * Get finished products with low stock
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async getLowStockFinishedProducts(): Promise<FinishedProduct[]> {
-    return FinishedProductSearchService.getLowStockFinishedProducts();
+  static async getLowStockFinishedProducts(tenantId?: string): Promise<FinishedProduct[]> {
+    return FinishedProductSearchService.getLowStockFinishedProducts(tenantId);
   }
 }

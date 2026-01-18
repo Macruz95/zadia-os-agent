@@ -19,10 +19,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ChevronLeft, ChevronRight, Building2, User } from 'lucide-react';
 import { Lead, EntityType } from '../../types/sales.types';
 import { ClientType } from '@/modules/clients/types/clients.types';
-import { 
-  ConversionDecision, 
-  ClientFromLeadInput, 
-  clientFromLeadSchema 
+import {
+  ConversionDecision,
+  ClientFromLeadInput,
+  clientFromLeadSchema
 } from '../../validations/lead-conversion.schema';
 
 /**
@@ -45,12 +45,12 @@ interface ClientCreationStepProps {
   onClientData: (data: ClientFromLeadInput) => void;
 }
 
-export function ClientCreationStep({ 
-  lead, 
-  decision, 
-  onNext, 
-  onBack, 
-  onClientData 
+export function ClientCreationStep({
+  lead,
+  decision,
+  onNext,
+  onBack,
+  onClientData
 }: ClientCreationStepProps) {
   const {
     register,
@@ -64,8 +64,8 @@ export function ClientCreationStep({
     defaultValues: {
       clientType: mapEntityTypeToClientType(lead.entityType),
       name: lead.fullName || lead.entityName || '',
-      email: lead.email,
-      phone: lead.phone,
+      email: lead.email || '',
+      phone: lead.phone || '',
       documentId: '',
       status: 'Activo' as const,
       source: `lead-${lead.id}`,

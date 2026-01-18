@@ -121,8 +121,8 @@ export function InventoryTable({
                   </TableCell>
                   <TableCell>
                     {itemType === 'raw-materials' 
-                      ? `$${(item as RawMaterial).unitCost.toFixed(2)}`
-                      : `$${(item as FinishedProduct).sellingPrice.toFixed(2)}`
+                      ? `$${((item as RawMaterial).unitCost ?? 0).toFixed(2)}`
+                      : `$${((item as FinishedProduct).sellingPrice ?? 0).toFixed(2)}`
                     }
                   </TableCell>
                   <TableCell>

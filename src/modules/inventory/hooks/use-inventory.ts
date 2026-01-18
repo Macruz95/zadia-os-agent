@@ -2,10 +2,13 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { InventorySearchParams, InventoryDirectoryState } from '../types';
 import { RawMaterialsService, FinishedProductsService } from '../services/inventory.service';
 import { useAuth } from '@/contexts/AuthContext';
-import { auth } from '@/lib/firebase';
+import { useTenant } from '@/contexts/TenantContext';
 
 export const useInventory = (initialParams: InventorySearchParams = {}) => {
   const { firebaseUser, loading: authLoading } = useAuth();
+  const { tenant, membership, loading: tenantLoading } = useTenant();
+  const tenantId = tenant?.id || null;
+  const hasMembership = !!membership;
   const [state, setState] = useState<InventoryDirectoryState>({
     rawMaterials: [],
     finishedProducts: [],
@@ -25,21 +28,20 @@ export const useInventory = (initialParams: InventorySearchParams = {}) => {
   const initialLoadDone = useRef(false);
 
   const fetchInventory = useCallback(async (params?: InventorySearchParams, tab?: 'raw-materials' | 'finished-products') => {
-    // 🔥 CRITICAL: Don't fetch if user is not authenticated
-    if (!firebaseUser || authLoading) {
+    // 🔥 CRITICAL: Don't fetch if user is not authenticated, tenant is loading, or no membership
+    if (!firebaseUser || authLoading || tenantLoading || !hasMembership) {
       return;
     }
 
-    // 🔥 CRITICAL: Ensure Firebase Auth token is ready
-    try {
-      await auth.currentUser?.getIdToken(true); // Force token refresh
-      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for token propagation
-    } catch {
-      // Auth token refresh failed, return early
+    const baseParams = params || currentParamsRef.current;
+    const effectiveTenantId = baseParams.tenantId ?? tenantId;
+    if (!effectiveTenantId) {
       return;
     }
-
-    const searchParams = params || currentParamsRef.current;
+    const searchParams: InventorySearchParams = {
+      ...baseParams,
+      tenantId: effectiveTenantId,
+    };
     const activeTab = tab || activeTabRef.current;
     
     setState(prev => ({ ...prev, loading: true, error: undefined }));
@@ -73,7 +75,7 @@ export const useInventory = (initialParams: InventorySearchParams = {}) => {
         error: error instanceof Error ? error.message : 'Error al cargar inventario',
       }));
     }
-  }, [firebaseUser, authLoading]);
+  }, [firebaseUser, authLoading, tenantLoading, hasMembership, tenantId]);
 
   const updateSearchParams = useCallback((newParams: Partial<InventorySearchParams>) => {
     setState(prev => {
@@ -92,13 +94,52 @@ export const useInventory = (initialParams: InventorySearchParams = {}) => {
     fetchInventory();
   }, [fetchInventory]);
 
-  // Effect para cargar datos iniciales solo una vez
+  // Effect para cargar datos iniciales solo cuando el tenant esté listo
+  // Using direct service call to avoid stale closure issues with fetchInventory
   useEffect(() => {
-    if (!initialLoadDone.current) {
-      fetchInventory(initialParams, 'raw-materials');
-      initialLoadDone.current = true;
+    // Only fetch when auth AND tenant are fully loaded AND membership exists
+    if (authLoading || tenantLoading) {
+      return;
     }
-  }, [fetchInventory, initialParams]);
+    
+    if (!firebaseUser || !tenantId || !hasMembership) {
+      return;
+    }
+    
+    if (initialLoadDone.current) {
+      return;
+    }
+    
+    initialLoadDone.current = true;
+    
+    // Load data directly
+    const loadInitialData = async () => {
+      setState(prev => ({ ...prev, loading: true, error: undefined }));
+      
+      try {
+        const result = await RawMaterialsService.searchRawMaterials({ 
+          ...initialParams, 
+          tenantId 
+        });
+        setState(prev => ({
+          ...prev,
+          rawMaterials: result.rawMaterials,
+          totalCount: result.totalCount,
+          loading: false,
+          searchParams: { ...initialParams, tenantId },
+          activeTab: 'raw-materials',
+        }));
+      } catch (error) {
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          error: error instanceof Error ? error.message : 'Error al cargar inventario',
+        }));
+      }
+    };
+    
+    loadInitialData();
+  }, [authLoading, tenantLoading, firebaseUser, tenantId, hasMembership, initialParams]);
 
   return {
     ...state,

@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
 
   // Debug logging in development
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[Middleware] ${pathname} | isProtected: ${isProtected} | isAuth: ${isAuth} | hasAuthCookie: ${isAuthenticated}`);
+    // console.log(`[Middleware] ${pathname} | isProtected: ${isProtected} | isAuth: ${isAuth} | hasAuthCookie: ${isAuthenticated}`);
   }
 
   // Redirect unauthenticated access to protected routes

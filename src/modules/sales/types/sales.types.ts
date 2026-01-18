@@ -7,7 +7,7 @@
 import { Timestamp } from 'firebase/firestore';
 
 // Base Types
-export type LeadSource = 'web' | 'referral' | 'event' | 'cold-call' | 'imported';
+export type LeadSource = 'web' | 'referral' | 'event' | 'cold-call' | 'imported' | 'local';
 export type LeadStatus = 'new' | 'contacted' | 'qualifying' | 'disqualified' | 'converted';
 export type LeadPriority = 'hot' | 'warm' | 'cold';
 export type EntityType = 'person' | 'company' | 'institution';
@@ -25,8 +25,8 @@ export interface Lead {
   fullName?: string; // For person
   entityName?: string; // For company/institution
   position?: string; // Job title if applicable
-  email: string;
-  phone: string;
+  email?: string;
+  phone?: string;
   phoneCountryId?: string; // Country ID for phone code reference
   company?: string; // Company name for person leads
   source: LeadSource;
@@ -49,8 +49,8 @@ export interface CreateLeadInput {
   entityType: 'person' | 'company' | 'institution';
   fullName?: string;
   entityName?: string;
-  email: string;
-  phone: string;
+  email?: string;
+  phone?: string;
   company?: string;
   position?: string;
   source: LeadSource;

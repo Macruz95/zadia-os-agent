@@ -7,7 +7,7 @@
 import { z } from 'zod';
 
 // Base Enums
-export const LeadSourceSchema = z.enum(['web', 'referral', 'event', 'cold-call', 'imported']);
+export const LeadSourceSchema = z.enum(['web', 'referral', 'event', 'cold-call', 'imported', 'local']);
 export const LeadStatusSchema = z.enum(['new', 'contacted', 'qualifying', 'disqualified', 'converted']);
 export const LeadPrioritySchema = z.enum(['hot', 'warm', 'cold']);
 export const EntityTypeSchema = z.enum(['person', 'company', 'institution']);
@@ -21,10 +21,10 @@ export const QuoteStatusSchema = z.enum(['draft', 'sent', 'accepted', 'rejected'
 // Create Lead Input Validation Schema
 export const createLeadSchema = z.object({
   entityType: z.enum(['person', 'company', 'institution']),
-  fullName: z.string().min(1, 'Nombre requerido').optional(),
-  entityName: z.string().min(1, 'Nombre de entidad requerido').optional(),
-  email: z.string().email('Email inválido'),
-  phone: z.string().min(1, 'Teléfono requerido'),
+  fullName: z.string().optional(),
+  entityName: z.string().optional(),
+  email: z.string().email('Email inválido').optional().or(z.literal('')),
+  phone: z.string().optional().or(z.literal('')),
   phoneCountryId: z.string().optional(),
   company: z.string().optional(),
   position: z.string().optional(),
@@ -34,21 +34,16 @@ export const createLeadSchema = z.object({
   interests: z.string().optional(),
 }).refine(
   (data) => {
-    // Para persona natural: solo nombre completo
-    if (data.entityType === 'person' && !data.fullName) {
-      return false;
+    // Para persona natural: nombre completo requerido
+    if (data.entityType === 'person') {
+      return data.fullName && data.fullName.length > 0;
     }
-    // Para empresa/institución: nombre de entidad Y nombre del representante Y cargo
-    if ((data.entityType === 'company' || data.entityType === 'institution')) {
-      if (!data.entityName || !data.fullName || !data.position) {
-        return false;
-      }
-    }
-    return true;
+    // Para empresa/institución: nombre de entidad requerido
+    return data.entityName && data.entityName.length > 0;
   },
   {
-    message: 'Para persona: nombre completo requerido. Para empresa/institución: nombre de entidad, representante y cargo requeridos',
-    path: ['fullName', 'entityName', 'position'],
+    message: 'Por favor ingresa un nombre',
+    path: ['fullName'],
   }
 );
 
@@ -58,8 +53,8 @@ export const leadSchema = z.object({
   fullName: z.string().min(1, 'Nombre completo requerido').max(100, 'Nombre muy largo').optional(),
   entityName: z.string().min(1, 'Nombre de entidad requerido').max(100, 'Nombre muy largo').optional(),
   position: z.string().max(50, 'Puesto muy largo').optional(),
-  email: z.string().email('Email inválido'),
-  phone: z.string().min(8, 'Teléfono muy corto').max(20, 'Teléfono muy largo'),
+  email: z.string().email('Email inválido').optional().or(z.literal('')),
+  phone: z.string().optional().or(z.literal('')),
   phoneCountryId: z.string().optional(), // Country ID for international phone format
   company: z.string().max(100, 'Empresa muy larga').optional(),
   source: LeadSourceSchema,

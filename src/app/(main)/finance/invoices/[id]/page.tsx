@@ -2,7 +2,7 @@
 
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -71,7 +71,7 @@ export default function InvoiceDetailsPage({ params }: PageProps) {
   // PDF Download Handler
   const handleDownloadPDF = async () => {
     if (!invoice) return;
-    
+
     try {
       await InvoicesPDFService.downloadInvoicePDF(invoice);
       toast.success('PDF descargado correctamente');
@@ -85,11 +85,7 @@ export default function InvoiceDetailsPage({ params }: PageProps) {
     setEmailDialogOpen(true);
   };
 
-  useEffect(() => {
-    loadInvoice();
-  }, [id]);
-
-  const loadInvoice = async () => {
+  const loadInvoice = useCallback(async () => {
     try {
       setLoading(true);
       const data = await InvoicesService.getInvoiceById(id);
@@ -99,7 +95,11 @@ export default function InvoiceDetailsPage({ params }: PageProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, router]);
+
+  useEffect(() => {
+    loadInvoice();
+  }, [id, loadInvoice]);
 
   const handlePaymentSubmit = async (paymentData: {
     amount: number;
@@ -172,10 +172,10 @@ export default function InvoiceDetailsPage({ params }: PageProps) {
           <Badge
             variant={
               statusConfig.color as
-                | 'default'
-                | 'secondary'
-                | 'destructive'
-                | 'outline'
+              | 'default'
+              | 'secondary'
+              | 'destructive'
+              | 'outline'
             }
           >
             {statusConfig.label}

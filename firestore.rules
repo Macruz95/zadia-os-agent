@@ -14,6 +14,13 @@ service cloud.firestore {
       return request.auth.uid;
     }
 
+    // Check if user is the owner of a tenant
+    function isTenantOwnerGlobal(tenantId) {
+      return isAuthenticated() &&
+        tenantId != null &&
+        get(/databases/$(database)/documents/tenants/$(tenantId)).data.ownerId == getUserId();
+    }
+
     // Check if user is a member of the specified tenant
     function isTenantMember(tenantId) {
       return isAuthenticated() &&
@@ -21,18 +28,30 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/tenantMembers/$(tenantId + '_' + getUserId()));
     }
 
-    // Check if the document's tenantId matches a tenant the user belongs to
+    // Check if user has access to tenant (either member or owner)
+    function hasTenantAccess(tenantId) {
+      return isTenantMember(tenantId) || isTenantOwnerGlobal(tenantId);
+    }
+
+    // Check if the document's tenantId matches a tenant the user belongs to (or owns)
     function canAccessByTenantId() {
       return isAuthenticated() && 
         resource.data.tenantId != null &&
-        isTenantMember(resource.data.tenantId);
+        hasTenantAccess(resource.data.tenantId);
+    }
+
+    // Check if can write with tenantId (user is member or owner)
+    function canWriteWithTenantId() {
+      return isAuthenticated() && 
+        request.resource.data.tenantId != null &&
+        hasTenantAccess(request.resource.data.tenantId);
     }
 
     // Check access via project's tenantId (for project-related subcollections without direct tenantId)
     function canAccessViaProject(projectId) {
       return isAuthenticated() && 
         projectId != null &&
-        isTenantMember(get(/databases/$(database)/documents/projects/$(projectId)).data.tenantId);
+        hasTenantAccess(get(/databases/$(database)/documents/projects/$(projectId)).data.tenantId);
     }
 
     // Check if can access by projectId field in document
@@ -53,7 +72,7 @@ service cloud.firestore {
     function canAccessViaWorkPeriod(workPeriodId) {
       return isAuthenticated() && 
         workPeriodId != null &&
-        isTenantMember(get(/databases/$(database)/documents/workPeriods/$(workPeriodId)).data.tenantId);
+        hasTenantAccess(get(/databases/$(database)/documents/workPeriods/$(workPeriodId)).data.tenantId);
     }
 
     // Check if can access by workPeriodId field in document
@@ -70,11 +89,77 @@ service cloud.firestore {
         canAccessViaWorkPeriod(request.resource.data.workPeriodId);
     }
 
-    // Check if the incoming data's tenantId is valid for the user
-    function canWriteWithTenantId() {
-      return isAuthenticated() && 
-        request.resource.data.tenantId != null &&
-        isTenantMember(request.resource.data.tenantId);
+    // ===========================
+    // DATA VALIDATION FUNCTIONS
+    // ===========================
+    
+    // Validate required string field
+    function isValidString(field) {
+      return field is string && field.size() > 0;
+    }
+    
+    // Validate optional string field (can be null or valid string)
+    function isValidOptionalString(field) {
+      return field == null || (field is string);
+    }
+    
+    // Validate positive number (for amounts, quantities)
+    function isPositiveNumber(field) {
+      return field is number && field >= 0;
+    }
+    
+    // Validate required positive number
+    function isValidAmount(field) {
+      return field is number && field >= 0;
+    }
+    
+    // Validate email format (basic check)
+    function isValidEmail(field) {
+      return field is string && field.matches('.*@.*\\..*');
+    }
+    
+    // Validate timestamp field
+    function isValidTimestamp(field) {
+      return field is timestamp;
+    }
+    
+    // Validate invoice data
+    function isValidInvoiceData() {
+      let data = request.resource.data;
+      return isValidString(data.tenantId) &&
+        isValidAmount(data.get('total', 0)) &&
+        isValidAmount(data.get('subtotal', 0));
+    }
+    
+    // Validate payment data
+    function isValidPaymentData() {
+      let data = request.resource.data;
+      return isValidString(data.tenantId) &&
+        isValidAmount(data.get('amount', 0));
+    }
+    
+    // Validate employee data
+    function isValidEmployeeData() {
+      let data = request.resource.data;
+      return isValidString(data.tenantId) &&
+        isValidString(data.get('firstName', '')) &&
+        isValidString(data.get('lastName', ''));
+    }
+    
+    // Validate loan data
+    function isValidLoanData() {
+      let data = request.resource.data;
+      return isValidAmount(data.get('amount', 0)) &&
+        isValidAmount(data.get('balance', 0));
+    }
+    
+    // Validate inventory item data
+    function isValidInventoryData() {
+      let data = request.resource.data;
+      return isValidString(data.tenantId) &&
+        isValidString(data.get('name', '')) &&
+        isValidAmount(data.get('quantity', 0)) &&
+        isValidAmount(data.get('unitPrice', 0));
     }
 
     // ===========================
@@ -93,18 +178,27 @@ service cloud.firestore {
     // TENANT MEMBERS COLLECTION
     // ===========================
     match /tenantMembers/{memberId} {
+      // Helper: Check if user is owner of the tenant
+      function isTenantOwner(tenantId) {
+        return get(/databases/$(database)/documents/tenants/$(tenantId)).data.ownerId == getUserId();
+      }
+      
       // Read: user can read their own memberships or members of their tenant
       allow read: if isAuthenticated() && (
         resource.data.userId == getUserId() ||
         isTenantMember(resource.data.tenantId)
       );
-      // Create: user can create their own membership (for new tenant) or tenant admin can add
+      // Create: user can create their own membership (for new tenant), tenant owner can add anyone, or existing members can add
       allow create: if isAuthenticated() && (
         request.resource.data.userId == getUserId() ||
+        isTenantOwner(request.resource.data.tenantId) ||
         isTenantMember(request.resource.data.tenantId)
       );
-      // Update/Delete: only tenant members with access
-      allow update, delete: if isAuthenticated() && isTenantMember(resource.data.tenantId);
+      // Update/Delete: tenant owner or existing members with access
+      allow update, delete: if isAuthenticated() && (
+        isTenantOwner(resource.data.tenantId) ||
+        isTenantMember(resource.data.tenantId)
+      );
     }
 
     // ===========================
@@ -232,8 +326,9 @@ service cloud.firestore {
     // Invoices
     match /invoices/{docId} {
       allow read: if canAccessByTenantId();
-      allow create: if canWriteWithTenantId();
-      allow update, delete: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId() && isValidInvoiceData();
+      allow update: if canAccessByTenantId() && isValidInvoiceData();
+      allow delete: if canAccessByTenantId();
     }
 
     // Quotes
@@ -253,15 +348,17 @@ service cloud.firestore {
     // Payments
     match /payments/{docId} {
       allow read: if canAccessByTenantId();
-      allow create: if canWriteWithTenantId();
-      allow update, delete: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId() && isValidPaymentData();
+      allow update: if canAccessByTenantId() && isValidPaymentData();
+      allow delete: if canAccessByTenantId();
     }
 
     // Employees
     match /employees/{docId} {
       allow read: if canAccessByTenantId();
-      allow create: if canWriteWithTenantId();
-      allow update, delete: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId() && isValidEmployeeData();
+      allow update: if canAccessByTenantId() && isValidEmployeeData();
+      allow delete: if canAccessByTenantId();
     }
 
     // Work Periods
@@ -274,8 +371,9 @@ service cloud.firestore {
     // Loans (has workPeriodId field, may not have valid tenantId)
     match /loans/{docId} {
       allow read: if canAccessByTenantId() || canAccessByWorkPeriodId();
-      allow create: if canWriteWithTenantId() || canWriteByWorkPeriodId();
-      allow update, delete: if canAccessByTenantId() || canAccessByWorkPeriodId();
+      allow create: if (canWriteWithTenantId() || canWriteByWorkPeriodId()) && isValidLoanData();
+      allow update: if (canAccessByTenantId() || canAccessByWorkPeriodId()) && isValidLoanData();
+      allow delete: if canAccessByTenantId() || canAccessByWorkPeriodId();
     }
 
     // Bonuses (has workPeriodId field, may not have tenantId)
@@ -299,6 +397,22 @@ service cloud.firestore {
       allow update, delete: if canAccessByTenantId();
     }
 
+    // Inventory Raw Materials
+    match /raw-materials/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId() && isValidInventoryData();
+      allow update: if canAccessByTenantId() && isValidInventoryData();
+      allow delete: if canAccessByTenantId();
+    }
+
+    // Inventory Finished Products
+    match /finished-products/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId() && isValidInventoryData();
+      allow update: if canAccessByTenantId() && isValidInventoryData();
+      allow delete: if canAccessByTenantId();
+    }
+
     // Inventory Categories
     match /categories/{docId} {
       allow read: if canAccessByTenantId();
@@ -308,6 +422,13 @@ service cloud.firestore {
 
     // Inventory Movements
     match /inventoryMovements/{docId} {
+      allow read: if canAccessByTenantId();
+      allow create: if canWriteWithTenantId();
+      allow update, delete: if canAccessByTenantId();
+    }
+
+    // Inventory Alerts
+    match /inventory-alerts/{docId} {
       allow read: if canAccessByTenantId();
       allow create: if canWriteWithTenantId();
       allow update, delete: if canAccessByTenantId();

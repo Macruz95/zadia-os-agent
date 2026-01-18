@@ -3,8 +3,8 @@ import { Label } from '@/components/ui/label';
 import { Flame, Thermometer, Snowflake } from 'lucide-react';
 
 interface LeadSourcePriorityProps {
-  source: 'web' | 'referral' | 'event' | 'cold-call' | 'imported';
-  onSourceChange: (value: 'web' | 'referral' | 'event' | 'cold-call' | 'imported') => void;
+  source: 'web' | 'referral' | 'event' | 'cold-call' | 'imported' | 'local';
+  onSourceChange: (value: 'web' | 'referral' | 'event' | 'cold-call' | 'imported' | 'local') => void;
   priority: 'hot' | 'warm' | 'cold';
   onPriorityChange: (value: 'hot' | 'warm' | 'cold') => void;
 }
@@ -24,6 +24,7 @@ export function LeadSourcePriority({ source, onSourceChange, priority, onPriorit
             <SelectItem value="event">Evento</SelectItem>
             <SelectItem value="cold-call">Llamada Fría</SelectItem>
             <SelectItem value="imported">Importado</SelectItem>
+            <SelectItem value="local">Local (Visita Directa)</SelectItem>
           </SelectContent>
         </Select>
       </div>

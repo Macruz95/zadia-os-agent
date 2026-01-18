@@ -4,11 +4,12 @@
  * Manages finished products state and operations
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { FinishedProduct } from '../types/inventory.types';
 import { FinishedProductFormData } from '../validations/inventory.schema';
 import { FinishedProductsService } from '../services/entities/finished-products-entity.service';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 
 interface UseFinishedProductsReturn {
@@ -28,6 +29,7 @@ interface UseFinishedProductsReturn {
 
 export function useFinishedProducts(): UseFinishedProductsReturn {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const [finishedProducts, setFinishedProducts] = useState<FinishedProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
@@ -35,11 +37,17 @@ export function useFinishedProducts(): UseFinishedProductsReturn {
   const [lastQuery, setLastQuery] = useState<string>('search');
 
   const searchFinishedProducts = useCallback(async () => {
+    if (!tenantId) {
+      setFinishedProducts([]);
+      setTotalCount(0);
+      return;
+    }
+    
     try {
       setLoading(true);
       setError(undefined);
 
-      const result = await FinishedProductsService.searchFinishedProducts();
+      const result = await FinishedProductsService.searchFinishedProducts({ tenantId });
       setFinishedProducts(result.finishedProducts);
       setTotalCount(result.totalCount);
       setLastQuery('search');
@@ -50,16 +58,20 @@ export function useFinishedProducts(): UseFinishedProductsReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   const createFinishedProduct = useCallback(async (
     data: FinishedProductFormData
   ): Promise<FinishedProduct> => {
+    if (!tenantId) {
+      throw new Error('Empresa no seleccionada');
+    }
+    
     try {
       setLoading(true);
       setError(undefined);
 
-      const newProduct = await FinishedProductsService.createFinishedProduct(data, user?.uid || '');
+      const newProduct = await FinishedProductsService.createFinishedProduct(data, user?.uid || '', tenantId);
       
       setFinishedProducts(prev => [newProduct, ...prev]);
       setTotalCount(prev => prev + 1);
@@ -73,7 +85,7 @@ export function useFinishedProducts(): UseFinishedProductsReturn {
     } finally {
       setLoading(false);
     }
-  }, [user?.uid]);
+  }, [user?.uid, tenantId]);
 
   const updateFinishedProduct = useCallback(async (
     id: string,
@@ -159,11 +171,17 @@ export function useFinishedProducts(): UseFinishedProductsReturn {
   }, [user?.uid]);
 
   const getLowStockProducts = useCallback(async () => {
+    if (!tenantId) {
+      setFinishedProducts([]);
+      setTotalCount(0);
+      return;
+    }
+    
     try {
       setLoading(true);
       setError(undefined);
 
-      const result = await FinishedProductsService.getLowStockFinishedProducts();
+      const result = await FinishedProductsService.getLowStockFinishedProducts(tenantId);
       setFinishedProducts(result);
       setTotalCount(result.length);
       setLastQuery('lowStock');
@@ -174,7 +192,7 @@ export function useFinishedProducts(): UseFinishedProductsReturn {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   const refresh = useCallback(async () => {
     switch (lastQuery) {
@@ -185,6 +203,13 @@ export function useFinishedProducts(): UseFinishedProductsReturn {
         await searchFinishedProducts();
     }
   }, [lastQuery, searchFinishedProducts, getLowStockProducts]);
+
+  // Load data when tenant changes
+  useEffect(() => {
+    if (tenantId) {
+      searchFinishedProducts();
+    }
+  }, [tenantId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     finishedProducts,

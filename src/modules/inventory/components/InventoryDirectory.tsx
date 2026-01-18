@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { auth } from '@/lib/firebase';
+import { useTenant } from '@/contexts/TenantContext';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import { useInventory } from '../hooks/use-inventory';
@@ -18,6 +18,9 @@ import { RawMaterial, FinishedProduct } from '../types';
 import { RawMaterialsService, FinishedProductsService } from '../services/inventory.service';
 
 export function InventoryDirectory() {
+  const { tenant, membership, loading: tenantLoading } = useTenant();
+  const tenantId = tenant?.id || null;
+  const hasMembership = !!membership;
   const {
     rawMaterials,
     finishedProducts,
@@ -41,45 +44,37 @@ export function InventoryDirectory() {
   // Ref para evitar múltiples cargas de KPIs
   const kpisLoadedRef = useRef(false);
 
-  // Load all inventory data for KPIs - solo una vez
+  // Load all inventory data for KPIs - only when tenant is fully ready
   useEffect(() => {
     const loadAllInventoryData = async () => {
+      // Only fetch when auth AND tenant are fully loaded AND membership exists
+      if (authLoading || tenantLoading || !firebaseUser || !tenantId || !hasMembership) {
+        return;
+      }
+      
       if (kpisLoadedRef.current) return;
-      
-      // 🔥 CRITICAL: Don't fetch if user is not authenticated
-      if (!firebaseUser || authLoading) {
-        return;
-      }
 
-      // 🔥 CRITICAL: Ensure Firebase Auth token is ready
       try {
-        await auth.currentUser?.getIdToken(true); // Force token refresh
-        await new Promise(resolve => setTimeout(resolve, 500)); // Wait for token propagation
-      } catch {
-        // Auth token refresh failed, return early
-        return;
-      }
-      
-      try {
-        kpisLoadedRef.current = true;
-        
         // Load both raw materials and finished products for KPIs
         const [rmResult, fpResult] = await Promise.all([
-          RawMaterialsService.searchRawMaterials({}),
-          FinishedProductsService.searchFinishedProducts({})
+          RawMaterialsService.searchRawMaterials({ tenantId, pageSize: 1000 }),
+          FinishedProductsService.searchFinishedProducts({ tenantId, pageSize: 1000 })
         ]);
         
         // Calculate KPIs with all data
         refreshKPIs(rmResult.rawMaterials, fpResult.finishedProducts);
         checkStockLevels(rmResult.rawMaterials, fpResult.finishedProducts);
+        
+        // Mark as loaded only after successful load
+        kpisLoadedRef.current = true;
       } catch (error) {
         logger.error('Error loading inventory data for KPIs:', error as Error);
-        kpisLoadedRef.current = false; // Permitir reintento en caso de error
+        // Don't set kpisLoadedRef to allow retry on next render
       }
     };
 
     loadAllInventoryData();
-  }, [firebaseUser, authLoading, refreshKPIs, checkStockLevels]);
+  }, [authLoading, tenantLoading, firebaseUser, tenantId, hasMembership, refreshKPIs, checkStockLevels]);
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
     item: RawMaterial | FinishedProduct | null;

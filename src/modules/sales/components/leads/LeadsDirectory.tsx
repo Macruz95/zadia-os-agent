@@ -76,10 +76,10 @@ export function LeadsDirectory() {
       toast.success('Lead convertido exitosamente');
       // TODO: Redirect to conversion wizard
     } catch (error) {
-      logger.error('Error converting lead', error as Error, { 
-        component: 'LeadsDirectory', 
+      logger.error('Error converting lead', error as Error, {
+        component: 'LeadsDirectory',
         action: 'convertLead',
-        metadata: { leadId: lead.id } 
+        metadata: { leadId: lead.id }
       });
       toast.error('Error al convertir lead');
     }
@@ -91,16 +91,16 @@ export function LeadsDirectory() {
 
   const confirmDisqualifyLead = async (reason: string) => {
     if (!disqualifyDialog.lead) return;
-    
+
     try {
       await disqualifyLead(disqualifyDialog.lead.id, reason);
       toast.success('Lead descalificado');
       refresh();
     } catch (error) {
-      logger.error('Error disqualifying lead', error as Error, { 
-        component: 'LeadsDirectory', 
+      logger.error('Error disqualifying lead', error as Error, {
+        component: 'LeadsDirectory',
         action: 'disqualifyLead',
-        metadata: { leadId: disqualifyDialog.lead.id, reason } 
+        metadata: { leadId: disqualifyDialog.lead.id, reason }
       });
       toast.error('Error al descalificar lead');
     } finally {
@@ -118,16 +118,16 @@ export function LeadsDirectory() {
 
   const confirmDeleteLead = async () => {
     if (!deleteDialog.lead) return;
-    
+
     try {
       await deleteLead(deleteDialog.lead.id);
       toast.success('Lead eliminado exitosamente');
       refresh();
     } catch (error) {
-      logger.error('Error deleting lead', error as Error, { 
-        component: 'LeadsDirectory', 
+      logger.error('Error deleting lead', error as Error, {
+        component: 'LeadsDirectory',
         action: 'deleteLead',
-        metadata: { leadId: deleteDialog.lead.id } 
+        metadata: { leadId: deleteDialog.lead.id }
       });
       toast.error('Error al eliminar lead');
     } finally {
@@ -150,9 +150,12 @@ export function LeadsDirectory() {
 
   return (
     <div className="p-6 space-y-6">
-      <LeadsHeader 
+      <LeadsHeader
         onRefresh={refresh}
-        onCreateLead={() => setShowCreateDialog(true)}
+        onCreateLead={() => {
+          logger.info('Create Lead button clicked');
+          setShowCreateDialog(true);
+        }}
         loading={loading}
       />
 
@@ -181,7 +184,7 @@ export function LeadsDirectory() {
         onDeleteLead={handleDeleteLead}
       />
 
-      <CreateLeadDialog 
+      <CreateLeadDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
         onSuccess={refresh}

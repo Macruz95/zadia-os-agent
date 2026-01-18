@@ -13,6 +13,7 @@
 import { useCallback } from 'react';
 import { EventBus } from '@/lib/events';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 import { toast } from 'sonner';
 
@@ -30,12 +31,17 @@ import { MovementFormData, RawMaterialFormData, FinishedProductFormData } from '
  */
 export function useInventoryActions() {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const userId = user?.uid;
 
   // ============ RAW MATERIALS ============
 
   const createRawMaterial = useCallback(async (data: RawMaterialFormData) => {
-    const material = await RawMaterialsService.createRawMaterial(data, userId || '');
+    if (!tenantId) {
+      throw new Error('Empresa no seleccionada');
+    }
+    
+    const material = await RawMaterialsService.createRawMaterial(data, userId || '', tenantId);
     
     await EventBus.emit('product:created', {
       id: material.id,
@@ -53,7 +59,7 @@ export function useInventoryActions() {
     toast.success('Materia prima creada');
     logger.info('📦 Raw material created + Event emitted', { component: 'InventoryActions' });
     return material;
-  }, [userId]);
+  }, [userId, tenantId]);
 
   const updateRawMaterial = useCallback(async (id: string, data: Partial<RawMaterialFormData>) => {
     await RawMaterialsService.updateRawMaterial(id, data, userId || '');
@@ -75,7 +81,11 @@ export function useInventoryActions() {
   // ============ FINISHED PRODUCTS ============
 
   const createFinishedProduct = useCallback(async (data: FinishedProductFormData) => {
-    const product = await FinishedProductsService.createFinishedProduct(data, userId || '');
+    if (!tenantId) {
+      throw new Error('Empresa no seleccionada');
+    }
+    
+    const product = await FinishedProductsService.createFinishedProduct(data, userId || '', tenantId);
     
     await EventBus.emit('product:created', {
       id: product.id,
@@ -93,7 +103,7 @@ export function useInventoryActions() {
     toast.success('Producto terminado creado');
     logger.info('📦 Finished product created + Event emitted', { component: 'InventoryActions' });
     return product;
-  }, [userId]);
+  }, [userId, tenantId]);
 
   const updateFinishedProduct = useCallback(async (id: string, data: Partial<FinishedProductFormData>) => {
     await FinishedProductsService.updateFinishedProduct(id, data, userId || '');

@@ -14,19 +14,19 @@ export function BOMSummaryCards({ bom }: BOMSummaryCardsProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div className="text-center p-3 border rounded">
-        <div className="text-lg font-bold">{bom.items.length}</div>
+        <div className="text-lg font-bold">{bom.items?.length ?? 0}</div>
         <p className="text-sm text-muted-foreground">Materiales</p>
       </div>
       <div className="text-center p-3 border rounded">
-        <div className="text-lg font-bold">${bom.totalMaterialCost.toFixed(2)}</div>
+        <div className="text-lg font-bold">${(bom.totalMaterialCost ?? 0).toFixed(2)}</div>
         <p className="text-sm text-muted-foreground">Costo Materiales</p>
       </div>
       <div className="text-center p-3 border rounded">
-        <div className="text-lg font-bold">{bom.estimatedLaborHours}h</div>
+        <div className="text-lg font-bold">{bom.estimatedLaborHours ?? 0}h</div>
         <p className="text-sm text-muted-foreground">Horas Trabajo</p>
       </div>
       <div className="text-center p-3 border rounded">
-        <div className="text-lg font-bold">${bom.totalCost.toFixed(2)}</div>
+        <div className="text-lg font-bold">${(bom.totalCost ?? 0).toFixed(2)}</div>
         <p className="text-sm text-muted-foreground">Costo Total</p>
       </div>
     </div>

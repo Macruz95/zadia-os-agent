@@ -32,7 +32,13 @@ export class InventoryAlertsService {
     itemType: 'raw-material' | 'finished-product'
   ): Promise<InventoryAlert> {
     try {
+      const tenantId = (item as unknown as { tenantId?: string }).tenantId;
+      if (!tenantId) {
+        throw new Error('Missing tenantId for inventory alert');
+      }
+
       const alertData: Omit<InventoryAlert, 'id'> = {
+        tenantId,
         itemId: item.id,
         itemType,
         itemName: item.name,
@@ -78,7 +84,9 @@ export class InventoryAlertsService {
       for (const item of rawMaterials) {
         if (item.currentStock <= item.minimumStock) {
           // Check if alert already exists
-          const existingAlerts = await this.getActiveAlertsForItem(item.id);
+          const tenantId = (item as unknown as { tenantId?: string }).tenantId;
+          if (!tenantId) continue;
+          const existingAlerts = await this.getActiveAlertsForItem(item.id, tenantId);
           if (existingAlerts.length === 0) {
             await this.createLowStockAlert(item, 'raw-material');
           }
@@ -89,7 +97,9 @@ export class InventoryAlertsService {
       for (const item of finishedProducts) {
         if (item.currentStock <= item.minimumStock) {
           // Check if alert already exists
-          const existingAlerts = await this.getActiveAlertsForItem(item.id);
+          const tenantId = (item as unknown as { tenantId?: string }).tenantId;
+          if (!tenantId) continue;
+          const existingAlerts = await this.getActiveAlertsForItem(item.id, tenantId);
           if (existingAlerts.length === 0) {
             await this.createLowStockAlert(item, 'finished-product');
           }
@@ -103,10 +113,11 @@ export class InventoryAlertsService {
   /**
    * Get active alerts for specific item
    */
-  static async getActiveAlertsForItem(itemId: string): Promise<InventoryAlert[]> {
+  static async getActiveAlertsForItem(itemId: string, tenantId: string): Promise<InventoryAlert[]> {
     try {
       const q = query(
         collection(db, COLLECTION_NAME),
+        where('tenantId', '==', tenantId),
         where('itemId', '==', itemId),
         where('isRead', '==', false)
       );
@@ -127,11 +138,18 @@ export class InventoryAlertsService {
   /**
    * Get all unread alerts
    */
-  static async getUnreadAlerts(limitCount: number = 50): Promise<InventoryAlert[]> {
+  static async getUnreadAlerts(tenantId: string, limitCount: number = 50): Promise<InventoryAlert[]> {
+    // CRITICAL: tenantId is REQUIRED for Firestore security rules
+    if (!tenantId) {
+      logger.warn('getUnreadAlerts called without tenantId - returning empty results');
+      return [];
+    }
+
     try {
       // Temporalmente usando consulta simple hasta que se creen los índices compuestos
       const q = query(
         collection(db, COLLECTION_NAME),
+        where('tenantId', '==', tenantId),
         where('isRead', '==', false),
         limit(limitCount)
       );
@@ -195,10 +213,14 @@ export class InventoryAlertsService {
   /**
    * Get alerts by priority
    */
-  static async getAlertsByPriority(priority: 'low' | 'medium' | 'high' | 'critical'): Promise<InventoryAlert[]> {
+  static async getAlertsByPriority(
+    tenantId: string,
+    priority: 'low' | 'medium' | 'high' | 'critical'
+  ): Promise<InventoryAlert[]> {
     try {
       const q = query(
         collection(db, COLLECTION_NAME),
+        where('tenantId', '==', tenantId),
         where('priority', '==', priority),
         where('isRead', '==', false),
         orderBy('createdAt', 'desc')

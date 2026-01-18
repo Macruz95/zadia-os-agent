@@ -33,6 +33,7 @@ const LEAD_SOURCE_OPTIONS = [
   { value: 'event', label: 'Evento' },
   { value: 'cold-call', label: 'Llamada Fría' },
   { value: 'imported', label: 'Importado' },
+  { value: 'local', label: 'Local (Visita Directa)' },
 ] as const;
 
 const PRIORITY_OPTIONS = [

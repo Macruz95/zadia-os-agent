@@ -27,19 +27,19 @@ interface DuplicateCheckStepProps {
 }
 
 export function DuplicateCheckStep({ lead, onNext, onDecision }: DuplicateCheckStepProps) {
-  const { 
-    duplicates, 
-    isSearching, 
-    error, 
+  const {
+    duplicates,
+    isSearching,
+    error,
     searchForDuplicates,
-    hasDuplicates 
+    hasDuplicates
   } = useDuplicateDetection();
 
   // Auto-search on mount
   useEffect(() => {
     searchForDuplicates({
-      email: lead.email,
-      phone: lead.phone,
+      email: lead.email || '',
+      phone: lead.phone || '',
       fullName: lead.fullName,
       entityName: lead.entityName,
     });
@@ -111,7 +111,7 @@ export function DuplicateCheckStep({ lead, onNext, onDecision }: DuplicateCheckS
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription className="flex items-center gap-2">
-              Se encontraron {duplicates.length} cliente(s) similar(es). 
+              Se encontraron {duplicates.length} cliente(s) similar(es).
               Revise y decida si desea vincular a uno existente o crear uno nuevo.
             </AlertDescription>
           </Alert>
@@ -147,8 +147,8 @@ export function DuplicateCheckStep({ lead, onNext, onDecision }: DuplicateCheckS
                   </div>
                   <Badge variant="outline">{duplicate.status}</Badge>
                 </div>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
                   onClick={() => handleLinkExisting(duplicate.id)}
                 >

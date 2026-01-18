@@ -392,8 +392,8 @@ export function useAdvancedAIChat(options: UseAdvancedAIChatOptions = {}): UseAd
         );
       }
 
-      // Update AI message with response
-      const finalMessages = messages.map(m => 
+      // Update AI placeholder message in-place (use latest state)
+      setMessages(prev => prev.map(m => 
         m.id === aiMessageId 
           ? {
               ...m,
@@ -409,12 +409,6 @@ export function useAdvancedAIChat(options: UseAdvancedAIChatOptions = {}): UseAd
                 routingReason: response.routingReason,
               },
             }
-          : m
-      );
-
-      setMessages(prev => prev.map(m => 
-        m.id === aiMessageId 
-          ? finalMessages.find(fm => fm.id === aiMessageId)!
           : m
       ));
 

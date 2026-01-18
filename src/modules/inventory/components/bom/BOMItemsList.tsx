@@ -171,12 +171,12 @@ export function BOMItemsList({
                       <div className="flex items-center justify-between text-sm bg-gray-50 p-3 rounded">
                         <div className="space-y-1">
                           <p><strong>Unidad:</strong> {material.unitOfMeasure}</p>
-                          <p><strong>Costo unitario:</strong> ${material.unitCost.toFixed(2)}</p>
-                          <p><strong>Stock disponible:</strong> {material.currentStock}</p>
+                          <p><strong>Costo unitario:</strong> ${(material.unitCost ?? 0).toFixed(2)}</p>
+                          <p><strong>Stock disponible:</strong> {material.currentStock ?? 0}</p>
                         </div>
                         <div className="text-right space-y-1">
                           <Badge variant="secondary">
-                            Costo: ${itemCost.toFixed(2)}
+                            Costo: ${(itemCost ?? 0).toFixed(2)}
                           </Badge>
                           {!stockSufficient && (
                             <div className="flex items-center gap-1 text-red-600">

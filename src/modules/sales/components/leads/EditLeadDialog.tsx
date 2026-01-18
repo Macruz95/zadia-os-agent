@@ -59,8 +59,8 @@ export function EditLeadDialog({
         entityType: lead.entityType,
         fullName: lead.fullName || '',
         entityName: lead.entityName || '',
-        email: lead.email,
-        phone: lead.phone,
+        email: lead.email || '',
+        phone: lead.phone || '',
         phoneCountryId: lead.phoneCountryId || 'SV', // El Salvador por defecto
         company: lead.company || '',
         position: lead.position || '',
@@ -96,7 +96,7 @@ export function EditLeadDialog({
         ...data,
         updatedAt: Timestamp.now(),
       };
-      
+
       await updateLead(lead.id, leadUpdateData);
       toast.success('Lead actualizado exitosamente');
       resetForm();
@@ -122,7 +122,7 @@ export function EditLeadDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <EntityTypeSelector 
+            <EntityTypeSelector
               entityType={watchEntityType}
               onEntityTypeChange={(value) => form.setValue('entityType', value)}
             />
@@ -135,9 +135,9 @@ export function EditLeadDialog({
               onFullNameChange={(value) => form.setValue('fullName', value)}
               entityName={form.watch('entityName') || ''}
               onEntityNameChange={(value) => form.setValue('entityName', value)}
-              email={form.watch('email')}
+              email={form.watch('email') || ''}
               onEmailChange={(value) => form.setValue('email', value)}
-              phone={form.watch('phone')}
+              phone={form.watch('phone') || ''}
               onPhoneChange={(value) => form.setValue('phone', value)}
               phoneCountryId={undefined}
               onPhoneCountryChange={undefined}
@@ -154,7 +154,7 @@ export function EditLeadDialog({
               onPriorityChange={(value) => form.setValue('priority', value)}
             />
 
-            <LeadNotes 
+            <LeadNotes
               notes={form.watch('notes') || ''}
               onNotesChange={(value) => form.setValue('notes', value)}
             />

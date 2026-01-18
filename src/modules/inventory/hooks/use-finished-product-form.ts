@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { FinishedProductFormData, FinishedProductFormSchema } from '../validations/inventory.schema';
 import { FinishedProductsService } from '../services/entities/finished-products-entity.service';
 import { FinishedProduct } from '../types';
@@ -20,6 +21,7 @@ export const useFinishedProductForm = ({
 }: UseFinishedProductFormProps = {}) => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const isEditing = Boolean(initialData);
 
   const form = useForm<FinishedProductFormData>({
@@ -90,11 +92,15 @@ export const useFinishedProductForm = ({
         throw new Error('Usuario no autenticado');
       }
       
+      if (!tenantId) {
+        throw new Error('Empresa no seleccionada');
+      }
+      
       if (isEditing && initialData) {
         result = await FinishedProductsService.updateFinishedProduct(initialData.id, cleanData as FinishedProductFormData, user.uid);
         toast.success('Producto terminado actualizado exitosamente');
       } else {
-        result = await FinishedProductsService.createFinishedProduct(cleanData as FinishedProductFormData, user.uid);
+        result = await FinishedProductsService.createFinishedProduct(cleanData as FinishedProductFormData, user.uid, tenantId);
         toast.success('Producto terminado creado exitosamente');
       }
 
@@ -105,7 +111,7 @@ export const useFinishedProductForm = ({
     } finally {
       setLoading(false);
     }
-  }, [isEditing, initialData, form, onSuccess]);
+  }, [isEditing, initialData, form, onSuccess, user?.uid, tenantId]);
 
   const handleCancel = useCallback(() => {
     form.reset();

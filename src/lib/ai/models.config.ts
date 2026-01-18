@@ -316,6 +316,218 @@ export const OPENROUTER_FREE_MODELS: Record<string, AIModelConfig> = {
   },
 
   // ═══════════════════════════════════════════════════════════════════════
+  // 🆕 TIER B+ - NUEVOS MODELOS DICIEMBRE 2025
+  // ═══════════════════════════════════════════════════════════════════════
+
+  'mimo-v2-flash': {
+    id: 'mimo-v2-flash',
+    name: 'Xiaomi MiMo-V2-Flash',
+    model: 'xiaomi/mimo-v2-flash:free',
+    provider: 'openrouter',
+    description: '309B MoE (15B activos), #1 en trivia/marketing/academia, 256K contexto',
+    contextTokens: 262144,
+    specialties: ['reasoning', 'coding', 'agents', 'swe-bench'],
+    useCase: ['reasoning', 'agentic', 'coding'],
+    speed: 'fast',
+    quality: 'top-tier'
+  },
+
+  'devstral-2': {
+    id: 'devstral-2',
+    name: 'Mistral Devstral 2 2512',
+    model: 'mistralai/devstral-2-2512:free',
+    provider: 'openrouter',
+    description: '123B params, #1 legal/#3 academia/#7 código, 256K contexto',
+    contextTokens: 262144,
+    specialties: ['coding', 'agentic', 'legal', 'multi-file'],
+    useCase: ['agentic', 'coding', 'long-context'],
+    speed: 'medium',
+    quality: 'top-tier'
+  },
+
+  'kat-coder-pro': {
+    id: 'kat-coder-pro',
+    name: 'Kwaipilot KAT-Coder-Pro V1',
+    model: 'kwaipilot/kat-coder-pro-v1:free',
+    provider: 'openrouter',
+    description: '73.4% SWE-Bench, optimizado para uso de herramientas e interacción multi-turno',
+    contextTokens: 262144,
+    specialties: ['coding', 'tool-use', 'agentic', 'swe-bench'],
+    useCase: ['agentic', 'tool-use', 'coding'],
+    speed: 'medium',
+    quality: 'top-tier'
+  },
+
+  'deepseek-r1t2-chimera': {
+    id: 'deepseek-r1t2-chimera',
+    name: 'TNG DeepSeek R1T2 Chimera',
+    model: 'tngtech/deepseek-r1t2-chimera:free',
+    provider: 'openrouter',
+    description: '671B MoE, fusión R1-0528+R1+V3-0324, 20% más rápido que R1',
+    contextTokens: 163840,
+    specialties: ['reasoning', 'roleplay', 'seo', 'long-context'],
+    useCase: ['reasoning', 'roleplay'],
+    speed: 'medium',
+    quality: 'top-tier'
+  },
+
+  'deepseek-r1t-chimera': {
+    id: 'deepseek-r1t-chimera',
+    name: 'TNG DeepSeek R1T Chimera',
+    model: 'tngtech/deepseek-r1t-chimera:free',
+    provider: 'openrouter',
+    description: 'Fusión DeepSeek-R1 + V3-0324, balance razonamiento/eficiencia',
+    contextTokens: 163840,
+    specialties: ['reasoning', 'general', 'efficiency'],
+    useCase: ['reasoning', 'default'],
+    speed: 'fast',
+    quality: 'excellent'
+  },
+
+  'r1t-chimera': {
+    id: 'r1t-chimera',
+    name: 'TNG R1T Chimera',
+    model: 'tngtech/r1t-chimera:free',
+    provider: 'openrouter',
+    description: 'Derivado creativo de R1T-Chimera, EQ-Bench3 ~1305, mejor tool-calling',
+    contextTokens: 163840,
+    specialties: ['roleplay', 'creative', 'tool-use', 'personality'],
+    useCase: ['roleplay', 'tool-use'],
+    speed: 'medium',
+    quality: 'excellent'
+  },
+
+  'deepseek-v31-nex-n1': {
+    id: 'deepseek-v31-nex-n1',
+    name: 'Nex AGI DeepSeek V3.1 Nex N1',
+    model: 'nex-agi/deepseek-v31-nex-n1:free',
+    provider: 'openrouter',
+    description: 'Post-entrenado para autonomía de agentes, uso de herramientas y productividad',
+    contextTokens: 131072,
+    specialties: ['agentic', 'tool-use', 'coding', 'html-generation'],
+    useCase: ['agentic', 'tool-use', 'coding'],
+    speed: 'medium',
+    quality: 'excellent'
+  },
+
+  'nemotron-nano-12b-vl': {
+    id: 'nemotron-nano-12b-vl',
+    name: 'NVIDIA Nemotron Nano 12B 2 VL',
+    model: 'nvidia/nemotron-nano-12b-2-vl:free',
+    provider: 'openrouter',
+    description: '12B params, multimodal (video/docs), arquitectura Transformer-Mamba',
+    contextTokens: 131072,
+    specialties: ['multimodal', 'vision', 'ocr', 'documents', 'video'],
+    useCase: ['multimodal'],
+    speed: 'fast',
+    quality: 'excellent'
+  },
+
+  'nemotron-3-nano-30b': {
+    id: 'nemotron-3-nano-30b',
+    name: 'NVIDIA Nemotron 3 Nano 30B A3B',
+    model: 'nvidia/nemotron-3-nano-30b-a3b:free',
+    provider: 'openrouter',
+    description: '30B MoE, máxima eficiencia computacional, ideal para agentes especializados',
+    contextTokens: 262144,
+    specialties: ['agentic', 'translation', 'efficient'],
+    useCase: ['agentic', 'fast', 'default'],
+    speed: 'fast',
+    quality: 'excellent'
+  },
+
+  'olmo-31-32b-think': {
+    id: 'olmo-31-32b-think',
+    name: 'AllenAI Olmo 3.1 32B Think',
+    model: 'allenai/olmo-31-32b-think:free',
+    provider: 'openrouter',
+    description: '32B params, razonamiento profundo, lógica multi-paso, Apache 2.0',
+    contextTokens: 66000,
+    specialties: ['reasoning', 'logic', 'instruction-following'],
+    useCase: ['reasoning'],
+    speed: 'medium',
+    quality: 'excellent'
+  },
+
+  'gpt-oss-20b': {
+    id: 'gpt-oss-20b',
+    name: 'OpenAI gpt-oss-20b',
+    model: 'openai/gpt-oss-20b:free',
+    provider: 'openrouter',
+    description: '21B MoE (3.6B activos), peso abierto Apache 2.0, function calling nativo',
+    contextTokens: 131072,
+    specialties: ['function-calling', 'tool-use', 'agentic', 'finetuning'],
+    useCase: ['tool-use', 'agentic', 'fast'],
+    speed: 'ultra-fast',
+    quality: 'good'
+  },
+
+  'kimi-k2': {
+    id: 'kimi-k2',
+    name: 'MoonshotAI Kimi K2 0711',
+    model: 'moonshotai/kimi-k2-0711:free',
+    provider: 'openrouter',
+    description: '1T params (32B activos), #1 LiveCodeBench/SWE-bench, uso avanzado de herramientas',
+    contextTokens: 131072,
+    specialties: ['coding', 'reasoning', 'tool-use', 'swe-bench'],
+    useCase: ['agentic', 'tool-use', 'coding', 'reasoning'],
+    speed: 'medium',
+    quality: 'top-tier'
+  },
+
+  'qwen3-4b': {
+    id: 'qwen3-4b',
+    name: 'Qwen3 4B',
+    model: 'qwen/qwen3-4b:free',
+    provider: 'openrouter',
+    description: '4B params, modo dual (thinking/no-thinking), chat multiturno eficiente',
+    contextTokens: 40960,
+    specialties: ['chat', 'fast', 'efficient', 'reasoning'],
+    useCase: ['fast', 'default'],
+    speed: 'ultra-fast',
+    quality: 'good'
+  },
+
+  'gemma-3n-4b': {
+    id: 'gemma-3n-4b',
+    name: 'Google Gemma 3n 4B',
+    model: 'google/gemma-3n-e4b-it:free',
+    provider: 'openrouter',
+    description: '4B efectivo, multimodal (texto/imagen/audio), optimizado para móviles',
+    contextTokens: 32768,
+    specialties: ['multimodal', 'mobile', 'efficient', 'audio'],
+    useCase: ['multimodal', 'fast'],
+    speed: 'ultra-fast',
+    quality: 'good'
+  },
+
+  'gemma-3n-2b': {
+    id: 'gemma-3n-2b',
+    name: 'Google Gemma 3n 2B',
+    model: 'google/gemma-3n-e2b-it:free',
+    provider: 'openrouter',
+    description: '2B efectivo (arch 6B), ultra-ligero, multimodal, offline-capable',
+    contextTokens: 32768,
+    specialties: ['multimodal', 'mobile', 'offline', 'lightweight'],
+    useCase: ['fast'],
+    speed: 'ultra-fast',
+    quality: 'basic'
+  },
+
+  'deepseek-r1-0528': {
+    id: 'deepseek-r1-0528',
+    name: 'DeepSeek R1 0528',
+    model: 'deepseek/deepseek-r1-0528:free',
+    provider: 'openrouter',
+    description: '671B params (37B activos), actualización mayo 2025, similar a OpenAI o1',
+    contextTokens: 163840,
+    specialties: ['reasoning', 'chain-of-thought', 'open-source'],
+    useCase: ['reasoning'],
+    speed: 'slow',
+    quality: 'top-tier'
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════
   // 📝 TIER C - MODELOS ESPECIALIZADOS
   // ═══════════════════════════════════════════════════════════════════════
 

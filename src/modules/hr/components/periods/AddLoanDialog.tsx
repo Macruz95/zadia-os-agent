@@ -81,7 +81,7 @@ export function AddLoanDialog({
             onSuccess();
             onOpenChange(false);
         } catch (error) {
-            console.error('Error registrando préstamo:', error);
+            // console.error('Error registrando préstamo:', error);
             toast.error('Error al registrar préstamo');
         } finally {
             setLoading(false);

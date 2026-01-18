@@ -11,6 +11,7 @@ import {
 // Additional Inventory Types
 export interface InventoryAlert {
   id: string;
+  tenantId: string;
   itemId: string;
   itemType: 'raw-material' | 'finished-product';
   itemName: string;

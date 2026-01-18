@@ -28,7 +28,7 @@ export function BOMMaterialsList({ items }: BOMMaterialsListProps) {
               </p>
             </div>
             <Badge variant="secondary">
-              ${item.totalCost.toFixed(2)}
+              ${(item.totalCost ?? 0).toFixed(2)}
             </Badge>
           </div>
         ))}

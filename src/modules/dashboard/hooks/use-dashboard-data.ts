@@ -67,7 +67,7 @@ export function useDashboardData(userId?: string) {
       setLoading(false);
       return;
     }
-    
+
     try {
       setLoading(true);
 
@@ -166,7 +166,8 @@ export function useDashboardData(userId?: string) {
       setProjectStatus(projectStatusData);
     } catch (error) {
       // On error, just show empty stats
-      console.error('Error loading dashboard data:', error);
+      // Log error internally but don't crash UI
+      // console.error('Error loading dashboard data:', error);
       setStats(EMPTY_STATS);
       setProjectStatus([]);
     } finally {

@@ -39,10 +39,10 @@ interface CreateLeadDialogProps {
 }
 
 export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDialogProps) {
-  const { user } = useAuth();
+  const { firebaseUser } = useAuth();
   const { createLead } = useLeads();
   const [loading, setLoading] = useState(false);
-  
+
   const form = useForm<CreateLeadFormData>({
     resolver: zodResolver(createLeadSchema),
     defaultValues: {
@@ -83,21 +83,22 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
   };
 
   const onSubmit = async (data: CreateLeadFormData) => {
-    if (!user?.uid) {
-      toast.error('Usuario no autenticado');
+    // CRITICAL FIX: Use firebaseUser instead of user (profile) for auth check
+    if (!firebaseUser?.uid) {
+      toast.error('Debe iniciar sesión para crear un lead');
       return;
     }
 
     try {
       setLoading(true);
-      
+
       const leadData = {
         ...data,
         score: 50, // Default score
-        assignedTo: user.uid
+        assignedTo: firebaseUser.uid
       };
-      
-      await createLead(leadData, user.uid);
+
+      await createLead(leadData, firebaseUser.uid);
       toast.success('Lead creado exitosamente');
       resetForm();
       onOpenChange(false);
@@ -121,8 +122,10 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <EntityTypeSelector 
+          <form onSubmit={form.handleSubmit(onSubmit, () => {
+            toast.error('Por favor completa los campos requeridos');
+          })} className="space-y-6">
+            <EntityTypeSelector
               entityType={watchEntityType}
               onEntityTypeChange={(value) => form.setValue('entityType', value)}
             />
@@ -135,9 +138,9 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
               onFullNameChange={(value) => form.setValue('fullName', value)}
               entityName={form.watch('entityName') || ''}
               onEntityNameChange={(value) => form.setValue('entityName', value)}
-              email={form.watch('email')}
+              email={form.watch('email') || ''}
               onEmailChange={(value) => form.setValue('email', value)}
-              phone={form.watch('phone')}
+              phone={form.watch('phone') || ''}
               onPhoneChange={(value) => form.setValue('phone', value)}
               phoneCountryId={form.watch('phoneCountryId')}
               onPhoneCountryChange={(value) => form.setValue('phoneCountryId', value)}
@@ -154,7 +157,7 @@ export function CreateLeadDialog({ open, onOpenChange, onSuccess }: CreateLeadDi
               onPriorityChange={(value) => form.setValue('priority', value)}
             />
 
-            <LeadNotes 
+            <LeadNotes
               notes={form.watch('notes') || ''}
               onNotesChange={(value) => form.setValue('notes', value)}
             />

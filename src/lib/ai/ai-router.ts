@@ -310,6 +310,20 @@ export const MODEL_REGISTRY: Record<string, ModelConfig> = {
     priority: 70,
   },
 
+  // Extra Groq coding model for ultra-fast code tasks
+  'groq-qwen-2.5-coder-32b': {
+    id: 'groq-qwen-2.5-coder-32b',
+    name: 'Groq Qwen 2.5 Coder 32B',
+    model: 'qwen-2.5-coder-32b',
+    provider: 'groq',
+    contextTokens: 32768,
+    capabilities: ['coding', 'fast'],
+    speed: 'ultra-fast',
+    quality: 'excellent',
+    isFree: true,
+    priority: 92,
+  },
+
   // ═══════════════════════════════════════════════════════════════════════
   // 🌈 GOOGLE AI STUDIO (Direct)
   // ═══════════════════════════════════════════════════════════════════════
@@ -567,24 +581,33 @@ export class AIRouter {
     });
     
     // Filter and score models
-    const candidates = Object.values(MODEL_REGISTRY)
+    let candidates = Object.values(MODEL_REGISTRY)
       .filter(model => this.isModelSuitable(model, analysis, config))
       .map(model => ({
         model,
-        score: this.scoreModel(model, analysis),
-      }))
-      .sort((a, b) => b.score - a.score);
+        score: this.scoreModel(model, analysis, config),
+      }));
+
+    // Speed-first hint: prefer Groq when latency is critical
+    if (analysis.requiresSpeed || (config.maxLatencyMs !== undefined && config.maxLatencyMs <= 1500)) {
+      candidates = candidates.map(c => ({
+        ...c,
+        score: c.score + (c.model.provider === 'groq' ? 20 : 0),
+      }));
+    }
+
+    candidates = candidates.sort((a, b) => b.score - a.score);
     
     if (candidates.length === 0) {
       // Fallback to default
-      const defaultModel = MODEL_REGISTRY['kat-coder-pro'];
+      const defaultModel = MODEL_REGISTRY['groq-llama-3.3-70b'];
       return {
         model: defaultModel.model,
         modelId: defaultModel.id,
         modelName: defaultModel.name,
         provider: defaultModel.provider,
         reason: 'No suitable model found, using default',
-        fallbacks: ['gemini-2.0-flash', 'groq-llama-3.3-70b'],
+        fallbacks: ['gemini-2.0-flash', 'kat-coder-pro'],
         estimatedSpeed: defaultModel.speed,
         capabilities: defaultModel.capabilities,
       };
@@ -649,7 +672,7 @@ export class AIRouter {
   /**
    * Score a model for the task (higher = better)
    */
-  private static scoreModel(model: ModelConfig, analysis: TaskAnalysis): number {
+  private static scoreModel(model: ModelConfig, analysis: TaskAnalysis, config?: AIRouterConfig): number {
     let score = model.priority;
     
     // Capability match bonus
@@ -671,6 +694,23 @@ export class AIRouter {
     if (analysis.requiresSpeed) {
       if (model.speed === 'ultra-fast') score += 30;
       else if (model.speed === 'fast') score += 15;
+    }
+
+    // General short-context chat: weight speed more, penalize slow
+    const shortContextGeneral = analysis.primaryTask === 'general' && analysis.contextLength === 'short' && !analysis.requiresReasoning;
+    if (shortContextGeneral) {
+      if (model.speed === 'ultra-fast') score += 25;
+      else if (model.speed === 'fast') score += 12;
+      else if (model.speed === 'slow') score -= 20;
+    }
+
+    // Explicit latency constraint: add speed bias and slight penalty for slow
+    if (config && config.maxLatencyMs !== undefined) {
+      if (config.maxLatencyMs <= 1500) {
+        if (model.speed === 'ultra-fast') score += 20;
+        else if (model.speed === 'fast') score += 10;
+        else if (model.speed === 'slow') score -= 25;
+      }
     }
     
     // Quality bonus for complex tasks

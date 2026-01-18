@@ -5,15 +5,16 @@
  * Following ZADIA OS Rule 5: Max 200 lines per file
  */
 
-import { 
-  Lead, 
+import {
+  Lead,
   LeadFilters,
   LeadSearchResult,
-  LeadInteraction 
+  LeadInteraction
 } from '../types/sales.types';
-import { 
-  LeadFormData, 
-  LeadInteractionData 
+import {
+  LeadFormData,
+  CreateLeadFormData,
+  LeadInteractionData
 } from '../validations/sales.schema';
 import { LeadsCrudService } from './leads-crud.service';
 import { LeadsActionsService } from './leads-actions.service';
@@ -24,7 +25,7 @@ import { LeadsActionsService } from './leads-actions.service';
  */
 export class LeadsService {
   // CRUD Operations (delegated to LeadsCrudService)
-  static async createLead(data: LeadFormData, createdBy: string, tenantId?: string): Promise<Lead> {
+  static async createLead(data: CreateLeadFormData, createdBy: string, tenantId?: string): Promise<Lead> {
     return LeadsCrudService.createLead(data, createdBy, tenantId);
   }
 
@@ -70,7 +71,7 @@ export class LeadsService {
   }
 
   static async addInteraction(
-    data: LeadInteractionData, 
+    data: LeadInteractionData,
     performedBy: string
   ): Promise<LeadInteraction> {
     return LeadsActionsService.addInteraction(data, performedBy);

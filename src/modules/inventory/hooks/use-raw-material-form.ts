@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { RawMaterialFormData, RawMaterialFormSchema } from '../validations/inventory.schema';
 import { RawMaterialsService } from '../services/entities/raw-materials-entity.service';
 import { RawMaterial } from '../types/inventory.types';
@@ -20,6 +21,7 @@ export const useRawMaterialForm = ({
 }: UseRawMaterialFormProps = {}) => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const isEditing = Boolean(initialData);
 
   const form = useForm<RawMaterialFormData>({
@@ -80,11 +82,15 @@ export const useRawMaterialForm = ({
         throw new Error('Usuario no autenticado');
       }
       
+      if (!tenantId) {
+        throw new Error('Empresa no seleccionada');
+      }
+      
       if (isEditing && initialData) {
         result = await RawMaterialsService.updateRawMaterial(initialData.id, cleanData as RawMaterialFormData, user.uid);
         toast.success('Materia prima actualizada exitosamente');
       } else {
-        result = await RawMaterialsService.createRawMaterial(cleanData as RawMaterialFormData, user.uid);
+        result = await RawMaterialsService.createRawMaterial(cleanData as RawMaterialFormData, user.uid, tenantId);
         toast.success('Materia prima creada exitosamente');
       }
 
@@ -95,7 +101,7 @@ export const useRawMaterialForm = ({
     } finally {
       setLoading(false);
     }
-  }, [isEditing, initialData, form, onSuccess]);
+  }, [isEditing, initialData, form, onSuccess, user?.uid, tenantId]);
 
   const handleCancel = useCallback(() => {
     form.reset();

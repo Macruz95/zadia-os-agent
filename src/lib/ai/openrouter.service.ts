@@ -9,6 +9,7 @@
  */
 
 import { logger } from '@/lib/logger';
+import AIRouter from './ai-router';
 import { getModelForUseCase, getModelById, type AIModelType } from './models.config';
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
@@ -64,6 +65,10 @@ export class OpenRouterService {
     request: AICompletionRequest
   ): Promise<string> {
     try {
+      const start = Date.now();
+      const controller = new AbortController();
+      const timeoutMs = 12000; // 12s timeout for OpenRouter
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
       // Seleccionar modelo: explícito > por ID > por tipo > default
       let selectedModel: string;
       let modelInfo: string | null = null;
@@ -103,7 +108,7 @@ export class OpenRouterService {
         messages: request.messages,
         temperature: request.temperature ?? 0.7,
         max_tokens: request.max_tokens ?? 2000,
-        stream: false
+        stream: request.stream ?? false
       };
 
       // Agregar tools si están disponibles (para modelos con function calling)
@@ -120,8 +125,10 @@ export class OpenRouterService {
           'X-Title': 'ZADIA OS - Agentic Enterprise Platform',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
+        signal: controller.signal
       });
+      clearTimeout(timeout);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -136,17 +143,28 @@ export class OpenRouterService {
 
       const completion = data.choices[0].message.content;
 
+      const durationMs = Date.now() - start;
       logger.info('AI completion successful', {
         component: 'OpenRouterService',
         metadata: {
           tokensUsed: data.usage?.total_tokens || 0,
-          responseLength: completion.length
+          responseLength: completion.length,
+          durationMs
         }
       });
+
+      // If very slow, mark provider for caution (circuit breaker will avoid for 60s)
+      if (durationMs > 10000) {
+        AIRouter.markProviderUnhealthy('openrouter');
+      } else {
+        AIRouter.markProviderHealthy('openrouter');
+      }
 
       return completion;
 
     } catch (error) {
+      // Mark provider as unhealthy on failure or timeout
+      AIRouter.markProviderUnhealthy('openrouter');
       logger.error('OpenRouter API error', error as Error, {
         component: 'OpenRouterService'
       });

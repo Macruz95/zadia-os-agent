@@ -56,6 +56,13 @@ export function LeadEntityTypeSection({ control }: LeadEntityTypeSectionProps) {
                       Empresa
                     </Label>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="institution" id="institution" />
+                    <Label htmlFor="institution" className="flex items-center gap-2 cursor-pointer">
+                      <Building2 className="h-4 w-4" />
+                      Institución
+                    </Label>
+                  </div>
                 </RadioGroup>
               </FormControl>
               <FormMessage />

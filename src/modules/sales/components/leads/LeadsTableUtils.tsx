@@ -14,7 +14,8 @@ export const LEAD_SOURCE_LABELS = {
   referral: 'Referido',
   event: 'Evento',
   'cold-call': 'Llamada',
-  imported: 'Importado'
+  imported: 'Importado',
+  local: 'Local'
 };
 
 export function getStatusBadgeVariant(status: LeadStatus) {

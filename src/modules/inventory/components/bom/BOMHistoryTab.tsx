@@ -62,19 +62,19 @@ export function BOMHistoryTab({ boms, onEditBOM, onDeactivateBOM }: BOMHistoryTa
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
-                <div className="font-bold">{bom.items.length}</div>
+                <div className="font-bold">{bom.items?.length ?? 0}</div>
                 <p className="text-xs text-muted-foreground">Materiales</p>
               </div>
               <div>
-                <div className="font-bold">${bom.totalMaterialCost.toFixed(2)}</div>
+                <div className="font-bold">${(bom.totalMaterialCost ?? 0).toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground">Costo Materiales</p>
               </div>
               <div>
-                <div className="font-bold">{bom.estimatedLaborHours}h</div>
+                <div className="font-bold">{bom.estimatedLaborHours ?? 0}h</div>
                 <p className="text-xs text-muted-foreground">Horas</p>
               </div>
               <div>
-                <div className="font-bold">${bom.totalCost.toFixed(2)}</div>
+                <div className="font-bold">${(bom.totalCost ?? 0).toFixed(2)}</div>
                 <p className="text-xs text-muted-foreground">Costo Total</p>
               </div>
             </div>

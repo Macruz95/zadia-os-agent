@@ -96,26 +96,26 @@ export function StockPreview({ item, itemType, quantity, movementType, unitCost 
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span>Costo Actual por {unit}:</span>
-              <Badge variant="outline">${currentItemCost.toFixed(2)}</Badge>
+              <Badge variant="outline">${(currentItemCost ?? 0).toFixed(2)}</Badge>
             </div>
             <div className="flex justify-between">
               <span>Nuevo Costo por {unit}:</span>
               <Badge variant={costDifference === 0 ? "outline" : costDifference > 0 ? "destructive" : "default"}>
-                ${unitCost.toFixed(2)}
+                ${(unitCost ?? 0).toFixed(2)}
                 {costDifference !== 0 && (
-                  <span className="ml-1">({costDifference > 0 ? '+' : ''}${costDifference.toFixed(2)})</span>
+                  <span className="ml-1">({costDifference > 0 ? '+' : ''}${(costDifference ?? 0).toFixed(2)})</span>
                 )}
               </Badge>
             </div>
             <div className="flex justify-between font-medium">
               <span>Costo Total del Movimiento:</span>
-              <Badge variant="secondary">${totalCost.toFixed(2)}</Badge>
+              <Badge variant="secondary">${(totalCost ?? 0).toFixed(2)}</Badge>
             </div>
             {costImpact !== 0 && (
               <div className="flex justify-between">
                 <span>Impacto en Valor de Inventario:</span>
                 <Badge variant={costImpact > 0 ? "destructive" : "default"}>
-                  {costImpact > 0 ? '+' : ''}${costImpact.toFixed(2)}
+                  {costImpact > 0 ? '+' : ''}${(costImpact ?? 0).toFixed(2)}
                 </Badge>
               </div>
             )}
