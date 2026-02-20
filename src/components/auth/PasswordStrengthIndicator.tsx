@@ -53,7 +53,7 @@ export function PasswordStrengthIndicator({ password, className }: PasswordStren
               strength.level === 3 && "text-emerald-400",
               strength.level === 4 && "text-cyan-400"
             )} />
-            <span className="text-xs font-medium text-gray-400">
+            <span className="text-xs font-medium text-muted-foreground">
               Seguridad: <span className={cn(
                 strength.level <= 1 && "text-red-400",
                 strength.level === 2 && "text-yellow-400",

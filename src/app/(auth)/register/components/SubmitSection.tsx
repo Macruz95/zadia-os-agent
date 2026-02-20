@@ -31,8 +31,8 @@ export function SubmitSection({ form, isLoading }: SubmitSectionProps) {
   return (
     <div className="space-y-5 pt-2">
       {/* Legal Section */}
-      <div className="p-4 rounded-xl bg-gray-800/30 border border-gray-700/30 space-y-4">
-        <div className="flex items-center gap-2 text-sm font-medium text-gray-300">
+      <div className="p-4 rounded-xl bg-gray-800/30 border border-border space-y-4">
+        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <Shield className="h-4 w-4 text-cyan-400" />
           <span>Términos Legales</span>
         </div>

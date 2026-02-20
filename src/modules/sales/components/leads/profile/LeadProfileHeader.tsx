@@ -6,7 +6,7 @@
 
 'use client';
 
-import { ArrowLeft, Edit, UserCheck, UserX, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit, UserCheck, UserX, Trash2, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Lead } from '../../../types/sales.types';
@@ -19,6 +19,7 @@ interface LeadProfileHeaderProps {
   onConvert: () => void;
   onDisqualify: () => void;
   onDelete: () => void;
+  onCreateQuote?: () => void; // NEW
 }
 
 export function LeadProfileHeader({
@@ -28,6 +29,7 @@ export function LeadProfileHeader({
   onConvert,
   onDisqualify,
   onDelete,
+  onCreateQuote, // NEW
 }: LeadProfileHeaderProps) {
   const leadName = lead.fullName || lead.entityName || 'Sin nombre';
   const priorityIcon = getPriorityIcon(lead.priority);
@@ -47,31 +49,36 @@ export function LeadProfileHeader({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onEdit}>
-            <Edit className="h-4 w-4 mr-2" />
-            Editar
+        <Button variant="outline" size="sm" onClick={onEdit}>
+          <Edit className="h-4 w-4 mr-2" />
+          Editar
+        </Button>
+
+        {['new', 'contacted', 'qualifying'].includes(lead.status) && onCreateQuote && (
+          <Button variant="outline" size="sm" onClick={onCreateQuote} className="text-emerald-700 hover:text-emerald-800 border-emerald-200 hover:bg-emerald-50">
+            <FileText className="h-4 w-4 mr-2" />
+            Cotizar
           </Button>
+        )}
 
-          {lead.status === 'qualifying' && (
-            <Button variant="default" size="sm" onClick={onConvert}>
-              <UserCheck className="h-4 w-4 mr-2" />
-              Convertir
-            </Button>
-          )}
-
-          {['new', 'contacted', 'qualifying'].includes(lead.status) && (
-            <Button variant="outline" size="sm" onClick={onDisqualify}>
-              <UserX className="h-4 w-4 mr-2" />
-              Descalificar
-            </Button>
-          )}
-
-          <Button variant="destructive" size="sm" onClick={onDelete}>
-            <Trash2 className="h-4 w-4 mr-2" />
-            Eliminar
+        {(['new', 'contacted', 'qualifying'].includes(lead.status)) && (
+          <Button variant="default" size="sm" onClick={onConvert}>
+            <UserCheck className="h-4 w-4 mr-2" />
+            Convertir
           </Button>
-        </div>
+        )}
+
+        {['new', 'contacted', 'qualifying'].includes(lead.status) && (
+          <Button variant="outline" size="sm" onClick={onDisqualify}>
+            <UserX className="h-4 w-4 mr-2" />
+            Descalificar
+          </Button>
+        )}
+
+        <Button variant="destructive" size="sm" onClick={onDelete}>
+          <Trash2 className="h-4 w-4 mr-2" />
+          Eliminar
+        </Button>
       </div>
 
       {/* Status and Priority Badges */}

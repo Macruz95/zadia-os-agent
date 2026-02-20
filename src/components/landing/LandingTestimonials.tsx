@@ -97,7 +97,7 @@ export function LandingTestimonials() {
           <span className="text-sm font-semibold text-[hsl(250_95%_70%)] uppercase tracking-wider mb-4 block">
             Testimonios
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
             Empresas que{' '}
             <span className="bg-gradient-to-r from-[hsl(250_95%_65%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
               Confían en ZADIA
@@ -182,13 +182,13 @@ function TestimonialCard({
       {/* Author */}
       <div className="flex items-center gap-4">
         {/* Avatar */}
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] flex items-center justify-center text-white font-bold">
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] flex items-center justify-center text-foreground font-bold">
           {testimonial.avatar}
         </div>
 
         {/* Info */}
         <div>
-          <div className="font-semibold text-white">{testimonial.author}</div>
+          <div className="font-semibold text-foreground">{testimonial.author}</div>
           <div className="text-sm text-[hsl(230_10%_55%)]">
             {testimonial.role}, {testimonial.company}
           </div>

@@ -150,7 +150,7 @@ export function LandingShowcase() {
           <span className="text-sm font-semibold text-[hsl(250_95%_70%)] uppercase tracking-wider mb-4 block">
             Módulos
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
             Todo lo que Necesitas,{' '}
             <span className="bg-gradient-to-r from-[hsl(250_95%_65%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
               Conectado
@@ -174,8 +174,8 @@ export function LandingShowcase() {
               onClick={() => setActiveModule(module)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 activeModule.id === module.id
-                  ? 'bg-[hsl(250_95%_60%)] text-white shadow-[0_0_20px_hsl(250_100%_60%/0.3)]'
-                  : 'bg-[hsl(230_20%_12%)] text-[hsl(230_10%_60%)] hover:bg-[hsl(230_20%_16%)] hover:text-white border border-[hsl(230_15%_20%)]'
+                  ? 'bg-[hsl(250_95%_60%)] text-foreground shadow-[0_0_20px_hsl(250_100%_60%/0.3)]'
+                  : 'bg-[hsl(230_20%_12%)] text-[hsl(230_10%_60%)] hover:bg-[hsl(230_20%_16%)] hover:text-foreground border border-[hsl(230_15%_20%)]'
               }`}
             >
               {module.icon}
@@ -193,10 +193,10 @@ export function LandingShowcase() {
           {/* Content */}
           <div className="order-2 lg:order-1">
             <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${activeModule.gradient} mb-6 shadow-lg`}>
-              <span className="text-white">{activeModule.icon}</span>
+              <span className="text-foreground">{activeModule.icon}</span>
             </div>
             
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
               {activeModule.title}
             </h3>
             
@@ -218,7 +218,7 @@ export function LandingShowcase() {
             </ul>
 
             <Button 
-              className="bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] hover:from-[hsl(250_95%_65%)] hover:to-[hsl(280_90%_60%)] text-white border-0"
+              className="bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] hover:from-[hsl(250_95%_65%)] hover:to-[hsl(280_90%_60%)] text-foreground border-0"
             >
               Explorar {activeModule.title}
               <ArrowRight className="ml-2 h-4 w-4" />

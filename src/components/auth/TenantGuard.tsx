@@ -25,7 +25,7 @@ export function TenantGuard({ children }: TenantGuardProps) {
       <div className="min-h-screen bg-[#0a0f1a] flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 shadow-lg shadow-cyan-500/25 animate-pulse">
-            <Zap className="w-6 h-6 text-white" />
+            <Zap className="w-6 h-6 text-foreground" />
           </div>
           <div className="space-y-2">
             <Skeleton className="h-4 w-32 mx-auto" />

@@ -16,7 +16,7 @@ import { logger } from '@/lib/logger';
 // TYPES
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type TaskType = 
+export type TaskType =
   | 'general'           // General chat/questions
   | 'reasoning'         // Complex analysis, step-by-step thinking
   | 'coding'            // Code generation, debugging
@@ -83,7 +83,7 @@ export const MODEL_REGISTRY: Record<string, ModelConfig> = {
   // ═══════════════════════════════════════════════════════════════════════
   // 🏆 TIER S - TOP MODELS (Free on OpenRouter - VERIFIED DEC 2025)
   // ═══════════════════════════════════════════════════════════════════════
-  
+
   'kat-coder-pro': {
     id: 'kat-coder-pro',
     name: 'KAT Coder Pro',
@@ -98,16 +98,17 @@ export const MODEL_REGISTRY: Record<string, ModelConfig> = {
     priority: 100, // Best for agents/coding
   },
 
-  'amazon-nova-2-lite': {
-    id: 'amazon-nova-2-lite',
-    name: 'Amazon Nova 2 Lite',
-    model: 'amazon/nova-2-lite-v1:free',
+  'gpt-oss-120b': {
+    id: 'gpt-oss-120b',
+    name: 'OpenAI GPT-OSS-120B',
+    model: 'openai/gpt-oss-120b:free',
     provider: 'openrouter',
-    contextTokens: 1000000,
-    capabilities: ['fast', 'general', 'document', 'image-analysis'],
+    contextTokens: 131072,
+    capabilities: ['reasoning', 'coding', 'tool-use'],
     speed: 'fast',
     quality: 'top-tier',
-    supportsImages: true,
+    supportsFunctionCalling: true,
+    supportsReasoning: true,
     isFree: true,
     priority: 98,
   },
@@ -126,18 +127,47 @@ export const MODEL_REGISTRY: Record<string, ModelConfig> = {
     priority: 95,
   },
 
-  'tongyi-deepresearch': {
-    id: 'tongyi-deepresearch',
-    name: 'Tongyi DeepResearch',
-    model: 'alibaba/tongyi-deepresearch-30b-a3b:free',
+  'qwen3-vl-30b': {
+    id: 'qwen3-vl-30b',
+    name: 'Qwen3-VL 30B Thinking',
+    model: 'qwen/qwen3-vl-30b-a3b-thinking:free',
     provider: 'openrouter',
-    contextTokens: 131072,
-    capabilities: ['reasoning', 'tool-use', 'general'],
+    contextTokens: 32768,
+    capabilities: ['image-analysis', 'reasoning', 'document'],
+    speed: 'medium',
+    quality: 'top-tier',
+    supportsImages: true,
+    supportsReasoning: true,
+    isFree: true,
+    priority: 92,
+  },
+
+  'solar-pro-3': {
+    id: 'solar-pro-3',
+    name: 'Upstage Solar Pro 3',
+    model: 'upstage/solar-pro-3:free',
+    provider: 'openrouter',
+    contextTokens: 128000,
+    capabilities: ['reasoning', 'general', 'fast'],
+    speed: 'fast',
+    quality: 'top-tier',
+    supportsReasoning: true,
+    isFree: true,
+    priority: 90,
+  },
+
+  'devstral-2': {
+    id: 'devstral-2',
+    name: 'Mistral Devstral 2',
+    model: 'mistralai/devstral-2-2512:free',
+    provider: 'openrouter',
+    contextTokens: 262000,
+    capabilities: ['coding', 'tool-use', 'general'],
     speed: 'medium',
     quality: 'excellent',
     supportsFunctionCalling: true,
     isFree: true,
-    priority: 90,
+    priority: 88,
   },
 
   'tng-r1t-chimera': {
@@ -154,32 +184,18 @@ export const MODEL_REGISTRY: Record<string, ModelConfig> = {
     priority: 88,
   },
 
-  'longcat-flash': {
-    id: 'longcat-flash',
-    name: 'LongCat Flash Chat',
-    model: 'meituan/longcat-flash-chat:free',
+  'nemotron-3-nano-30b': {
+    id: 'nemotron-3-nano-30b',
+    name: 'Nemotron Nano 30B',
+    model: 'nvidia/nemotron-3-nano-30b-a3b:free',
     provider: 'openrouter',
-    contextTokens: 131072,
-    capabilities: ['fast', 'general', 'tool-use'],
+    contextTokens: 262144,
+    capabilities: ['tool-use', 'fast', 'reasoning'],
     speed: 'fast',
-    quality: 'excellent',
+    quality: 'good',
     supportsFunctionCalling: true,
     isFree: true,
     priority: 85,
-  },
-
-  'olmo-3-32b': {
-    id: 'olmo-3-32b',
-    name: 'AllenAI Olmo 3 32B',
-    model: 'allenai/olmo-3-32b-think:free',
-    provider: 'openrouter',
-    contextTokens: 66000,
-    capabilities: ['reasoning', 'math', 'data-analysis', 'coding'],
-    speed: 'medium',
-    quality: 'excellent',
-    supportsReasoning: true,
-    isFree: true,
-    priority: 88,
   },
 
   'gpt-oss-20b': {
@@ -490,10 +506,10 @@ const TASK_PATTERNS: Record<TaskType, RegExp[]> = {
 function analyzeTask(message: string, config: AIRouterConfig): TaskAnalysis {
   const messageLower = message.toLowerCase();
   const messageLength = message.length;
-  
+
   // Detect tasks from patterns
   const detectedTasks: TaskType[] = [];
-  
+
   for (const [task, patterns] of Object.entries(TASK_PATTERNS)) {
     for (const pattern of patterns) {
       if (pattern.test(messageLower)) {
@@ -502,7 +518,7 @@ function analyzeTask(message: string, config: AIRouterConfig): TaskAnalysis {
       }
     }
   }
-  
+
   // Determine primary task
   let primaryTask: TaskType = 'general';
   if (detectedTasks.length > 0) {
@@ -518,13 +534,13 @@ function analyzeTask(message: string, config: AIRouterConfig): TaskAnalysis {
       primaryTask = detectedTasks[0];
     }
   }
-  
+
   // Context length estimation
   let contextLength: 'short' | 'medium' | 'long' | 'ultra-long' = 'short';
   if (messageLength > 10000) contextLength = 'ultra-long';
   else if (messageLength > 3000) contextLength = 'long';
   else if (messageLength > 500) contextLength = 'medium';
-  
+
   return {
     primaryTask,
     secondaryTasks: detectedTasks.filter(t => t !== primaryTask),
@@ -543,7 +559,7 @@ function analyzeTask(message: string, config: AIRouterConfig): TaskAnalysis {
 
 export class AIRouter {
   private static providerHealth: Map<AIProvider, { healthy: boolean; lastCheck: number; failCount: number }> = new Map();
-  
+
   /**
    * Select the best model for a given message and configuration
    */
@@ -564,10 +580,10 @@ export class AIRouter {
         };
       }
     }
-    
+
     // Auto mode - analyze and select
     const analysis = analyzeTask(message, config);
-    
+
     logger.info('AI Router analyzing task', {
       component: 'AIRouter',
       metadata: {
@@ -579,7 +595,7 @@ export class AIRouter {
         requiresWebSearch: analysis.requiresWebSearch,
       }
     });
-    
+
     // Filter and score models
     let candidates = Object.values(MODEL_REGISTRY)
       .filter(model => this.isModelSuitable(model, analysis, config))
@@ -597,7 +613,7 @@ export class AIRouter {
     }
 
     candidates = candidates.sort((a, b) => b.score - a.score);
-    
+
     if (candidates.length === 0) {
       // Fallback to default
       const defaultModel = MODEL_REGISTRY['groq-llama-3.3-70b'];
@@ -612,10 +628,10 @@ export class AIRouter {
         capabilities: defaultModel.capabilities,
       };
     }
-    
+
     const selected = candidates[0].model;
     const fallbacks = candidates.slice(1, 4).map(c => c.model.id);
-    
+
     return {
       model: selected.model,
       modelId: selected.id,
@@ -627,7 +643,7 @@ export class AIRouter {
       capabilities: selected.capabilities,
     };
   }
-  
+
   /**
    * Check if a model is suitable for the task
    */
@@ -636,18 +652,18 @@ export class AIRouter {
     if (config.preferredProvider && model.provider !== config.preferredProvider) {
       return false;
     }
-    
+
     // Check provider health
     const health = this.providerHealth.get(model.provider);
     if (health && !health.healthy && Date.now() - health.lastCheck < 60000) {
       return false;
     }
-    
+
     // Must support images if needed
     if (analysis.requiresImages && !model.supportsImages) {
       return false;
     }
-    
+
     // Must support web search if needed
     if (analysis.requiresWebSearch && !model.supportsWebSearch) {
       // Allow models that don't explicitly support but are general purpose
@@ -655,26 +671,26 @@ export class AIRouter {
         return false;
       }
     }
-    
+
     // Context length check
     if (analysis.requiresLongContext && model.contextTokens < 50000) {
       return false;
     }
-    
+
     // Speed requirement
     if (analysis.requiresSpeed && model.speed === 'slow') {
       return false;
     }
-    
+
     return true;
   }
-  
+
   /**
    * Score a model for the task (higher = better)
    */
   private static scoreModel(model: ModelConfig, analysis: TaskAnalysis, config?: AIRouterConfig): number {
     let score = model.priority;
-    
+
     // Capability match bonus
     if (model.capabilities.includes(analysis.primaryTask)) {
       score += 30;
@@ -684,12 +700,12 @@ export class AIRouter {
         score += 10;
       }
     }
-    
+
     // Reasoning bonus
     if (analysis.requiresReasoning && model.supportsReasoning) {
       score += 25;
     }
-    
+
     // Speed bonus when needed
     if (analysis.requiresSpeed) {
       if (model.speed === 'ultra-fast') score += 30;
@@ -712,56 +728,56 @@ export class AIRouter {
         else if (model.speed === 'slow') score -= 25;
       }
     }
-    
+
     // Quality bonus for complex tasks
     if (analysis.primaryTask === 'reasoning' || analysis.primaryTask === 'coding') {
       if (model.quality === 'top-tier') score += 20;
       else if (model.quality === 'excellent') score += 10;
     }
-    
+
     // Long context bonus
     if (analysis.requiresLongContext) {
       if (model.contextTokens >= 500000) score += 15;
       else if (model.contextTokens >= 100000) score += 10;
     }
-    
+
     // Tool use bonus for agent tasks
     if (analysis.primaryTask === 'tool-use' && model.supportsFunctionCalling) {
       score += 25;
     }
-    
+
     return score;
   }
-  
+
   /**
    * Build human-readable reason for selection
    */
   private static buildReason(model: ModelConfig, analysis: TaskAnalysis): string {
     const reasons: string[] = [];
-    
+
     if (model.capabilities.includes(analysis.primaryTask)) {
       reasons.push(`optimized for ${analysis.primaryTask}`);
     }
-    
+
     if (analysis.requiresReasoning && model.supportsReasoning) {
       reasons.push('supports advanced reasoning');
     }
-    
+
     if (analysis.requiresSpeed && (model.speed === 'ultra-fast' || model.speed === 'fast')) {
       reasons.push('fast response time');
     }
-    
+
     if (analysis.requiresImages && model.supportsImages) {
       reasons.push('multimodal support');
     }
-    
+
     if (reasons.length === 0) {
       reasons.push('best general purpose option');
     }
-    
+
     return `${model.name}: ${reasons.join(', ')}`;
   }
-  
+
   /**
    * Get fallback models for a given model
    */
@@ -772,7 +788,7 @@ export class AIRouter {
       .slice(0, 3)
       .map(m => m.id);
   }
-  
+
   /**
    * Mark a provider as unhealthy (for circuit breaking)
    */
@@ -783,13 +799,13 @@ export class AIRouter {
       lastCheck: Date.now(),
       failCount: current.failCount + 1,
     });
-    
+
     logger.warn(`AI Provider ${provider} marked unhealthy`, {
       component: 'AIRouter',
       metadata: { failCount: current.failCount + 1 }
     });
   }
-  
+
   /**
    * Mark a provider as healthy again
    */
@@ -800,14 +816,14 @@ export class AIRouter {
       failCount: 0,
     });
   }
-  
+
   /**
    * Get all available models
    */
   static getAllModels(): ModelConfig[] {
     return Object.values(MODEL_REGISTRY).sort((a, b) => b.priority - a.priority);
   }
-  
+
   /**
    * Get models by capability
    */
@@ -816,7 +832,7 @@ export class AIRouter {
       .filter(m => m.capabilities.includes(capability))
       .sort((a, b) => b.priority - a.priority);
   }
-  
+
   /**
    * Get model by ID
    */

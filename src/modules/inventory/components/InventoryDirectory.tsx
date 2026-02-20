@@ -16,6 +16,7 @@ import { InventoryTabsContent } from './InventoryTabsContent';
 import { InventoryDialogs } from './InventoryDialogs';
 import { RawMaterial, FinishedProduct } from '../types';
 import { RawMaterialsService, FinishedProductsService } from '../services/inventory.service';
+import { AnimatedPage, AnimatedSection } from '@/components/ui/motion';
 
 export function InventoryDirectory() {
   const { tenant, membership, loading: tenantLoading } = useTenant();
@@ -51,7 +52,7 @@ export function InventoryDirectory() {
       if (authLoading || tenantLoading || !firebaseUser || !tenantId || !hasMembership) {
         return;
       }
-      
+
       if (kpisLoadedRef.current) return;
 
       try {
@@ -60,11 +61,11 @@ export function InventoryDirectory() {
           RawMaterialsService.searchRawMaterials({ tenantId, pageSize: 1000 }),
           FinishedProductsService.searchFinishedProducts({ tenantId, pageSize: 1000 })
         ]);
-        
+
         // Calculate KPIs with all data
         refreshKPIs(rmResult.rawMaterials, fpResult.finishedProducts);
         checkStockLevels(rmResult.rawMaterials, fpResult.finishedProducts);
-        
+
         // Mark as loaded only after successful load
         kpisLoadedRef.current = true;
       } catch (error) {
@@ -97,21 +98,21 @@ export function InventoryDirectory() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!deleteDialog.item || !user) {
-      if (!user) toast.error('Usuario no autenticado');
+    if (!deleteDialog.item || !firebaseUser) {
+      if (!firebaseUser) toast.error('Usuario no autenticado');
       return;
     }
-    
+
     setIsDeleting(true);
     try {
       if (deleteDialog.itemType === 'raw-materials') {
-        await RawMaterialsService.deleteRawMaterial(deleteDialog.item.id, user.uid);
+        await RawMaterialsService.deleteRawMaterial(deleteDialog.item.id, firebaseUser.uid);
         toast.success(`Materia prima "${deleteDialog.item.name}" eliminada correctamente`);
       } else {
-        await FinishedProductsService.deleteFinishedProduct(deleteDialog.item.id, user.uid);
+        await FinishedProductsService.deleteFinishedProduct(deleteDialog.item.id, firebaseUser.uid);
         toast.success(`Producto terminado "${deleteDialog.item.name}" eliminado correctamente`);
       }
-      
+
       // Close dialog and refresh data
       setDeleteDialog({ open: false, item: null, itemType: 'raw-materials' });
       refresh();
@@ -137,38 +138,44 @@ export function InventoryDirectory() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <InventoryDirectoryHeader 
-        searchQuery={searchQuery}
-        onSearchChange={handleSearch}
-        onRefresh={refresh}
-      />
-
-      <InventoryDashboard
-        kpis={kpis}
-        kpisLoading={kpisLoading}
-        alerts={alerts}
-        onRefreshAlerts={refreshAlerts}
-      />
-
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="raw-materials" className="flex items-center gap-2">
-            Materias Primas ({rawMaterials.length})
-          </TabsTrigger>
-          <TabsTrigger value="finished-products" className="flex items-center gap-2">
-            Productos Terminados ({finishedProducts.length})
-          </TabsTrigger>
-        </TabsList>
-
-        <InventoryTabsContent
-          rawMaterials={rawMaterials}
-          finishedProducts={finishedProducts}
-          rawMaterialsLoading={loading}
-          finishedProductsLoading={loading}
+    <AnimatedPage className="p-6 space-y-6">
+      <AnimatedSection>
+        <InventoryDirectoryHeader
+          searchQuery={searchQuery}
+          onSearchChange={handleSearch}
           onRefresh={refresh}
         />
-      </Tabs>
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.1}>
+        <InventoryDashboard
+          kpis={kpis}
+          kpisLoading={kpisLoading}
+          alerts={alerts}
+          onRefreshAlerts={refreshAlerts}
+        />
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.15}>
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="raw-materials" className="flex items-center gap-2">
+              Materias Primas ({rawMaterials.length})
+            </TabsTrigger>
+            <TabsTrigger value="finished-products" className="flex items-center gap-2">
+              Productos Terminados ({finishedProducts.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <InventoryTabsContent
+            rawMaterials={rawMaterials}
+            finishedProducts={finishedProducts}
+            rawMaterialsLoading={loading}
+            finishedProductsLoading={loading}
+            onRefresh={refresh}
+          />
+        </Tabs>
+      </AnimatedSection>
 
       <InventoryDialogs
         deleteDialog={deleteDialog}
@@ -178,6 +185,6 @@ export function InventoryDirectory() {
         onEditDialogChange={(open: boolean) => setEditDialog(prev => ({ ...prev, open }))}
         onConfirmDelete={handleConfirmDelete}
       />
-    </div>
+    </AnimatedPage>
   );
 }

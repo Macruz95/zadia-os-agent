@@ -318,15 +318,15 @@ export function SecuritySettingsCard() {
   return (
     <div className="space-y-6">
       {/* Password Security */}
-      <Card className="bg-gray-800/30 border-gray-700/50">
+      <Card className="bg-gray-800/30 border-border">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center">
-                <Lock className="h-5 w-5 text-white" />
+                <Lock className="h-5 w-5 text-foreground" />
               </div>
               <div>
-                <CardTitle className="text-white">Seguridad de la Cuenta</CardTitle>
+                <CardTitle className="text-foreground">Seguridad de la Cuenta</CardTitle>
                 <CardDescription>Gestiona tu contraseña y autenticación</CardDescription>
               </div>
             </div>
@@ -334,11 +334,11 @@ export function SecuritySettingsCard() {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Password Status */}
-          <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-center gap-3">
               <Key className="h-5 w-5 text-amber-400" />
               <div>
-                <p className="text-white font-medium">Contraseña</p>
+                <p className="text-foreground font-medium">Contraseña</p>
                 <p className="text-sm text-gray-500">
                   Última actualización hace {securitySettings.passwordLastChanged}
                 </p>
@@ -356,11 +356,11 @@ export function SecuritySettingsCard() {
           </div>
 
           {/* 2FA Status */}
-          <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-center gap-3">
               <Fingerprint className={`h-5 w-5 ${securitySettings.twoFactorEnabled ? 'text-green-400' : 'text-gray-500'}`} />
               <div>
-                <p className="text-white font-medium">Autenticación de dos factores (2FA)</p>
+                <p className="text-foreground font-medium">Autenticación de dos factores (2FA)</p>
                 <p className="text-sm text-gray-500">
                   {securitySettings.twoFactorEnabled 
                     ? 'Protección adicional activada' 
@@ -386,11 +386,11 @@ export function SecuritySettingsCard() {
           </div>
 
           {/* Login Alerts */}
-          <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-center gap-3">
               <AlertTriangle className={`h-5 w-5 ${securitySettings.loginAlerts ? 'text-cyan-400' : 'text-gray-500'}`} />
               <div>
-                <p className="text-white font-medium">Alertas de inicio de sesión</p>
+                <p className="text-foreground font-medium">Alertas de inicio de sesión</p>
                 <p className="text-sm text-gray-500">Recibe notificaciones de nuevos accesos</p>
               </div>
             </div>
@@ -403,15 +403,15 @@ export function SecuritySettingsCard() {
       </Card>
 
       {/* Active Sessions */}
-      <Card className="bg-gray-800/30 border-gray-700/50">
+      <Card className="bg-gray-800/30 border-border">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
-                <Monitor className="h-5 w-5 text-white" />
+                <Monitor className="h-5 w-5 text-foreground" />
               </div>
               <div>
-                <CardTitle className="text-white">Sesiones Activas</CardTitle>
+                <CardTitle className="text-foreground">Sesiones Activas</CardTitle>
                 <CardDescription>Dispositivos con acceso a tu cuenta</CardDescription>
               </div>
             </div>
@@ -433,19 +433,19 @@ export function SecuritySettingsCard() {
             {sessions.map((session) => (
               <div 
                 key={session.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-gray-900/30 border border-gray-700/30"
+                className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center">
                     {session.device.includes('iPhone') || session.device.includes('Android') ? (
-                      <Smartphone className="h-5 w-5 text-gray-400" />
+                      <Smartphone className="h-5 w-5 text-muted-foreground" />
                     ) : (
-                      <Monitor className="h-5 w-5 text-gray-400" />
+                      <Monitor className="h-5 w-5 text-muted-foreground" />
                     )}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-white font-medium">{session.device}</p>
+                      <p className="text-foreground font-medium">{session.device}</p>
                       {session.isCurrent && (
                         <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 text-xs">
                           Este dispositivo
@@ -473,9 +473,9 @@ export function SecuritySettingsCard() {
                         <XCircle className="h-4 w-4" />
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-gray-900 border-gray-700">
+                    <AlertDialogContent className="bg-card border-border">
                       <AlertDialogHeader>
-                        <AlertDialogTitle className="text-white">¿Cerrar esta sesión?</AlertDialogTitle>
+                        <AlertDialogTitle className="text-foreground">¿Cerrar esta sesión?</AlertDialogTitle>
                         <AlertDialogDescription>
                           Se cerrará la sesión en {session.device}. El dispositivo necesitará iniciar sesión nuevamente.
                         </AlertDialogDescription>
@@ -499,24 +499,24 @@ export function SecuritySettingsCard() {
       </Card>
 
       {/* Privacy & Data */}
-      <Card className="bg-gray-800/30 border-gray-700/50">
+      <Card className="bg-gray-800/30 border-border">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-700 flex items-center justify-center">
-              <Eye className="h-5 w-5 text-white" />
+              <Eye className="h-5 w-5 text-foreground" />
             </div>
             <div>
-              <CardTitle className="text-white">Privacidad y Datos</CardTitle>
+              <CardTitle className="text-foreground">Privacidad y Datos</CardTitle>
               <CardDescription>Gestiona tus datos personales</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-center gap-3">
               <Download className="h-5 w-5 text-cyan-400" />
               <div>
-                <p className="text-white font-medium">Exportar mis datos</p>
+                <p className="text-foreground font-medium">Exportar mis datos</p>
                 <p className="text-sm text-gray-500">Descarga una copia de toda tu información</p>
               </div>
             </div>
@@ -525,11 +525,11 @@ export function SecuritySettingsCard() {
             </Button>
           </div>
 
-          <div className="flex items-center justify-between p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border">
             <div className="flex items-center gap-3">
               <History className="h-5 w-5 text-amber-400" />
               <div>
-                <p className="text-white font-medium">Historial de actividad</p>
+                <p className="text-foreground font-medium">Historial de actividad</p>
                 <p className="text-sm text-gray-500">Ver registro de acciones recientes</p>
               </div>
             </div>
@@ -544,7 +544,7 @@ export function SecuritySettingsCard() {
             <div className="flex items-center gap-3">
               <Trash2 className="h-5 w-5 text-red-400" />
               <div>
-                <p className="text-white font-medium">Eliminar cuenta</p>
+                <p className="text-foreground font-medium">Eliminar cuenta</p>
                 <p className="text-sm text-gray-500">Eliminar permanentemente todos tus datos</p>
               </div>
             </div>
@@ -554,9 +554,9 @@ export function SecuritySettingsCard() {
                   Eliminar
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-gray-900 border-gray-700">
+              <AlertDialogContent className="bg-card border-border">
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="text-white">¿Eliminar tu cuenta?</AlertDialogTitle>
+                  <AlertDialogTitle className="text-foreground">¿Eliminar tu cuenta?</AlertDialogTitle>
                   <AlertDialogDescription>
                     Esta acción no se puede deshacer. Se eliminarán permanentemente todos tus datos, 
                     incluyendo proyectos, clientes, facturas y configuraciones.
@@ -576,9 +576,9 @@ export function SecuritySettingsCard() {
 
       {/* Change Password Dialog */}
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-white">Cambiar Contraseña</DialogTitle>
+            <DialogTitle className="text-foreground">Cambiar Contraseña</DialogTitle>
             <DialogDescription>
               Ingresa tu contraseña actual y la nueva contraseña
             </DialogDescription>
@@ -593,12 +593,12 @@ export function SecuritySettingsCard() {
                   type={showCurrentPassword ? 'text' : 'password'}
                   value={passwordForm.currentPassword}
                   onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
-                  className="bg-gray-800 border-gray-700 pr-10"
+                  className="bg-gray-800 border-border pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -613,12 +613,12 @@ export function SecuritySettingsCard() {
                   type={showNewPassword ? 'text' : 'password'}
                   value={passwordForm.newPassword}
                   onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
-                  className="bg-gray-800 border-gray-700 pr-10"
+                  className="bg-gray-800 border-border pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -656,7 +656,7 @@ export function SecuritySettingsCard() {
                 type="password"
                 value={passwordForm.confirmPassword}
                 onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                className="bg-gray-800 border-gray-700"
+                className="bg-gray-800 border-border"
               />
               {passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword && (
                 <p className="text-xs text-red-400">Las contraseñas no coinciden</p>
@@ -691,21 +691,21 @@ export function SecuritySettingsCard() {
 
       {/* 2FA Setup Dialog */}
       <Dialog open={show2FADialog} onOpenChange={setShow2FADialog}>
-        <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-white">Activar Autenticación de Dos Factores</DialogTitle>
+            <DialogTitle className="text-foreground">Activar Autenticación de Dos Factores</DialogTitle>
             <DialogDescription>
               Protege tu cuenta con un segundo factor de autenticación
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
-            <div className="p-4 rounded-lg bg-gray-800/50 border border-gray-700">
+            <div className="p-4 rounded-lg bg-gray-800/50 border border-border">
               <div className="flex items-center gap-3 mb-3">
                 <Smartphone className="h-5 w-5 text-cyan-400" />
-                <p className="text-white font-medium">Usar aplicación autenticadora</p>
+                <p className="text-foreground font-medium">Usar aplicación autenticadora</p>
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 Usa Google Authenticator, Authy u otra aplicación compatible para generar códigos de verificación.
               </p>
             </div>
@@ -726,7 +726,7 @@ export function SecuritySettingsCard() {
                 id="verificationCode"
                 placeholder="000000"
                 maxLength={6}
-                className="bg-gray-800 border-gray-700 text-center text-2xl tracking-widest"
+                className="bg-gray-800 border-border text-center text-2xl tracking-widest"
               />
               <p className="text-xs text-gray-500 text-center">
                 Ingresa el código de 6 dígitos de tu aplicación

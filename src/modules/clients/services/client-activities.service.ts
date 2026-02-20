@@ -59,10 +59,10 @@ export const ClientActivitiesService = {
 
     async getClientQuotes(clientId: string, tenantId?: string): Promise<ClientQuote[]> {
         try {
-            const quotes = await QuotesService.getQuotesByClient(clientId, tenantId);
+            const quotes = await QuotesService.getQuotesByClient(clientId, tenantId as string);
             return quotes.map(q => ({
                 id: q.id,
-                clientId: q.clientId,
+                clientId: q.clientId || '',
                 number: q.number,
                 date: q.createdAt?.toDate ? q.createdAt.toDate() : new Date(),
                 estimatedAmount: q.total,

@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import { OpportunitiesService } from '@/modules/sales/services/opportunities.service';
 import { QuotesService } from '@/modules/sales/services/quotes.service';
+import { useTenantId } from '@/contexts/TenantContext';
 import type { Opportunity, Quote } from '@/modules/sales/types/sales.types';
 import { Timestamp } from 'firebase/firestore';
 import { OpportunityTimeline } from '@/modules/sales/components/opportunities/profile/OpportunityTimeline';
@@ -34,6 +35,7 @@ export default function OpportunityProfilePage() {
   const params = useParams();
   const router = useRouter();
   const opportunityId = params?.id as string;
+  const tenantId = useTenantId();
 
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -41,18 +43,19 @@ export default function OpportunityProfilePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (opportunityId) {
+    if (opportunityId && tenantId) {
       loadOpportunityData();
     }
-  }, [opportunityId]);
+  }, [opportunityId, tenantId]);
 
   const loadOpportunityData = async () => {
+    if (!tenantId) return;
     try {
       setLoading(true);
       setError(null);
 
       // Load opportunity
-      const oppData = await OpportunitiesService.getOpportunityById(opportunityId);
+      const oppData = await OpportunitiesService.getOpportunityById(opportunityId, tenantId);
       if (!oppData) {
         setError('Oportunidad no encontrada');
         return;
@@ -60,7 +63,7 @@ export default function OpportunityProfilePage() {
       setOpportunity(oppData);
 
       // Load quotes
-      const quotesData = await QuotesService.getQuotesByOpportunity(opportunityId);
+      const quotesData = await QuotesService.getQuotesByOpportunity(opportunityId, tenantId);
       setQuotes(quotesData);
 
     } catch (err) {

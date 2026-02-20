@@ -26,25 +26,25 @@ export function AuthButton({
     primary: cn(
       "bg-gradient-to-r from-cyan-500 to-cyan-600",
       "hover:from-cyan-400 hover:to-cyan-500",
-      "text-white font-semibold",
+      "text-foreground font-semibold",
       "shadow-lg shadow-cyan-500/25",
       "hover:shadow-cyan-500/40",
       "border border-cyan-400/20"
     ),
     secondary: cn(
       "bg-gray-800 hover:bg-gray-700",
-      "text-white font-medium",
-      "border border-gray-700"
+      "text-foreground font-medium",
+      "border border-border"
     ),
     outline: cn(
       "bg-transparent",
       "border border-gray-600 hover:border-gray-500",
-      "text-gray-300 hover:text-white",
+      "text-muted-foreground hover:text-foreground",
       "hover:bg-gray-800/50"
     ),
     ghost: cn(
       "bg-transparent hover:bg-gray-800/50",
-      "text-gray-400 hover:text-white"
+      "text-muted-foreground hover:text-foreground"
     )
   };
 

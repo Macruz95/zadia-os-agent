@@ -62,18 +62,18 @@ export function WorkflowConfig({ workflow, onSave, trigger }: WorkflowConfigProp
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="sm" className="bg-[#161b22] border-gray-800/50">
+          <Button variant="outline" size="sm" className="bg-card border-border">
             <Settings className="h-4 w-4" />
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="bg-[#161b22] border-gray-800/50 text-white max-w-2xl">
+      <DialogContent className="bg-card border-border text-foreground max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5 text-cyan-400" />
             Configurar Flujo
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             Personaliza la configuración del flujo cognitivo
           </DialogDescription>
         </DialogHeader>
@@ -86,7 +86,7 @@ export function WorkflowConfig({ workflow, onSave, trigger }: WorkflowConfigProp
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-[#0d1117] border-gray-800/50"
+              className="bg-muted border-border"
               required
             />
           </div>
@@ -98,18 +98,18 @@ export function WorkflowConfig({ workflow, onSave, trigger }: WorkflowConfigProp
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="bg-[#0d1117] border-gray-800/50 min-h-[80px]"
+              className="bg-muted border-border min-h-[80px]"
             />
           </div>
 
           {/* Configuración */}
-          <div className="space-y-4 pt-4 border-t border-gray-800/50">
-            <h3 className="font-semibold text-white">Configuración</h3>
+          <div className="space-y-4 pt-4 border-t border-border">
+            <h3 className="font-semibold text-foreground">Configuración</h3>
 
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="autoStart">Inicio automático</Label>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Ejecutar automáticamente cuando se cumplan los triggers
                 </p>
               </div>
@@ -123,7 +123,7 @@ export function WorkflowConfig({ workflow, onSave, trigger }: WorkflowConfigProp
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="retryOnFailure">Reintentar en caso de fallo</Label>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Reintentar automáticamente si la ejecución falla
                 </p>
               </div>
@@ -144,7 +144,7 @@ export function WorkflowConfig({ workflow, onSave, trigger }: WorkflowConfigProp
                   max="10"
                   value={maxRetries}
                   onChange={(e) => setMaxRetries(parseInt(e.target.value) || 3)}
-                  className="bg-[#0d1117] border-gray-800/50 w-32"
+                  className="bg-muted border-border w-32"
                 />
               </div>
             )}
@@ -155,7 +155,7 @@ export function WorkflowConfig({ workflow, onSave, trigger }: WorkflowConfigProp
             <Button
               variant="outline"
               onClick={() => setOpen(false)}
-              className="bg-[#0d1117] border-gray-800/50"
+              className="bg-muted border-border"
             >
               <X className="h-4 w-4 mr-2" />
               Cancelar

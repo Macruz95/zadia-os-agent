@@ -46,7 +46,7 @@ export function WorkflowHistory({ workflowId, limit = 10 }: WorkflowHistoryProps
     running: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
     completed: 'bg-green-500/20 text-green-400 border-green-500/30',
     failed: 'bg-red-500/20 text-red-400 border-red-500/30',
-    cancelled: 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+    cancelled: 'bg-gray-500/20 text-muted-foreground border-gray-500/30'
   };
 
   const statusIcons = {
@@ -59,9 +59,9 @@ export function WorkflowHistory({ workflowId, limit = 10 }: WorkflowHistoryProps
 
   if (loading) {
     return (
-      <Card className="bg-[#161b22] border-gray-800/50">
+      <Card className="bg-card border-border">
         <CardContent className="p-6">
-          <div className="text-center text-gray-400">Cargando historial...</div>
+          <div className="text-center text-muted-foreground">Cargando historial...</div>
         </CardContent>
       </Card>
     );
@@ -69,10 +69,10 @@ export function WorkflowHistory({ workflowId, limit = 10 }: WorkflowHistoryProps
 
   if (executions.length === 0) {
     return (
-      <Card className="bg-[#161b22] border-gray-800/50">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white">Historial de Ejecuciones</CardTitle>
-          <CardDescription className="text-gray-400">
+          <CardTitle className="text-foreground">Historial de Ejecuciones</CardTitle>
+          <CardDescription className="text-muted-foreground">
             No hay ejecuciones registradas
           </CardDescription>
         </CardHeader>
@@ -81,10 +81,10 @@ export function WorkflowHistory({ workflowId, limit = 10 }: WorkflowHistoryProps
   }
 
   return (
-    <Card className="bg-[#161b22] border-gray-800/50">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="text-white">Historial de Ejecuciones</CardTitle>
-        <CardDescription className="text-gray-400">
+        <CardTitle className="text-foreground">Historial de Ejecuciones</CardTitle>
+        <CardDescription className="text-muted-foreground">
           {executions.length} ejecución{executions.length !== 1 ? 'es' : ''} reciente{executions.length !== 1 ? 's' : ''}
         </CardDescription>
       </CardHeader>
@@ -104,7 +104,7 @@ export function WorkflowHistory({ workflowId, limit = 10 }: WorkflowHistoryProps
           return (
             <div
               key={execution.id}
-              className="p-3 rounded-lg border bg-[#0d1117] border-gray-800/50 hover:border-cyan-500/30 transition-colors"
+              className="p-3 rounded-lg border bg-muted border-border hover:border-cyan-500/30 transition-colors"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
@@ -116,10 +116,10 @@ export function WorkflowHistory({ workflowId, limit = 10 }: WorkflowHistoryProps
                       execution.status === 'failed' && "text-red-400",
                       execution.status === 'pending' && "text-yellow-400"
                     )} />
-                    <span className="font-medium text-white">{execution.workflowName}</span>
+                    <span className="font-medium text-foreground">{execution.workflowName}</span>
                   </div>
                   
-                  <div className="text-sm text-gray-400 space-y-1">
+                  <div className="text-sm text-muted-foreground space-y-1">
                     <div>
                       Iniciado: {format(startedAt, "d 'de' MMMM 'a las' HH:mm", { locale: es })}
                     </div>

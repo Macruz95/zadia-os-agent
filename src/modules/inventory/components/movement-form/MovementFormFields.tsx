@@ -66,6 +66,30 @@ export function MovementFormFields({ control, itemName, unit, currentUnitCost }:
         )}
       />
 
+      {/* Date Field */}
+      <FormField
+        control={control}
+        name="performedAt"
+        render={({ field }) => (
+          <FormItem className="flex flex-col">
+            <FormLabel>Fecha y Hora</FormLabel>
+            <FormControl>
+              <Input
+                type="datetime-local"
+                placeholder="Seleccione fecha y hora"
+                {...field}
+                value={field.value ? new Date(field.value.getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16) : ''}
+                onChange={(e) => {
+                  const date = new Date(e.target.value);
+                  field.onChange(date);
+                }}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       {/* Reason Field */}
       <FormField
         control={control}

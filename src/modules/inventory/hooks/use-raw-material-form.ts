@@ -14,13 +14,13 @@ interface UseRawMaterialFormProps {
   onCancel?: () => void;
 }
 
-export const useRawMaterialForm = ({ 
-  initialData, 
-  onSuccess, 
-  onCancel 
+export const useRawMaterialForm = ({
+  initialData,
+  onSuccess,
+  onCancel
 }: UseRawMaterialFormProps = {}) => {
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { firebaseUser } = useAuth();
   const tenantId = useTenantId();
   const isEditing = Boolean(initialData);
 
@@ -33,8 +33,7 @@ export const useRawMaterialForm = ({
       minimumStock: initialData.minimumStock,
       unitCost: initialData.unitCost,
       location: initialData.location,
-      supplierId: initialData.supplierId || undefined,
-      supplierName: initialData.supplierName || undefined,
+      supplier: initialData.supplier || undefined,
       description: initialData.description || undefined,
       specifications: initialData.specifications || undefined,
     } : {
@@ -58,7 +57,7 @@ export const useRawMaterialForm = ({
       // Clean the data - ensure numbers and only include non-empty optional fields
       const baseData = {
         name: data.name,
-        category: data.category,      
+        category: data.category,
         unitOfMeasure: data.unitOfMeasure,
         minimumStock: typeof data.minimumStock === 'string' && data.minimumStock === '' ? 0 : Number(data.minimumStock) || 0,
         unitCost: typeof data.unitCost === 'string' && data.unitCost === '' ? 0 : Number(data.unitCost) || 0,
@@ -68,8 +67,7 @@ export const useRawMaterialForm = ({
       // Build clean data object with only non-empty optional fields
       const cleanData = {
         ...baseData,
-        ...(data.supplierId && typeof data.supplierId === 'string' && data.supplierId.trim() !== '' && { supplierId: data.supplierId.trim() }),
-        ...(data.supplierName && typeof data.supplierName === 'string' && data.supplierName.trim() !== '' && { supplierName: data.supplierName.trim() }),
+        ...(data.supplier && typeof data.supplier === 'string' && data.supplier.trim() !== '' && { supplier: data.supplier.trim() }),
         ...(data.description && typeof data.description === 'string' && data.description.trim() !== '' && { description: data.description.trim() }),
         ...(data.specifications && typeof data.specifications === 'string' && data.specifications.trim() !== '' && { specifications: data.specifications.trim() }),
       };
@@ -77,20 +75,20 @@ export const useRawMaterialForm = ({
 
 
       let result: RawMaterial;
-      
-      if (!user?.uid) {
+
+      if (!firebaseUser?.uid) {
         throw new Error('Usuario no autenticado');
       }
-      
+
       if (!tenantId) {
         throw new Error('Empresa no seleccionada');
       }
-      
+
       if (isEditing && initialData) {
-        result = await RawMaterialsService.updateRawMaterial(initialData.id, cleanData as RawMaterialFormData, user.uid);
+        result = await RawMaterialsService.updateRawMaterial(initialData.id, cleanData as RawMaterialFormData, firebaseUser.uid);
         toast.success('Materia prima actualizada exitosamente');
       } else {
-        result = await RawMaterialsService.createRawMaterial(cleanData as RawMaterialFormData, user.uid, tenantId);
+        result = await RawMaterialsService.createRawMaterial(cleanData as RawMaterialFormData, firebaseUser.uid, tenantId);
         toast.success('Materia prima creada exitosamente');
       }
 
@@ -101,7 +99,7 @@ export const useRawMaterialForm = ({
     } finally {
       setLoading(false);
     }
-  }, [isEditing, initialData, form, onSuccess, user?.uid, tenantId]);
+  }, [isEditing, initialData, form, onSuccess, firebaseUser?.uid, tenantId]);
 
   const handleCancel = useCallback(() => {
     form.reset();

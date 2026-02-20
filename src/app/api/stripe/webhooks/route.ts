@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { adminDb, getAdminDb } from '@/lib/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { logger } from '@/lib/logger';
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY || '');
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
 
     // Ensure Admin DB is available for webhook processing
     if (!getAdminDb()) {
+      logger.error('Stripe webhook: Admin DB not configured', new Error('Admin DB unavailable'));
       return NextResponse.json(
         { error: 'Server database not configured' },
         { status: 501 }
@@ -33,7 +35,8 @@ export async function POST(request: NextRequest) {
     try {
       const stripe = getStripe();
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-    } catch {
+    } catch (err) {
+      logger.error('Stripe webhook: Invalid signature', err instanceof Error ? err : new Error(String(err)));
       return NextResponse.json(
         { error: 'Invalid webhook signature' },
         { status: 400 }
@@ -45,31 +48,34 @@ export async function POST(request: NextRequest) {
       case 'checkout.session.completed':
         await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
         break;
-      
+
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
         await handleSubscriptionUpdate(event.data.object as Stripe.Subscription);
         break;
-      
+
       case 'customer.subscription.deleted':
         await handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
         break;
-      
+
       case 'invoice.paid':
         await handleInvoicePaid(event.data.object as Stripe.Invoice);
         break;
-      
+
       case 'invoice.payment_failed':
         await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
         break;
-      
+
       case 'payment_intent.succeeded':
         await handlePaymentSucceeded(event.data.object as Stripe.PaymentIntent);
         break;
     }
 
     return NextResponse.json({ received: true });
-  } catch {
+  } catch (error) {
+    logger.error('Stripe webhook handler failed', error instanceof Error ? error : new Error(String(error)), {
+      component: 'StripeWebhook',
+    });
     return NextResponse.json(
       { error: 'Webhook handler failed' },
       { status: 500 }
@@ -120,15 +126,15 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   const priceId = subscription.items.data[0]?.price?.id || '';
   const product = subscription.items.data[0]?.price?.product;
   const productId = typeof product === 'string' ? product : (product as Stripe.Product)?.id || '';
-  const productName = typeof product !== 'string' && 'name' in (product as Stripe.Product) 
-    ? (product as Stripe.Product).name 
+  const productName = typeof product !== 'string' && 'name' in (product as Stripe.Product)
+    ? (product as Stripe.Product).name
     : 'Plan';
 
   const subscriptionData = {
     tenantId,
     stripeSubscriptionId: subscription.id,
-    stripeCustomerId: typeof subscription.customer === 'string' 
-      ? subscription.customer 
+    stripeCustomerId: typeof subscription.customer === 'string'
+      ? subscription.customer
       : subscription.customer.id,
     status: subscription.status,
     priceId,
@@ -179,8 +185,8 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
   await adminDb.collection('payments').add({
     tenantId,
     stripeInvoiceId: invoice.id,
-    stripeCustomerId: typeof invoice.customer === 'string' 
-      ? invoice.customer 
+    stripeCustomerId: typeof invoice.customer === 'string'
+      ? invoice.customer
       : (invoice.customer as Stripe.Customer)?.id || '',
     amount: invoice.amount_paid,
     currency: invoice.currency,
@@ -216,7 +222,7 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   const tenantId = paymentIntent.metadata?.tenantId;
   const invoiceId = paymentIntent.metadata?.invoiceId;
-  
+
   if (!tenantId) return;
 
   // Check if this payment was for an invoice

@@ -36,15 +36,15 @@ export function DependencyGraph({ task, allTasks, analysis, onTaskClick }: Depen
 
   if (blockers.length === 0 && blocks.length === 0 && !expanded) {
     return (
-      <Card className="bg-[#161b22] border-gray-800/50">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Link2 className="h-4 w-4 text-gray-400" />
+          <CardTitle className="text-foreground text-sm flex items-center gap-2">
+            <Link2 className="h-4 w-4 text-muted-foreground" />
             Dependencias
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center text-gray-400 py-4">
+          <div className="text-center text-muted-foreground py-4">
             <p className="text-sm">Sin dependencias</p>
             <Button
               variant="ghost"
@@ -61,15 +61,15 @@ export function DependencyGraph({ task, allTasks, analysis, onTaskClick }: Depen
   }
 
   return (
-    <Card className="bg-[#161b22] border-gray-800/50">
+    <Card className="bg-card border-border">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-white text-sm flex items-center gap-2">
+            <CardTitle className="text-foreground text-sm flex items-center gap-2">
               <Link2 className="h-4 w-4 text-cyan-400" />
               Dependencias
             </CardTitle>
-            <CardDescription className="text-gray-400 text-xs">
+            <CardDescription className="text-muted-foreground text-xs">
               {blockers.length + blocks.length} relación{blockers.length + blocks.length !== 1 ? 'es' : ''}
             </CardDescription>
           </div>
@@ -98,7 +98,7 @@ export function DependencyGraph({ task, allTasks, analysis, onTaskClick }: Depen
         {/* Bloqueada por */}
         {blockers.length > 0 && (
           <div>
-            <div className="text-xs font-semibold text-gray-400 mb-2 uppercase">
+            <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase">
               Bloqueada por ({blockers.length})
             </div>
             <div className="space-y-2">
@@ -112,14 +112,14 @@ export function DependencyGraph({ task, allTasks, analysis, onTaskClick }: Depen
                     onClick={() => onTaskClick?.(dep.taskId)}
                     className={cn(
                       "p-2 rounded-lg border transition-all cursor-pointer",
-                      "bg-[#0d1117] border-gray-800/50 hover:border-cyan-500/30",
+                      "bg-muted border-border hover:border-cyan-500/30",
                       isCritical && "border-orange-500/50 bg-orange-500/10"
                     )}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <ArrowRight className="h-3.5 w-3.5 text-gray-500 rotate-180" />
-                        <span className="text-sm text-white truncate">
+                        <span className="text-sm text-foreground truncate">
                           {depTask?.title || dep.taskTitle}
                         </span>
                         {isCritical && (
@@ -135,7 +135,7 @@ export function DependencyGraph({ task, allTasks, analysis, onTaskClick }: Depen
                             "text-xs",
                             depTask.status === 'done' 
                               ? "bg-green-500/20 text-green-400 border-green-500/30"
-                              : "bg-gray-500/20 text-gray-400 border-gray-500/30"
+                              : "bg-gray-500/20 text-muted-foreground border-gray-500/30"
                           )}
                         >
                           {depTask.status === 'done' ? (
@@ -156,7 +156,7 @@ export function DependencyGraph({ task, allTasks, analysis, onTaskClick }: Depen
         {/* Bloquea */}
         {blocks.length > 0 && (
           <div>
-            <div className="text-xs font-semibold text-gray-400 mb-2 uppercase">
+            <div className="text-xs font-semibold text-muted-foreground mb-2 uppercase">
               Bloquea ({blocks.length})
             </div>
             <div className="space-y-2">
@@ -169,13 +169,13 @@ export function DependencyGraph({ task, allTasks, analysis, onTaskClick }: Depen
                     onClick={() => onTaskClick?.(dep.taskId)}
                     className={cn(
                       "p-2 rounded-lg border transition-all cursor-pointer",
-                      "bg-[#0d1117] border-gray-800/50 hover:border-cyan-500/30"
+                      "bg-muted border-border hover:border-cyan-500/30"
                     )}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <ArrowRight className="h-3.5 w-3.5 text-gray-500" />
-                        <span className="text-sm text-white truncate">
+                        <span className="text-sm text-foreground truncate">
                           {depTask?.title || dep.taskTitle}
                         </span>
                       </div>
@@ -186,7 +186,7 @@ export function DependencyGraph({ task, allTasks, analysis, onTaskClick }: Depen
                             "text-xs",
                             depTask.status === 'done' 
                               ? "bg-green-500/20 text-green-400 border-green-500/30"
-                              : "bg-gray-500/20 text-gray-400 border-gray-500/30"
+                              : "bg-gray-500/20 text-muted-foreground border-gray-500/30"
                           )}
                         >
                           {depTask.status === 'done' ? (

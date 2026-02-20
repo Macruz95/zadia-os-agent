@@ -4,7 +4,7 @@
  * Extended toolset for the AI assistant with full system integration
  */
 
-import { addDoc, collection, Timestamp, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { addDoc, collection, Timestamp, getDocs, query, orderBy, limit, where } from 'firebase/firestore';
 import { z } from 'zod';
 import { db } from '@/lib/firebase';
 import { logger } from '@/lib/logger';
@@ -224,10 +224,10 @@ export const TOOL_DEFINITIONS: AgentToolDefinition[] = [
         clientId: { type: 'string', description: 'ID del cliente (opcional, si ya lo conoces)' },
         subject: { type: 'string', description: 'Asunto del correo', required: true },
         body: { type: 'string', description: 'Contenido del correo en texto plano o HTML', required: true },
-        emailType: { 
-          type: 'string', 
-          description: 'Tipo de correo para usar plantilla predefinida', 
-          enum: ['general', 'installation_ready', 'payment_reminder', 'quote_followup', 'project_update'] 
+        emailType: {
+          type: 'string',
+          description: 'Tipo de correo para usar plantilla predefinida',
+          enum: ['general', 'installation_ready', 'payment_reminder', 'quote_followup', 'project_update']
         },
       },
       required: ['to', 'subject', 'body'],
@@ -395,16 +395,16 @@ export class AgentToolsExecutor {
       const error = parsed.error.issues[0];
       // Provide more helpful error message for enum validation
       if (error?.code === 'invalid_value' || error?.message?.includes('Invalid enum value')) {
-        return { 
-          success: false, 
-          message: `Valor inválido para "dataType". Usa uno de: sales, expenses, projects, clients, inventory. Recibido: "${params.dataType}"` 
+        return {
+          success: false,
+          message: `Valor inválido para "dataType". Usa uno de: sales, expenses, projects, clients, inventory. Recibido: "${params.dataType}"`
         };
       }
       return { success: false, message: error?.message || 'Datos inválidos' };
     }
 
     const { dataType, period = 'month' } = parsed.data;
-    
+
     // Calculate date range (for future filtering)
     // Note: period is available for future filtering implementation
     void period;
@@ -417,31 +417,32 @@ export class AgentToolsExecutor {
           // Get invoices without userId filter (organization-wide)
           const invoicesQ = query(
             collection(db, 'invoices'),
+            where('tenantId', '==', this.tenantId),
             orderBy('createdAt', 'desc'),
             limit(200)
           );
           const invoicesSnap = await getDocs(invoicesQ);
-          
+
           let totalRevenue = 0;
           let paidCount = 0;
           let pendingCount = 0;
           let pendingAmount = 0;
           const clientRevenue: Record<string, { name: string; total: number; pending: number }> = {};
-          
+
           invoicesSnap.docs.forEach(doc => {
             const data = doc.data();
             const total = data.total || 0;
             const clientId = data.clientId || 'unknown';
             const clientName = data.clientName || data.client?.name || 'Cliente sin nombre';
             const status = data.status || 'draft';
-            
+
             totalRevenue += total;
-            
+
             if (!clientRevenue[clientId]) {
               clientRevenue[clientId] = { name: clientName, total: 0, pending: 0 };
             }
             clientRevenue[clientId].total += total;
-            
+
             if (status === 'paid') {
               paidCount++;
             } else if (status === 'sent' || status === 'overdue' || status === 'pending') {
@@ -450,7 +451,7 @@ export class AgentToolsExecutor {
               clientRevenue[clientId].pending += total;
             }
           });
-          
+
           // Top 5 clients by revenue
           const topClients = Object.entries(clientRevenue)
             .sort((a, b) => b[1].total - a[1].total)
@@ -462,7 +463,7 @@ export class AgentToolsExecutor {
               totalFacturado: `$${info.total.toLocaleString()}`,
               facturasPendientes: info.pending > 0 ? `$${info.pending.toLocaleString()}` : 'Ninguna'
             }));
-          
+
           metrics = {
             totalFacturado: `$${totalRevenue.toLocaleString()}`,
             facturasPagadas: paidCount,
@@ -475,19 +476,20 @@ export class AgentToolsExecutor {
         case 'expenses': {
           const expensesQ = query(
             collection(db, 'projectExpenses'),
+            where('tenantId', '==', this.tenantId),
             orderBy('expenseDate', 'desc'),
             limit(100)
           );
           const snapshot = await getDocs(expensesQ);
           const total = snapshot.docs.reduce((sum, doc) => sum + (doc.data().amount || 0), 0);
-          
+
           // Group by category
           const byCategory: Record<string, number> = {};
           snapshot.docs.forEach(doc => {
             const cat = doc.data().category || 'Sin categoría';
             byCategory[cat] = (byCategory[cat] || 0) + (doc.data().amount || 0);
           });
-          
+
           metrics = {
             totalGastos: `$${total.toLocaleString()}`,
             cantidadGastos: snapshot.size,
@@ -499,20 +501,21 @@ export class AgentToolsExecutor {
         case 'projects': {
           const projectsQ = query(
             collection(db, 'projects'),
+            where('tenantId', '==', this.tenantId),
             orderBy('createdAt', 'desc'),
             limit(100)
           );
           const snapshot = await getDocs(projectsQ);
           const statusCounts: Record<string, number> = {};
           let totalBudget = 0;
-          
+
           snapshot.docs.forEach(doc => {
             const data = doc.data();
             const status = data.status || 'unknown';
             statusCounts[status] = (statusCounts[status] || 0) + 1;
             totalBudget += data.budget || 0;
           });
-          
+
           metrics = {
             totalProyectos: snapshot.size,
             presupuestoTotal: `$${totalBudget.toLocaleString()}`,
@@ -524,25 +527,27 @@ export class AgentToolsExecutor {
           // Get clients
           const clientsQ = query(
             collection(db, 'clients'),
+            where('tenantId', '==', this.tenantId),
             orderBy('createdAt', 'desc'),
             limit(100)
           );
           const clientsSnap = await getDocs(clientsQ);
-          
+
           // Get invoices to calculate revenue per client
           const invoicesQ = query(
             collection(db, 'invoices'),
+            where('tenantId', '==', this.tenantId),
             limit(500)
           );
           const invoicesSnap = await getDocs(invoicesQ);
-          
-          const clientStats: Record<string, { 
-            name: string; 
-            total: number; 
+
+          const clientStats: Record<string, {
+            name: string;
+            total: number;
             pending: number;
             invoiceCount: number;
           }> = {};
-          
+
           // Initialize with client names
           clientsSnap.docs.forEach(doc => {
             const data = doc.data();
@@ -553,14 +558,14 @@ export class AgentToolsExecutor {
               invoiceCount: 0
             };
           });
-          
+
           // Aggregate invoice data
           invoicesSnap.docs.forEach(doc => {
             const data = doc.data();
             const clientId = data.clientId;
             const total = data.total || 0;
             const status = data.status;
-            
+
             if (clientId && clientStats[clientId]) {
               clientStats[clientId].total += total;
               clientStats[clientId].invoiceCount++;
@@ -569,7 +574,7 @@ export class AgentToolsExecutor {
               }
             }
           });
-          
+
           // Top 5 clients by revenue
           const top5 = Object.entries(clientStats)
             .sort((a, b) => b[1].total - a[1].total)
@@ -581,7 +586,7 @@ export class AgentToolsExecutor {
               facturasPendientes: stats.pending > 0 ? `⚠️ $${stats.pending.toLocaleString()} pendiente` : '✅ Sin pendientes',
               cantidadFacturas: stats.invoiceCount
             }));
-          
+
           metrics = {
             totalClientes: clientsSnap.size,
             top5ClientesPorFacturacion: top5,
@@ -590,26 +595,26 @@ export class AgentToolsExecutor {
         }
         case 'inventory': {
           // Try raw materials
-          const rawQ = query(collection(db, 'rawMaterials'), limit(100));
+          const rawQ = query(collection(db, 'rawMaterials'), where('tenantId', '==', this.tenantId), limit(100));
           const rawSnap = await getDocs(rawQ);
-          
+
           // Try finished products
-          const finishedQ = query(collection(db, 'finishedProducts'), limit(100));
+          const finishedQ = query(collection(db, 'finishedProducts'), where('tenantId', '==', this.tenantId), limit(100));
           const finishedSnap = await getDocs(finishedQ);
-          
+
           let lowStockRaw = 0;
           let lowStockFinished = 0;
-          
+
           rawSnap.docs.forEach(doc => {
             const data = doc.data();
             if ((data.stock || 0) < (data.minStock || 10)) lowStockRaw++;
           });
-          
+
           finishedSnap.docs.forEach(doc => {
             const data = doc.data();
             if ((data.stock || 0) < (data.minStock || 10)) lowStockFinished++;
           });
-          
+
           metrics = {
             materiasPrimas: rawSnap.size,
             productosTerminados: finishedSnap.size,
@@ -633,8 +638,8 @@ export class AgentToolsExecutor {
     // Format response - Clean professional format
     const formatValue = (value: unknown): string => {
       if (Array.isArray(value)) {
-        return '\n' + value.map((item, i) => 
-          typeof item === 'object' 
+        return '\n' + value.map((item, i) =>
+          typeof item === 'object'
             ? Object.entries(item).map(([k, v]) => `   ${k}: ${v}`).join('\n')
             : `   ${i + 1}. ${item}`
         ).join('\n\n');
@@ -653,13 +658,26 @@ export class AgentToolsExecutor {
         .trim();
     };
 
-    const formattedLines = Object.entries(metrics).map(([key, value]) => 
+    const formattedLines = Object.entries(metrics).map(([key, value]) =>
       `${formatKey(key)}:${formatValue(value)}`
     ).join('\n\n');
 
+    // Check if everything is basically empty or zero
+    const hasData = Object.values(metrics).some(v => {
+      if (typeof v === 'number') return v > 0;
+      if (typeof v === 'string') return !['$0', '0'].includes(v);
+      if (Array.isArray(v)) return v.length > 0;
+      if (typeof v === 'object' && v !== null) return Object.keys(v).length > 0;
+      return false;
+    });
+
+    const clarification = hasData
+      ? ""
+      : "\n\n(INFO DE SISTEMA: La base de datos devolvió valores en cero porque la cuenta del usuario aún no tiene registros en esta categoría. ESTO ES CORRECTO Y NORMAL. NO es un error de permisos, simplemente no hay datos guardados todavía. Por favor repórtalo como '$0 o sin datos registrados' amistosamente.)";
+
     return {
       success: true,
-      message: `ANALISIS DE ${dataType.toUpperCase()} (periodo: ${period})\n\n${formattedLines}`,
+      message: `ANALISIS DE ${dataType.toUpperCase()} (periodo: ${period})\n\n${formattedLines}${clarification}`,
       data: metrics,
     };
   }
@@ -674,7 +692,7 @@ export class AgentToolsExecutor {
 
     // Try Tavily API first (if available)
     const tavilyKey = process.env.TAVILY_API_KEY;
-    
+
     if (tavilyKey) {
       try {
         const response = await fetch('https://api.tavily.com/search', {
@@ -691,12 +709,12 @@ export class AgentToolsExecutor {
         if (response.ok) {
           const data = await response.json();
           const results = data.results?.slice(0, 5) || [];
-          
+
           return {
             success: true,
-            message: `BUSQUEDA WEB: "${searchQuery}"\n\n${data.answer ? `RESUMEN:\n${data.answer}\n\n` : ''}FUENTES ENCONTRADAS:\n${results.map((r: { title: string; url: string; content: string }, i: number) => 
-  `${i + 1}. ${r.title}\n   ${r.url}\n   ${r.content?.slice(0, 150)}...`
-).join('\n\n')}`,
+            message: `BUSQUEDA WEB: "${searchQuery}"\n\n${data.answer ? `RESUMEN:\n${data.answer}\n\n` : ''}FUENTES ENCONTRADAS:\n${results.map((r: { title: string; url: string; content: string }, i: number) =>
+              `${i + 1}. ${r.title}\n   ${r.url}\n   ${r.content?.slice(0, 150)}...`
+            ).join('\n\n')}`,
             data: { results, answer: data.answer },
           };
         }
@@ -712,18 +730,18 @@ export class AgentToolsExecutor {
     try {
       const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(searchQuery)}&format=json&no_redirect=1`;
       const response = await fetch(ddgUrl);
-      
+
       if (response.ok) {
         const data = await response.json();
-        
+
         if (data.Abstract || data.RelatedTopics?.length > 0) {
           const topics = data.RelatedTopics?.slice(0, 5) || [];
-          
+
           return {
             success: true,
-            message: `BUSQUEDA: "${searchQuery}"\n\n${data.Abstract ? `RESUMEN:\n${data.Abstract}\n\n` : ''}${topics.length > 0 ? `TEMAS RELACIONADOS:\n${topics.map((t: { Text?: string; FirstURL?: string }, i: number) => 
-  t.Text ? `${i + 1}. ${t.Text}` : ''
-).filter(Boolean).join('\n')}` : ''}`,
+            message: `BUSQUEDA: "${searchQuery}"\n\n${data.Abstract ? `RESUMEN:\n${data.Abstract}\n\n` : ''}${topics.length > 0 ? `TEMAS RELACIONADOS:\n${topics.map((t: { Text?: string; FirstURL?: string }, i: number) =>
+              t.Text ? `${i + 1}. ${t.Text}` : ''
+            ).filter(Boolean).join('\n')}` : ''}`,
             data: { abstract: data.Abstract, topics },
           };
         }
@@ -756,7 +774,7 @@ export class AgentToolsExecutor {
     const statusChecks = await Promise.all(
       modules.map(async (mod) => {
         try {
-          const q = query(collection(db, mod.collection), limit(1));
+          const q = query(collection(db, mod.collection), where('tenantId', '==', this.tenantId), limit(1));
           await getDocs(q);
           return { ...mod, connected: true };
         } catch {
@@ -799,7 +817,7 @@ CAPACIDADES ACTIVAS:
     }
 
     const { to, clientId, subject, body, emailType } = parsed.data;
-    
+
     // Try to find client email
     let recipientEmail = to;
     let clientName = to;
@@ -808,7 +826,7 @@ CAPACIDADES ACTIVAS:
     try {
       // If clientId is provided, get client directly
       if (clientId) {
-        const clientsQ = query(collection(db, 'clients'), limit(100));
+        const clientsQ = query(collection(db, 'clients'), where('tenantId', '==', this.tenantId), limit(100));
         const clientsSnap = await getDocs(clientsQ);
         const clientDoc = clientsSnap.docs.find(doc => doc.id === clientId);
         if (clientDoc) {
@@ -820,9 +838,9 @@ CAPACIDADES ACTIVAS:
       }
       // Otherwise, search by name
       else if (!to.includes('@')) {
-        const clientsQ = query(collection(db, 'clients'), limit(100));
+        const clientsQ = query(collection(db, 'clients'), where('tenantId', '==', this.tenantId), limit(100));
         const clientsSnap = await getDocs(clientsQ);
-        
+
         // Search by name (fuzzy match)
         const searchTerm = to.toLowerCase();
         const matchedClient = clientsSnap.docs.find(doc => {
@@ -886,11 +904,11 @@ Vista previa del contenido:
 ${body.substring(0, 200)}${body.length > 200 ? '...' : ''}
 
 ⚠️ Para enviar emails reales, configura la API key de Resend en las variables de entorno.`,
-        data: { 
-          to: recipientEmail, 
-          clientName, 
-          subject, 
-          simulated: true 
+        data: {
+          to: recipientEmail,
+          clientName,
+          subject,
+          simulated: true
         },
       };
     }
@@ -939,11 +957,11 @@ Para: ${clientName} <${recipientEmail}>
 Asunto: ${subject}
 
 El cliente ha sido notificado. El email ha sido registrado en el sistema.`,
-        data: { 
-          to: recipientEmail, 
-          clientName, 
-          subject, 
-          emailId: result.id 
+        data: {
+          to: recipientEmail,
+          clientName,
+          subject,
+          emailId: result.id
         },
       };
 

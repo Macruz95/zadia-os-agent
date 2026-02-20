@@ -8,7 +8,8 @@ import { RAW_MATERIAL_CATEGORIES, UNITS_OF_MEASURE } from './MaterialFormConstan
 import { RawMaterialFormData } from '../../validations/inventory.schema';
 
 interface MaterialBasicInfoSectionProps {
-  control: Control<RawMaterialFormData>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<RawMaterialFormData, any>;
 }
 
 export function MaterialBasicInfoSection({ control }: MaterialBasicInfoSectionProps) {
@@ -52,6 +53,24 @@ export function MaterialBasicInfoSection({ control }: MaterialBasicInfoSectionPr
                   ))}
                 </SelectContent>
               </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="brand"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Marca / Fabricante</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Ej: Sherwin Williams"
+                  {...field}
+                  value={field.value || ''}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

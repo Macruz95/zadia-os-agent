@@ -51,10 +51,10 @@ export default function AuthLayout({
                 <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-cyan-400 to-cyan-600 opacity-30 blur-lg" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-white tracking-tight">
+                <h1 className="text-3xl font-bold text-foreground tracking-tight">
                   ZADIA <span className="text-cyan-400">OS</span>
                 </h1>
-                <p className="text-sm text-gray-400 font-medium">
+                <p className="text-sm text-muted-foreground font-medium">
                   Agentic Enterprise Operating System
                 </p>
               </div>
@@ -63,13 +63,13 @@ export default function AuthLayout({
           
           {/* Main Message */}
           <div className="text-center max-w-md">
-            <h2 className="text-4xl font-bold text-white mb-6 leading-tight">
+            <h2 className="text-4xl font-bold text-foreground mb-6 leading-tight">
               El Centro de Mando de tu
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
                 Empresa Inteligente
               </span>
             </h2>
-            <p className="text-gray-400 text-lg leading-relaxed mb-10">
+            <p className="text-muted-foreground text-lg leading-relaxed mb-10">
               Orquesta operaciones complejas con IA autónoma. 
               Tu negocio funciona mientras tú lideras.
             </p>
@@ -100,7 +100,7 @@ export default function AuthLayout({
       </div>
       
       {/* Right Panel - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-[#0d1117] p-6 lg:p-12">
+      <div className="w-full lg:w-1/2 flex items-center justify-center bg-muted p-6 lg:p-12">
         <div className="w-full max-w-md">
           {children}
         </div>

@@ -125,7 +125,7 @@ export function LandingFeatures() {
           <span className="text-sm font-semibold text-[hsl(250_95%_70%)] uppercase tracking-wider mb-4 block">
             Capacidades
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
             El Poder de la{' '}
             <span className="bg-gradient-to-r from-[hsl(250_95%_65%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
               Autonomía Empresarial
@@ -183,7 +183,7 @@ function MainFeatureCard({
     >
       {/* Highlight Badge */}
       {feature.highlight && (
-        <span className="absolute -top-3 left-6 px-3 py-1 text-xs font-semibold bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] text-white rounded-full">
+        <span className="absolute -top-3 left-6 px-3 py-1 text-xs font-semibold bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] text-foreground rounded-full">
           {feature.highlight}
         </span>
       )}
@@ -194,7 +194,7 @@ function MainFeatureCard({
       </div>
 
       {/* Content */}
-      <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+      <h3 className="text-xl font-bold text-foreground mb-3">{feature.title}</h3>
       <p className="text-[hsl(230_10%_60%)] leading-relaxed">{feature.description}</p>
 
       {/* Hover Glow */}
@@ -227,7 +227,7 @@ function SecondaryFeatureCard({
 
         {/* Content */}
         <div>
-          <h4 className="font-semibold text-white mb-1">{feature.title}</h4>
+          <h4 className="font-semibold text-foreground mb-1">{feature.title}</h4>
           <p className="text-sm text-[hsl(230_10%_55%)] leading-relaxed">
             {feature.description}
           </p>

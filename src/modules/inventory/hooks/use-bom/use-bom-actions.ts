@@ -35,13 +35,13 @@ export function useBOMActions(params: UseBOMActionsParams): UseBOMActions {
     bom,
   } = params;
 
-  const { user } = useAuth();
+  const { firebaseUser } = useAuth();
 
   const createBOM = useCallback(
     async (
       bomData: Omit<BillOfMaterials, 'id' | 'createdAt' | 'updatedAt'>
     ) => {
-      if (!user) {
+      if (!firebaseUser) {
         setError('Usuario no autenticado');
         return;
       }
@@ -50,7 +50,7 @@ export function useBOMActions(params: UseBOMActionsParams): UseBOMActions {
         setLoading(true);
         setError(undefined);
 
-        const newBOM = await BOMService.createBOM(bomData, user.uid);
+        const newBOM = await BOMService.createBOM(bomData, firebaseUser.uid);
         setBom(newBOM);
 
         // Refresh BOMs list if we have product ID
@@ -69,7 +69,7 @@ export function useBOMActions(params: UseBOMActionsParams): UseBOMActions {
         setLoading(false);
       }
     },
-    [user, setBom, setBoms, setLoading, setError]
+    [firebaseUser, setBom, setBoms, setLoading, setError]
   );
 
   const updateBOM = useCallback(
@@ -77,7 +77,7 @@ export function useBOMActions(params: UseBOMActionsParams): UseBOMActions {
       id: string,
       bomData: Partial<Omit<BillOfMaterials, 'id' | 'createdAt' | 'updatedAt'>>
     ) => {
-      if (!user) {
+      if (!firebaseUser) {
         setError('Usuario no autenticado');
         return;
       }
@@ -105,12 +105,12 @@ export function useBOMActions(params: UseBOMActionsParams): UseBOMActions {
         setLoading(false);
       }
     },
-    [user, setBom, setBoms, setLoading, setError]
+    [firebaseUser, setBom, setBoms, setLoading, setError]
   );
 
   const deactivateBOM = useCallback(
     async (id: string) => {
-      if (!user) {
+      if (!firebaseUser) {
         setError('Usuario no autenticado');
         return;
       }
@@ -135,7 +135,7 @@ export function useBOMActions(params: UseBOMActionsParams): UseBOMActions {
         setLoading(false);
       }
     },
-    [user, bom, setBom, setBoms, setLoading, setError]
+    [firebaseUser, bom, setBom, setBoms, setLoading, setError]
   );
 
   const getBOMsForProduct = useCallback(

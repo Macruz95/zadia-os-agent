@@ -120,10 +120,10 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="bg-[#161b22] border-gray-800/50 text-white max-w-2xl">
+      <DialogContent className="bg-card border-border text-foreground max-w-2xl">
         <DialogHeader>
           <DialogTitle>Nuevo Evento</DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             Crea un nuevo evento en tu calendario
           </DialogDescription>
         </DialogHeader>
@@ -137,7 +137,7 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ej: Reunión con cliente, Revisión de proyecto..."
-              className="bg-[#0d1117] border-gray-800/50"
+              className="bg-muted border-border"
               required
             />
           </div>
@@ -147,10 +147,10 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
             <div className="space-y-2">
               <Label>Tipo de Evento</Label>
               <Select value={eventType} onValueChange={(v) => setEventType(v as typeof eventType)}>
-                <SelectTrigger className="bg-[#0d1117] border-gray-800/50">
+                <SelectTrigger className="bg-muted border-border">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#161b22] border-gray-800/50">
+                <SelectContent className="bg-card border-border">
                   <SelectItem value="meeting">Reunión</SelectItem>
                   <SelectItem value="task">Tarea</SelectItem>
                   <SelectItem value="reminder">Recordatorio</SelectItem>
@@ -162,10 +162,10 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
             <div className="space-y-2">
               <Label>Prioridad</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as typeof priority)}>
-                <SelectTrigger className="bg-[#0d1117] border-gray-800/50">
+                <SelectTrigger className="bg-muted border-border">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#161b22] border-gray-800/50">
+                <SelectContent className="bg-card border-border">
                   <SelectItem value="low">Baja</SelectItem>
                   <SelectItem value="medium">Media</SelectItem>
                   <SelectItem value="high">Alta</SelectItem>
@@ -183,7 +183,7 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Detalles sobre el evento..."
-              className="bg-[#0d1117] border-gray-800/50 min-h-[80px]"
+              className="bg-muted border-border min-h-[80px]"
             />
           </div>
 
@@ -196,8 +196,8 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal bg-[#0d1117] border-gray-800/50",
-                      !startDate && "text-gray-400"
+                      "w-full justify-start text-left font-normal bg-muted border-border",
+                      !startDate && "text-muted-foreground"
                     )}
                   >
                     <Calendar className="mr-2 h-4 w-4" />
@@ -208,7 +208,7 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-[#161b22] border-gray-800/50">
+                <PopoverContent className="w-auto p-0 bg-card border-border">
                   <CalendarComponent
                     mode="single"
                     selected={startDate}
@@ -225,7 +225,7 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="bg-[#0d1117] border-gray-800/50"
+                className="bg-muted border-border"
               />
             </div>
           </div>
@@ -239,8 +239,8 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal bg-[#0d1117] border-gray-800/50",
-                      !endDate && "text-gray-400"
+                      "w-full justify-start text-left font-normal bg-muted border-border",
+                      !endDate && "text-muted-foreground"
                     )}
                   >
                     <Calendar className="mr-2 h-4 w-4" />
@@ -251,7 +251,7 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-[#161b22] border-gray-800/50">
+                <PopoverContent className="w-auto p-0 bg-card border-border">
                   <CalendarComponent
                     mode="single"
                     selected={endDate}
@@ -268,7 +268,7 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="bg-[#0d1117] border-gray-800/50"
+                className="bg-muted border-border"
               />
             </div>
           </div>
@@ -281,7 +281,7 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Ej: Sala de juntas, Google Meet, Oficina..."
-              className="bg-[#0d1117] border-gray-800/50"
+              className="bg-muted border-border"
             />
           </div>
 
@@ -291,7 +291,7 @@ export function EventCreator({ onCreateEvent, trigger, defaultDate }: EventCreat
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              className="bg-[#0d1117] border-gray-800/50"
+              className="bg-muted border-border"
             >
               Cancelar
             </Button>

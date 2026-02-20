@@ -147,9 +147,9 @@ function StepNode({
   return (
     <div
       className={cn(
-        "absolute w-48 bg-[#161b22] border rounded-lg p-3 cursor-pointer transition-all",
+        "absolute w-48 bg-card border rounded-lg p-3 cursor-pointer transition-all",
         "hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10",
-        isSelected ? "border-cyan-500 shadow-lg shadow-cyan-500/20" : "border-gray-800/50"
+        isSelected ? "border-cyan-500 shadow-lg shadow-cyan-500/20" : "border-border"
       )}
       style={{
         left: step.position.x,
@@ -169,16 +169,16 @@ function StepNode({
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
         <div className={cn("p-1.5 rounded", template.color)}>
-          <Icon className="w-4 h-4 text-white" />
+          <Icon className="w-4 h-4 text-foreground" />
         </div>
-        <span className="text-sm font-medium text-white truncate flex-1">
+        <span className="text-sm font-medium text-foreground truncate flex-1">
           {step.name}
         </span>
       </div>
 
       {/* Description */}
       {step.description && (
-        <p className="text-xs text-gray-400 truncate">
+        <p className="text-xs text-muted-foreground truncate">
           {step.description}
         </p>
       )}
@@ -190,13 +190,13 @@ function StepNode({
             onClick={(e) => { e.stopPropagation(); onEdit(); }}
             className="p-1 bg-blue-600 rounded-full hover:bg-blue-700 transition-colors"
           >
-            <Settings className="w-3 h-3 text-white" />
+            <Settings className="w-3 h-3 text-foreground" />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(); }}
             className="p-1 bg-red-600 rounded-full hover:bg-red-700 transition-colors"
           >
-            <Trash2 className="w-3 h-3 text-white" />
+            <Trash2 className="w-3 h-3 text-foreground" />
           </button>
         </div>
       )}
@@ -218,8 +218,8 @@ interface ToolboxProps {
 
 function Toolbox({ onAddStep }: ToolboxProps) {
   return (
-    <div className="w-64 bg-[#0d1117] border-r border-gray-800/50 p-4 overflow-y-auto">
-      <h3 className="text-sm font-semibold text-white mb-4">Componentes</h3>
+    <div className="w-64 bg-muted border-r border-border p-4 overflow-y-auto">
+      <h3 className="text-sm font-semibold text-foreground mb-4">Componentes</h3>
       <div className="space-y-2">
         {(Object.entries(stepTemplates) as [StepType, typeof stepTemplates[StepType]][]).map(([type, template]) => {
           const Icon = template.icon;
@@ -229,16 +229,16 @@ function Toolbox({ onAddStep }: ToolboxProps) {
               onClick={() => onAddStep(type)}
               className={cn(
                 "w-full flex items-center gap-3 p-3 rounded-lg transition-all",
-                "bg-[#161b22] border border-gray-800/50 hover:border-cyan-500/50",
+                "bg-card border border-border hover:border-cyan-500/50",
                 "hover:shadow-lg hover:shadow-cyan-500/10"
               )}
             >
               <div className={cn("p-2 rounded", template.color)}>
-                <Icon className="w-4 h-4 text-white" />
+                <Icon className="w-4 h-4 text-foreground" />
               </div>
               <div className="text-left">
-                <p className="text-sm font-medium text-white">{template.label}</p>
-                <p className="text-xs text-gray-400">{template.description}</p>
+                <p className="text-sm font-medium text-foreground">{template.label}</p>
+                <p className="text-xs text-muted-foreground">{template.description}</p>
               </div>
             </button>
           );
@@ -290,15 +290,15 @@ function StepEditor({ step, open, onClose, onSave }: StepEditorProps) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-[#161b22] border-gray-800/50 text-white max-w-lg">
+      <DialogContent className="bg-card border-border text-foreground max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <div className={cn("p-2 rounded", template.color)}>
-              <template.icon className="w-4 h-4 text-white" />
+              <template.icon className="w-4 h-4 text-foreground" />
             </div>
             Configurar {template.label}
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             Personaliza el comportamiento de este paso
           </DialogDescription>
         </DialogHeader>
@@ -310,7 +310,7 @@ function StepEditor({ step, open, onClose, onSave }: StepEditorProps) {
               id="step-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-[#0d1117] border-gray-800/50"
+              className="bg-muted border-border"
               placeholder="Nombre del paso"
             />
           </div>
@@ -321,7 +321,7 @@ function StepEditor({ step, open, onClose, onSave }: StepEditorProps) {
               id="step-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="bg-[#0d1117] border-gray-800/50"
+              className="bg-muted border-border"
               placeholder="Descripción opcional"
             />
           </div>
@@ -335,17 +335,17 @@ function StepEditor({ step, open, onClose, onSave }: StepEditorProps) {
                   type="number"
                   value={(config.duration as number) || 1}
                   onChange={(e) => setConfig({ ...config, duration: parseInt(e.target.value) })}
-                  className="bg-[#0d1117] border-gray-800/50 w-24"
+                  className="bg-muted border-border w-24"
                   min={1}
                 />
                 <Select
                   value={(config.unit as string) || 'minutes'}
                   onValueChange={(value) => setConfig({ ...config, unit: value })}
                 >
-                  <SelectTrigger className="bg-[#0d1117] border-gray-800/50 flex-1">
+                  <SelectTrigger className="bg-muted border-border flex-1">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#161b22] border-gray-800/50">
+                  <SelectContent className="bg-card border-border">
                     <SelectItem value="seconds">Segundos</SelectItem>
                     <SelectItem value="minutes">Minutos</SelectItem>
                     <SelectItem value="hours">Horas</SelectItem>
@@ -364,10 +364,10 @@ function StepEditor({ step, open, onClose, onSave }: StepEditorProps) {
                   value={(config.notificationType as string) || 'email'}
                   onValueChange={(value) => setConfig({ ...config, notificationType: value })}
                 >
-                  <SelectTrigger className="bg-[#0d1117] border-gray-800/50">
+                  <SelectTrigger className="bg-muted border-border">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#161b22] border-gray-800/50">
+                  <SelectContent className="bg-card border-border">
                     <SelectItem value="email">Email</SelectItem>
                     <SelectItem value="push">Push</SelectItem>
                     <SelectItem value="sms">SMS</SelectItem>
@@ -380,7 +380,7 @@ function StepEditor({ step, open, onClose, onSave }: StepEditorProps) {
                 <Textarea
                   value={(config.message as string) || ''}
                   onChange={(e) => setConfig({ ...config, message: e.target.value })}
-                  className="bg-[#0d1117] border-gray-800/50"
+                  className="bg-muted border-border"
                   placeholder="Contenido del mensaje"
                 />
               </div>
@@ -394,7 +394,7 @@ function StepEditor({ step, open, onClose, onSave }: StepEditorProps) {
                 <Input
                   value={(config.field as string) || ''}
                   onChange={(e) => setConfig({ ...config, field: e.target.value })}
-                  className="bg-[#0d1117] border-gray-800/50"
+                  className="bg-muted border-border"
                   placeholder="ej: client.status"
                 />
               </div>
@@ -404,10 +404,10 @@ function StepEditor({ step, open, onClose, onSave }: StepEditorProps) {
                   value={(config.operator as string) || 'equals'}
                   onValueChange={(value) => setConfig({ ...config, operator: value })}
                 >
-                  <SelectTrigger className="bg-[#0d1117] border-gray-800/50">
+                  <SelectTrigger className="bg-muted border-border">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#161b22] border-gray-800/50">
+                  <SelectContent className="bg-card border-border">
                     <SelectItem value="equals">Igual a</SelectItem>
                     <SelectItem value="not-equals">No igual a</SelectItem>
                     <SelectItem value="greater-than">Mayor que</SelectItem>
@@ -422,7 +422,7 @@ function StepEditor({ step, open, onClose, onSave }: StepEditorProps) {
                 <Input
                   value={(config.value as string) || ''}
                   onChange={(e) => setConfig({ ...config, value: e.target.value })}
-                  className="bg-[#0d1117] border-gray-800/50"
+                  className="bg-muted border-border"
                   placeholder="Valor a comparar"
                 />
               </div>
@@ -436,10 +436,10 @@ function StepEditor({ step, open, onClose, onSave }: StepEditorProps) {
                 value={(config.actionType as string) || 'update-record'}
                 onValueChange={(value) => setConfig({ ...config, actionType: value })}
               >
-                <SelectTrigger className="bg-[#0d1117] border-gray-800/50">
+                <SelectTrigger className="bg-muted border-border">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#161b22] border-gray-800/50">
+                <SelectContent className="bg-card border-border">
                   <SelectItem value="update-record">Actualizar registro</SelectItem>
                   <SelectItem value="create-record">Crear registro</SelectItem>
                   <SelectItem value="delete-record">Eliminar registro</SelectItem>
@@ -457,14 +457,14 @@ function StepEditor({ step, open, onClose, onSave }: StepEditorProps) {
               <Textarea
                 value={(config.prompt as string) || ''}
                 onChange={(e) => setConfig({ ...config, prompt: e.target.value })}
-                className="bg-[#0d1117] border-gray-800/50 min-h-[100px]"
+                className="bg-muted border-border min-h-[100px]"
                 placeholder="Describe qué decisión debe tomar la IA..."
               />
             </div>
           )}
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={onClose} className="bg-[#0d1117] border-gray-800/50">
+            <Button variant="outline" onClick={onClose} className="bg-muted border-border">
               <X className="w-4 h-4 mr-2" />
               Cancelar
             </Button>
@@ -621,17 +621,17 @@ export function WorkflowBuilder({
   };
 
   return (
-    <div className="flex h-[calc(100vh-200px)] bg-[#0d1117] rounded-lg border border-gray-800/50 overflow-hidden">
+    <div className="flex h-[calc(100vh-200px)] bg-muted rounded-lg border border-border overflow-hidden">
       {/* Toolbox */}
       {!readOnly && <Toolbox onAddStep={handleAddStep} />}
 
       {/* Canvas */}
       <div className="flex-1 flex flex-col">
         {/* Toolbar */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-800/50">
+        <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold text-white">Constructor de Flujos</h3>
-            <span className="text-sm text-gray-400">
+            <h3 className="text-lg font-semibold text-foreground">Constructor de Flujos</h3>
+            <span className="text-sm text-muted-foreground">
               {steps.length} paso{steps.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -640,7 +640,7 @@ export function WorkflowBuilder({
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-[#161b22] border-gray-800/50"
+                className="bg-card border-border"
                 onClick={() => {/* Preview logic */}}
               >
                 <Play className="w-4 h-4 mr-2" />
@@ -662,7 +662,7 @@ export function WorkflowBuilder({
         {/* Canvas Area */}
         <div
           ref={canvasRef}
-          className="flex-1 relative overflow-auto bg-[#0d1117]"
+          className="flex-1 relative overflow-auto bg-muted"
           style={{
             backgroundImage: `
               linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
@@ -697,10 +697,10 @@ export function WorkflowBuilder({
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-800/50 flex items-center justify-center">
                   <Plus className="w-8 h-8 text-gray-500" />
                 </div>
-                <h3 className="text-lg font-medium text-white mb-2">
+                <h3 className="text-lg font-medium text-foreground mb-2">
                   Comienza a diseñar tu flujo
                 </h3>
-                <p className="text-gray-400 max-w-sm">
+                <p className="text-muted-foreground max-w-sm">
                   Arrastra componentes desde el panel izquierdo o haz clic en ellos para agregar pasos a tu flujo de trabajo
                 </p>
               </div>

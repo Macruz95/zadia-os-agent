@@ -54,7 +54,7 @@ export function CountriesTable({
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
-          <Globe2 className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <Globe2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
             No se encontraron países
           </h3>
@@ -97,7 +97,7 @@ export function CountriesTable({
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  <Phone className="w-3 h-3 text-gray-400" />
+                  <Phone className="w-3 h-3 text-muted-foreground" />
                   <span className="font-mono text-sm">{country.phoneCode}</span>
                 </div>
               </TableCell>

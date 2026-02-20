@@ -26,7 +26,7 @@ export function useEditInventoryForm({
   onOpenChange
 }: UseEditInventoryFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user } = useAuth();
+  const { firebaseUser } = useAuth();
   const isRawMaterial = itemType === 'raw-materials';
 
   // Formulario para materias primas
@@ -39,8 +39,7 @@ export function useEditInventoryForm({
       minimumStock: 0,
       unitCost: 0,
       location: { warehouse: '', section: '', shelf: '', position: '' },
-      supplierId: '',
-      supplierName: '',
+      supplier: '',
       description: '',
       specifications: '',
     },
@@ -76,8 +75,7 @@ export function useEditInventoryForm({
           minimumStock: rawMaterial.minimumStock,
           unitCost: rawMaterial.unitCost,
           location: rawMaterial.location,
-          supplierId: rawMaterial.supplierId || '',
-          supplierName: rawMaterial.supplierName || '',
+          supplier: rawMaterial.supplier || '',
           description: rawMaterial.description || '',
           specifications: rawMaterial.specifications || '',
         });
@@ -102,23 +100,23 @@ export function useEditInventoryForm({
 
   const handleSubmit = async (data: EditRawMaterialFormData | EditFinishedProductFormData) => {
     if (!item) return;
-    
-    if (!user?.uid) {
+
+    if (!firebaseUser?.uid) {
       toast.error('Usuario no autenticado');
       return;
     }
-    
+
     try {
       setIsSubmitting(true);
-      
+
       if (isRawMaterial) {
-        await RawMaterialsService.updateRawMaterial(item.id, data as EditRawMaterialFormData, user.uid);
+        await RawMaterialsService.updateRawMaterial(item.id, data as EditRawMaterialFormData, firebaseUser.uid);
         toast.success('Materia prima actualizada correctamente');
       } else {
-        await FinishedProductsService.updateFinishedProduct(item.id, data as EditFinishedProductFormData, user.uid);
+        await FinishedProductsService.updateFinishedProduct(item.id, data as EditFinishedProductFormData, firebaseUser.uid);
         toast.success('Producto terminado actualizado correctamente');
       }
-      
+
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {

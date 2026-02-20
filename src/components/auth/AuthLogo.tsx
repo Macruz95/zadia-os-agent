@@ -19,7 +19,7 @@ export function AuthLogo() {
           onError={() => setImageError(true)}
         />
       ) : (
-        <Zap className="h-8 w-8 text-white" />
+        <Zap className="h-8 w-8 text-foreground" />
       )}
     </div>
   );

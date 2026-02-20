@@ -44,7 +44,7 @@ const ROLE_COLORS: Record<string, string> = {
   admin: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
   manager: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   member: 'bg-green-500/20 text-green-400 border-green-500/30',
-  viewer: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+  viewer: 'bg-gray-500/20 text-muted-foreground border-gray-500/30',
 };
 
 interface TeamMembersCardProps {
@@ -88,7 +88,7 @@ export function TeamMembersCard({ canManage = false }: TeamMembersCardProps) {
 
   if (loading) {
     return (
-      <Card className="bg-gray-800/30 border-gray-700/50">
+      <Card className="bg-gray-800/30 border-border">
         <CardHeader>
           <Skeleton className="h-6 w-48" />
           <Skeleton className="h-4 w-64" />
@@ -110,11 +110,11 @@ export function TeamMembersCard({ canManage = false }: TeamMembersCardProps) {
 
   return (
     <>
-      <Card className="bg-gray-800/30 border-gray-700/50">
+      <Card className="bg-gray-800/30 border-border">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <Users className="h-5 w-5" />
                 Miembros del Equipo
               </CardTitle>
@@ -153,7 +153,7 @@ export function TeamMembersCard({ canManage = false }: TeamMembersCardProps) {
               {members.map((member) => (
                 <div 
                   key={member.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-gray-900/50 border border-gray-700/30 hover:border-gray-600/50 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted border border-border hover:border-border/80 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <Avatar className="h-10 w-10">
@@ -163,7 +163,7 @@ export function TeamMembersCard({ canManage = false }: TeamMembersCardProps) {
                     </Avatar>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-white font-medium">{member.displayName}</p>
+                        <p className="text-foreground font-medium">{member.displayName}</p>
                         {member.role === 'owner' && (
                           <Crown className="h-4 w-4 text-amber-400" />
                         )}
@@ -184,18 +184,18 @@ export function TeamMembersCard({ canManage = false }: TeamMembersCardProps) {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4 text-gray-400" />
+                            <MoreVertical className="h-4 w-4 text-muted-foreground" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent 
                           align="end" 
-                          className="bg-gray-800 border-gray-700"
+                          className="bg-gray-800 border-border"
                         >
-                          <DropdownMenuItem className="text-gray-300 hover:text-white">
+                          <DropdownMenuItem className="text-muted-foreground hover:text-foreground">
                             <Shield className="h-4 w-4 mr-2" />
                             Cambiar rol
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-gray-300 hover:text-white">
+                          <DropdownMenuItem className="text-muted-foreground hover:text-foreground">
                             <Mail className="h-4 w-4 mr-2" />
                             Enviar mensaje
                           </DropdownMenuItem>

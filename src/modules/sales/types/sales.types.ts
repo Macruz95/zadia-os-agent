@@ -125,12 +125,19 @@ export interface Quote {
   id: string;
   tenantId?: string; // For tenant isolation
   number: string; // Auto-generated (COT-2025-001)
-  opportunityId?: string; // Optional - quote can be created directly
+
+  // Source: Either from Opportunity OR directly from Lead
+  opportunityId?: string; // Optional - quote can be created from opportunity
   opportunityName?: string; // For display when created from opportunity
-  clientId: string;
+  leadId?: string; // Optional - quote can be created directly from lead
+  leadName?: string; // For display when created from lead
+
+  // Client (optional if coming from Lead - will be created on acceptance)
+  clientId?: string; // Made optional for Lead-based quotes
   clientName?: string; // For display
-  contactId: string;
+  contactId?: string; // Made optional for Lead-based quotes
   contactName?: string; // For display
+
   items: QuoteItem[];
   subtotal: number;
   taxes: Record<string, number>; // {iva: 13, isr: 2}

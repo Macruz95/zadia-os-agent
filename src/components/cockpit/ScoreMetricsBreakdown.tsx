@@ -8,12 +8,12 @@
 
 'use client';
 
-import { 
-  DollarSign, 
-  Droplets, 
-  Gauge, 
-  Heart, 
-  TrendingUp 
+import {
+  DollarSign,
+  Droplets,
+  Gauge,
+  Heart,
+  TrendingUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -31,40 +31,40 @@ interface ScoreMetricsBreakdownProps {
 }
 
 const METRIC_CONFIG = [
-  { 
-    key: 'profitability', 
-    label: 'Rentabilidad', 
-    icon: DollarSign, 
+  {
+    key: 'profitability',
+    label: 'Rentabilidad',
+    icon: DollarSign,
     weight: '25%',
-    color: 'bg-emerald-500' 
+    color: 'bg-emerald-500'
   },
-  { 
-    key: 'liquidity', 
-    label: 'Liquidez', 
-    icon: Droplets, 
+  {
+    key: 'liquidity',
+    label: 'Liquidez',
+    icon: Droplets,
     weight: '20%',
-    color: 'bg-blue-500' 
+    color: 'bg-blue-500'
   },
-  { 
-    key: 'operationalEfficiency', 
-    label: 'Eficiencia Op.', 
-    icon: Gauge, 
+  {
+    key: 'operationalEfficiency',
+    label: 'Eficiencia Op.',
+    icon: Gauge,
     weight: '20%',
-    color: 'bg-purple-500' 
+    color: 'bg-purple-500'
   },
-  { 
-    key: 'customerSatisfaction', 
-    label: 'Satisfacción', 
-    icon: Heart, 
+  {
+    key: 'customerSatisfaction',
+    label: 'Satisfacción',
+    icon: Heart,
     weight: '15%',
-    color: 'bg-pink-500' 
+    color: 'bg-pink-500'
   },
-  { 
-    key: 'salesGrowth', 
-    label: 'Crecimiento', 
-    icon: TrendingUp, 
+  {
+    key: 'salesGrowth',
+    label: 'Crecimiento',
+    icon: TrendingUp,
     weight: '20%',
-    color: 'bg-cyan-500' 
+    color: 'bg-cyan-500'
   },
 ] as const;
 
@@ -74,10 +74,10 @@ export function ScoreMetricsBreakdown({ metrics, loading }: ScoreMetricsBreakdow
       <div className="space-y-3">
         {METRIC_CONFIG.map((config) => (
           <div key={config.key} className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gray-800 animate-pulse" />
+            <div className="w-8 h-8 rounded-lg bg-muted animate-pulse" />
             <div className="flex-1">
-              <div className="h-3 w-20 bg-gray-800 rounded animate-pulse mb-2" />
-              <div className="h-2 w-full bg-gray-800 rounded animate-pulse" />
+              <div className="h-3 w-20 bg-muted rounded animate-pulse mb-2" />
+              <div className="h-2 w-full bg-muted rounded animate-pulse" />
             </div>
           </div>
         ))}
@@ -90,35 +90,35 @@ export function ScoreMetricsBreakdown({ metrics, loading }: ScoreMetricsBreakdow
       {METRIC_CONFIG.map((config) => {
         const Icon = config.icon;
         const value = metrics[config.key];
-        
+
         return (
           <div key={config.key} className="group">
             <div className="flex items-center gap-3">
               {/* Icon */}
               <div className={cn(
                 "w-8 h-8 rounded-lg flex items-center justify-center",
-                "bg-gray-800/50 group-hover:bg-gray-800 transition-colors"
+                "bg-muted group-hover:bg-muted/80 transition-colors"
               )}>
-                <Icon className="h-4 w-4 text-gray-400" />
+                <Icon className="h-4 w-4 text-muted-foreground" />
               </div>
-              
+
               {/* Label & Value */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-gray-400 truncate">
+                  <span className="text-xs text-muted-foreground truncate">
                     {config.label}
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-600">{config.weight}</span>
-                    <span className="text-sm font-mono font-semibold text-gray-200">
+                    <span className="text-xs text-muted-foreground/70">{config.weight}</span>
+                    <span className="text-sm font-mono font-semibold text-foreground">
                       {Math.round(value)}
                     </span>
                   </div>
                 </div>
-                
+
                 {/* Progress Bar */}
-                <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                  <div 
+                <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                  <div
                     className={cn(
                       "h-full rounded-full transition-all duration-500",
                       config.color

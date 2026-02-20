@@ -94,9 +94,9 @@ export default function CRMPage() {
       title: 'Leads',
       description: 'Gestiona tus prospectos y nuevas oportunidades de negocio',
       icon: UserPlus,
-      href: '/crm/leads',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
+      href: '/sales/leads',
+      color: 'text-blue-600 dark:text-blue-400',
+      bgColor: 'bg-blue-100 dark:bg-blue-500/20',
       stats: 'Captura, califica y convierte'
     },
     {
@@ -104,26 +104,26 @@ export default function CRMPage() {
       description: 'Administra tu cartera de clientes activos',
       icon: Users,
       href: '/clients',
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
+      color: 'text-green-600 dark:text-green-400',
+      bgColor: 'bg-green-100 dark:bg-green-500/20',
       stats: 'Información completa y contactos'
     },
     {
       title: 'Oportunidades',
       description: 'Seguimiento de oportunidades de venta en pipeline',
       icon: Lightbulb,
-      href: '/crm/opportunities',
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-100',
+      href: '/sales/opportunities',
+      color: 'text-yellow-600 dark:text-amber-400',
+      bgColor: 'bg-yellow-100 dark:bg-amber-500/20',
       stats: 'Pipeline y forecasting'
     },
     {
       title: 'Reportes',
       description: 'Analítica y métricas del proceso de ventas',
       icon: TrendingUp,
-      href: '/crm/reports',
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
+      href: '/sales/analytics',
+      color: 'text-purple-600 dark:text-purple-400',
+      bgColor: 'bg-purple-100 dark:bg-purple-500/20',
       stats: 'Conversión y rendimiento'
     }
   ];

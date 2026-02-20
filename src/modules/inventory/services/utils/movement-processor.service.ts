@@ -19,7 +19,7 @@ export class MovementDataProcessor {
   ): Omit<InventoryMovement, 'id'> {
     const now = new Date();
     const previousStock = item.currentStock;
-    
+
     // Calculate new stock
     const validation = MovementStockCalculator.validateStockOperation(
       previousStock,
@@ -35,6 +35,7 @@ export class MovementDataProcessor {
     const unitCost = MovementStockCalculator.getUnitCost(item, data.unitCost);
 
     return {
+      tenantId: (item as any).tenantId || '',
       itemId: data.itemId,
       itemType: data.itemType,
       itemName: item.name,
@@ -48,9 +49,11 @@ export class MovementDataProcessor {
       reason: data.reason,
       referenceDocument: data.referenceDocument,
       referenceId: undefined, // Will be set when integrated with production orders
+      supplier: (data as any).supplier, // Capturar proveedor (solo para Entrada)
+      invoiceNumber: (data as any).invoiceNumber, // Capturar factura (solo para Entrada)
       location: item.location,
       performedBy,
-      performedAt: now,
+      performedAt: data.performedAt || now,
       notes: data.notes,
     };
   }
@@ -72,6 +75,7 @@ export class MovementDataProcessor {
     const data = doc.data();
     return {
       id: doc.id,
+      tenantId: data.tenantId as string || '',
       itemId: data.itemId as string,
       itemType: data.itemType as 'raw-material' | 'finished-product',
       itemName: data.itemName as string,
@@ -85,6 +89,8 @@ export class MovementDataProcessor {
       reason: data.reason as string | undefined,
       referenceDocument: data.referenceDocument as string | undefined,
       referenceId: data.referenceId as string | undefined,
+      supplier: data.supplier as string | undefined,
+      invoiceNumber: data.invoiceNumber as string | undefined,
       location: data.location as InventoryLocation,
       performedBy: data.performedBy as string,
       performedAt: (data.performedAt as { toDate(): Date })?.toDate() || new Date(),

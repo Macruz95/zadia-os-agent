@@ -17,6 +17,9 @@ import { es } from 'date-fns/locale';
 import { markOpportunityAsWonAction } from '@/actions/opportunity-actions';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { motion } from 'motion/react';
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
@@ -65,116 +68,146 @@ export function OpportunityCard({ opportunity, stage, onStageChange, onCardClick
     }
   };
 
-  return (
-    <Card
-      className="cursor-pointer hover:shadow-md transition-shadow"
-      onClick={() => onCardClick(opportunity.id)}
-    >
-      <CardContent className="p-3">
-        <div className="space-y-3">
-          {/* Header */}
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h4 className="font-medium text-sm leading-tight mb-1">
-                {opportunity.name}
-              </h4>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <DollarSign className="h-3 w-3" />
-                <span>{formatCurrency(opportunity.estimatedValue)}</span>
-                <span className="mx-1">•</span>
-                <span>{opportunity.probability}%</span>
-              </div>
-            </div>
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: opportunity.id,
+    data: {
+      type: 'Opportunity',
+      opportunity,
+      stage,
+    },
+  });
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="h-6 w-6 p-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreHorizontal className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  Ver detalles
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  Editar
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  Agregar nota
-                </DropdownMenuItem>
-                {stage !== 'closed-won' && stage !== 'closed-lost' && (
-                  <>
-                    {stage !== 'negotiation' && (
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+  };
+
+  return (
+    <motion.div
+      layoutId={`opp-${opportunity.id}`}
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+    >
+      <Card
+        className="cursor-grab hover:shadow-md hover:border-cyan-500/50 transition-all border-border bg-card/90 backdrop-blur"
+        onClick={() => onCardClick(opportunity.id)}
+      >
+        <CardContent className="p-3">
+          <div className="space-y-3">
+            {/* Header */}
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h4 className="font-medium text-sm leading-tight mb-1">
+                  {opportunity.name}
+                </h4>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <DollarSign className="h-3 w-3" />
+                  <span>{formatCurrency(opportunity.estimatedValue)}</span>
+                  <span className="mx-1">•</span>
+                  <span>{opportunity.probability}%</span>
+                </div>
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="h-6 w-6 p-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    Ver detalles
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Editar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    Agregar nota
+                  </DropdownMenuItem>
+                  {stage !== 'closed-won' && stage !== 'closed-lost' && (
+                    <>
+                      {stage !== 'negotiation' && (
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onStageChange(opportunity.id, 'negotiation');
+                          }}
+                        >
+                          Mover a Negociación
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem
+                        onClick={handleMarkAsWon}
+                        disabled={isMarkingAsWon}
+                      >
+                        {isMarkingAsWon ? 'Creando proyecto...' : '✨ Marcar como Ganada'}
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
-                          onStageChange(opportunity.id, 'negotiation');
+                          onStageChange(opportunity.id, 'closed-lost');
                         }}
+                        className="text-destructive"
                       >
-                        Mover a Negociación
+                        Marcar como Perdida
                       </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem
-                      onClick={handleMarkAsWon}
-                      disabled={isMarkingAsWon}
-                    >
-                      {isMarkingAsWon ? 'Creando proyecto...' : '✨ Marcar como Ganada'}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onStageChange(opportunity.id, 'closed-lost');
-                      }}
-                      className="text-destructive"
-                    >
-                      Marcar como Perdida
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          {/* Priority & Date */}
-          <div className="flex items-center justify-between">
-            <Badge
-              variant="outline"
-              className={`text-xs ${PRIORITY_COLORS[opportunity.priority]}`}
-            >
-              {opportunity.priority === 'high' ? 'Alta' :
-                opportunity.priority === 'medium' ? 'Media' : 'Baja'}
-            </Badge>
-
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3" />
-              <span>
-                {opportunity.expectedCloseDate ?
-                  format(opportunity.expectedCloseDate.toDate(), 'dd MMM', { locale: es }) :
-                  'Sin fecha'
-                }
-              </span>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-          </div>
 
-          {/* Assigned User */}
-          {opportunity.assignedTo && (
-            <div className="flex items-center gap-2">
-              <Avatar className="h-5 w-5">
-                <AvatarFallback className="text-xs">
-                  {opportunity.assignedTo.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-xs text-muted-foreground">
-                {opportunity.assignedTo}
-              </span>
+            {/* Priority & Date */}
+            <div className="flex items-center justify-between">
+              <Badge
+                variant="outline"
+                className={`text-xs ${PRIORITY_COLORS[opportunity.priority]}`}
+              >
+                {opportunity.priority === 'high' ? 'Alta' :
+                  opportunity.priority === 'medium' ? 'Media' : 'Baja'}
+              </Badge>
+
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Calendar className="h-3 w-3" />
+                <span>
+                  {opportunity.expectedCloseDate ?
+                    format(opportunity.expectedCloseDate.toDate(), 'dd MMM', { locale: es }) :
+                    'Sin fecha'
+                  }
+                </span>
+              </div>
             </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+
+            {/* Assigned User */}
+            {opportunity.assignedTo && (
+              <div className="flex items-center gap-2">
+                <Avatar className="h-5 w-5">
+                  <AvatarFallback className="text-xs">
+                    {opportunity.assignedTo.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-xs text-muted-foreground">
+                  {opportunity.assignedTo}
+                </span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }

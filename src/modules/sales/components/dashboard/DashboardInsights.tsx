@@ -1,12 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Star, 
-  AlertTriangle, 
-  Trophy, 
-  ArrowRight, 
-  Clock, 
+import {
+  Star,
+  AlertTriangle,
+  Trophy,
+  ArrowRight,
+  Clock,
   Zap,
   Users
 } from 'lucide-react';
@@ -16,6 +16,7 @@ import { formatUSD } from '@/lib/currency.utils';
 import type { SalesAnalyticsData } from '../../services/analytics.service';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { LeadsService } from '../../services/leads.service';
+import { useTenantId } from '@/contexts/TenantContext';
 import { Opportunity, Lead } from '../../types/sales.types';
 
 interface DashboardInsightsProps {
@@ -25,31 +26,33 @@ interface DashboardInsightsProps {
   onViewPipeline: () => void;
 }
 
-export function DashboardInsights({ 
-  analyticsData, 
-  onViewAnalytics, 
-  onGoToSales, 
-  onViewPipeline 
+export function DashboardInsights({
+  analyticsData,
+  onViewAnalytics,
+  onGoToSales,
+  onViewPipeline
 }: DashboardInsightsProps) {
   const [recentOpportunities, setRecentOpportunities] = useState<Opportunity[]>([]);
   const [highPriorityLeads, setHighPriorityLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const tenantId = useTenantId();
 
   const { salesPerformance } = analyticsData;
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      if (!tenantId) return;
       try {
         setLoading(true);
-        
+
         // Fetch recent won opportunities (last 30 days)
         try {
-          const opportunities = await OpportunitiesService.getOpportunities();
+          const opportunities = await OpportunitiesService.getOpportunities(tenantId);
           const recentWins = opportunities
             .filter(opp => opp.status === 'won' && opp.closedAt)
             .sort((a, b) => (b.closedAt?.seconds || 0) - (a.closedAt?.seconds || 0))
             .slice(0, 3);
-          
+
           setRecentOpportunities(recentWins);
         } catch {
           logger.warn('Could not fetch opportunities', { component: 'DashboardInsights', action: 'fetchOpportunities' });
@@ -59,16 +62,16 @@ export function DashboardInsights({
         // Fetch leads with simple query to avoid index requirements
         try {
           // Use simple query without multiple filters to avoid index issues
-          const leadsResult = await LeadsService.searchLeads({}, 20);
-          
+          const leadsResult = await LeadsService.searchLeads({}, 20, undefined, tenantId);
+
           // Filter for high priority leads that need follow-up locally
           const urgentLeads = leadsResult.leads
-            .filter(lead => 
-              lead.priority === 'hot' && 
+            .filter(lead =>
+              lead.priority === 'hot' &&
               ['new', 'contacted', 'qualifying'].includes(lead.status)
             )
             .slice(0, 5);
-          
+
           setHighPriorityLeads(urgentLeads);
         } catch {
           logger.warn('Could not fetch leads, using empty state', { component: 'DashboardInsights', action: 'fetchLeads' });
@@ -82,7 +85,7 @@ export function DashboardInsights({
     };
 
     fetchDashboardData();
-  }, []);
+  }, [tenantId]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -94,12 +97,12 @@ export function DashboardInsights({
 
   const getTimeAgo = (date: Date | { seconds: number } | undefined): string => {
     if (!date) return 'Fecha no disponible';
-    
+
     const dateObj = date instanceof Date ? date : new Date(date.seconds * 1000);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - dateObj.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Hoy';
     if (diffDays === 1) return 'Ayer';
     if (diffDays < 7) return `Hace ${diffDays} días`;
@@ -108,7 +111,7 @@ export function DashboardInsights({
   };
 
   // Use real performance data or show empty state
-  const topPerformers = salesPerformance.length > 0 
+  const topPerformers = salesPerformance.length > 0
     ? salesPerformance.slice(0, 3)
     : [];
 
@@ -136,8 +139,8 @@ export function DashboardInsights({
             <Star className="h-5 w-5" />
             Top Performers
           </CardTitle>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="sm"
             onClick={onViewAnalytics}
           >
@@ -185,8 +188,8 @@ export function DashboardInsights({
             <AlertTriangle className="h-5 w-5" />
             Items Urgentes
           </CardTitle>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="sm"
             onClick={onGoToSales}
           >
@@ -234,8 +237,8 @@ export function DashboardInsights({
             <Trophy className="h-5 w-5" />
             Victorias Recientes
           </CardTitle>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="sm"
             onClick={onViewPipeline}
           >

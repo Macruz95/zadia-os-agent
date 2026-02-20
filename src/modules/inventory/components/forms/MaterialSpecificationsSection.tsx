@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RawMaterialFormData } from '../../validations/inventory.schema';
 
 interface MaterialSpecificationsSectionProps {
-  control: Control<RawMaterialFormData>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<RawMaterialFormData, any>;
 }
 
 export function MaterialSpecificationsSection({ control }: MaterialSpecificationsSectionProps) {

@@ -20,6 +20,7 @@ import { InventoryMovement, MovementFormData } from '../../types';
 import { RawMaterialsService } from './raw-materials-entity.service';
 import { FinishedProductsService } from './finished-products-entity.service';
 import { MovementDataProcessor } from '../utils/movement-processor.service';
+import { PurchaseHistoryService } from '../purchase-history.service';
 
 const COLLECTION_NAME = 'inventory-movements';
 
@@ -60,6 +61,37 @@ export class InventoryMovementsService {
         await FinishedProductsService.updateStock(data.itemId, processedMovement.newStock);
       }
 
+      // AUTO-CREATE PURCHASE HISTORY for raw materials with "Entrada" movement
+      if (
+        data.itemType === 'raw-material' &&
+        data.movementType === 'Entrada' &&
+        processedMovement.supplier &&
+        (currentItem as any).tenantId
+      ) {
+        try {
+          await PurchaseHistoryService.createPurchaseRecord(
+            {
+              rawMaterialId: data.itemId,
+              rawMaterialName: processedMovement.itemName,
+              rawMaterialSku: processedMovement.itemSku,
+              supplier: processedMovement.supplier,
+              quantity: processedMovement.quantity,
+              unitOfMeasure: (currentItem as any).unitOfMeasure,
+              unitCost: processedMovement.unitCost,
+              invoiceNumber: processedMovement.invoiceNumber,
+              referenceDocument: processedMovement.referenceDocument,
+              notes: processedMovement.notes,
+            },
+            data.performedBy,
+            (currentItem as any).tenantId
+          );
+          logger.info('Purchase history auto-created for Entry movement');
+        } catch (historyError) {
+          // No fallar el movimiento si no se puede crear el historial
+          logger.warn('Failed to create purchase history', historyError as Error);
+        }
+      }
+
       // Log the operation
       logger.info('Inventory movement created');
 
@@ -90,18 +122,18 @@ export class InventoryMovementsService {
       );
 
       const querySnapshot = await getDocs(simpleQuery);
-      
+
       if (querySnapshot.empty) {
         return [];
       }
-      
-      const movements = querySnapshot.docs.map(doc => 
+
+      const movements = querySnapshot.docs.map(doc =>
         MovementDataProcessor.fromFirestoreFormat(doc)
       );
-      
+
       // Sort by date in memory since we removed orderBy from query
       movements.sort((a, b) => b.performedAt.getTime() - a.performedAt.getTime());
-      
+
       return movements;
     } catch (error) {
       logger.error('Error fetching movements by item', error as Error);

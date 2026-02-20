@@ -42,14 +42,14 @@ export function WorkflowCard({
     active: 'bg-green-500/20 text-green-400 border-green-500/30',
     paused: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
     completed: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-    archived: 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+    archived: 'bg-gray-500/20 text-muted-foreground border-gray-500/30'
   };
 
   const templateColors = {
     'onboarding-client': 'bg-purple-500/20 text-purple-400',
     'invoice-reminder': 'bg-orange-500/20 text-orange-400',
     'project-kickoff': 'bg-cyan-500/20 text-cyan-400',
-    'custom': 'bg-gray-500/20 text-gray-400'
+    'custom': 'bg-gray-500/20 text-muted-foreground'
   };
 
   const templateLabels = {
@@ -60,13 +60,13 @@ export function WorkflowCard({
   };
 
   return (
-    <div className="group relative p-4 rounded-xl border transition-all duration-200 bg-[#161b22] border-gray-800/50 hover:border-cyan-500/30 hover:bg-[#1c2333]">
+    <div className="group relative p-4 rounded-xl border transition-all duration-200 bg-card border-border hover:border-cyan-500/30 hover:bg-accent">
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="h-4 w-4 text-cyan-400 flex-shrink-0" />
-            <h3 className="font-semibold text-white truncate group-hover:text-cyan-400 transition-colors">
+            <h3 className="font-semibold text-foreground truncate group-hover:text-cyan-400 transition-colors">
               {workflow.name}
             </h3>
           </div>
@@ -129,13 +129,13 @@ export function WorkflowCard({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 pt-3 border-t border-gray-800/50">
+      <div className="flex items-center gap-2 pt-3 border-t border-border">
         {workflow.status === 'active' ? (
           <Button
             variant="ghost"
             size="sm"
             onClick={onToggleStatus}
-            className="text-gray-400 hover:text-yellow-400"
+            className="text-muted-foreground hover:text-yellow-400"
           >
             <Pause className="h-3.5 w-3.5 mr-1" />
             Pausar
@@ -145,7 +145,7 @@ export function WorkflowCard({
             variant="ghost"
             size="sm"
             onClick={onToggleStatus}
-            className="text-gray-400 hover:text-green-400"
+            className="text-muted-foreground hover:text-green-400"
           >
             <Play className="h-3.5 w-3.5 mr-1" />
             Activar
@@ -166,7 +166,7 @@ export function WorkflowCard({
           variant="ghost"
           size="sm"
           onClick={onEdit}
-          className="text-gray-400 hover:text-white"
+          className="text-muted-foreground hover:text-foreground"
         >
           <Settings className="h-3.5 w-3.5" />
         </Button>
@@ -175,7 +175,7 @@ export function WorkflowCard({
           variant="ghost"
           size="sm"
           onClick={onDelete}
-          className="text-gray-400 hover:text-red-400"
+          className="text-muted-foreground hover:text-red-400"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </Button>

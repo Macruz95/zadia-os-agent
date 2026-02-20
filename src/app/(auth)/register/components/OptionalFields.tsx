@@ -50,7 +50,7 @@ export function OptionalFields({ form }: OptionalFieldsProps) {
 
       {/* Objective Field - Custom Pills with Lucide Icons */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+        <label className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <Target className="h-4 w-4 text-gray-500" />
           {t('auth.register.objective')}
         </label>
@@ -67,7 +67,7 @@ export function OptionalFields({ form }: OptionalFieldsProps) {
                   "text-sm font-medium",
                   selectedObjective === obj.value
                     ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400"
-                    : "bg-gray-800/30 border-gray-700/50 text-gray-400 hover:border-gray-600 hover:text-gray-300"
+                    : "bg-gray-800/30 border-border text-muted-foreground hover:border-accent hover:text-muted-foreground"
                 )}
               >
                 <Icon className={cn(
@@ -88,7 +88,7 @@ export function OptionalFields({ form }: OptionalFieldsProps) {
 
       {/* Language Field - Custom Pills */}
       <div className="space-y-2">
-        <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+        <label className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           <Globe className="h-4 w-4 text-gray-500" />
           {t('auth.register.language')}
         </label>
@@ -103,7 +103,7 @@ export function OptionalFields({ form }: OptionalFieldsProps) {
                 "text-sm font-medium",
                 selectedLanguage === lang.value
                   ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400"
-                  : "bg-gray-800/30 border-gray-700/50 text-gray-400 hover:border-gray-600 hover:text-gray-300"
+                  : "bg-gray-800/30 border-border text-muted-foreground hover:border-accent hover:text-muted-foreground"
               )}
             >
               <Globe className={cn(

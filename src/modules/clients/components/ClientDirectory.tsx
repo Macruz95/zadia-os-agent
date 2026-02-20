@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
+import { AnimatedPage, AnimatedSection } from '@/components/ui/motion';
 import { useClients } from '../hooks/use-clients';
 import { Client, ClientType, ClientStatus } from '../types/clients.types';
 import { ClientsService } from '../services/clients.service';
@@ -144,37 +145,43 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
   }
 
   return (
-    <div className="space-y-6">
-      <ClientHeader
-        onCreateClient={handleCreateClientClick}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-      />
-
-      <ClientFilters
-        searchQuery={searchQuery}
-        selectedType={selectedType}
-        selectedStatus={selectedStatus}
-        onSearchChange={handleSearch}
-        onTypeChange={handleTypeFilter}
-        onStatusChange={handleStatusFilter}
-      />
-
-      {viewMode === 'table' ? (
-        <ClientTable
-          clients={clients}
-          loading={loading}
-          onClientSelect={handleClientSelect}
-          onDeleteClient={handleDeleteClient}
-          onEditClient={handleEditClient}
+    <AnimatedPage className="space-y-6">
+      <AnimatedSection>
+        <ClientHeader
+          onCreateClient={handleCreateClientClick}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
         />
-      ) : (
-        <ClientCards
-          clients={clients}
-          loading={loading}
-          onClientSelect={handleClientSelect}
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.1}>
+        <ClientFilters
+          searchQuery={searchQuery}
+          selectedType={selectedType}
+          selectedStatus={selectedStatus}
+          onSearchChange={handleSearch}
+          onTypeChange={handleTypeFilter}
+          onStatusChange={handleStatusFilter}
         />
-      )}
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.15}>
+        {viewMode === 'table' ? (
+          <ClientTable
+            clients={clients}
+            loading={loading}
+            onClientSelect={handleClientSelect}
+            onDeleteClient={handleDeleteClient}
+            onEditClient={handleEditClient}
+          />
+        ) : (
+          <ClientCards
+            clients={clients}
+            loading={loading}
+            onClientSelect={handleClientSelect}
+          />
+        )}
+      </AnimatedSection>
 
       <DeleteClientDialog
         open={deleteDialog.open}
@@ -197,6 +204,6 @@ export function ClientDirectory({ onClientSelect, onCreateClient }: ClientDirect
         onOpenChange={setCreateDialog}
         onSuccess={handleCreateSuccess}
       />
-    </div>
+    </AnimatedPage>
   );
 }

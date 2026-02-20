@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { Timestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 import { Opportunity, OpportunityStage, OpportunityStatus, OpportunityPriority } from '../../types/sales.types';
 import { OpportunitiesService } from '../../services/opportunities.service';
@@ -20,10 +21,13 @@ import { KanbanKPIs } from './KanbanKPIs';
 import { KanbanColumn } from './KanbanColumn';
 import { STAGE_CONFIG } from './KanbanConfig';
 import { OpportunityFormDialog } from './OpportunityFormDialog';
+import { AnimatedPage, AnimatedSection } from '@/components/ui/motion';
+import { DndContext, closestCorners, DragEndEvent } from '@dnd-kit/core';
 
 export function OpportunitiesKanban() {
   const router = useRouter();
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,9 +36,10 @@ export function OpportunitiesKanban() {
   const [showNewOpportunityDialog, setShowNewOpportunityDialog] = useState(false);
 
   const loadOpportunities = useCallback(async () => {
+    if (!tenantId) return;
     try {
       setLoading(true);
-      const data = await OpportunitiesService.getOpportunities();
+      const data = await OpportunitiesService.getOpportunities(tenantId);
       setOpportunities(data);
       setLoading(false);
     } catch (error) {
@@ -42,7 +47,7 @@ export function OpportunitiesKanban() {
       toast.error('Error al cargar oportunidades');
       setLoading(false);
     }
-  }, []);
+  }, [tenantId]);
 
   // Load opportunities on mount
   useEffect(() => {
@@ -53,13 +58,13 @@ export function OpportunitiesKanban() {
 
   // Filter opportunities
   const filteredOpportunities = opportunities.filter(opp => {
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       opp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (opp.notes && opp.notes.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+
     const matchesStatus = statusFilter === 'all' || opp.status === statusFilter;
     const matchesPriority = priorityFilter === 'all' || opp.priority === priorityFilter;
-    
+
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
@@ -74,7 +79,7 @@ export function OpportunitiesKanban() {
   // Calculate KPIs
   const totalValue = opportunities.reduce((sum, opp) => sum + opp.estimatedValue, 0);
   const avgDealSize = opportunities.length > 0 ? totalValue / opportunities.length : 0;
-  const weightedValue = opportunities.reduce((sum, opp) => 
+  const weightedValue = opportunities.reduce((sum, opp) =>
     sum + (opp.estimatedValue * opp.probability / 100), 0);
   const highPriorityCount = opportunities.filter(opp => opp.priority === 'high').length;
 
@@ -123,21 +128,45 @@ export function OpportunitiesKanban() {
     }
 
     try {
-      await OpportunitiesService.updateOpportunityStage(opportunityId, newStage, user.uid);
-      
-      setOpportunities(prev => 
-        prev.map(opp => 
-          opp.id === opportunityId 
+      if (!tenantId) throw new Error('No tenant ID');
+      await OpportunitiesService.updateOpportunityStage(opportunityId, newStage, user.uid, tenantId);
+
+      setOpportunities(prev =>
+        prev.map(opp =>
+          opp.id === opportunityId
             ? { ...opp, stage: newStage, updatedAt: Timestamp.fromDate(new Date()) }
             : opp
         )
       );
-      
+
       toast.success('Etapa actualizada correctamente');
     } catch (error) {
       logger.error('Error updating opportunity stage', error as Error);
       toast.error('Error al actualizar la etapa');
     }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const opportunityId = active.id as string;
+    const overId = over.id as string;
+
+    const activeData = active.data.current as any;
+    const overData = over.data.current as any;
+
+    if (!activeData) return;
+
+    const currentStage = activeData.stage as OpportunityStage;
+
+    // El target puede ser una columna o una tarjeta. overData.stage viene de la tarjeta, overId de la columna
+    const newStage = (overData?.stage || overId) as OpportunityStage;
+
+    if (currentStage === newStage) return;
+
+    // Reuse handleStageChange logic to validate and update
+    await handleStageChange(opportunityId, newStage);
   };
 
   if (loading) {
@@ -150,36 +179,47 @@ export function OpportunitiesKanban() {
 
   return (
     <>
-      <div className="p-6 space-y-6">
-        <KanbanHeader
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          statusFilter={statusFilter}
-          onStatusFilterChange={(value) => setStatusFilter(value as OpportunityStatus | 'all')}
-          priorityFilter={priorityFilter}
-          onPriorityFilterChange={(value) => setPriorityFilter(value as OpportunityPriority | 'all')}
-          onNewOpportunity={() => setShowNewOpportunityDialog(true)}
-        />
+      <AnimatedPage className="p-6 space-y-6">
+        <AnimatedSection>
+          <KanbanHeader
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusFilterChange={(value) => setStatusFilter(value as OpportunityStatus | 'all')}
+            priorityFilter={priorityFilter}
+            onPriorityFilterChange={(value) => setPriorityFilter(value as OpportunityPriority | 'all')}
+            onNewOpportunity={() => setShowNewOpportunityDialog(true)}
+          />
+        </AnimatedSection>
 
-        <KanbanKPIs
-          totalValue={totalValue}
-          avgDealSize={avgDealSize}
-          weightedValue={weightedValue}
-          highPriorityCount={highPriorityCount}
-        />
+        <AnimatedSection delay={0.08}>
+          <KanbanKPIs
+            totalValue={totalValue}
+            avgDealSize={avgDealSize}
+            weightedValue={weightedValue}
+            highPriorityCount={highPriorityCount}
+          />
+        </AnimatedSection>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 min-h-[600px]">
-          {(Object.keys(STAGE_CONFIG) as OpportunityStage[]).map((stage) => (
-            <KanbanColumn
-              key={stage}
-              stage={stage}
-              opportunities={opportunitiesByStage[stage] || []}
-              onStageChange={handleStageChange}
-              onCardClick={(id) => router.push(`/sales/opportunities/${id}`)}
-            />
-          ))}
-        </div>
-      </div>
+        <AnimatedSection delay={0.15}>
+          <DndContext
+            collisionDetection={closestCorners}
+            onDragEnd={handleDragEnd}
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 min-h-[600px]">
+              {(Object.keys(STAGE_CONFIG) as OpportunityStage[]).map((stage) => (
+                <KanbanColumn
+                  key={stage}
+                  stage={stage}
+                  opportunities={opportunitiesByStage[stage] || []}
+                  onStageChange={handleStageChange}
+                  onCardClick={(id) => router.push(`/sales/opportunities/${id}`)}
+                />
+              ))}
+            </div>
+          </DndContext>
+        </AnimatedSection>
+      </AnimatedPage>
 
       <OpportunityFormDialog
         open={showNewOpportunityDialog}

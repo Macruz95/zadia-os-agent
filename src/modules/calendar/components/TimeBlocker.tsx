@@ -91,16 +91,16 @@ export function TimeBlocker({ onBlockTime, trigger }: TimeBlockerProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="outline" className="bg-[#161b22] border-gray-800/50 hover:border-cyan-500/30">
+          <Button variant="outline" className="bg-card border-border hover:border-cyan-500/30">
             <Clock className="h-4 w-4 mr-2" />
             Bloquear Tiempo
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="bg-[#161b22] border-gray-800/50 text-white max-w-2xl">
+      <DialogContent className="bg-card border-border text-foreground max-w-2xl">
         <DialogHeader>
           <DialogTitle>Bloquear Tiempo</DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             Reserva tiempo en tu calendario para trabajo enfocado
           </DialogDescription>
         </DialogHeader>
@@ -114,7 +114,7 @@ export function TimeBlocker({ onBlockTime, trigger }: TimeBlockerProps) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ej: Trabajo enfocado, Revisión de código..."
-              className="bg-[#0d1117] border-gray-800/50"
+              className="bg-muted border-border"
               required
             />
           </div>
@@ -127,7 +127,7 @@ export function TimeBlocker({ onBlockTime, trigger }: TimeBlockerProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Detalles sobre este bloque de tiempo..."
-              className="bg-[#0d1117] border-gray-800/50 min-h-[80px]"
+              className="bg-muted border-border min-h-[80px]"
             />
           </div>
 
@@ -140,8 +140,8 @@ export function TimeBlocker({ onBlockTime, trigger }: TimeBlockerProps) {
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal bg-[#0d1117] border-gray-800/50",
-                      !startDate && "text-gray-400"
+                      "w-full justify-start text-left font-normal bg-muted border-border",
+                      !startDate && "text-muted-foreground"
                     )}
                   >
                     <Calendar className="mr-2 h-4 w-4" />
@@ -152,7 +152,7 @@ export function TimeBlocker({ onBlockTime, trigger }: TimeBlockerProps) {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-[#161b22] border-gray-800/50">
+                <PopoverContent className="w-auto p-0 bg-card border-border">
                   <CalendarComponent
                     mode="single"
                     selected={startDate}
@@ -171,8 +171,8 @@ export function TimeBlocker({ onBlockTime, trigger }: TimeBlockerProps) {
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal bg-[#0d1117] border-gray-800/50",
-                      !endDate && "text-gray-400"
+                      "w-full justify-start text-left font-normal bg-muted border-border",
+                      !endDate && "text-muted-foreground"
                     )}
                   >
                     <Calendar className="mr-2 h-4 w-4" />
@@ -183,7 +183,7 @@ export function TimeBlocker({ onBlockTime, trigger }: TimeBlockerProps) {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-[#161b22] border-gray-800/50">
+                <PopoverContent className="w-auto p-0 bg-card border-border">
                   <CalendarComponent
                     mode="single"
                     selected={endDate}
@@ -202,7 +202,7 @@ export function TimeBlocker({ onBlockTime, trigger }: TimeBlockerProps) {
               id="recurring"
               checked={isRecurring}
               onChange={(e) => setIsRecurring(e.target.checked)}
-              className="rounded border-gray-800/50 bg-[#0d1117]"
+              className="rounded border-border bg-muted"
             />
             <Label htmlFor="recurring" className="cursor-pointer">
               Recurrente (diario)
@@ -215,7 +215,7 @@ export function TimeBlocker({ onBlockTime, trigger }: TimeBlockerProps) {
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              className="bg-[#0d1117] border-gray-800/50"
+              className="bg-muted border-border"
             >
               Cancelar
             </Button>

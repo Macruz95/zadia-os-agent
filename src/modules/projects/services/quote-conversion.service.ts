@@ -7,8 +7,8 @@
  * Rule #4: Modular service architecture
  */
 
-import { 
-  doc, 
+import {
+  doc,
   Timestamp,
   runTransaction,
 } from 'firebase/firestore';
@@ -86,28 +86,28 @@ export const QuoteConversionService = {
         projectType: 'production', // Can be configured
         status: 'planning',
         priority: config.priority || 'medium',
-        
+
         // Client info from quote
-        clientId: quote.clientId,
+        clientId: quote.clientId || '',
         clientName: '', // Will be populated from client data
         opportunityId: quote.opportunityId,
         quoteId: quote.id,
         quoteNumber: quote.number,
-        
+
         // Financial data from quote
         salesPrice: quote.total,
         estimatedCost: quote.total * 0.7, // Estimate 70% cost (can be configured)
         currency: quote.currency,
         paymentTerms: quote.paymentTerms,
-        
+
         // Dates (keep as Date, not Timestamp - validation schema expects Date)
         startDate: config.startDate,
         estimatedEndDate: config.estimatedEndDate,
-        
+
         // Team
         projectManager: config.projectManager || quote.assignedTo,
         teamMembers: config.teamMembers || [],
-        
+
         // Additional
         tags: ['convertido-de-cotizacion'],
         createdBy: userId,

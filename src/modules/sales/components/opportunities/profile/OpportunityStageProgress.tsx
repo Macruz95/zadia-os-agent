@@ -48,7 +48,7 @@ export function OpportunityStageProgress({ opportunity }: OpportunityStageProgre
     if (stage === currentStage) {
       return (
         <div className={`h-6 w-6 rounded-full ${STAGE_CONFIG[stage].color} flex items-center justify-center`}>
-          <Circle className="h-4 w-4 text-white fill-current" />
+          <Circle className="h-4 w-4 text-foreground fill-current" />
         </div>
       );
     }

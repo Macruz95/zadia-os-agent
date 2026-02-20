@@ -19,7 +19,7 @@ export async function getSalesMetrics(tenantId: string) {
         const activeLeadsResult = await LeadsService.searchLeads({
             status: ['new', 'contacted', 'qualifying'],
             tenantId
-        }, 1000);
+        }, 1000, undefined, tenantId);
         const activeLeads = activeLeadsResult.totalCount;
 
         // 2. Pipeline Value & Opportunities Count

@@ -74,11 +74,11 @@ export function TaskManager() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <CheckSquare className="h-6 w-6 text-cyan-400" />
             Gestor de Tareas RICE-Z
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Priorización inteligente con scoring RICE-Z automático por IA
           </p>
         </div>
@@ -90,9 +90,9 @@ export function TaskManager() {
 
       {/* Top Priority Tasks */}
       {topTasks.length > 0 && (
-        <Card className="bg-[#161b22] border-gray-800/50">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="text-foreground flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-cyan-400" />
               Top 5 Prioridades
             </CardTitle>
@@ -113,25 +113,25 @@ export function TaskManager() {
       )}
 
       {/* Filtros y búsqueda */}
-      <Card className="bg-[#161b22] border-gray-800/50">
+      <Card className="bg-card border-border">
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar tareas..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-[#0d1117] border-gray-800/50 text-white"
+                  className="pl-10 bg-muted border-border text-foreground"
                 />
               </div>
             </div>
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as TaskStatus | 'all')}>
-              <SelectTrigger className="w-full md:w-[180px] bg-[#0d1117] border-gray-800/50 text-white">
+              <SelectTrigger className="w-full md:w-[180px] bg-muted border-border text-foreground">
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
-              <SelectContent className="bg-[#161b22] border-gray-800/50">
+              <SelectContent className="bg-card border-border">
                 <SelectItem value="all">Todos los estados</SelectItem>
                 <SelectItem value="backlog">Backlog</SelectItem>
                 <SelectItem value="todo">Por hacer</SelectItem>
@@ -141,10 +141,10 @@ export function TaskManager() {
               </SelectContent>
             </Select>
             <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as TaskPriority | 'all')}>
-              <SelectTrigger className="w-full md:w-[180px] bg-[#0d1117] border-gray-800/50 text-white">
+              <SelectTrigger className="w-full md:w-[180px] bg-muted border-border text-foreground">
                 <SelectValue placeholder="Prioridad" />
               </SelectTrigger>
-              <SelectContent className="bg-[#161b22] border-gray-800/50">
+              <SelectContent className="bg-card border-border">
                 <SelectItem value="all">Todas las prioridades</SelectItem>
                 <SelectItem value="low">Baja</SelectItem>
                 <SelectItem value="medium">Media</SelectItem>
@@ -153,10 +153,10 @@ export function TaskManager() {
               </SelectContent>
             </Select>
             <Select value={domainFilter} onValueChange={(v) => setDomainFilter(v as TaskDomain | 'all')}>
-              <SelectTrigger className="w-full md:w-[180px] bg-[#0d1117] border-gray-800/50 text-white">
+              <SelectTrigger className="w-full md:w-[180px] bg-muted border-border text-foreground">
                 <SelectValue placeholder="Dominio" />
               </SelectTrigger>
-              <SelectContent className="bg-[#161b22] border-gray-800/50">
+              <SelectContent className="bg-card border-border">
                 <SelectItem value="all">Todos los dominios</SelectItem>
                 <SelectItem value="sales">Ventas</SelectItem>
                 <SelectItem value="projects">Proyectos</SelectItem>
@@ -175,7 +175,7 @@ export function TaskManager() {
         {/* Lista de tareas */}
         <div className="lg:col-span-2">
           <Tabs defaultValue="all" className="w-full">
-            <TabsList className="bg-[#161b22] border-gray-800/50">
+            <TabsList className="bg-card border-border">
               <TabsTrigger value="all">Todas ({sortedTasks.length})</TabsTrigger>
               <TabsTrigger value="todo">Por hacer ({tasksByStatus.todo.length})</TabsTrigger>
               <TabsTrigger value="in-progress">En progreso ({tasksByStatus['in-progress'].length})</TabsTrigger>
@@ -186,7 +186,7 @@ export function TaskManager() {
             <TabsContent value="all" className="mt-4">
               <div className="space-y-4">
                 {sortedTasks.length === 0 ? (
-                  <div className="text-center text-gray-400 py-12">
+                  <div className="text-center text-muted-foreground py-12">
                     <CheckSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
                     <p>No hay tareas que coincidan con los filtros</p>
                   </div>
@@ -208,7 +208,7 @@ export function TaskManager() {
               <TabsContent key={status} value={status} className="mt-4">
                 <div className="space-y-4">
                   {tasksByStatus[status].length === 0 ? (
-                    <div className="text-center text-gray-400 py-12">
+                    <div className="text-center text-muted-foreground py-12">
                       <p>No hay tareas en {status}</p>
                     </div>
                   ) : (

@@ -3,7 +3,7 @@ import { z } from 'zod';
 // Enums
 export const RawMaterialCategoryEnum = z.enum([
   'Maderas',
-  'Acabados', 
+  'Acabados',
   'Adhesivos',
   'Herrajes',
   'Químicos',
@@ -94,14 +94,15 @@ export interface RawMaterial {
   sku: string; // SKU interno generado automáticamente
   name: string;
   category: RawMaterialCategory;
+  brand?: string; // Marca/Fabricante del producto
+  brandId?: string; // ID de referencia para sistema de marcas (futuro)
   unitOfMeasure: UnitOfMeasure;
   currentStock: number;
   minimumStock: number;
   unitCost: number;
   averageCost: number;
   location: InventoryLocation;
-  supplierId?: string;
-  supplierName?: string;
+  supplier?: string; // Proveedor principal (texto libre)
   description?: string;
   specifications?: string;
   lastPurchaseDate?: Date;
@@ -171,6 +172,7 @@ export interface BillOfMaterials {
 
 export interface InventoryMovement {
   id: string;
+  tenantId: string; // Required for Firestore security rules
   itemId: string;
   itemType: 'raw-material' | 'finished-product';
   itemName: string;
@@ -184,6 +186,8 @@ export interface InventoryMovement {
   reason?: string;
   referenceDocument?: string;
   referenceId?: string; // ID de orden de producción, venta, etc.
+  supplier?: string; // Proveedor (solo para tipo "Entrada")
+  invoiceNumber?: string; // número de factura (solo para tipo "Entrada")
   location: InventoryLocation;
   performedBy: string;
   performedAt: Date;
@@ -194,12 +198,12 @@ export interface InventoryMovement {
 export interface RawMaterialFormData {
   name: string;
   category: RawMaterialCategory;
+  brand?: string; // Marca/Fabricante
   unitOfMeasure: UnitOfMeasure;
   minimumStock: number;
   unitCost: number;
   location: InventoryLocation;
-  supplierId?: string;
-  supplierName?: string;
+  supplier?: string; // Proveedor (texto libre)
   description?: string;
   specifications?: string;
 }

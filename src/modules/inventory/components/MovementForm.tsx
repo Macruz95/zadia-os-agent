@@ -24,6 +24,7 @@ const movementFormSchema = z.object({
   unitCost: z.number().min(0, 'Costo unitario no puede ser negativo'),
   reason: z.string().optional(),
   performedBy: z.string().min(1, 'Usuario que realiza el movimiento es requerido'),
+  performedAt: z.date().optional(), // Nueva fecha editable
 });
 
 type MovementFormInput = z.infer<typeof movementFormSchema>;
@@ -66,6 +67,7 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
       unitCost: getCurrentUnitCost(),
       reason: '',
       performedBy: '',
+      performedAt: new Date(), // Default to now
     },
   });
 
@@ -75,7 +77,7 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
 
   const onSubmit = async (data: MovementFormInput) => {
     setLoading(true);
-    
+
     try {
       await InventoryMovementsService.createMovement({
         itemId: data.itemId,
@@ -85,13 +87,10 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
         unitCost: data.unitCost,
         reason: data.reason,
         performedBy: data.performedBy,
+        performedAt: data.performedAt,
       });
-      
+
       toast.success(`Se ha registrado el movimiento de ${data.movementType.toLowerCase()} correctamente.`);
-      
-      form.reset();
-      setOpen(false);
-      onSuccess?.();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Ocurrió un error inesperado');
     } finally {
@@ -119,35 +118,35 @@ export function MovementForm({ item, itemType, onSuccess, trigger }: MovementFor
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full overflow-hidden">
             <div className="flex-1 overflow-y-auto space-y-6 pr-2">
-            {/* Item Information Header */}
-            <div className="bg-blue-50 p-3 rounded-lg">
-              <h4 className="font-medium text-blue-900 mb-1">Artículo Seleccionado</h4>
-              <p className="text-blue-700 text-sm">{item.name}</p>
-              <p className="text-blue-600 text-xs">SKU: {item.sku} | Stock actual: {item.currentStock} {getItemUnit(item)}</p>
-            </div>
+              {/* Item Information Header */}
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <h4 className="font-medium text-blue-900 mb-1">Artículo Seleccionado</h4>
+                <p className="text-blue-700 text-sm">{item.name}</p>
+                <p className="text-blue-600 text-xs">SKU: {item.sku} | Stock actual: {item.currentStock} {getItemUnit(item)}</p>
+              </div>
 
-            {/* Movement Type Selector */}
-            <MovementTypeSelector 
-              control={form.control}
-              selectedType={watchedMovementType}
-            />
+              {/* Movement Type Selector */}
+              <MovementTypeSelector
+                control={form.control}
+                selectedType={watchedMovementType}
+              />
 
-            {/* Form Fields */}
-            <MovementFormFields
-              control={form.control}
-              itemName={item.name}
-              unit={getItemUnit(item)}
-              currentUnitCost={getCurrentUnitCost()}
-            />
+              {/* Form Fields */}
+              <MovementFormFields
+                control={form.control}
+                itemName={item.name}
+                unit={getItemUnit(item)}
+                currentUnitCost={getCurrentUnitCost()}
+              />
 
-            {/* Stock Preview */}
-            <StockPreview
-              item={item}
-              itemType={itemType}
-              quantity={watchedQuantity}
-              movementType={watchedMovementType}
-              unitCost={watchedUnitCost}
-            />
+              {/* Stock Preview */}
+              <StockPreview
+                item={item}
+                itemType={itemType}
+                quantity={watchedQuantity}
+                movementType={watchedMovementType}
+                unitCost={watchedUnitCost}
+              />
             </div>
 
             {/* Action Buttons */}

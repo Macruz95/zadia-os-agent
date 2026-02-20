@@ -159,7 +159,7 @@ function StatCard({
       </div>
 
       {/* Label */}
-      <div className="text-white font-semibold mb-1">{stat.label}</div>
+      <div className="text-foreground font-semibold mb-1">{stat.label}</div>
       
       {/* Description */}
       <div className="text-sm text-[hsl(230_10%_50%)]">{stat.description}</div>

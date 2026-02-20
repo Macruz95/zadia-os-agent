@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
 import { Button } from '../../../components/ui/button';
+import { StaggerList } from '@/components/ui/motion';
 import { Calendar, MessageSquare, Briefcase, FileText, Users, ChevronDown } from 'lucide-react';
 import { TimelineItem } from './timeline/TimelineItem';
 import { Interaction, Transaction, Project, Quote, Meeting, Task } from '../types/clients.types';
@@ -91,7 +92,7 @@ export const ClientTimeline = ({
             <TabsContent value="timeline" className="mt-0">
               {allTimelineItems.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {allTimelineItems.map((item, index) => (
                       <div
                         key={`${item.type}-${item.id || index}`}
@@ -101,7 +102,7 @@ export const ClientTimeline = ({
                         <TimelineItem item={item as unknown as Interaction | Transaction | Project | Quote | Meeting | Task} type={item.type} />
                       </div>
                     ))}
-                  </div>
+                  </StaggerList>
                   {hasMore && (
                     <div className="text-center mt-6">
                       <Button variant="outline" onClick={loadMore}>
@@ -124,7 +125,7 @@ export const ClientTimeline = ({
 
             <TabsContent value="interactions" className="mt-0">
               {interactions.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {interactions.slice(0, visibleItems).map((interaction) => (
                     <div
                       key={interaction.id}
@@ -134,7 +135,7 @@ export const ClientTimeline = ({
                       <TimelineItem item={interaction} type="interaction" />
                     </div>
                   ))}
-                </div>
+                </StaggerList>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <div className="mb-4">
@@ -148,7 +149,7 @@ export const ClientTimeline = ({
 
             <TabsContent value="projects" className="mt-0">
               {projects.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {projects.slice(0, visibleItems).map((project) => (
                     <div
                       key={project.id}
@@ -158,7 +159,7 @@ export const ClientTimeline = ({
                       <TimelineItem item={project} type="project" />
                     </div>
                   ))}
-                </div>
+                </StaggerList>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <div className="mb-4">
@@ -172,7 +173,7 @@ export const ClientTimeline = ({
 
             <TabsContent value="transactions" className="mt-0">
               {transactions.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {transactions.slice(0, visibleItems).map((transaction) => (
                     <div
                       key={transaction.id}
@@ -182,7 +183,7 @@ export const ClientTimeline = ({
                       <TimelineItem item={transaction} type="transaction" />
                     </div>
                   ))}
-                </div>
+                </StaggerList>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <div className="mb-4">
@@ -196,7 +197,7 @@ export const ClientTimeline = ({
 
             <TabsContent value="quotes" className="mt-0">
               {quotes.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {quotes.slice(0, visibleItems).map((quote) => (
                     <div
                       key={quote.id}
@@ -206,7 +207,7 @@ export const ClientTimeline = ({
                       <TimelineItem item={quote} type="quote" />
                     </div>
                   ))}
-                </div>
+                </StaggerList>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <div className="mb-4">
@@ -220,7 +221,7 @@ export const ClientTimeline = ({
 
             <TabsContent value="meetings" className="mt-0">
               {meetings.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {meetings.slice(0, visibleItems).map((meeting) => (
                     <div
                       key={meeting.id}
@@ -230,7 +231,7 @@ export const ClientTimeline = ({
                       <TimelineItem item={meeting} type="meeting" />
                     </div>
                   ))}
-                </div>
+                </StaggerList>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
                   <div className="mb-4">

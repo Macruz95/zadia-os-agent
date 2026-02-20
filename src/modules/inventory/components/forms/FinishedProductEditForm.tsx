@@ -22,17 +22,18 @@ import { UseFormReturn } from 'react-hook-form';
 import { EditFinishedProductFormData, FINISHED_PRODUCT_CATEGORIES } from '../types/form-data';
 
 interface FinishedProductEditFormProps {
-  form: UseFormReturn<EditFinishedProductFormData>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<EditFinishedProductFormData, any, any>;
   onSubmit: (data: EditFinishedProductFormData) => void;
   onCancel: () => void;
   isSubmitting: boolean;
 }
 
-export function FinishedProductEditForm({ 
-  form, 
-  onSubmit, 
-  onCancel, 
-  isSubmitting 
+export function FinishedProductEditForm({
+  form,
+  onSubmit,
+  onCancel,
+  isSubmitting
 }: FinishedProductEditFormProps) {
   return (
     <Form {...form}>
@@ -84,9 +85,9 @@ export function FinishedProductEditForm({
               <FormItem>
                 <FormLabel>Stock Mínimo</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    min="0" 
+                  <Input
+                    type="number"
+                    min="0"
                     step="1"
                     {...field}
                     onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
@@ -104,9 +105,9 @@ export function FinishedProductEditForm({
               <FormItem>
                 <FormLabel>Costo de Mano de Obra (USD)</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    min="0" 
+                  <Input
+                    type="number"
+                    min="0"
                     step="0.01"
                     {...field}
                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
@@ -126,9 +127,9 @@ export function FinishedProductEditForm({
               <FormItem>
                 <FormLabel>Costos Generales (USD)</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    min="0" 
+                  <Input
+                    type="number"
+                    min="0"
                     step="0.01"
                     {...field}
                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
@@ -146,9 +147,9 @@ export function FinishedProductEditForm({
               <FormItem>
                 <FormLabel>Precio de Venta (USD)</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    min="0" 
+                  <Input
+                    type="number"
+                    min="0"
                     step="0.01"
                     {...field}
                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
@@ -167,7 +168,7 @@ export function FinishedProductEditForm({
             <FormItem>
               <FormLabel>Descripción (Opcional)</FormLabel>
               <FormControl>
-                <Textarea 
+                <Textarea
                   placeholder="Descripción detallada del producto..."
                   rows={3}
                   {...field}

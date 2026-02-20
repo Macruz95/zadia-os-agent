@@ -48,7 +48,7 @@ export function LandingHero() {
             </Badge>
 
             {/* Headline */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-white">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-foreground">
               El Centro de Comando{' '}
               <span className="bg-gradient-to-r from-[hsl(250_95%_65%)] to-[hsl(280_90%_60%)] bg-clip-text text-transparent">
                 Inteligente
@@ -59,7 +59,7 @@ export function LandingHero() {
             {/* Subheadline */}
             <p className="text-lg md:text-xl text-[hsl(230_10%_70%)] mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               ZADIA OS orquesta y ejecuta operaciones empresariales de forma autónoma. 
-              No es solo software — es tu <strong className="text-white">copiloto estratégico</strong> impulsado por IA.
+              No es solo software — es tu <strong className="text-foreground">copiloto estratégico</strong> impulsado por IA.
             </p>
 
             {/* CTA Buttons */}
@@ -67,7 +67,7 @@ export function LandingHero() {
               <Link href="/register">
                 <Button 
                   size="lg" 
-                  className="w-full sm:w-auto bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] hover:from-[hsl(250_95%_65%)] hover:to-[hsl(280_90%_60%)] text-white border-0 shadow-[0_0_20px_hsl(250_100%_60%/0.3)] hover:shadow-[0_0_30px_hsl(250_100%_60%/0.4)] transition-all"
+                  className="w-full sm:w-auto bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] hover:from-[hsl(250_95%_65%)] hover:to-[hsl(280_90%_60%)] text-foreground border-0 shadow-[0_0_20px_hsl(250_100%_60%/0.3)] hover:shadow-[0_0_30px_hsl(250_100%_60%/0.4)] transition-all"
                 >
                   Comenzar Gratis
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -76,7 +76,7 @@ export function LandingHero() {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="w-full sm:w-auto border-[hsl(230_15%_30%)] bg-[hsl(230_20%_12%)] hover:bg-[hsl(230_15%_18%)] text-white"
+                className="w-full sm:w-auto border-[hsl(230_15%_30%)] bg-[hsl(230_20%_12%)] hover:bg-[hsl(230_15%_18%)] text-foreground"
               >
                 <Play className="mr-2 h-4 w-4" />
                 Ver Demo
@@ -219,7 +219,7 @@ function DashboardPreview() {
             </div>
             <div>
               <div className="text-[10px] text-[hsl(230_10%_50%)]">Pipeline</div>
-              <div className="text-xs font-bold text-white">$1.2M</div>
+              <div className="text-xs font-bold text-foreground">$1.2M</div>
             </div>
           </div>
         </div>
@@ -257,7 +257,7 @@ function KPICard({
         <span className="text-[hsl(230_10%_50%)]">{icon}</span>
         <span className="text-[10px] text-[hsl(230_10%_50%)]">{label}</span>
       </div>
-      <div className="text-lg font-bold text-white font-mono">{value}</div>
+      <div className="text-lg font-bold text-foreground font-mono">{value}</div>
       <div className={`text-[10px] ${statusColors[status]}`}>{trend}</div>
     </div>
   );
@@ -326,7 +326,7 @@ function ZadiaScoreGauge({ value }: { value: number }) {
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-xl font-bold text-white font-mono">{value}</span>
+        <span className="text-xl font-bold text-foreground font-mono">{value}</span>
       </div>
     </div>
   );

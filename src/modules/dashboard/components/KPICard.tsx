@@ -80,7 +80,7 @@ export function KPICard({
         )}
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-white">
+        <div className="text-2xl font-bold text-foreground">
           {formatValue(value.current, format, currency)}
         </div>
         <div className="flex items-center gap-2 mt-2">

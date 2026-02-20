@@ -32,7 +32,7 @@ export function EventCard({ event, onClick, showConflicts = false }: EventCardPr
   ) || false;
 
   const priorityColors = {
-    low: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    low: 'bg-gray-500/20 text-muted-foreground border-gray-500/30',
     medium: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
     high: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
     urgent: 'bg-red-500/20 text-red-400 border-red-500/30'
@@ -42,7 +42,7 @@ export function EventCard({ event, onClick, showConflicts = false }: EventCardPr
     scheduled: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
     'in-progress': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
     completed: 'bg-green-500/20 text-green-400 border-green-500/30',
-    cancelled: 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+    cancelled: 'bg-gray-500/20 text-muted-foreground border-gray-500/30'
   };
 
   return (
@@ -50,15 +50,15 @@ export function EventCard({ event, onClick, showConflicts = false }: EventCardPr
       onClick={onClick}
       className={cn(
         "group relative p-4 rounded-xl border transition-all duration-200",
-        "bg-[#161b22] border-gray-800/50 hover:border-cyan-500/30",
-        "hover:bg-[#1c2333] cursor-pointer",
+        "bg-card border-border hover:border-cyan-500/30",
+        "hover:bg-accent cursor-pointer",
         hasConflicts && showConflicts && "border-orange-500/50 bg-orange-500/5"
       )}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-white truncate group-hover:text-cyan-400 transition-colors">
+          <h3 className="font-semibold text-foreground truncate group-hover:text-cyan-400 transition-colors">
             {event.title}
           </h3>
           {event.description && (

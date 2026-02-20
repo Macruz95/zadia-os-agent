@@ -49,10 +49,10 @@ export function LandingHeader() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] flex items-center justify-center shadow-[0_0_20px_hsl(250_100%_60%/0.3)] group-hover:shadow-[0_0_30px_hsl(250_100%_60%/0.4)] transition-shadow">
-              <Sparkles className="h-5 w-5 text-white" />
+              <Sparkles className="h-5 w-5 text-foreground" />
             </div>
             <div>
-              <span className="text-xl font-bold text-white">ZADIA</span>
+              <span className="text-xl font-bold text-foreground">ZADIA</span>
               <span className="text-xl font-light text-[hsl(230_10%_60%)]"> OS</span>
             </div>
           </Link>
@@ -63,7 +63,7 @@ export function LandingHeader() {
               <a
                 key={item.name}
                 href={item.href}
-                className="text-sm font-medium text-[hsl(230_10%_70%)] hover:text-white transition-colors"
+                className="text-sm font-medium text-[hsl(230_10%_70%)] hover:text-foreground transition-colors"
               >
                 {item.name}
               </a>
@@ -75,14 +75,14 @@ export function LandingHeader() {
             <Link href="/login">
               <Button 
                 variant="ghost" 
-                className="text-[hsl(230_10%_70%)] hover:text-white hover:bg-[hsl(230_15%_20%)]"
+                className="text-[hsl(230_10%_70%)] hover:text-foreground hover:bg-[hsl(230_15%_20%)]"
               >
                 Iniciar Sesión
               </Button>
             </Link>
             <Link href="/register">
               <Button 
-                className="bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] hover:from-[hsl(250_95%_65%)] hover:to-[hsl(280_90%_60%)] text-white border-0 shadow-[0_0_15px_hsl(250_100%_60%/0.3)]"
+                className="bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] hover:from-[hsl(250_95%_65%)] hover:to-[hsl(280_90%_60%)] text-foreground border-0 shadow-[0_0_15px_hsl(250_100%_60%/0.3)]"
               >
                 Comenzar Gratis
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -93,7 +93,7 @@ export function LandingHeader() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 text-[hsl(230_10%_70%)] hover:text-white"
+            className="lg:hidden p-2 text-[hsl(230_10%_70%)] hover:text-foreground"
           >
             {isMobileMenuOpen ? (
               <X className="h-6 w-6" />
@@ -112,7 +112,7 @@ export function LandingHeader() {
               <a
                 key={item.name}
                 href={item.href}
-                className="block text-lg font-medium text-[hsl(230_10%_70%)] hover:text-white transition-colors py-2"
+                className="block text-lg font-medium text-[hsl(230_10%_70%)] hover:text-foreground transition-colors py-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {item.name}
@@ -122,14 +122,14 @@ export function LandingHeader() {
               <Link href="/login" className="block">
                 <Button 
                   variant="outline" 
-                  className="w-full border-[hsl(230_15%_25%)] text-white"
+                  className="w-full border-[hsl(230_15%_25%)] text-foreground"
                 >
                   Iniciar Sesión
                 </Button>
               </Link>
               <Link href="/register" className="block">
                 <Button 
-                  className="w-full bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] text-white border-0"
+                  className="w-full bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] text-foreground border-0"
                 >
                   Comenzar Gratis
                 </Button>

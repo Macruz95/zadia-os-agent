@@ -13,6 +13,7 @@
 import { useCallback } from 'react';
 import { EventBus } from '@/lib/events';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 
 // Types
@@ -31,11 +32,13 @@ import { QuotesService } from '../services/quotes.service';
 export function useSalesActions() {
   const { user } = useAuth();
   const userId = user?.uid;
+  const tenantId = useTenantId();
 
   // ============ LEADS ============
 
   const createLead = useCallback(async (data: LeadFormData): Promise<Lead> => {
-    const lead = await LeadsService.createLead(data, userId || '');
+    if (!tenantId) throw new Error('Tenant ID required');
+    const lead = await LeadsService.createLead(data, userId || '', tenantId);
 
     // Use fullName for person or entityName for company/institution
     const displayName = lead.fullName || lead.entityName || 'Sin nombre';
@@ -93,7 +96,8 @@ export function useSalesActions() {
   // ============ OPPORTUNITIES ============
 
   const createOpportunity = useCallback(async (data: OpportunityFormData): Promise<Opportunity> => {
-    const opportunity = await OpportunitiesService.createOpportunity(data, userId || '');
+    if (!tenantId) throw new Error('Tenant ID required');
+    const opportunity = await OpportunitiesService.createOpportunity(data, userId || '', tenantId);
 
     await EventBus.emit('opportunity:created', {
       id: opportunity.id,
@@ -116,7 +120,8 @@ export function useSalesActions() {
     id: string,
     data: Partial<OpportunityFormData>
   ): Promise<void> => {
-    await OpportunitiesService.updateOpportunity(id, data);
+    if (!tenantId) throw new Error('Tenant ID required');
+    await OpportunitiesService.updateOpportunity(id, data, tenantId);
 
     await EventBus.emit('opportunity:updated', {
       id,
@@ -132,7 +137,8 @@ export function useSalesActions() {
   }, [userId]);
 
   const winOpportunity = useCallback(async (id: string, value: number, clientId: string, title: string): Promise<void> => {
-    await OpportunitiesService.updateOpportunity(id, { stage: 'closed-won' });
+    if (!tenantId) throw new Error('Tenant ID required');
+    await OpportunitiesService.updateOpportunity(id, { stage: 'closed-won' }, tenantId);
 
     await EventBus.emit('opportunity:won', {
       id,
@@ -149,7 +155,8 @@ export function useSalesActions() {
   }, [userId]);
 
   const loseOpportunity = useCallback(async (id: string, reason: string): Promise<void> => {
-    await OpportunitiesService.updateOpportunity(id, { stage: 'closed-lost' });
+    if (!tenantId) throw new Error('Tenant ID required');
+    await OpportunitiesService.updateOpportunity(id, { stage: 'closed-lost' }, tenantId);
 
     await EventBus.emit('opportunity:lost', {
       id,
@@ -166,7 +173,8 @@ export function useSalesActions() {
   // ============ QUOTES ============
 
   const createQuote = useCallback(async (data: QuoteFormData): Promise<Quote> => {
-    const quote = await QuotesService.createQuote(data, userId || '');
+    if (!tenantId) throw new Error('Tenant ID required');
+    const quote = await QuotesService.createQuote(data, userId || '', tenantId);
 
     await EventBus.emit('quote:created', {
       id: quote.id,

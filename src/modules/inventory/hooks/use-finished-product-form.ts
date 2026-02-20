@@ -14,13 +14,13 @@ interface UseFinishedProductFormProps {
   onCancel?: () => void;
 }
 
-export const useFinishedProductForm = ({ 
-  initialData, 
-  onSuccess, 
-  onCancel 
+export const useFinishedProductForm = ({
+  initialData,
+  onSuccess,
+  onCancel
 }: UseFinishedProductFormProps = {}) => {
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
+  const { firebaseUser } = useAuth();
   const tenantId = useTenantId();
   const isEditing = Boolean(initialData);
 
@@ -69,7 +69,7 @@ export const useFinishedProductForm = ({
       // Clean the data - ensure numbers and only include non-empty optional fields
       const baseData = {
         name: data.name,
-        category: data.category,      
+        category: data.category,
         minimumStock: typeof data.minimumStock === 'string' && data.minimumStock === '' ? 0 : Number(data.minimumStock) || 0,
         laborCost: typeof data.laborCost === 'string' && data.laborCost === '' ? 0 : Number(data.laborCost) || 0,
         overheadCost: typeof data.overheadCost === 'string' && data.overheadCost === '' ? 0 : Number(data.overheadCost) || 0,
@@ -87,20 +87,20 @@ export const useFinishedProductForm = ({
       };
 
       let result: FinishedProduct;
-      
-      if (!user?.uid) {
+
+      if (!firebaseUser?.uid) {
         throw new Error('Usuario no autenticado');
       }
-      
+
       if (!tenantId) {
         throw new Error('Empresa no seleccionada');
       }
-      
+
       if (isEditing && initialData) {
-        result = await FinishedProductsService.updateFinishedProduct(initialData.id, cleanData as FinishedProductFormData, user.uid);
+        result = await FinishedProductsService.updateFinishedProduct(initialData.id, cleanData as FinishedProductFormData, firebaseUser.uid);
         toast.success('Producto terminado actualizado exitosamente');
       } else {
-        result = await FinishedProductsService.createFinishedProduct(cleanData as FinishedProductFormData, user.uid, tenantId);
+        result = await FinishedProductsService.createFinishedProduct(cleanData as FinishedProductFormData, firebaseUser.uid, tenantId);
         toast.success('Producto terminado creado exitosamente');
       }
 
@@ -111,7 +111,7 @@ export const useFinishedProductForm = ({
     } finally {
       setLoading(false);
     }
-  }, [isEditing, initialData, form, onSuccess, user?.uid, tenantId]);
+  }, [isEditing, initialData, form, onSuccess, firebaseUser?.uid, tenantId]);
 
   const handleCancel = useCallback(() => {
     form.reset();

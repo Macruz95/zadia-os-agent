@@ -72,12 +72,12 @@ function toTimestampSafe(value: unknown): Timestamp | undefined {
 export async function createQuote(
   data: QuoteFormData,
   createdBy: string,
-  tenantId?: string
+  tenantId: string
 ): Promise<Quote> {
   if (!tenantId) {
     throw new Error('tenantId is required for data isolation');
   }
-  
+
   try {
     const now = Timestamp.fromDate(new Date());
     const quoteNumber = generateQuoteNumber();
@@ -102,13 +102,21 @@ export async function createQuote(
       createdAt: now,
       updatedAt: now,
       assignedTo: createdBy,
-      clientId: data.clientId,
-      contactId: data.contactId,
       currency: data.currency,
       taxes: data.taxes || {},
       paymentTerms: data.paymentTerms || '',
       discounts: data.discounts || 0,
     };
+
+    // Lead-based quote (no client yet)
+    if (data.leadId) {
+      quoteData.leadId = data.leadId;
+      if (data.leadName) quoteData.leadName = data.leadName;
+    }
+
+    // Client-based quote (traditional flow)
+    if (data.clientId) quoteData.clientId = data.clientId;
+    if (data.contactId) quoteData.contactId = data.contactId;
 
     // Agregar campos opcionales solo si tienen valor
     if (data.opportunityId) quoteData.opportunityId = data.opportunityId;
@@ -192,7 +200,7 @@ export async function updateQuote(
 
     // Recalcular totales si cambiaron items, taxes o discounts
     let updateData: Record<string, unknown> = { ...updates };
-    
+
     if (updates.items || updates.taxes || updates.discounts) {
       const currentQuote = await getQuoteById(id);
       if (currentQuote) {
@@ -210,7 +218,7 @@ export async function updateQuote(
     updateData.updatedAt = Timestamp.fromDate(new Date());
 
     await updateDoc(docRef, updateData);
-    
+
     logger.info('Quote updated successfully', {
       component: 'QuotesService',
       action: 'update',
@@ -232,7 +240,7 @@ export async function deleteQuote(id: string): Promise<void> {
   try {
     const docRef = doc(db, QUOTES_COLLECTION, id);
     await deleteDoc(docRef);
-    
+
     logger.info('Quote deleted successfully', {
       component: 'QuotesService',
       action: 'delete',

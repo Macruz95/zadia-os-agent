@@ -47,7 +47,7 @@ export function RICEZScore({ score, showDetails = true, compact = false }: RICEZ
           {score.total.toFixed(1)}
         </div>
         {score.rank > 0 && (
-          <Badge variant="outline" className="text-xs bg-gray-500/20 text-gray-400 border-gray-500/30">
+          <Badge variant="outline" className="text-xs bg-gray-500/20 text-muted-foreground border-gray-500/30">
             #{score.rank}
           </Badge>
         )}
@@ -56,15 +56,15 @@ export function RICEZScore({ score, showDetails = true, compact = false }: RICEZ
   }
 
   return (
-    <Card className="bg-[#161b22] border-gray-800/50">
+    <Card className="bg-card border-border">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="text-foreground flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-cyan-400" />
               Score RICE-Z
             </CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-muted-foreground">
               Priorización inteligente
             </CardDescription>
           </div>
@@ -83,7 +83,7 @@ export function RICEZScore({ score, showDetails = true, compact = false }: RICEZ
           {/* RICE Score */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-white">RICE Score</h3>
+              <h3 className="text-sm font-semibold text-foreground">RICE Score</h3>
               <span className={cn("text-sm font-medium", getScoreColor(riceAvg))}>
                 {riceAvg.toFixed(1)} / 100
               </span>
@@ -120,7 +120,7 @@ export function RICEZScore({ score, showDetails = true, compact = false }: RICEZ
           {/* ZADIA Score */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <Zap className="h-4 w-4 text-cyan-400" />
                 ZADIA Score
               </h3>
@@ -158,9 +158,9 @@ export function RICEZScore({ score, showDetails = true, compact = false }: RICEZ
 
           {/* Ranking */}
           {score.rank > 0 && (
-            <div className="pt-4 border-t border-gray-800/50">
+            <div className="pt-4 border-t border-border">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-400">Ranking Global</span>
+                <span className="text-sm text-muted-foreground">Ranking Global</span>
                 <Badge variant="outline" className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30">
                   #{score.rank}
                 </Badge>
@@ -193,8 +193,8 @@ function ScoreItem({ icon: Icon, label, value, description }: ScoreItemProps) {
     <div className="space-y-1">
       <div className="flex items-center justify-between text-sm">
         <div className="flex items-center gap-2">
-          <Icon className="h-3.5 w-3.5 text-gray-400" />
-          <span className="text-gray-300">{label}</span>
+          <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="text-muted-foreground">{label}</span>
         </div>
         <span className={cn("font-medium", getColor(value))}>
           {value.toFixed(0)}

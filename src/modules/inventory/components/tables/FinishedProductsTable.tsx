@@ -16,13 +16,13 @@ interface FinishedProductsTableProps {
   onRefresh: () => void;
 }
 
-export function FinishedProductsTable({ 
-  data, 
-  loading, 
-  onRefresh 
+export function FinishedProductsTable({
+  data,
+  loading,
+  onRefresh
 }: FinishedProductsTableProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { firebaseUser } = useAuth();
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; item: FinishedProduct | null }>({ open: false, item: null });
   const [editDialog, setEditDialog] = useState<{ open: boolean; item: FinishedProduct | null }>({ open: false, item: null });
   const [isDeleting, setIsDeleting] = useState(false);
@@ -42,17 +42,17 @@ export function FinishedProductsTable({
 
   const handleConfirmDelete = async () => {
     if (!deleteDialog.item) return;
-    
-    if (!user?.uid) {
+
+    if (!firebaseUser?.uid) {
       toast.error('Usuario no autenticado');
       return;
     }
-    
+
     setIsDeleting(true);
     try {
-      await FinishedProductsService.deleteFinishedProduct(deleteDialog.item.id, user.uid);
+      await FinishedProductsService.deleteFinishedProduct(deleteDialog.item.id, firebaseUser.uid);
       toast.success(`Producto terminado "${deleteDialog.item.name}" eliminado correctamente`);
-      
+
       setDeleteDialog({ open: false, item: null });
       onRefresh();
     } catch (error) {
@@ -92,7 +92,7 @@ export function FinishedProductsTable({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700"

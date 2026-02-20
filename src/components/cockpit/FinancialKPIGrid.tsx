@@ -97,8 +97,9 @@ export function FinancialKPIGrid({
             { label: "Promedio mensual", value: formatCurrency(revenue / Math.max(revenueHistory.length, 1)) },
           ]}
           loading={loading}
+          delay={0}
         />
-        
+
         <KPICard
           title="Egresos"
           value={formatCurrency(expenses)}
@@ -113,8 +114,9 @@ export function FinancialKPIGrid({
             { label: "% de ingresos", value: revenue > 0 ? `${((expenses / revenue) * 100).toFixed(1)}%` : "N/A" },
           ]}
           loading={loading}
+          delay={1}
         />
-        
+
         <KPICard
           title="Beneficio Neto"
           value={formatCurrency(profit)}
@@ -129,8 +131,9 @@ export function FinancialKPIGrid({
             { label: "Ingresos - Egresos", value: `$${revenue.toLocaleString()} - $${expenses.toLocaleString()}` },
           ]}
           loading={loading}
+          delay={2}
         />
-        
+
         <KPICard
           title="Facturas Pendientes"
           value={pendingInvoices.toString()}
@@ -138,13 +141,14 @@ export function FinancialKPIGrid({
           icon={Receipt}
           variant={pendingInvoices > 5 ? 'warning' : 'info'}
           aiInsight={
-            pendingInvoices > 10 
+            pendingInvoices > 10
               ? "Alto volumen de facturas pendientes. Considera enviar recordatorios de cobro."
               : pendingInvoices > 0
                 ? "Facturas pendientes dentro de rangos normales."
                 : "Sin facturas pendientes. Excelente gestión de cobros."
           }
           loading={loading}
+          delay={3}
         />
       </div>
     </div>

@@ -19,7 +19,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
 
     return (
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-300">
+        <label className="block text-sm font-medium text-muted-foreground">
           {label}
         </label>
         <div className="relative group">
@@ -36,8 +36,8 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             type={inputType}
             className={cn(
               "w-full h-12 rounded-xl",
-              "bg-[#0d1117] border border-gray-700/50",
-              "text-white placeholder:text-gray-600",
+              "bg-muted border border-border",
+              "text-foreground placeholder:text-gray-600",
               "focus:outline-none focus:border-cyan-500/50 focus:ring-2 focus:ring-cyan-500/20",
               "transition-all duration-200",
               icon && "pl-12",
@@ -55,7 +55,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-muted-foreground transition-colors"
             >
               {showPassword ? (
                 <EyeOff className="h-5 w-5" />

@@ -1,12 +1,10 @@
 /**
  * ZADIA OS - Integrations Index
  * Export all external integrations
+ * 
+ * Note: Integration services (Shopify, Xero, QuickBooks, Zapier) were removed
+ * during the production audit as dead code. Re-add when UI/flows are built.
  */
 
-export { QuickBooksService } from './quickbooks.service';
-export { XeroService } from './xero.service';
-export { ShopifyService } from './shopify.service';
-export { ZapierService } from './zapier.service';
-
-// Types
-export type { ZapierEventType } from './zapier.service';
+// Placeholder - integration services will be added when connected to UI
+export { };

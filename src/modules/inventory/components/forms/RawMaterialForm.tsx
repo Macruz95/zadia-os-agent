@@ -22,12 +22,15 @@ export function RawMaterialForm({ onSuccess, onCancel }: RawMaterialFormProps) {
     <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <MaterialBasicInfoSection control={form.control} />
-          
-          <MaterialInventorySection control={form.control} />
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <MaterialBasicInfoSection control={form.control as any} />
+
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <MaterialInventorySection control={form.control as any} />
         </div>
 
-        <MaterialSpecificationsSection control={form.control} />
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <MaterialSpecificationsSection control={form.control as any} />
 
         <MaterialFormActions loading={loading} onCancel={onCancel} />
       </form>

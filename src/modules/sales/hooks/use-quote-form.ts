@@ -12,6 +12,7 @@ import { useState, useCallback } from 'react';
 import { QuoteFormData, QuoteItemData } from '../validations/sales.schema';
 import { QuotesService } from '../services/quotes.service';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { logger } from '@/lib/logger';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -30,6 +31,7 @@ interface UseQuoteFormReturn {
 
 export function useQuoteForm(): UseQuoteFormReturn {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
@@ -55,13 +57,13 @@ export function useQuoteForm(): UseQuoteFormReturn {
     discounts: number
   ) => {
     const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
-    
+
     // Calculate taxes as percentage of subtotal
     const totalTaxes = Object.values(taxes).reduce(
       (sum, rate) => sum + (subtotal * rate / 100),
       0
     );
-    
+
     const total = subtotal + totalTaxes - discounts;
 
     return {
@@ -83,6 +85,10 @@ export function useQuoteForm(): UseQuoteFormReturn {
       toast.error('Debe iniciar sesión');
       return;
     }
+    if (!tenantId) {
+      toast.error('No se pudo identificar la organización');
+      return;
+    }
 
     try {
       setLoading(true);
@@ -101,10 +107,10 @@ export function useQuoteForm(): UseQuoteFormReturn {
       };
 
       // Create in Firebase
-      const newQuote = await QuotesService.createQuote(quoteData, user.uid);
+      const newQuote = await QuotesService.createQuote(quoteData, user.uid, tenantId);
 
       toast.success('Cotización creada exitosamente');
-      logger.info('Quote created', { 
+      logger.info('Quote created', {
         component: 'useQuoteForm'
       });
 

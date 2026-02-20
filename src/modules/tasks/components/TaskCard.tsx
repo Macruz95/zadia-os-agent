@@ -28,7 +28,7 @@ export function TaskCard({ task, onClick, showScore = true, showDependencies = t
   const isOverdue = dueDate && dueDate < new Date() && task.status !== 'done';
 
   const statusColors = {
-    backlog: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    backlog: 'bg-gray-500/20 text-muted-foreground border-gray-500/30',
     todo: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
     'in-progress': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
     review: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
@@ -37,7 +37,7 @@ export function TaskCard({ task, onClick, showScore = true, showDependencies = t
   };
 
   const priorityColors = {
-    low: 'bg-gray-500/20 text-gray-400',
+    low: 'bg-gray-500/20 text-muted-foreground',
     medium: 'bg-blue-500/20 text-blue-400',
     high: 'bg-orange-500/20 text-orange-400',
     urgent: 'bg-red-500/20 text-red-400'
@@ -49,7 +49,7 @@ export function TaskCard({ task, onClick, showScore = true, showDependencies = t
     finance: 'bg-green-500/20 text-green-400',
     hr: 'bg-yellow-500/20 text-yellow-400',
     inventory: 'bg-orange-500/20 text-orange-400',
-    general: 'bg-gray-500/20 text-gray-400'
+    general: 'bg-gray-500/20 text-muted-foreground'
   };
 
   return (
@@ -57,15 +57,15 @@ export function TaskCard({ task, onClick, showScore = true, showDependencies = t
       onClick={onClick}
       className={cn(
         "group relative p-4 rounded-xl border transition-all duration-200",
-        "bg-[#161b22] border-gray-800/50 hover:border-cyan-500/30",
-        "hover:bg-[#1c2333] cursor-pointer",
+        "bg-card border-border hover:border-cyan-500/30",
+        "hover:bg-accent cursor-pointer",
         isOverdue && "border-red-500/50 bg-red-500/5"
       )}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-white truncate group-hover:text-cyan-400 transition-colors">
+          <h3 className="font-semibold text-foreground truncate group-hover:text-cyan-400 transition-colors">
             {task.title}
           </h3>
           {task.description && (
@@ -176,7 +176,7 @@ export function TaskCard({ task, onClick, showScore = true, showDependencies = t
       {task.tags && task.tags.length > 0 && (
         <div className="flex items-center gap-1 mt-2 flex-wrap">
           {task.tags.slice(0, 3).map(tag => (
-            <Badge key={tag} variant="outline" className="text-xs bg-gray-500/10 text-gray-400 border-gray-500/20">
+            <Badge key={tag} variant="outline" className="text-xs bg-gray-500/10 text-muted-foreground border-gray-500/20">
               <Tag className="h-2.5 w-2.5 mr-1" />
               {tag}
             </Badge>

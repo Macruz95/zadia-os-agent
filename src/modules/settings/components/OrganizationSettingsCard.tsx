@@ -203,7 +203,7 @@ export function OrganizationSettingsCard() {
   };
 
   const planColors = {
-    free: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+    free: 'bg-gray-500/20 text-muted-foreground border-gray-500/30',
     pro: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
     enterprise: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
   };
@@ -226,7 +226,7 @@ export function OrganizationSettingsCard() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <Card className="bg-gray-800/30 border-gray-700/50">
+        <Card className="bg-gray-800/30 border-border">
           <CardHeader>
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-4 w-64" />
@@ -243,15 +243,15 @@ export function OrganizationSettingsCard() {
     <>
       <div className="space-y-6">
         {/* Organization Identity Card */}
-        <Card className="bg-gray-800/30 border-gray-700/50">
+        <Card className="bg-gray-800/30 border-border">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center">
-                  <Building2 className="h-5 w-5 text-white" />
+                  <Building2 className="h-5 w-5 text-foreground" />
                 </div>
                 <div>
-                  <CardTitle className="text-white">Información de la Organización</CardTitle>
+                  <CardTitle className="text-foreground">Información de la Organización</CardTitle>
                   <CardDescription>Datos generales de tu empresa</CardDescription>
                 </div>
               </div>
@@ -270,23 +270,23 @@ export function OrganizationSettingsCard() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Company Header */}
-            <div className="flex items-start gap-4 p-4 rounded-xl bg-gray-900/50 border border-gray-700/30">
+            <div className="flex items-start gap-4 p-4 rounded-xl bg-muted border border-border">
               <Avatar className="h-20 w-20 rounded-xl">
                 {tenant?.settings?.branding?.logo ? (
                   <AvatarImage src={tenant.settings.branding.logo} alt={tenant.name} />
                 ) : null}
-                <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-2xl rounded-xl">
+                <AvatarFallback className="bg-gradient-to-br from-cyan-500 to-blue-600 text-foreground text-2xl rounded-xl">
                   {getInitials(tenant?.name || 'ZO')}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <h3 className="text-xl font-bold text-white">{tenant?.name || 'Mi Organización'}</h3>
+                  <h3 className="text-xl font-bold text-foreground">{tenant?.name || 'Mi Organización'}</h3>
                   <Badge className={planColors[tenant?.plan || 'free']}>
                     {(tenant?.plan || 'FREE').toUpperCase()}
                   </Badge>
                 </div>
-                <p className="text-gray-400 text-sm mb-2">
+                <p className="text-muted-foreground text-sm mb-2">
                   @{tenant?.slug || 'mi-organizacion'}
                 </p>
                 <div className="flex flex-wrap gap-4 text-sm text-gray-500">
@@ -312,49 +312,49 @@ export function OrganizationSettingsCard() {
               </div>
               {isAdmin && (
                 <Button variant="ghost" size="icon" className="rounded-full">
-                  <Camera className="h-4 w-4 text-gray-400" />
+                  <Camera className="h-4 w-4 text-muted-foreground" />
                 </Button>
               )}
             </div>
 
             {/* Contact Info Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Mail className="h-4 w-4 text-cyan-400" />
-                  <span className="text-sm text-gray-400">Email corporativo</span>
+                  <span className="text-sm text-muted-foreground">Email corporativo</span>
                 </div>
-                <p className="text-white font-medium">
+                <p className="text-foreground font-medium">
                   {formData.email || 'No configurado'}
                 </p>
               </div>
               
-              <div className="p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Phone className="h-4 w-4 text-cyan-400" />
-                  <span className="text-sm text-gray-400">Teléfono</span>
+                  <span className="text-sm text-muted-foreground">Teléfono</span>
                 </div>
-                <p className="text-white font-medium">
+                <p className="text-foreground font-medium">
                   {formData.phone || 'No configurado'}
                 </p>
               </div>
               
-              <div className="p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin className="h-4 w-4 text-cyan-400" />
-                  <span className="text-sm text-gray-400">Dirección</span>
+                  <span className="text-sm text-muted-foreground">Dirección</span>
                 </div>
-                <p className="text-white font-medium">
+                <p className="text-foreground font-medium">
                   {formData.address || 'No configurada'}
                 </p>
               </div>
               
-              <div className="p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <FileText className="h-4 w-4 text-cyan-400" />
-                  <span className="text-sm text-gray-400">RFC / NIT / Tax ID</span>
+                  <span className="text-sm text-muted-foreground">RFC / NIT / Tax ID</span>
                 </div>
-                <p className="text-white font-medium">
+                <p className="text-foreground font-medium">
                   {formData.taxId || 'No configurado'}
                 </p>
               </div>
@@ -363,37 +363,37 @@ export function OrganizationSettingsCard() {
         </Card>
 
         {/* Regional Preferences Card */}
-        <Card className="bg-gray-800/30 border-gray-700/50">
+        <Card className="bg-gray-800/30 border-border">
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-600 to-emerald-700 flex items-center justify-center">
-                <Globe className="h-5 w-5 text-white" />
+                <Globe className="h-5 w-5 text-foreground" />
               </div>
               <div>
-                <CardTitle className="text-white">Preferencias Regionales</CardTitle>
+                <CardTitle className="text-foreground">Preferencias Regionales</CardTitle>
                 <CardDescription>Configuración de idioma, moneda y formato</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <DollarSign className="h-4 w-4 text-green-400" />
-                  <span className="text-sm text-gray-400">Moneda</span>
+                  <span className="text-sm text-muted-foreground">Moneda</span>
                 </div>
-                <p className="text-white font-medium text-lg">{formData.currency}</p>
+                <p className="text-foreground font-medium text-lg">{formData.currency}</p>
                 <p className="text-xs text-gray-500">
                   {CURRENCIES.find(c => c.value === formData.currency)?.label.split(' - ')[1] || ''}
                 </p>
               </div>
               
-              <div className="p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-blue-400" />
-                  <span className="text-sm text-gray-400">Zona horaria</span>
+                  <span className="text-sm text-muted-foreground">Zona horaria</span>
                 </div>
-                <p className="text-white font-medium text-lg">
+                <p className="text-foreground font-medium text-lg">
                   {TIMEZONES.find(t => t.value === formData.timezone)?.label.split(')')[0]}
                 </p>
                 <p className="text-xs text-gray-500">
@@ -401,23 +401,23 @@ export function OrganizationSettingsCard() {
                 </p>
               </div>
               
-              <div className="p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Languages className="h-4 w-4 text-purple-400" />
-                  <span className="text-sm text-gray-400">Idioma</span>
+                  <span className="text-sm text-muted-foreground">Idioma</span>
                 </div>
-                <p className="text-white font-medium text-lg">
+                <p className="text-foreground font-medium text-lg">
                   {LANGUAGES.find(l => l.value === formData.language)?.label || formData.language}
                 </p>
                 <p className="text-xs text-gray-500">Interfaz del sistema</p>
               </div>
               
-              <div className="p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+              <div className="p-4 rounded-lg bg-muted/50 border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="h-4 w-4 text-amber-400" />
-                  <span className="text-sm text-gray-400">Formato de fecha</span>
+                  <span className="text-sm text-muted-foreground">Formato de fecha</span>
                 </div>
-                <p className="text-white font-medium text-lg">{formData.dateFormat}</p>
+                <p className="text-foreground font-medium text-lg">{formData.dateFormat}</p>
                 <p className="text-xs text-gray-500">
                   {formData.dateFormat === 'DD/MM/YYYY' ? '31/12/2025' : 
                    formData.dateFormat === 'MM/DD/YYYY' ? '12/31/2025' : '2025-12-31'}
@@ -428,15 +428,15 @@ export function OrganizationSettingsCard() {
         </Card>
 
         {/* Current Plan Card */}
-        <Card className="bg-gray-800/30 border-gray-700/50">
+        <Card className="bg-gray-800/30 border-border">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-700 flex items-center justify-center">
-                  <CheckCircle2 className="h-5 w-5 text-white" />
+                  <CheckCircle2 className="h-5 w-5 text-foreground" />
                 </div>
                 <div>
-                  <CardTitle className="text-white">Plan Actual</CardTitle>
+                  <CardTitle className="text-foreground">Plan Actual</CardTitle>
                   <CardDescription>Características y límites de tu suscripción</CardDescription>
                 </div>
               </div>
@@ -455,7 +455,7 @@ export function OrganizationSettingsCard() {
                   className={`p-4 rounded-xl border-2 transition-all ${
                     tenant?.plan === plan 
                       ? 'border-cyan-500 bg-cyan-500/10' 
-                      : 'border-gray-700/30 bg-gray-900/30 opacity-60'
+                      : 'border-border bg-muted/50 opacity-60'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -468,7 +468,7 @@ export function OrganizationSettingsCard() {
                   </div>
                   <ul className="space-y-2">
                     {planFeatures[plan].map((feature, idx) => (
-                      <li key={idx} className="text-sm text-gray-400 flex items-center gap-2">
+                      <li key={idx} className="text-sm text-muted-foreground flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-gray-500" />
                         {feature}
                       </li>
@@ -483,9 +483,9 @@ export function OrganizationSettingsCard() {
 
       {/* Edit Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-card border-border max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">Editar Información de la Organización</DialogTitle>
+            <DialogTitle className="text-foreground">Editar Información de la Organización</DialogTitle>
             <DialogDescription>
               Actualiza los datos de tu empresa
             </DialogDescription>
@@ -494,7 +494,7 @@ export function OrganizationSettingsCard() {
           <div className="space-y-6 py-4">
             {/* Basic Info */}
             <div className="space-y-4">
-              <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                 Información Básica
               </h4>
               <div className="grid grid-cols-2 gap-4">
@@ -504,7 +504,7 @@ export function OrganizationSettingsCard() {
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-gray-800 border-border"
                   />
                 </div>
                 <div className="space-y-2">
@@ -513,7 +513,7 @@ export function OrganizationSettingsCard() {
                     id="slug"
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-gray-800 border-border"
                   />
                 </div>
               </div>
@@ -525,7 +525,7 @@ export function OrganizationSettingsCard() {
                     placeholder="Ej: Tecnología, Retail, Servicios..."
                     value={formData.industry}
                     onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-gray-800 border-border"
                   />
                 </div>
                 <div className="space-y-2">
@@ -534,10 +534,10 @@ export function OrganizationSettingsCard() {
                     value={formData.employeeCount}
                     onValueChange={(v) => setFormData({ ...formData, employeeCount: v })}
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectTrigger className="bg-gray-800 border-border">
                       <SelectValue placeholder="Seleccionar" />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectContent className="bg-gray-800 border-border">
                       <SelectItem value="1-10">1-10</SelectItem>
                       <SelectItem value="11-50">11-50</SelectItem>
                       <SelectItem value="51-200">51-200</SelectItem>
@@ -553,7 +553,7 @@ export function OrganizationSettingsCard() {
 
             {/* Contact Info */}
             <div className="space-y-4">
-              <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                 Información de Contacto
               </h4>
               <div className="grid grid-cols-2 gap-4">
@@ -565,7 +565,7 @@ export function OrganizationSettingsCard() {
                     placeholder="contacto@empresa.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-gray-800 border-border"
                   />
                 </div>
                 <div className="space-y-2">
@@ -575,7 +575,7 @@ export function OrganizationSettingsCard() {
                     placeholder="+52 55 1234 5678"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-gray-800 border-border"
                   />
                 </div>
               </div>
@@ -586,7 +586,7 @@ export function OrganizationSettingsCard() {
                   placeholder="Calle, número, colonia, ciudad, país"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-gray-800 border-border"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -597,7 +597,7 @@ export function OrganizationSettingsCard() {
                     placeholder="XAXX010101000"
                     value={formData.taxId}
                     onChange={(e) => setFormData({ ...formData, taxId: e.target.value })}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-gray-800 border-border"
                   />
                 </div>
                 <div className="space-y-2">
@@ -607,7 +607,7 @@ export function OrganizationSettingsCard() {
                     placeholder="https://www.empresa.com"
                     value={formData.website}
                     onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-gray-800 border-border"
                   />
                 </div>
               </div>
@@ -617,7 +617,7 @@ export function OrganizationSettingsCard() {
 
             {/* Regional Settings */}
             <div className="space-y-4">
-              <h4 className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                 Preferencias Regionales
               </h4>
               <div className="grid grid-cols-2 gap-4">
@@ -627,10 +627,10 @@ export function OrganizationSettingsCard() {
                     value={formData.currency}
                     onValueChange={(v) => setFormData({ ...formData, currency: v })}
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectTrigger className="bg-gray-800 border-border">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectContent className="bg-gray-800 border-border">
                       {CURRENCIES.map((c) => (
                         <SelectItem key={c.value} value={c.value}>
                           {c.label}
@@ -645,10 +645,10 @@ export function OrganizationSettingsCard() {
                     value={formData.timezone}
                     onValueChange={(v) => setFormData({ ...formData, timezone: v })}
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectTrigger className="bg-gray-800 border-border">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectContent className="bg-gray-800 border-border">
                       {TIMEZONES.map((t) => (
                         <SelectItem key={t.value} value={t.value}>
                           {t.label}
@@ -665,10 +665,10 @@ export function OrganizationSettingsCard() {
                     value={formData.language}
                     onValueChange={(v) => setFormData({ ...formData, language: v })}
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectTrigger className="bg-gray-800 border-border">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectContent className="bg-gray-800 border-border">
                       {LANGUAGES.map((l) => (
                         <SelectItem key={l.value} value={l.value}>
                           {l.label}
@@ -683,10 +683,10 @@ export function OrganizationSettingsCard() {
                     value={formData.dateFormat}
                     onValueChange={(v) => setFormData({ ...formData, dateFormat: v })}
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectTrigger className="bg-gray-800 border-border">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectContent className="bg-gray-800 border-border">
                       {DATE_FORMATS.map((f) => (
                         <SelectItem key={f.value} value={f.value}>
                           {f.label}

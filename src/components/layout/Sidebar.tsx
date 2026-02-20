@@ -1,8 +1,8 @@
 /**
  * ZADIA OS - Sidebar Navigation
  * 
- * Usando componentes ShadCN con estética cockpit oscura
- * REGLA 2: ShadCN UI + Lucide icons
+ * Professional cockpit sidebar with motion animations
+ * REGLA 2: ShadCN UI + Lucide icons + Motion
  */
 
 'use client';
@@ -10,6 +10,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { motion } from 'motion/react';
 import {
   Sidebar as SidebarComponent,
   SidebarContent,
@@ -75,6 +76,23 @@ const systemNav = [
   { title: 'Configuración', href: '/settings', icon: Settings },
 ];
 
+// Stagger animation for nav groups
+const navGroupVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.04, delayChildren: 0.1 }
+  }
+};
+
+const navItemVariants = {
+  hidden: { opacity: 0, x: -12 },
+  visible: {
+    opacity: 1, x: 0,
+    transition: { type: 'spring' as const, stiffness: 300, damping: 24 }
+  }
+};
+
 export function Sidebar() {
   const { user, firebaseUser, loading, logout } = useAuth();
   const pathname = usePathname();
@@ -84,25 +102,43 @@ export function Sidebar() {
   const NavItem = ({ item }: { item: typeof mainNav[0] }) => {
     const Icon = item.icon;
     const active = isActive(item.href);
-    
+
     return (
       <SidebarMenuItem>
         <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
-          <Link 
+          <Link
             href={item.href}
             className={cn(
-              "transition-all duration-200",
-              active 
-                ? "bg-cyan-500/10 text-cyan-400 border-l-2 border-cyan-500" 
-                : "text-gray-400 hover:text-white hover:bg-white/5"
+              "relative transition-all duration-200",
+              active
+                ? "text-sidebar-primary"
+                : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
             )}
           >
+            {/* Active indicator — animated spring bar */}
+            {active && (
+              <motion.div
+                layoutId="sidebar-active-indicator"
+                className="absolute left-0 top-1 bottom-1 w-[2px] bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-full"
+                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+              />
+            )}
+
             <Icon className={cn(
-              "h-4 w-4",
-              active ? "text-cyan-400" : "text-gray-500"
+              "h-4 w-4 transition-colors",
+              active ? "text-sidebar-primary" : "text-sidebar-foreground/60"
             )} />
-            <span>{item.title}</span>
-            {active && <ChevronRight className="ml-auto h-4 w-4 text-cyan-400" />}
+            <span className="font-medium">{item.title}</span>
+
+            {active && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+              >
+                <ChevronRight className="ml-auto h-3.5 w-3.5 text-cyan-400/60" />
+              </motion.div>
+            )}
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -111,11 +147,11 @@ export function Sidebar() {
 
   if (loading) {
     return (
-      <SidebarComponent collapsible="icon" className="bg-[#0d1117] border-r border-gray-800/50">
-        <SidebarHeader className="border-b border-gray-800/50">
+      <SidebarComponent collapsible="icon" className="bg-sidebar border-r border-sidebar-border">
+        <SidebarHeader className="border-b border-sidebar-border">
           <div className="flex items-center gap-2 px-2 py-1.5">
-            <div className="h-8 w-8 animate-pulse rounded-lg bg-gray-800" />
-            <div className="h-4 w-20 animate-pulse rounded bg-gray-800" />
+            <div className="h-8 w-8 animate-pulse rounded-lg bg-sidebar-accent" />
+            <div className="h-4 w-20 animate-pulse rounded bg-sidebar-accent" />
           </div>
         </SidebarHeader>
       </SidebarComponent>
@@ -127,28 +163,38 @@ export function Sidebar() {
   // Use Firestore profile if available, otherwise fall back to Firebase Auth user
   const displayName = user?.displayName || firebaseUser.displayName || '';
   const email = user?.email || firebaseUser.email || '';
-  
-  const userInitials = displayName 
+
+  const userInitials = displayName
     ? displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
     : email?.[0]?.toUpperCase() || 'U';
 
   return (
-    <SidebarComponent 
-      collapsible="icon" 
-      className="bg-[#0d1117] border-r border-gray-800/50"
+    <SidebarComponent
+      collapsible="icon"
+      className="bg-sidebar border-r border-sidebar-border"
     >
-      {/* Header con Logo */}
-      <SidebarHeader className="border-b border-gray-800/50 px-4 py-4">
+      {/* Header con Logo — glow pulsante */}
+      <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard" className="hover:bg-transparent">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 shadow-lg shadow-cyan-500/25">
-                  <Zap className="size-4 text-white" />
-                </div>
+              <Link href="/dashboard" className="hover:bg-transparent group">
+                <motion.div
+                  className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600"
+                  animate={{
+                    boxShadow: [
+                      '0 0 12px rgba(6,182,212,0.3)',
+                      '0 0 20px rgba(6,182,212,0.5)',
+                      '0 0 12px rgba(6,182,212,0.3)',
+                    ]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <Zap className="size-4 text-foreground" />
+                </motion.div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-bold text-white">ZADIA OS</span>
-                  <span className="truncate text-xs text-gray-500 uppercase tracking-wider">Enterprise</span>
+                  <span className="truncate font-bold text-sidebar-foreground tracking-wide">ZADIA OS</span>
+                  <span className="truncate text-[10px] text-cyan-600/60 dark:text-cyan-500/60 uppercase tracking-[0.2em] font-medium">Enterprise</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -160,107 +206,123 @@ export function Sidebar() {
       <SidebarContent className="px-2 py-4">
         {/* Principal */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider px-2 mb-1">
+          <SidebarGroupLabel className="text-[10px] font-semibold text-sidebar-foreground/60 uppercase tracking-[0.15em] px-2 mb-1">
             Principal
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {mainNav.map((item) => (
-                <NavItem key={item.href} item={item} />
-              ))}
-            </SidebarMenu>
+            <motion.div variants={navGroupVariants} initial="hidden" animate="visible">
+              <SidebarMenu>
+                {mainNav.map((item) => (
+                  <motion.div key={item.href} variants={navItemVariants}>
+                    <NavItem item={item} />
+                  </motion.div>
+                ))}
+              </SidebarMenu>
+            </motion.div>
           </SidebarGroupContent>
         </SidebarGroup>
 
         {/* Negocio */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider px-2 mb-1">
+          <SidebarGroupLabel className="text-[10px] font-semibold text-sidebar-foreground/60 uppercase tracking-[0.15em] px-2 mb-1">
             Negocio
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {businessNav.map((item) => (
-                <NavItem key={item.href} item={item} />
-              ))}
-            </SidebarMenu>
+            <motion.div variants={navGroupVariants} initial="hidden" animate="visible">
+              <SidebarMenu>
+                {businessNav.map((item) => (
+                  <motion.div key={item.href} variants={navItemVariants}>
+                    <NavItem item={item} />
+                  </motion.div>
+                ))}
+              </SidebarMenu>
+            </motion.div>
           </SidebarGroupContent>
         </SidebarGroup>
 
         {/* Recursos */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider px-2 mb-1">
+          <SidebarGroupLabel className="text-[10px] font-semibold text-sidebar-foreground/60 uppercase tracking-[0.15em] px-2 mb-1">
             Recursos
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {resourcesNav.map((item) => (
-                <NavItem key={item.href} item={item} />
-              ))}
-            </SidebarMenu>
+            <motion.div variants={navGroupVariants} initial="hidden" animate="visible">
+              <SidebarMenu>
+                {resourcesNav.map((item) => (
+                  <motion.div key={item.href} variants={navItemVariants}>
+                    <NavItem item={item} />
+                  </motion.div>
+                ))}
+              </SidebarMenu>
+            </motion.div>
           </SidebarGroupContent>
         </SidebarGroup>
 
         {/* Sistema */}
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider px-2 mb-1">
+          <SidebarGroupLabel className="text-[10px] font-semibold text-sidebar-foreground/60 uppercase tracking-[0.15em] px-2 mb-1">
             Sistema
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {systemNav.map((item) => (
-                <NavItem key={item.href} item={item} />
-              ))}
-            </SidebarMenu>
+            <motion.div variants={navGroupVariants} initial="hidden" animate="visible">
+              <SidebarMenu>
+                {systemNav.map((item) => (
+                  <motion.div key={item.href} variants={navItemVariants}>
+                    <NavItem item={item} />
+                  </motion.div>
+                ))}
+              </SidebarMenu>
+            </motion.div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
       {/* Footer con Usuario */}
-      <SidebarFooter className="border-t border-gray-800/50 px-4 py-3">
+      <SidebarFooter className="border-t border-sidebar-border px-4 py-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-gray-800 data-[state=open]:text-white w-full justify-start text-gray-400 hover:text-white hover:bg-white/5"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground w-full justify-start text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 text-white text-xs font-bold">
+                    <AvatarFallback className="rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 text-foreground text-xs font-bold">
                       {userInitials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium text-white">
+                    <span className="truncate font-medium text-sidebar-foreground">
                       {displayName || 'Usuario'}
                     </span>
-                    <span className="truncate text-xs text-gray-500">
+                    <span className="truncate text-xs text-sidebar-foreground/60">
                       {email}
                     </span>
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg bg-[#161b22] border-gray-800/50"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl bg-[#0f1419] border-border backdrop-blur-xl"
                 side="bottom"
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem asChild className="text-gray-300 hover:text-white hover:bg-white/5 cursor-pointer">
+                <DropdownMenuItem asChild className="text-muted-foreground hover:text-foreground hover:bg-white/5 cursor-pointer rounded-lg">
                   <Link href="/profile">
                     Mi Perfil
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild className="text-gray-300 hover:text-white hover:bg-white/5 cursor-pointer">
+                <DropdownMenuItem asChild className="text-muted-foreground hover:text-foreground hover:bg-white/5 cursor-pointer rounded-lg">
                   <Link href="/settings">
                     <Settings className="mr-2 h-4 w-4" />
                     Configuración
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-gray-800" />
-                <DropdownMenuItem 
+                <DropdownMenuSeparator className="bg-gray-800/50" />
+                <DropdownMenuItem
                   onClick={logout}
-                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
+                  className="text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer rounded-lg"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Cerrar Sesión
@@ -273,3 +335,4 @@ export function Sidebar() {
     </SidebarComponent>
   );
 }
+

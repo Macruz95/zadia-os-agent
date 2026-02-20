@@ -6,7 +6,7 @@
 
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -24,16 +24,18 @@ interface LeadsTableProps {
   totalCount: number;
   onConvertLead: (lead: Lead) => void;
   onDisqualifyLead: (lead: Lead) => void;
+  onCreateQuote?: (lead: Lead) => void; // NEW
   onEditLead?: (lead: Lead) => void;
   onDeleteLead?: (lead: Lead) => void;
 }
 
-export function LeadsTable({ 
-  leads, 
-  loading = false, 
-  totalCount, 
-  onConvertLead, 
+export function LeadsTable({
+  leads,
+  loading = false,
+  totalCount,
+  onConvertLead,
   onDisqualifyLead,
+  onCreateQuote, // NEW
   onEditLead,
   onDeleteLead
 }: LeadsTableProps) {
@@ -75,13 +77,15 @@ export function LeadsTable({
                   </TableCell>
                 </TableRow>
               ) : (
-                leads.map((lead) => (
+                leads.map((lead, index) => (
                   <LeadsTableRow
                     key={lead.id}
                     lead={lead}
+                    index={index}
                     onConvertLead={onConvertLead}
                     onDisqualifyLead={onDisqualifyLead}
                     onRowClick={handleRowClick}
+                    onCreateQuote={onCreateQuote} // NEW
                     onEditLead={onEditLead}
                     onDeleteLead={onDeleteLead}
                   />

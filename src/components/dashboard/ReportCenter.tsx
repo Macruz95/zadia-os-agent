@@ -349,8 +349,8 @@ export function ReportExportButton({
           Exportar
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-[#161b22] border-gray-800/50">
-        <DropdownMenuLabel className="text-gray-400">
+      <DropdownMenuContent align="end" className="bg-card border-border">
+        <DropdownMenuLabel className="text-muted-foreground">
           Formato de exportación
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-gray-800/50" />
@@ -358,7 +358,7 @@ export function ReportExportButton({
           <DropdownMenuItem
             key={format}
             onClick={() => handleExport(format)}
-            className="hover:bg-[#0d1117] cursor-pointer"
+            className="hover:bg-muted cursor-pointer"
           >
             {formatIcons[format]}
             <span className="ml-2">{formatLabels[format]}</span>
@@ -427,15 +427,15 @@ export function ReportCenter({ category = 'all' }: ReportCenterProps) {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-gray-400" />
+          <Filter className="w-4 h-4 text-muted-foreground" />
           <Select 
             value={selectedCategory} 
             onValueChange={(v) => setSelectedCategory(v as typeof selectedCategory)}
           >
-            <SelectTrigger className="w-40 bg-[#161b22] border-gray-800/50">
+            <SelectTrigger className="w-40 bg-card border-border">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-[#161b22] border-gray-800/50">
+            <SelectContent className="bg-card border-border">
               {categories.map(cat => (
                 <SelectItem key={cat.value} value={cat.value}>
                   {cat.label}
@@ -446,7 +446,7 @@ export function ReportCenter({ category = 'all' }: ReportCenterProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-gray-400" />
+          <Calendar className="w-4 h-4 text-muted-foreground" />
           <DatePickerWithRange 
             date={dateRange} 
             onDateChange={setDateRange}
@@ -459,14 +459,14 @@ export function ReportCenter({ category = 'all' }: ReportCenterProps) {
         {filteredReports.map(report => (
           <div
             key={report.type}
-            className="p-4 bg-[#161b22] border border-gray-800/50 rounded-lg hover:border-cyan-500/30 transition-colors"
+            className="p-4 bg-card border border-border rounded-lg hover:border-cyan-500/30 transition-colors"
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{report.icon}</span>
                 <div>
-                  <h3 className="font-medium text-white">{report.title}</h3>
-                  <p className="text-sm text-gray-400">{report.description}</p>
+                  <h3 className="font-medium text-foreground">{report.title}</h3>
+                  <p className="text-sm text-muted-foreground">{report.description}</p>
                 </div>
               </div>
             </div>
@@ -477,7 +477,7 @@ export function ReportCenter({ category = 'all' }: ReportCenterProps) {
                   key={format}
                   variant="outline"
                   size="sm"
-                  className="bg-[#0d1117] border-gray-800/50 hover:border-cyan-500/50"
+                  className="bg-muted border-border hover:border-cyan-500/50"
                   onClick={() => handleExport(report.type, format)}
                   disabled={exporting === `${report.type}-${format}`}
                 >

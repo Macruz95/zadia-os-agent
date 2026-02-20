@@ -41,7 +41,7 @@ export function RegisterForm() {
       </AuthCardContent>
 
       <AuthCardFooter>
-        <p className="text-center text-sm text-gray-400">
+        <p className="text-center text-sm text-muted-foreground">
           {t('auth.register.haveAccount')}{' '}
           <Link
             href="/login"

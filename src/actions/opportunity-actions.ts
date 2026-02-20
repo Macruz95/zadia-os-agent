@@ -122,7 +122,7 @@ export async function markOpportunityAsWonAction(
                 tags: ['created-from-opportunity'],
                 createdAt: FieldValue.serverTimestamp(),
                 updatedAt: FieldValue.serverTimestamp(),
-                createdBy: 'system', // TODO: Pass actual user ID
+                createdBy: projectManager || opportunityData?.assignedTo || 'system',
                 updatedBy: null,
             };
 

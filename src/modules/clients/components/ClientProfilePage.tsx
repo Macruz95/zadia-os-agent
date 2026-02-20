@@ -7,6 +7,7 @@ import { ClientContactsCard } from './ClientContactsCard';
 import { ClientTimeline } from './ClientTimeline';
 import { ClientKPIsCard } from './ClientKPIsCard';
 import { ClientSummaryCards } from './ClientSummaryCards';
+import { AnimatedPage } from '@/components/ui/motion';
 
 interface ClientProfilePageProps {
   clientId: string;
@@ -40,7 +41,7 @@ export const ClientProfilePage = ({
           </p>
           <button
             onClick={onBack}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-foreground rounded hover:bg-blue-700"
           >
             Volver
           </button>
@@ -50,7 +51,7 @@ export const ClientProfilePage = ({
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <AnimatedPage className="p-6 space-y-6">
       {/* Header */}
       <ClientProfileHeader
         client={client}
@@ -66,7 +67,7 @@ export const ClientProfilePage = ({
         {/* Left Column - Info and KPIs */}
         <div className="space-y-6">
           <ClientInfoCard client={client} contacts={contacts} />
-          <ClientKPIsCard 
+          <ClientKPIsCard
             client={client}
             transactions={transactions}
             projects={projects}
@@ -96,6 +97,6 @@ export const ClientProfilePage = ({
           tasks={tasks}
         />
       </div>
-    </div>
+    </AnimatedPage>
   );
 };

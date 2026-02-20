@@ -1,2 +1,0 @@
-﻿src/modules/sales/components/leads/DuplicateCheckStep.tsx(41,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.

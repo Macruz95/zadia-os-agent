@@ -12,8 +12,38 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { logger } from '@/lib/logger';
+import { getAdminAuth } from '@/lib/firebase-admin';
 import { AIRouter, type AIRouterConfig, type ModelSelection, type TaskType, type AIProvider } from '@/lib/ai/ai-router';
+
+// Auth cookie name (must match session route)
+const AUTH_COOKIE_NAME = 'auth-token';
+
+/**
+ * Verify authentication from session cookie.
+ * Returns the user UID if valid, or null.
+ */
+async function verifyAuth(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+    if (!token) return null;
+
+    const adminAuth = getAdminAuth();
+    if (adminAuth) {
+      const decoded = await adminAuth.verifyIdToken(token, true);
+      return decoded.uid;
+    }
+    // Dev mode only: trust cookie existence when Firebase Admin is not configured
+    if (process.env.NODE_ENV === 'development') {
+      return token ? 'dev-user' : null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURATION
@@ -73,17 +103,17 @@ interface OpenRouterResponse {
   id: string;
   model: string;
   choices: Array<{
-    message: { 
-      role: string; 
+    message: {
+      role: string;
       content: string;
       reasoning_content?: string;
     };
     finish_reason: string;
     reasoning_details?: string;
   }>;
-  usage?: { 
-    prompt_tokens: number; 
-    completion_tokens: number; 
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
     total_tokens: number;
     reasoning_tokens?: number;
   };
@@ -102,8 +132,8 @@ interface AICallResult {
 // ═══════════════════════════════════════════════════════════════════════════
 
 async function callOpenRouter(
-  messages: ChatMessage[], 
-  model: string, 
+  messages: ChatMessage[],
+  model: string,
   temperature: number,
   maxTokens: number,
   apiKey: string,
@@ -135,17 +165,17 @@ async function callOpenRouter(
     },
     body: JSON.stringify(requestBody),
   });
-  
+
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(`OpenRouter ${response.status}: ${errorText}`);
   }
-  
+
   const data: OpenRouterResponse = await response.json();
   const choice = data.choices[0];
-  
-  return { 
-    content: choice?.message?.content || '', 
+
+  return {
+    content: choice?.message?.content || '',
     model: data.model,
     tokens: data.usage?.total_tokens || 0,
     reasoning: choice?.reasoning_details || choice?.message?.reasoning_content,
@@ -154,33 +184,33 @@ async function callOpenRouter(
 }
 
 async function callGroq(
-  messages: ChatMessage[], 
-  model: string, 
+  messages: ChatMessage[],
+  model: string,
   temperature: number,
   maxTokens: number,
   apiKey: string
 ): Promise<AICallResult> {
   const response = await fetch(PROVIDERS.groq.url, {
     method: 'POST',
-    headers: { 
-      'Authorization': `Bearer ${apiKey}`, 
-      'Content-Type': 'application/json' 
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ 
-      model, 
+    body: JSON.stringify({
+      model,
       messages: messages.map(m => ({ role: m.role, content: m.content })),
-      temperature, 
-      max_tokens: maxTokens 
+      temperature,
+      max_tokens: maxTokens
     }),
   });
-  
+
   if (!response.ok) {
     throw new Error(`Groq ${response.status}`);
   }
-  
+
   const data: OpenRouterResponse = await response.json();
-  return { 
-    content: data.choices[0]?.message?.content || '', 
+  return {
+    content: data.choices[0]?.message?.content || '',
     model: data.model,
     tokens: data.usage?.total_tokens || 0,
     provider: 'groq',
@@ -188,8 +218,8 @@ async function callGroq(
 }
 
 async function callGoogleAI(
-  messages: ChatMessage[], 
-  model: string, 
+  messages: ChatMessage[],
+  model: string,
   temperature: number,
   maxTokens: number,
   apiKey: string
@@ -199,7 +229,7 @@ async function callGoogleAI(
     parts: [{ text: m.content }]
   }));
   const systemInstruction = messages.find(m => m.role === 'system')?.content;
-  
+
   const url = `${PROVIDERS.google.url}/${model}:generateContent?key=${apiKey}`;
   const response = await fetch(url, {
     method: 'POST',
@@ -210,13 +240,13 @@ async function callGoogleAI(
       generationConfig: { temperature, maxOutputTokens: maxTokens }
     }),
   });
-  
+
   if (!response.ok) {
     throw new Error(`Google AI ${response.status}`);
   }
-  
+
   const data = await response.json();
-  return { 
+  return {
     content: data.candidates?.[0]?.content?.parts?.[0]?.text || '',
     model,
     tokens: data.usageMetadata?.totalTokenCount || 0,
@@ -230,12 +260,18 @@ async function callGoogleAI(
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  
+
+  // Verify authentication
+  const userId = await verifyAuth();
+  if (!userId) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   try {
     const body: ChatRequest = await request.json();
-    const { 
-      messages, 
-      temperature = 0.7, 
+    const {
+      messages,
+      temperature = 0.7,
       maxTokens = 4000,
       mode = 'auto',
       model: manualModel,
@@ -267,7 +303,7 @@ export async function POST(request: NextRequest) {
 
     // Select model using AI Router
     const routing = AIRouter.selectModel(lastUserMessage, routerConfig);
-    
+
     logger.info('AI Router decision', {
       component: 'AI-API',
       metadata: {
@@ -372,9 +408,9 @@ export async function POST(request: NextRequest) {
       component: 'AI-API',
       metadata: { latencyMs: latency }
     });
-    
-    return NextResponse.json({ 
-      error: error instanceof Error ? error.message : 'Internal error',
+
+    return NextResponse.json({
+      error: 'An error occurred processing your request',
       latencyMs: latency,
     }, { status: 500 });
   }
@@ -385,8 +421,14 @@ export async function POST(request: NextRequest) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export async function GET() {
+  // Verify authentication
+  const userId = await verifyAuth();
+  if (!userId) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
   const models = AIRouter.getAllModels();
-  
+
   return NextResponse.json({
     models: models.map(m => ({
       id: m.id,

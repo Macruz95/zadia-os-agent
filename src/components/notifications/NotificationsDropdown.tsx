@@ -35,7 +35,7 @@ export function NotificationsDropdown({ className }: NotificationsDropdownProps)
           size="icon"
           className={cn(
             "relative h-9 w-9 rounded-lg",
-            "text-gray-400 hover:text-white hover:bg-gray-800/50",
+            "text-muted-foreground hover:text-foreground hover:bg-gray-800/50",
             className
           )}
         >
@@ -44,7 +44,7 @@ export function NotificationsDropdown({ className }: NotificationsDropdownProps)
             <span className={cn(
               "absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1",
               "flex items-center justify-center",
-              "text-[10px] font-bold text-white",
+              "text-[10px] font-bold text-foreground",
               "bg-cyan-500 rounded-full",
               "animate-pulse"
             )}>
@@ -58,13 +58,13 @@ export function NotificationsDropdown({ className }: NotificationsDropdownProps)
         align="end" 
         className={cn(
           "w-80 p-0",
-          "bg-[#161b22] border-gray-700/50",
+          "bg-card border-border",
           "shadow-xl shadow-black/30"
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700/50">
-          <h3 className="font-semibold text-gray-200">Notificaciones</h3>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <h3 className="font-semibold text-foreground">Notificaciones</h3>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
@@ -107,7 +107,7 @@ export function NotificationsDropdown({ className }: NotificationsDropdownProps)
 
         {/* Footer */}
         {notifications.length > 0 && (
-          <div className="px-4 py-2 border-t border-gray-700/50">
+          <div className="px-4 py-2 border-t border-border">
             <Button
               variant="ghost"
               size="sm"

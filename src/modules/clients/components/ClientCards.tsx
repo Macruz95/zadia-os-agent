@@ -1,7 +1,8 @@
 'use client';
 
 import { Building, User, Users as UsersIcon, MapPin, Calendar, TrendingUp, FolderKanban } from 'lucide-react';
-import { Card, CardContent } from '../../../components/ui/card';
+import { CardContent } from '../../../components/ui/card';
+import { AnimatedCard } from '../../../components/ui/motion';
 import { Badge } from '../../../components/ui/badge';
 import { Avatar, AvatarFallback } from '../../../components/ui/avatar';
 import { Button } from '../../../components/ui/button';
@@ -20,7 +21,7 @@ export const ClientCards = ({ clients, loading, onClientSelect }: ClientCardsPro
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {[...Array(8)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
+          <AnimatedCard key={i} delay={i} className="animate-pulse bg-card border-[#1e293b]">
             <CardContent className="p-6">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
@@ -36,7 +37,7 @@ export const ClientCards = ({ clients, loading, onClientSelect }: ClientCardsPro
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </AnimatedCard>
         ))}
       </div>
     );
@@ -66,12 +67,17 @@ export const ClientCards = ({ clients, loading, onClientSelect }: ClientCardsPro
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {clients.map((client) => (
-        <Card
+      {clients.map((client, index) => (
+        <AnimatedCard
           key={client.id}
-          className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] group"
+          delay={index}
+          glowColor="primary"
+          className="cursor-pointer bg-card border-[#1e293b] hover:shadow-lg transition-all hover:scale-[1.02] group relative overflow-hidden"
           onClick={() => onClientSelect?.(client)}
         >
+          {/* Top glow line */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
           <CardContent className="p-6">
             <div className="space-y-4">
               {/* Header with Avatar and Name */}
@@ -165,7 +171,7 @@ export const ClientCards = ({ clients, loading, onClientSelect }: ClientCardsPro
               </div>
             </div>
           </CardContent>
-        </Card>
+        </AnimatedCard>
       ))}
     </div>
   );

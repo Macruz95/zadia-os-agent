@@ -103,19 +103,19 @@ export function EmptyState({ onSelectPrompt, currentModel }: EmptyStateProps) {
     <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
       {/* Hero */}
       <div className="relative mb-8">
-        <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-600/20 flex items-center justify-center border border-gray-800/50 shadow-2xl shadow-cyan-500/10">
+        <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-600/20 flex items-center justify-center border border-border shadow-2xl shadow-cyan-500/10">
           <Sparkles className="h-12 w-12 text-cyan-400" />
         </div>
         <div className="absolute -top-2 -right-2 h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center animate-pulse">
-          <Zap className="h-4 w-4 text-white" />
+          <Zap className="h-4 w-4 text-foreground" />
         </div>
       </div>
 
       {/* Title */}
-      <h1 className="text-3xl font-bold text-white mb-2">
+      <h1 className="text-3xl font-bold text-foreground mb-2">
         ¿En qué puedo ayudarte?
       </h1>
-      <p className="text-gray-400 max-w-lg mb-2">
+      <p className="text-muted-foreground max-w-lg mb-2">
         Soy <span className="text-cyan-400 font-medium">ZADIA</span>, tu asistente de IA empresarial.
         Puedo analizar datos, ejecutar acciones y buscar información en tiempo real.
       </p>
@@ -123,7 +123,7 @@ export function EmptyState({ onSelectPrompt, currentModel }: EmptyStateProps) {
       {/* Current Model Badge */}
       <Badge 
         variant="outline" 
-        className="mb-8 text-xs px-3 py-1 border-gray-700 text-gray-400"
+        className="mb-8 text-xs px-3 py-1 border-border text-muted-foreground"
       >
         <Brain className="h-3 w-3 mr-1.5 text-purple-400" />
         Modelo activo: {currentModel.name}
@@ -134,10 +134,10 @@ export function EmptyState({ onSelectPrompt, currentModel }: EmptyStateProps) {
         {CAPABILITIES.map((cap, idx) => (
           <div 
             key={idx}
-            className="flex flex-col items-center p-4 rounded-xl bg-[#161b22]/50 border border-gray-800/30"
+            className="flex flex-col items-center p-4 rounded-xl bg-card/50 border border-border/30"
           >
             <cap.icon className="h-6 w-6 text-cyan-400 mb-2" />
-            <span className="text-xs font-medium text-white">{cap.title}</span>
+            <span className="text-xs font-medium text-foreground">{cap.title}</span>
             <span className="text-[10px] text-gray-500 text-center mt-0.5">{cap.description}</span>
           </div>
         ))}
@@ -153,19 +153,19 @@ export function EmptyState({ onSelectPrompt, currentModel }: EmptyStateProps) {
               onClick={() => onSelectPrompt(item.prompt)}
               className={cn(
                 "group flex items-start gap-3 p-4 rounded-xl text-left transition-all",
-                "bg-gradient-to-br border border-gray-800/50",
+                "bg-gradient-to-br border border-border",
                 item.color,
                 "hover:border-cyan-500/30 hover:scale-[1.02] hover:shadow-lg hover:shadow-cyan-500/5"
               )}
             >
               <div className={cn(
-                "p-2 rounded-lg bg-gray-900/50 group-hover:bg-gray-900",
+                "p-2 rounded-lg bg-muted group-hover:bg-card",
                 item.iconColor
               )}>
                 <item.icon className="h-4 w-4" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white group-hover:text-cyan-400 transition-colors">
+                <p className="text-sm font-medium text-foreground group-hover:text-cyan-400 transition-colors">
                   {item.title}
                 </p>
                 <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">

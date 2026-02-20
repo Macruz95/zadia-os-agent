@@ -36,7 +36,7 @@ export class LeadsCrudService {
    * Create a new lead
    * @param tenantId - Required tenant ID for data isolation
    */
-  static async createLead(data: CreateLeadFormData, createdBy: string, tenantId?: string): Promise<Lead> {
+  static async createLead(data: CreateLeadFormData, createdBy: string, tenantId: string): Promise<Lead> {
     if (!tenantId) {
       throw new Error('tenantId is required for data isolation');
     }
@@ -154,8 +154,8 @@ export class LeadsCrudService {
   static async searchLeads(
     filters: LeadFilters = {},
     pageSize: number = 20,
-    lastDocId?: string,
-    tenantId?: string
+    lastDocId: string | undefined,
+    tenantId: string
   ): Promise<LeadSearchResult> {
     if (!tenantId) {
       return { leads: [], totalCount: 0 }; // Return empty if no tenant
@@ -226,7 +226,7 @@ export class LeadsCrudService {
    * Get leads by assigned salesperson
    * @param tenantId - Required tenant ID for data isolation
    */
-  static async getLeadsByUser(userId: string, tenantId?: string): Promise<Lead[]> {
+  static async getLeadsByUser(userId: string, tenantId: string): Promise<Lead[]> {
     if (!tenantId) {
       return []; // Return empty if no tenant
     }

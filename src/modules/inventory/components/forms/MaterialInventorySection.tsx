@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RawMaterialFormData } from '../../validations/inventory.schema';
 
 interface MaterialInventorySectionProps {
-  control: Control<RawMaterialFormData>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  control: Control<RawMaterialFormData, any>;
 }
 
 export function MaterialInventorySection({ control }: MaterialInventorySectionProps) {
@@ -143,28 +144,10 @@ export function MaterialInventorySection({ control }: MaterialInventorySectionPr
 
         <FormField
           control={control}
-          name="supplierId"
+          name="supplier"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>ID del Proveedor</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="ID del proveedor principal"
-                  {...field}
-                  value={field.value || ''}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={control}
-          name="supplierName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nombre del Proveedor</FormLabel>
+              <FormLabel>Proveedor</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Nombre del proveedor principal"

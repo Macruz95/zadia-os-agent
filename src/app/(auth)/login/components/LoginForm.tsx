@@ -78,7 +78,7 @@ export function LoginForm() {
       </AuthCardContent>
 
       <AuthCardFooter>
-        <p className="text-center text-sm text-gray-400">
+        <p className="text-center text-sm text-muted-foreground">
           {t('auth.login.noAccount')}{' '}
           <Link
             href="/register"

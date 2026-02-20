@@ -100,11 +100,11 @@ export function WorkflowGallery() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-cyan-400" />
             Biblioteca de Flujos Cognitivos
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Automatiza procesos empresariales con flujos inteligentes
           </p>
         </div>
@@ -117,17 +117,17 @@ export function WorkflowGallery() {
               Nuevo Flujo
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-[#161b22] border-gray-800/50 text-white">
+          <DialogContent className="bg-card border-border text-foreground">
             <DialogHeader>
               <DialogTitle>Crear Flujo desde Template</DialogTitle>
-              <DialogDescription className="text-gray-400">
+              <DialogDescription className="text-muted-foreground">
                 Selecciona un template para crear un nuevo flujo
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-2">
               <Button
                 variant="outline"
-                className="w-full justify-start bg-[#0d1117] border-gray-800/50 hover:border-purple-500/30"
+                className="w-full justify-start bg-muted border-border hover:border-purple-500/30"
                 onClick={() => handleCreateFromTemplate('onboarding-client')}
               >
                 <Play className="h-4 w-4 mr-2" />
@@ -135,7 +135,7 @@ export function WorkflowGallery() {
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start bg-[#0d1117] border-gray-800/50 hover:border-orange-500/30"
+                className="w-full justify-start bg-muted border-border hover:border-orange-500/30"
                 onClick={() => handleCreateFromTemplate('invoice-reminder')}
               >
                 <Play className="h-4 w-4 mr-2" />
@@ -143,7 +143,7 @@ export function WorkflowGallery() {
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start bg-[#0d1117] border-gray-800/50 hover:border-cyan-500/30"
+                className="w-full justify-start bg-muted border-border hover:border-cyan-500/30"
                 onClick={() => handleCreateFromTemplate('project-kickoff')}
               >
                 <Play className="h-4 w-4 mr-2" />
@@ -155,14 +155,14 @@ export function WorkflowGallery() {
       </div>
 
       {/* Filtros */}
-      <Card className="bg-[#161b22] border-gray-800/50">
+      <Card className="bg-card border-border">
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as Workflow['status'] | 'all')}>
-              <SelectTrigger className="w-full md:w-[180px] bg-[#0d1117] border-gray-800/50 text-white">
+              <SelectTrigger className="w-full md:w-[180px] bg-muted border-border text-foreground">
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
-              <SelectContent className="bg-[#161b22] border-gray-800/50">
+              <SelectContent className="bg-card border-border">
                 <SelectItem value="all">Todos los estados</SelectItem>
                 <SelectItem value="active">Activo</SelectItem>
                 <SelectItem value="paused">Pausado</SelectItem>
@@ -171,10 +171,10 @@ export function WorkflowGallery() {
               </SelectContent>
             </Select>
             <Select value={templateFilter} onValueChange={(v) => setTemplateFilter(v as WorkflowTemplate | 'all')}>
-              <SelectTrigger className="w-full md:w-[180px] bg-[#0d1117] border-gray-800/50 text-white">
+              <SelectTrigger className="w-full md:w-[180px] bg-muted border-border text-foreground">
                 <SelectValue placeholder="Template" />
               </SelectTrigger>
-              <SelectContent className="bg-[#161b22] border-gray-800/50">
+              <SelectContent className="bg-card border-border">
                 <SelectItem value="all">Todos los templates</SelectItem>
                 <SelectItem value="onboarding-client">Onboarding Cliente</SelectItem>
                 <SelectItem value="invoice-reminder">Recordatorio Facturas</SelectItem>
@@ -191,17 +191,17 @@ export function WorkflowGallery() {
         {/* Galería de flujos */}
         <div className="lg:col-span-2">
           {filteredWorkflows.length === 0 ? (
-            <Card className="bg-[#161b22] border-gray-800/50">
+            <Card className="bg-card border-border">
               <CardContent className="p-12 text-center">
-                <Sparkles className="h-12 w-12 mx-auto mb-4 text-gray-400 opacity-50" />
-                <p className="text-gray-400 mb-4">No hay flujos que coincidan con los filtros</p>
+                <Sparkles className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <p className="text-muted-foreground mb-4">No hay flujos que coincidan con los filtros</p>
                 <Button
                   variant="outline"
                   onClick={() => {
                     setStatusFilter('all');
                     setTemplateFilter('all');
                   }}
-                  className="bg-[#0d1117] border-gray-800/50"
+                  className="bg-muted border-border"
                 >
                   Limpiar filtros
                 </Button>

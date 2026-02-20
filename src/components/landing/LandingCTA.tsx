@@ -66,7 +66,7 @@ export function LandingCTA() {
           </div>
 
           {/* Headline */}
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
             El Futuro de tu Empresa{' '}
             <span className="bg-gradient-to-r from-[hsl(250_95%_65%)] to-[hsl(180_100%_50%)] bg-clip-text text-transparent">
               Comienza Ahora
@@ -84,7 +84,7 @@ export function LandingCTA() {
             <Link href="/register">
               <Button 
                 size="lg"
-                className="w-full sm:w-auto text-lg px-8 py-6 bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] hover:from-[hsl(250_95%_65%)] hover:to-[hsl(280_90%_60%)] text-white border-0 shadow-[0_0_30px_hsl(250_100%_60%/0.4)] hover:shadow-[0_0_40px_hsl(250_100%_60%/0.5)] transition-all"
+                className="w-full sm:w-auto text-lg px-8 py-6 bg-gradient-to-r from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] hover:from-[hsl(250_95%_65%)] hover:to-[hsl(280_90%_60%)] text-foreground border-0 shadow-[0_0_30px_hsl(250_100%_60%/0.4)] hover:shadow-[0_0_40px_hsl(250_100%_60%/0.5)] transition-all"
               >
                 <Sparkles className="mr-2 h-5 w-5" />
                 Comenzar Gratis
@@ -94,7 +94,7 @@ export function LandingCTA() {
             <Button 
               variant="outline"
               size="lg"
-              className="w-full sm:w-auto text-lg px-8 py-6 border-[hsl(230_15%_30%)] bg-[hsl(230_20%_10%)] hover:bg-[hsl(230_15%_15%)] text-white"
+              className="w-full sm:w-auto text-lg px-8 py-6 border-[hsl(230_15%_30%)] bg-[hsl(230_20%_10%)] hover:bg-[hsl(230_15%_15%)] text-foreground"
             >
               Agendar Demo
             </Button>
@@ -122,17 +122,17 @@ export function LandingCTA() {
         >
           <div className="flex flex-col md:flex-row items-center justify-center gap-8 text-center">
             <div>
-              <div className="text-3xl font-bold text-white mb-1">4.9/5</div>
+              <div className="text-3xl font-bold text-foreground mb-1">4.9/5</div>
               <div className="text-sm text-[hsl(230_10%_50%)]">Calificación promedio</div>
             </div>
             <div className="hidden md:block w-px h-12 bg-[hsl(230_15%_25%)]" />
             <div>
-              <div className="text-3xl font-bold text-white mb-1">99.9%</div>
+              <div className="text-3xl font-bold text-foreground mb-1">99.9%</div>
               <div className="text-sm text-[hsl(230_10%_50%)]">Uptime garantizado</div>
             </div>
             <div className="hidden md:block w-px h-12 bg-[hsl(230_15%_25%)]" />
             <div>
-              <div className="text-3xl font-bold text-white mb-1">&lt;2h</div>
+              <div className="text-3xl font-bold text-foreground mb-1">&lt;2h</div>
               <div className="text-sm text-[hsl(230_10%_50%)]">Tiempo de respuesta</div>
             </div>
           </div>

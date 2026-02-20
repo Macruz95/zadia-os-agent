@@ -16,25 +16,25 @@ export default function TermsPage() {
         {/* Header */}
         <div className="mb-8">
           <Link href="/register">
-            <Button variant="ghost" className="text-gray-400 hover:text-white mb-4">
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver al registro
             </Button>
           </Link>
-          <h1 className="text-4xl font-bold text-white mb-2">Términos de Servicio</h1>
-          <p className="text-gray-400">Última actualización: 30 de Noviembre, 2025</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Términos de Servicio</h1>
+          <p className="text-muted-foreground">Última actualización: 30 de Noviembre, 2025</p>
         </div>
 
         {/* Content */}
         <div className="space-y-6">
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <FileText className="w-5 h-5 text-cyan-400" />
                 1. Aceptación de Términos
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300 space-y-3">
+            <CardContent className="text-muted-foreground space-y-3">
               <p>
                 Al acceder y utilizar ZADIA OS, usted acepta estar sujeto a estos Términos de Servicio 
                 y todas las leyes y regulaciones aplicables. Si no está de acuerdo con alguno de estos 
@@ -47,14 +47,14 @@ export default function TermsPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <Users className="w-5 h-5 text-cyan-400" />
                 2. Uso del Servicio
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300 space-y-3">
+            <CardContent className="text-muted-foreground space-y-3">
               <p>
                 ZADIA OS es una plataforma de gestión empresarial (ERP) que proporciona herramientas 
                 para la administración de negocios, incluyendo pero no limitado a:
@@ -74,14 +74,14 @@ export default function TermsPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <Shield className="w-5 h-5 text-cyan-400" />
                 3. Cuenta de Usuario
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300 space-y-3">
+            <CardContent className="text-muted-foreground space-y-3">
               <p>
                 Para acceder a ZADIA OS, debe crear una cuenta proporcionando información 
                 precisa y completa. Usted es responsable de:
@@ -95,14 +95,14 @@ export default function TermsPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <AlertTriangle className="w-5 h-5 text-yellow-400" />
                 4. Limitación de Responsabilidad
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300 space-y-3">
+            <CardContent className="text-muted-foreground space-y-3">
               <p>
                 ZADIA OS se proporciona "tal cual" y "según disponibilidad". No garantizamos que:
               </p>
@@ -118,14 +118,14 @@ export default function TermsPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <FileText className="w-5 h-5 text-cyan-400" />
                 5. Propiedad Intelectual
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300 space-y-3">
+            <CardContent className="text-muted-foreground space-y-3">
               <p>
                 Todo el contenido, características y funcionalidad de ZADIA OS, incluyendo pero 
                 no limitado a texto, gráficos, logos, iconos, imágenes, clips de audio, descargas 
@@ -135,11 +135,11 @@ export default function TermsPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="text-white">6. Contacto</CardTitle>
+              <CardTitle className="text-foreground">6. Contacto</CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300">
+            <CardContent className="text-muted-foreground">
               <p>
                 Si tiene preguntas sobre estos Términos de Servicio, puede contactarnos en:
               </p>
@@ -151,7 +151,7 @@ export default function TermsPage() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <Link href="/privacy">
-            <Button variant="outline" className="border-gray-600 text-gray-300 hover:text-white">
+            <Button variant="outline" className="border-gray-600 text-muted-foreground hover:text-foreground">
               Ver Política de Privacidad
             </Button>
           </Link>

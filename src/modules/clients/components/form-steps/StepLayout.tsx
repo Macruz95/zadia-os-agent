@@ -45,7 +45,7 @@ export function StepLayout({
                 className={`
                   w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium
                   ${isActive ? 'bg-primary text-primary-foreground' : 
-                    isCompleted ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground'}
+                    isCompleted ? 'bg-green-500 text-foreground' : 'bg-muted text-muted-foreground'}
                 `}
               >
                 {stepNumber}

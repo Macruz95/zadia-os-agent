@@ -63,7 +63,7 @@ function CustomTooltip({
               : 'Balance'}
             :
           </span>
-          <span className="text-white font-medium">
+          <span className="text-foreground font-medium">
             ${entry.value.toLocaleString()}
           </span>
         </div>
@@ -92,7 +92,7 @@ export function CashFlowChart({
   return (
     <Card className="bg-zinc-900/50 border-zinc-800">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-semibold text-white">
+        <CardTitle className="text-lg font-semibold text-foreground">
           {title}
         </CardTitle>
         <div className="flex items-center gap-4 text-xs">

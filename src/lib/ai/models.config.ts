@@ -10,7 +10,7 @@
  * Última actualización: Noviembre 2025
  */
 
-export type AIModelType = 
+export type AIModelType =
   | 'reasoning'      // Razonamiento profundo
   | 'agentic'        // Agentes complejos
   | 'tool-use'       // Function calling
@@ -44,9 +44,48 @@ export interface AIModelConfig {
 
 export const OPENROUTER_FREE_MODELS: Record<string, AIModelConfig> = {
   // ═══════════════════════════════════════════════════════════════════════
-  // 🥇 TIER S - LOS MEJORES MODELOS GRATIS
+  // 🥇 TIER S - LOS MEJORES MODELOS GRATIS (Early 2026)
   // ═══════════════════════════════════════════════════════════════════════
-  
+
+  'gpt-oss-120b': {
+    id: 'gpt-oss-120b',
+    name: 'OpenAI GPT-OSS-120B',
+    model: 'openai/gpt-oss-120b:free',
+    provider: 'openrouter',
+    description: '117B MoE open-weights. Nivel de razonamiento profundo y agentes autónomos.',
+    contextTokens: 131072,
+    specialties: ['reasoning', 'coding', 'function-calling', 'agents', 'tool-use'],
+    useCase: ['reasoning', 'agentic', 'tool-use', 'coding'],
+    speed: 'fast',
+    quality: 'top-tier'
+  },
+
+  'qwen3-vl-30b': {
+    id: 'qwen3-vl-30b',
+    name: 'Qwen3-VL 30B Thinking',
+    model: 'qwen/qwen3-vl-30b-a3b-thinking:free',
+    provider: 'openrouter',
+    description: 'Multimodal nativo Top 1. Excelente entendimiento de imagen/video y razonamiento lógico.',
+    contextTokens: 32768,
+    specialties: ['multimodal', 'vision', 'reasoning', 'documents', 'ocr'],
+    useCase: ['multimodal', 'reasoning'],
+    speed: 'medium',
+    quality: 'top-tier'
+  },
+
+  'solar-pro-3': {
+    id: 'solar-pro-3',
+    name: 'Upstage Solar Pro 3',
+    model: 'upstage/solar-pro-3:free',
+    provider: 'openrouter',
+    description: 'MoE masivo de 102B. Altamente cualificado para lógica, matemáticas e idiomas.',
+    contextTokens: 128000,
+    specialties: ['reasoning', 'general', 'fast', 'multilingual'],
+    useCase: ['reasoning', 'default'],
+    speed: 'fast',
+    quality: 'top-tier'
+  },
+
   'deepseek-r1': {
     id: 'deepseek-r1',
     name: 'DeepSeek R1',
@@ -57,45 +96,6 @@ export const OPENROUTER_FREE_MODELS: Record<string, AIModelConfig> = {
     specialties: ['reasoning', 'chain-of-thought', 'analysis', 'problem-solving', 'math'],
     useCase: ['reasoning', 'agentic', 'math'],
     speed: 'slow',
-    quality: 'top-tier'
-  },
-
-  'deepseek-r1-distill-llama-70b': {
-    id: 'deepseek-r1-distill-llama-70b',
-    name: 'DeepSeek R1 Distill Llama 70B',
-    model: 'deepseek/deepseek-r1-distill-llama-70b:free',
-    provider: 'openrouter',
-    description: '70B params, versión destilada de R1, más rápida',
-    contextTokens: 131072,
-    specialties: ['reasoning', 'balanced', 'efficient'],
-    useCase: ['reasoning', 'default'],
-    speed: 'medium',
-    quality: 'excellent'
-  },
-
-  'deepseek-r1-distill-qwen-32b': {
-    id: 'deepseek-r1-distill-qwen-32b',
-    name: 'DeepSeek R1 Distill Qwen 32B',
-    model: 'deepseek/deepseek-r1-distill-qwen-32b:free',
-    provider: 'openrouter',
-    description: '32B params, balance velocidad/razonamiento',
-    contextTokens: 131072,
-    specialties: ['reasoning', 'fast', 'efficient'],
-    useCase: ['reasoning', 'fast'],
-    speed: 'fast',
-    quality: 'excellent'
-  },
-
-  'qwen3-coder': {
-    id: 'qwen3-coder',
-    name: 'Qwen3-Coder 480B',
-    model: 'qwen/qwen3-coder:free',
-    provider: 'openrouter',
-    description: '480B params, #1 en SWE-Bench, supera Claude 4 en código',
-    contextTokens: 262000,
-    specialties: ['coding', 'function-calling', 'tool-use', 'debugging', 'agents'],
-    useCase: ['agentic', 'tool-use', 'coding'],
-    speed: 'medium',
     quality: 'top-tier'
   },
 
@@ -124,6 +124,7 @@ export const OPENROUTER_FREE_MODELS: Record<string, AIModelConfig> = {
     speed: 'fast',
     quality: 'excellent'
   },
+
 
   // ═══════════════════════════════════════════════════════════════════════
   // 🥈 TIER A - MODELOS EXCELENTES
@@ -1314,34 +1315,34 @@ export function getModelForUseCase(useCase: AIModelType): AIModelConfig {
   switch (useCase) {
     case 'reasoning':
       return OPENROUTER_FREE_MODELS['deepseek-r1'];
-    
+
     case 'agentic':
       return OPENROUTER_FREE_MODELS['qwen3-coder'];
-    
+
     case 'tool-use':
       return OPENROUTER_FREE_MODELS['glm-4.5-thinking'];
-    
+
     case 'multimodal':
       return OPENROUTER_FREE_MODELS['llama-4-maverick'];
-    
+
     case 'long-context':
       return OPENROUTER_FREE_MODELS['gemini-2.5-pro'];
-    
+
     case 'coding':
       return OPENROUTER_FREE_MODELS['qwen3-coder'];
-    
+
     case 'fast':
       return OPENROUTER_FREE_MODELS['grok-4.1-fast']; // #1 OpenRouter
-    
+
     case 'roleplay':
       return OPENROUTER_FREE_MODELS['mythomax-l2-13b'];
-    
+
     case 'math':
       return OPENROUTER_FREE_MODELS['deepseek-prover'];
-    
+
     case 'research':
       return OPENROUTER_FREE_MODELS['grok-4.1-mini'];
-    
+
     default:
       return OPENROUTER_FREE_MODELS['grok-4.1-fast']; // #1 OpenRouter como default
   }
@@ -1395,31 +1396,31 @@ export function getTopTierModels(): AIModelConfig[] {
 export const PHASE_4_MODELS = {
   // Agenda Cognitiva: razonamiento sobre conflictos, optimización
   cognitiveCalendar: OPENROUTER_FREE_MODELS['deepseek-r1'],
-  
+
   // Gestor de Tareas RICE-Z: análisis de prioridades, dependencias
   taskManager: OPENROUTER_FREE_MODELS['deepseek-r1'],
-  
+
   // Flujos Cognitivos: agentes complejos, workflows
   workflows: OPENROUTER_FREE_MODELS['qwen3-coder'],
-  
+
   // Function calling nativo
   toolUse: OPENROUTER_FREE_MODELS['glm-4.5-thinking'],
-  
+
   // Contexto largo (documentos, historial)
   longContext: OPENROUTER_FREE_MODELS['gemini-2.5-pro'],
-  
+
   // Ultra-rápido para respuestas inmediatas (#1 OpenRouter)
   instant: OPENROUTER_FREE_MODELS['grok-4.1-fast'],
-  
+
   // Agente general rápido (alternativa a Claude/Gemini)
   generalAgent: OPENROUTER_FREE_MODELS['grok-4.1-fast'],
-  
+
   // Código y debugging
   coding: OPENROUTER_FREE_MODELS['qwen3-coder'],
-  
+
   // Investigación con búsqueda web
   research: OPENROUTER_FREE_MODELS['grok-4.1-mini'],
-  
+
   // Multimodal completo
   multimodal: GOOGLE_FREE_MODELS['google-gemini-2.0-flash']
 };
@@ -1432,12 +1433,12 @@ export function getModelByNameOrId(identifier: string): AIModelConfig | null {
   if (FREE_MODELS[identifier]) {
     return FREE_MODELS[identifier];
   }
-  
+
   // Buscar por nombre (case insensitive)
   const found = Object.values(FREE_MODELS).find(
     model => model.name.toLowerCase().includes(identifier.toLowerCase())
   );
-  
+
   return found || null;
 }
 
@@ -1456,27 +1457,27 @@ export function autoSelectModel(options: {
   if (options.needsSpeed) {
     return OPENROUTER_FREE_MODELS['grok-4.1-fast']; // #1 OpenRouter
   }
-  
+
   if (options.needsWebSearch) {
     return OPENROUTER_FREE_MODELS['grok-4.1-mini'];
   }
-  
+
   if (options.needsReasoning) {
     return OPENROUTER_FREE_MODELS['deepseek-r1'];
   }
-  
+
   if (options.needsCoding) {
     return OPENROUTER_FREE_MODELS['qwen3-coder'];
   }
-  
+
   if (options.needsMultimodal) {
     return GOOGLE_FREE_MODELS['google-gemini-2.0-flash'];
   }
-  
+
   if (options.needsLongContext) {
     return OPENROUTER_FREE_MODELS['gemini-2.5-pro'];
   }
-  
+
   // Default: Grok 4.1 Fast - #1 en OpenRouter, balance velocidad/calidad
   return OPENROUTER_FREE_MODELS['grok-4.1-fast'];
 }
@@ -1512,9 +1513,9 @@ export function getModelsStats() {
 // ═══════════════════════════════════════════════════════════════════════════
 // 📋 RESUMEN DE MODELOS DISPONIBLES
 // ═══════════════════════════════════════════════════════════════════════════
-// 
+//
 // TOTAL: 70+ modelos 100% GRATIS
-// 
+//
 // 🏆 OPENROUTER (40+ modelos :free):
 //   - DeepSeek R1 (671B) - Razonamiento nivel OpenAI o1
 //   - Qwen3-Coder (480B) - #1 en código
@@ -1522,23 +1523,23 @@ export function getModelsStats() {
 //   - Llama 4 Maverick (400B) - Multimodal avanzado
 //   - GLM-4.5 Thinking - Tool-use nativo
 //   - + 35 más...
-// 
+//
 // ⚡ GROQ (10 modelos ultra-rápidos):
 //   - Llama 3.3 70B - 300+ tokens/seg
 //   - DeepSeek R1 Distill - Razonamiento rápido
 //   - Qwen 2.5 Coder 32B - Código ultra-rápido
 //   - + 7 más...
-// 
+//
 // 🌈 GOOGLE AI STUDIO (8 modelos):
 //   - Gemini 2.0 Flash - Multimodal rápido
 //   - Gemini 1.5 Pro - 2M tokens contexto
 //   - Gemma 2 familia - Modelos eficientes
-// 
+//
 // 🤗 HUGGING FACE (14+ modelos):
 //   - Chat: Llama, Mistral, Qwen
 //   - Código: CodeLlama, StarCoder2
 //   - Imagen: Stable Diffusion 3, FLUX.1
 //   - Audio: Whisper Large V3
-// 
+//
 // ═══════════════════════════════════════════════════════════════════════════
 

@@ -44,7 +44,7 @@ function CustomTooltip({
             style={{ backgroundColor: entry.color }}
           />
           <span className="text-zinc-300">{entry.name}:</span>
-          <span className="text-white font-medium">
+          <span className="text-foreground font-medium">
             {entry.name === 'Ingresos' 
               ? `$${entry.value.toLocaleString()}` 
               : entry.value.toLocaleString()}
@@ -75,7 +75,7 @@ export function SalesChart({
   return (
     <Card className="bg-zinc-900/50 border-zinc-800">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white">
+        <CardTitle className="text-lg font-semibold text-foreground">
           {title}
         </CardTitle>
       </CardHeader>

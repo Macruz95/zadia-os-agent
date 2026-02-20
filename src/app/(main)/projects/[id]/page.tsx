@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useProject } from '@/modules/projects/hooks/use-projects';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -81,6 +82,7 @@ export default function ProjectDetailPage() {
   const router = useRouter();
   const projectId = params.id as string;
   const { user } = useAuth();
+  const { membership } = useTenant();
 
   // Real Firebase data with realtime updates
   const { project, loading, error } = useProject(projectId);
@@ -88,7 +90,7 @@ export default function ProjectDetailPage() {
   // User data with defaults
   const userId = user?.uid || 'guest';
   const userName = user?.displayName || user?.email || 'Usuario';
-  const userRole = 'admin'; // TODO: Get from user profile
+  const userRole = membership?.role || 'member';
 
   const handleEdit = () => {
     toast.info('Funcionalidad de editar proyecto en desarrollo');
@@ -284,7 +286,7 @@ export default function ProjectDetailPage() {
             projectId={projectId}
             userId={userId}
             userName={userName}
-            hourlyRate={50}
+            hourlyRate={project.hourlyRate || 50}
           />
         </TabsContent>
 
@@ -297,8 +299,8 @@ export default function ProjectDetailPage() {
         </TabsContent>
 
         <TabsContent value="bom" className="space-y-4 mt-6">
-          <ProjectBOMPanel 
-            projectId={projectId} 
+          <ProjectBOMPanel
+            projectId={projectId}
             bomId={project.bomId}
           />
         </TabsContent>

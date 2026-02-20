@@ -14,12 +14,15 @@ const COLLECTION_NAME = 'raw-materials';
 export class RawMaterialCreationService {
   /**
    * Generate unique SKU for raw material
+   * Format: RM-CAT-BRAND-NAME-TIMESTAMP
+   * Example: RM-ACA-SHE-BARN-123456 (Acabados-Sherwin-Barniz)
    */
-  private static generateSKU(category: string, name: string): string {
+  private static generateSKU(category: string, name: string, brand?: string): string {
     const categoryCode = category.substring(0, 3).toUpperCase();
+    const brandCode = brand ? brand.substring(0, 3).toUpperCase() : 'GEN';
     const nameCode = name.replace(/\s+/g, '').substring(0, 4).toUpperCase();
     const timestamp = Date.now().toString().slice(-6);
-    return `RM-${categoryCode}-${nameCode}-${timestamp}`;
+    return `RM-${categoryCode}-${brandCode}-${nameCode}-${timestamp}`;
   }
 
   /**
@@ -36,9 +39,9 @@ export class RawMaterialCreationService {
     if (!tenantId) {
       throw new Error('tenantId is required for data isolation');
     }
-    
+
     try {
-      const sku = this.generateSKU(data.category, data.name);
+      const sku = this.generateSKU(data.category, data.name, data.brand);
       const now = new Date();
 
       const rawMaterialData: Record<string, unknown> = {
@@ -59,11 +62,11 @@ export class RawMaterialCreationService {
       };
 
       // Only add optional fields if they exist and are not empty
-      if (data.supplierId && data.supplierId.trim() !== '') {
-        rawMaterialData.supplierId = data.supplierId.trim();
+      if (data.brand && data.brand.trim() !== '') {
+        rawMaterialData.brand = data.brand.trim();
       }
-      if (data.supplierName && data.supplierName.trim() !== '') {
-        rawMaterialData.supplierName = data.supplierName.trim();
+      if (data.supplier && data.supplier.trim() !== '') {
+        rawMaterialData.supplier = data.supplier.trim();
       }
       if (data.description && data.description.trim() !== '') {
         rawMaterialData.description = data.description.trim();
@@ -73,7 +76,7 @@ export class RawMaterialCreationService {
       }
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), rawMaterialData);
-      
+
       const newRawMaterial = {
         id: docRef.id,
         ...rawMaterialData,

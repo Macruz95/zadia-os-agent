@@ -64,13 +64,13 @@ export function ProjectStatusChart({ data }: ProjectStatusChartProps) {
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <Card className="bg-[#161b22] border-gray-800/50">
+    <Card className="bg-card border-border">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
           <Briefcase className="h-4 w-4 text-amber-400" />
-          <CardTitle className="text-gray-200 text-base">Estado de Proyectos</CardTitle>
+          <CardTitle className="text-foreground text-base">Estado de Proyectos</CardTitle>
         </div>
-        <p className="text-xs text-gray-500">Distribución por estado</p>
+        <p className="text-xs text-muted-foreground">Distribución por estado</p>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-center">
@@ -97,17 +97,17 @@ export function ProjectStatusChart({ data }: ProjectStatusChartProps) {
                       textAnchor="middle"
                       dominantBaseline="middle"
                     >
-                      <tspan x="50%" dy="-0.2em" fill="#ffffff" fontSize="24" fontWeight="bold">
+                      <tspan x="50%" dy="-0.2em" fill="currentColor" className="fill-foreground" fontSize="24" fontWeight="bold">
                         {total}
                       </tspan>
-                      <tspan x="50%" dy="1.4em" fill="#6b7280" fontSize="11">
+                      <tspan x="50%" dy="1.4em" fill="currentColor" className="fill-muted-foreground" fontSize="11">
                         Total
                       </tspan>
                     </text>
                   )}
                 />
               </Pie>
-              <Legend 
+              <Legend
                 verticalAlign="bottom"
                 align="center"
                 layout="horizontal"
@@ -115,7 +115,7 @@ export function ProjectStatusChart({ data }: ProjectStatusChartProps) {
                 iconSize={8}
                 wrapperStyle={{ paddingTop: '10px' }}
                 formatter={(value) => (
-                  <span className="text-xs text-gray-400 mr-3">{value}</span>
+                  <span className="text-xs text-muted-foreground mr-3">{value}</span>
                 )}
               />
             </PieChart>

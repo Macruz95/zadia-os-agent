@@ -185,7 +185,7 @@ export function FinancialSummary({
         )}
 
         {/* Final Price */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg p-6">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-foreground rounded-lg p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-blue-100 text-sm mb-1">PRECIO FINAL</p>

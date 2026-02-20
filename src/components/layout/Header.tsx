@@ -11,15 +11,16 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserNav } from './UserNav';
+import { ModeToggle } from '@/components/ui/mode-toggle';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Breadcrumb, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbList, 
-  BreadcrumbPage, 
-  BreadcrumbSeparator 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
 import { Search, Command, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -58,20 +59,20 @@ function CommandSearchTrigger({ onClick }: { onClick: () => void }) {
       className={cn(
         "flex items-center gap-3 h-9 px-4 rounded-lg",
         "bg-gray-800/50 hover:bg-gray-800",
-        "border border-gray-700/50 hover:border-cyan-500/30",
+        "border border-border hover:border-cyan-500/30",
         "transition-all duration-200 group",
         "min-w-[240px]"
       )}
     >
       <Search className="h-4 w-4 text-gray-500 group-hover:text-cyan-400 transition-colors" />
-      <span className="flex-1 text-left text-sm text-gray-500 group-hover:text-gray-400">
+      <span className="flex-1 text-left text-sm text-gray-500 group-hover:text-muted-foreground">
         Buscar...
       </span>
       <div className="flex items-center gap-0.5">
-        <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gray-900 text-gray-500 border border-gray-700/50">
+        <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-card text-gray-500 border border-border">
           {isMac ? <Command className="h-2.5 w-2.5 inline" /> : 'Ctrl'}
         </kbd>
-        <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gray-900 text-gray-500 border border-gray-700/50">
+        <kbd className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-card text-gray-500 border border-border">
           K
         </kbd>
       </div>
@@ -103,30 +104,30 @@ export function Header() {
 
   if (loading) {
     return (
-      <header className="flex h-14 shrink-0 items-center gap-4 border-b border-gray-800/50 bg-[#0d1117] px-4">
-        <div className="h-4 w-4 animate-pulse bg-gray-800 rounded" />
-        <div className="h-4 w-32 animate-pulse bg-gray-800 rounded" />
+      <header className="flex h-14 shrink-0 items-center gap-4 border-b bg-background px-4">
+        <div className="h-4 w-4 animate-pulse bg-muted rounded" />
+        <div className="h-4 w-32 animate-pulse bg-muted rounded" />
       </header>
     );
   }
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-gray-800/50 bg-[#0d1117] px-4">
-      <SidebarTrigger className="text-gray-400 hover:text-white hover:bg-gray-800/50" />
-      <Separator orientation="vertical" className="h-4 bg-gray-800" />
-      
+    <header className="flex h-14 shrink-0 items-center gap-4 border-b bg-background px-4">
+      <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+      <Separator orientation="vertical" className="h-4" />
+
       {/* Breadcrumb Dinámico */}
       <Breadcrumb className="flex-1">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink 
-              href="/dashboard" 
+            <BreadcrumbLink
+              href="/dashboard"
               className="text-gray-500 hover:text-cyan-400 transition-colors text-sm"
             >
               ZADIA
             </BreadcrumbLink>
           </BreadcrumbItem>
-          
+
           {breadcrumbs.map((crumb) => (
             <div key={crumb.href} className="flex items-center">
               <BreadcrumbSeparator className="text-gray-700">
@@ -134,11 +135,11 @@ export function Header() {
               </BreadcrumbSeparator>
               <BreadcrumbItem>
                 {crumb.isLast ? (
-                  <BreadcrumbPage className="text-white text-sm font-medium">
+                  <BreadcrumbPage className="text-foreground text-sm font-medium">
                     {crumb.name}
                   </BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink 
+                  <BreadcrumbLink
                     href={crumb.href}
                     className="text-gray-500 hover:text-cyan-400 transition-colors text-sm"
                   >
@@ -156,6 +157,7 @@ export function Header() {
 
       {/* Actions */}
       <div className="flex items-center gap-2">
+        <ModeToggle />
         <NotificationsDropdown />
         {firebaseUser && <UserNav />}
       </div>

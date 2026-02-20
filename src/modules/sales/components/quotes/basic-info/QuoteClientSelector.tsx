@@ -14,6 +14,7 @@ interface QuoteClientSelectorProps {
   selectedClientName?: string;
   contacts: Array<{ id: string; name: string; position?: string }>;
   selectedContactId: string;
+  loading?: boolean; // Add loading prop
   mode: 'opportunity' | 'direct';
   onClientChange: (clientId: string) => void;
   onContactChange: (contactId: string) => void;
@@ -25,6 +26,7 @@ export function QuoteClientSelector({
   selectedClientName,
   contacts,
   selectedContactId,
+  loading,
   mode,
   onClientChange,
   onContactChange,
@@ -49,25 +51,14 @@ export function QuoteClientSelector({
     <>
       {/* Direct Mode - Client Selection */}
       <div className="space-y-2">
-        <Label htmlFor="client-select">Cliente *</Label>
-        <Select value={selectedClientId} onValueChange={onClientChange}>
-          <SelectTrigger id="client-select">
-            <SelectValue placeholder="Seleccionar cliente..." />
-          </SelectTrigger>
-          <SelectContent>
-            {clients.length === 0 ? (
-              <div className="p-2 text-sm text-muted-foreground">
-                No hay clientes disponibles
-              </div>
-            ) : (
-              clients.map((client) => (
-                <SelectItem key={client.id} value={client.id}>
-                  {client.name}
-                </SelectItem>
-              ))
-            )}
-          </SelectContent>
-        </Select>
+        <Label>Cliente *</Label>
+        <ClientCombobox
+          clients={clients}
+          selectedClientId={selectedClientId}
+          selectedClientName={selectedClientName} // Pass it down
+          loading={loading} // Pass loading prop
+          onSelect={onClientChange}
+        />
       </div>
 
       {selectedClientId && (
@@ -95,5 +86,99 @@ export function QuoteClientSelector({
         </div>
       )}
     </>
+  );
+}
+
+// Internal Client Combobox Component
+import { useState } from 'react';
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+
+// Update Props to include selectedClientName
+function ClientCombobox({
+  clients,
+  selectedClientId,
+  selectedClientName, // Add this
+  loading,
+  onSelect
+}: {
+  clients: Client[];
+  selectedClientId: string;
+  selectedClientName?: string; // Add this
+  loading?: boolean;
+  onSelect: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedClient = clients.find(c => c.id === selectedClientId);
+
+  // Logic: Use found client name OR fallback name
+  const displayName = selectedClient ? selectedClient.name : selectedClientName;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
+          disabled={loading}
+        >
+          {loading && !displayName ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Cargando clientes...</span>
+            </div>
+          ) : displayName ? (
+            displayName
+          ) : (
+            "Seleccionar cliente..."
+          )}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[400px] p-0">
+        <Command>
+          <CommandInput placeholder="Buscar cliente..." />
+          <CommandList>
+            <CommandEmpty>No se encontraron clientes.</CommandEmpty>
+            <CommandGroup>
+              {clients.map((client) => (
+                <CommandItem
+                  key={client.id}
+                  value={client.name}
+                  onSelect={() => {
+                    onSelect(client.id);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      selectedClientId === client.id ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {client.name}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

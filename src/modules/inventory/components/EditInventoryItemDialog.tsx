@@ -19,9 +19,9 @@ interface EditInventoryItemDialogProps {
   onSuccess?: () => void;
 }
 
-export function EditInventoryItemDialog({ 
-  open, 
-  onOpenChange, 
+export function EditInventoryItemDialog({
+  open,
+  onOpenChange,
   item,
   itemType,
   onSuccess
@@ -54,16 +54,16 @@ export function EditInventoryItemDialog({
         </DialogHeader>
 
         {isRawMaterial ? (
-          <RawMaterialEditForm 
-            form={rawMaterialForm} 
+          <RawMaterialEditForm
+            form={rawMaterialForm}
             onSubmit={handleSubmit}
             onCancel={() => onOpenChange(false)}
             isSubmitting={isSubmitting}
           />
         ) : (
-          <FinishedProductEditForm 
+          <FinishedProductEditForm
             form={finishedProductForm}
-            onSubmit={handleSubmit} 
+            onSubmit={handleSubmit}
             onCancel={() => onOpenChange(false)}
             isSubmitting={isSubmitting}
           />

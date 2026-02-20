@@ -30,26 +30,14 @@ export const DimensionsSchema = z.object({
 export const RawMaterialSchema = z.object({
   name: z.string().min(1, 'Nombre es requerido').max(100, 'Nombre muy largo'),
   category: z.enum(['Maderas', 'Acabados', 'Adhesivos', 'Herrajes', 'Químicos', 'Textiles', 'Herramientas', 'Otros']),
+  brand: z.string().max(50, 'Marca muy larga').optional(),
   unitOfMeasure: z.enum(['unidades', 'kg', 'g', 'lb', 'oz', 'litros', 'ml', 'gal', 'm3', 'm2', 'm', 'cm', 'mm', 'pies', 'pulgadas', 'yardas']),
   minimumStock: z.number().min(0, 'Stock mínimo no puede ser negativo'),
   unitCost: z.number().positive('Costo unitario debe ser positivo'),
   location: InventoryLocationSchema,
-  supplierId: z.string().optional(),
-  supplierName: z.string().optional(),
+  supplier: z.string().max(100, 'Nombre de proveedor muy largo').optional(),
   description: z.string().max(500, 'Descripción muy larga').optional(),
   specifications: z.string().max(1000, 'Especificaciones muy largas').optional(),
-}).refine((data) => {
-  // Si hay supplierId debe haber supplierName y viceversa
-  if (data.supplierId && !data.supplierName) {
-    return false;
-  }
-  if (data.supplierName && !data.supplierId) {
-    return false;
-  }
-  return true;
-}, {
-  message: 'Si especifica un proveedor, debe incluir tanto ID como nombre',
-  path: ['supplierName'],
 });
 
 // Finished Product Schema
@@ -105,6 +93,7 @@ export const MovementSchema = z.object({
   referenceDocument: z.string().max(50, 'Referencia muy larga').optional(),
   notes: z.string().max(500, 'Notas muy largas').optional(),
   performedBy: z.string().min(1, 'Usuario que realiza el movimiento es requerido'),
+  performedAt: z.date().optional(),
 });
 
 // Filter Schemas

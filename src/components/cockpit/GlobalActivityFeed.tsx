@@ -14,12 +14,13 @@ import { useEffect, useState, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Activity, 
-  TrendingUp, 
-  FileText, 
-  DollarSign, 
-  Package, 
+import { StaggerList } from '@/components/ui/motion';
+import {
+  Activity,
+  TrendingUp,
+  FileText,
+  DollarSign,
+  Package,
   FolderKanban,
   Users,
   AlertTriangle,
@@ -67,7 +68,7 @@ function getEventConfig(type: ZadiaEventType) {
 
 function getEventDescription(event: ZadiaEvent): string {
   const data = event.data as Record<string, unknown>;
-  
+
   switch (event.type) {
     case 'lead:created':
       return `Nuevo lead: ${data.name || 'Sin nombre'}`;
@@ -108,10 +109,10 @@ interface GlobalActivityFeedProps {
   compact?: boolean;
 }
 
-export function GlobalActivityFeed({ 
-  maxEvents = 20, 
+export function GlobalActivityFeed({
+  maxEvents = 20,
   showHeader = true,
-  compact = false 
+  compact = false
 }: GlobalActivityFeedProps) {
   const [events, setEvents] = useState<ZadiaEvent[]>([]);
   const [isLive] = useState(true);
@@ -134,11 +135,11 @@ export function GlobalActivityFeed({
   }, [maxEvents, handleNewEvent]);
 
   return (
-    <Card className={cn("h-full bg-[#161b22] border-gray-800/50", compact && "border-0 shadow-none")}>
+    <Card className={cn("h-full bg-card border-border", compact && "border-0 shadow-none")}>
       {showHeader && (
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-medium flex items-center gap-2 text-gray-200">
+            <CardTitle className="text-sm font-medium flex items-center gap-2 text-foreground">
               <Activity className="h-4 w-4 text-cyan-400" />
               Actividad Global
             </CardTitle>
@@ -154,40 +155,40 @@ export function GlobalActivityFeed({
       <CardContent className={cn("p-0", !showHeader && "pt-0")}>
         <ScrollArea className={cn("px-4", compact ? "h-[300px]" : "h-[400px]")}>
           {events.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-gray-500">
+            <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
               <Zap className="h-8 w-8 mb-2 opacity-50" />
               <p className="text-sm">Sin actividad reciente</p>
               <p className="text-xs">Los eventos aparecerán aquí</p>
             </div>
           ) : (
-            <div className="space-y-3 py-2">
+            <StaggerList className="space-y-3 py-2">
               {events.map((event) => {
                 const config = getEventConfig(event.type);
                 const Icon = config.icon;
-                
+
                 return (
-                  <div 
-                    key={event.id} 
-                    className="flex items-start gap-3 p-2 rounded-lg bg-[#0d1117] border border-gray-800/50 hover:border-gray-700/50 transition-colors"
+                  <div
+                    key={event.id}
+                    className="flex items-start gap-3 p-2 rounded-lg bg-muted/50 border border-border hover:border-border/80 transition-colors"
                   >
                     <div className={cn(
-                      "p-1.5 rounded-full text-white shrink-0",
+                      "p-1.5 rounded-full text-foreground shrink-0",
                       config.color
                     )}>
                       <Icon className="h-3 w-3" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate text-gray-200">
+                      <p className="text-sm font-medium truncate text-foreground">
                         {getEventDescription(event)}
                       </p>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <Badge variant="secondary" className="text-[10px] px-1 py-0 bg-[#21262d] text-gray-400 border-0">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Badge variant="secondary" className="text-[10px] px-1 py-0 bg-muted text-muted-foreground border-0">
                           {config.module}
                         </Badge>
                         <span>
-                          {formatDistanceToNow(new Date(event.timestamp), { 
+                          {formatDistanceToNow(new Date(event.timestamp), {
                             addSuffix: true,
-                            locale: es 
+                            locale: es
                           })}
                         </span>
                       </div>
@@ -195,7 +196,7 @@ export function GlobalActivityFeed({
                   </div>
                 );
               })}
-            </div>
+            </StaggerList>
           )}
         </ScrollArea>
       </CardContent>

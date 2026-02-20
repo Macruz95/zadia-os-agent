@@ -17,6 +17,7 @@ import { EditLeadDialog } from './EditLeadDialog';
 import { DeleteLeadDialog } from './DeleteLeadDialog';
 import { DisqualifyLeadDialog } from './DisqualifyLeadDialog';
 import { LeadConversionWizard } from './LeadConversionWizard';
+import { QuoteFormWizard } from '../quotes/QuoteFormWizard'; // NEW
 import { LeadProfileHeader } from './profile/LeadProfileHeader';
 import { LeadContactInfo } from './profile/LeadContactInfo';
 import { LeadMetrics } from './profile/LeadMetrics';
@@ -29,16 +30,17 @@ interface LeadProfileProps {
 export function LeadProfile({ leadId }: LeadProfileProps) {
   const router = useRouter();
   const { disqualifyLead } = useLeads();
-  
+
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Dialog states
   const [editDialog, setEditDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [disqualifyDialog, setDisqualifyDialog] = useState(false);
   const [conversionWizard, setConversionWizard] = useState(false);
+  const [quoteDialog, setQuoteDialog] = useState(false); // NEW
 
   useEffect(() => {
     const loadLead = async () => {
@@ -51,10 +53,10 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
           setError('Lead no encontrado');
         }
       } catch (err) {
-        logger.error('Error loading lead', err as Error, { 
-          component: 'LeadProfile', 
+        logger.error('Error loading lead', err as Error, {
+          component: 'LeadProfile',
           action: 'loadLead',
-          metadata: { leadId } 
+          metadata: { leadId }
         });
         setError('Error al cargar el lead');
       } finally {
@@ -75,10 +77,10 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
       setDisqualifyDialog(false);
       router.push('/sales/leads');
     } catch (error) {
-      logger.error('Error disqualifying lead', error as Error, { 
-        component: 'LeadProfile', 
+      logger.error('Error disqualifying lead', error as Error, {
+        component: 'LeadProfile',
         action: 'disqualifyLead',
-        metadata: { leadId: lead.id, reason } 
+        metadata: { leadId: lead.id, reason }
       });
       toast.error('Error al descalificar lead');
     }
@@ -93,10 +95,10 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
       setDeleteDialog(false);
       router.push('/sales/leads');
     } catch (error) {
-      logger.error('Error deleting lead', error as Error, { 
-        component: 'LeadProfile', 
+      logger.error('Error deleting lead', error as Error, {
+        component: 'LeadProfile',
         action: 'deleteLead',
-        metadata: { leadId: lead.id } 
+        metadata: { leadId: lead.id }
       });
       toast.error('Error al eliminar lead');
     }
@@ -111,10 +113,10 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
           const leadData = await getLeadById(leadId);
           if (leadData) setLead(leadData);
         } catch (err) {
-          logger.error('Error reloading lead', err as Error, { 
-            component: 'LeadProfile', 
+          logger.error('Error reloading lead', err as Error, {
+            component: 'LeadProfile',
             action: 'reloadLead',
-            metadata: { leadId } 
+            metadata: { leadId }
           });
         }
       };
@@ -153,6 +155,7 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
         onConvert={() => setConversionWizard(true)}
         onDisqualify={() => setDisqualifyDialog(true)}
         onDelete={() => setDeleteDialog(true)}
+        onCreateQuote={() => setQuoteDialog(true)} // NEW
       />
 
       {/* Main Content */}
@@ -175,6 +178,20 @@ export function LeadProfile({ leadId }: LeadProfileProps) {
         open={conversionWizard}
         onClose={() => setConversionWizard(false)}
       />
+
+      {/* NEW: Quote Form Wizard */}
+      {lead && (
+        <QuoteFormWizard
+          open={quoteDialog}
+          onOpenChange={setQuoteDialog}
+          leadId={lead.id}
+          leadName={lead.fullName || lead.entityName}
+          onSuccess={(quoteId) => {
+            toast.success('Cotización creada exitosamente');
+            // Optional: redirect to quote
+          }}
+        />
+      )}
 
       <EditLeadDialog
         open={editDialog}

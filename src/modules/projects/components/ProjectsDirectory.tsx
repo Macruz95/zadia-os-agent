@@ -15,6 +15,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { ProjectsService } from '../services/projects.service';
 import { logger } from '@/lib/logger';
+import { useAuth } from '@/contexts/AuthContext';
+import { AnimatedPage, AnimatedSection } from '@/components/ui/motion';
 
 /**
  * ProjectsDirectory - Main component for Projects module
@@ -28,10 +30,11 @@ type ViewMode = 'table' | 'kanban';
 
 export function ProjectsDirectory() {
   const router = useRouter();
+  const { user } = useAuth();
   const [filters, setFilters] = useState<ProjectFilters>({});
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('table');
-  
+
   // Real Firebase data with realtime updates
   const { projects, loading, error, totalCount } = useProjects({
     filters,
@@ -49,7 +52,7 @@ export function ProjectsDirectory() {
   const handleProjectCreated = (projectId: string) => router.push(`/projects/${projectId}`);
   const handleViewProject = (projectId: string) => router.push(`/projects/${projectId}`);
   const handleEditProject = () => toast.info('Funcionalidad de editar proyecto en desarrollo');
-  
+
   const handleDeleteProject = async (projectId: string) => {
     const confirmed = confirm('¿Estás seguro de eliminar este proyecto? Esta acción no se puede deshacer.');
     if (!confirmed) return;
@@ -80,48 +83,54 @@ export function ProjectsDirectory() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <AnimatedPage className="flex flex-col gap-6 p-6">
       {/* Header */}
-      <ProjectsHeader
-        onNewProject={handleNewProject}
-        onRefresh={handleRefresh}
-        onExport={handleExport}
-        loading={loading}
-      />
+      <AnimatedSection>
+        <ProjectsHeader
+          onNewProject={handleNewProject}
+          onRefresh={handleRefresh}
+          onExport={handleExport}
+          loading={loading}
+        />
+      </AnimatedSection>
 
       {/* KPI Cards */}
-      <ProjectsKPICards kpis={kpis} loading={loading} />
+      <AnimatedSection delay={0.08}>
+        <ProjectsKPICards kpis={kpis} loading={loading} />
+      </AnimatedSection>
 
       {/* Filters + View Toggle */}
-      <div className="flex items-start justify-between gap-4">
-        <ProjectFiltersComponent
-          filters={filters}
-          onFiltersChange={setFilters}
-          onClearFilters={handleClearFilters}
-        />
-        
-        {/* View Mode Toggle */}
-        <div className="flex gap-1 border rounded-lg p-1">
-          <Button
-            variant={viewMode === 'table' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode('table')}
-            className="px-3"
-          >
-            <LayoutList className="h-4 w-4 mr-2" />
-            Tabla
-          </Button>
-          <Button
-            variant={viewMode === 'kanban' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => setViewMode('kanban')}
-            className="px-3"
-          >
-            <LayoutGrid className="h-4 w-4 mr-2" />
-            Kanban
-          </Button>
+      <AnimatedSection delay={0.12}>
+        <div className="flex items-start justify-between gap-4">
+          <ProjectFiltersComponent
+            filters={filters}
+            onFiltersChange={setFilters}
+            onClearFilters={handleClearFilters}
+          />
+
+          {/* View Mode Toggle */}
+          <div className="flex gap-1 border rounded-lg p-1">
+            <Button
+              variant={viewMode === 'table' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('table')}
+              className="px-3"
+            >
+              <LayoutList className="h-4 w-4 mr-2" />
+              Tabla
+            </Button>
+            <Button
+              variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('kanban')}
+              className="px-3"
+            >
+              <LayoutGrid className="h-4 w-4 mr-2" />
+              Kanban
+            </Button>
+          </div>
         </div>
-      </div>
+      </AnimatedSection>
 
       {/* Results Count */}
       {!loading && (
@@ -131,20 +140,24 @@ export function ProjectsDirectory() {
       )}
 
       {/* Projects View */}
-      {viewMode === 'table' ? (
-        <ProjectsTable
-          projects={projects}
-          loading={loading}
-          onViewProject={handleViewProject}
-          onEditProject={handleEditProject}
-          onDeleteProject={handleDeleteProject}
-        />
-      ) : (
-        <ProjectsKanban
-          projects={projects}
-          onProjectClick={handleViewProject}
-        />
-      )}
+      <AnimatedSection delay={0.16}>
+        {viewMode === 'table' ? (
+          <ProjectsTable
+            projects={projects}
+            loading={loading}
+            onViewProject={handleViewProject}
+            onEditProject={handleEditProject}
+            onDeleteProject={handleDeleteProject}
+          />
+        ) : (
+          <ProjectsKanban
+            projects={projects}
+            onProjectClick={handleViewProject}
+            userId={user?.uid || ''}
+            userName={user?.displayName || user?.email || 'Usuario'}
+          />
+        )}
+      </AnimatedSection>
 
       {/* Create Project Dialog */}
       <ProjectFormDialog
@@ -152,6 +165,6 @@ export function ProjectsDirectory() {
         onOpenChange={setShowCreateDialog}
         onSuccess={handleProjectCreated}
       />
-    </div>
+    </AnimatedPage>
   );
 }

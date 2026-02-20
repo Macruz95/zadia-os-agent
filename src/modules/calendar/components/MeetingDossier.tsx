@@ -55,9 +55,9 @@ export function MeetingDossier({ event, context }: MeetingDossierProps) {
 
   if (loading) {
     return (
-      <Card className="bg-[#161b22] border-gray-800/50">
+      <Card className="bg-card border-border">
         <CardContent className="p-6">
-          <div className="flex items-center justify-center gap-3 text-gray-400">
+          <div className="flex items-center justify-center gap-3 text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin" />
             <span>Generando dossier con IA...</span>
           </div>
@@ -68,7 +68,7 @@ export function MeetingDossier({ event, context }: MeetingDossierProps) {
 
   if (error) {
     return (
-      <Card className="bg-[#161b22] border-gray-800/50">
+      <Card className="bg-card border-border">
         <CardContent className="p-6">
           <div className="text-center text-red-400">
             <p className="mb-4">{error}</p>
@@ -86,22 +86,22 @@ export function MeetingDossier({ event, context }: MeetingDossierProps) {
   }
 
   const priorityColors = {
-    low: 'bg-gray-500/20 text-gray-400',
+    low: 'bg-gray-500/20 text-muted-foreground',
     medium: 'bg-blue-500/20 text-blue-400',
     high: 'bg-orange-500/20 text-orange-400',
     urgent: 'bg-red-500/20 text-red-400'
   };
 
   return (
-    <Card className="bg-[#161b22] border-gray-800/50">
+    <Card className="bg-card border-border">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2 text-white">
+            <CardTitle className="flex items-center gap-2 text-foreground">
               <Sparkles className="h-5 w-5 text-cyan-400" />
               Dossier de Reunión
             </CardTitle>
-            <CardDescription className="text-gray-400 mt-1">
+            <CardDescription className="text-muted-foreground mt-1">
               Generado por IA - {format(new Date(dossier.generatedAt instanceof Date ? dossier.generatedAt : dossier.generatedAt.toDate()), "PPP 'a las' HH:mm", { locale: es })}
             </CardDescription>
           </div>
@@ -109,7 +109,7 @@ export function MeetingDossier({ event, context }: MeetingDossierProps) {
             onClick={loadDossier}
             variant="ghost"
             size="sm"
-            className="text-gray-400 hover:text-white"
+            className="text-muted-foreground hover:text-foreground"
           >
             Regenerar
           </Button>
@@ -120,14 +120,14 @@ export function MeetingDossier({ event, context }: MeetingDossierProps) {
         {/* Información básica */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className="text-sm text-gray-400 mb-1">Fecha y Hora</div>
-            <div className="text-white font-medium">
+            <div className="text-sm text-muted-foreground mb-1">Fecha y Hora</div>
+            <div className="text-foreground font-medium">
               {format(startDate, "EEEE, d 'de' MMMM 'a las' HH:mm", { locale: es })}
             </div>
           </div>
           <div>
-            <div className="text-sm text-gray-400 mb-1">Duración</div>
-            <div className="text-white font-medium">{event.duration} minutos</div>
+            <div className="text-sm text-muted-foreground mb-1">Duración</div>
+            <div className="text-foreground font-medium">{event.duration} minutos</div>
           </div>
         </div>
 
@@ -135,16 +135,16 @@ export function MeetingDossier({ event, context }: MeetingDossierProps) {
         {dossier.participants.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Users className="h-4 w-4 text-gray-400" />
-              <h3 className="font-semibold text-white">Participantes</h3>
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-semibold text-foreground">Participantes</h3>
             </div>
             <div className="space-y-2">
               {dossier.participants.map((participant, idx) => (
-                <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-[#0d1117]">
+                <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-muted">
                   <div>
-                    <div className="text-white font-medium">{participant.name}</div>
+                    <div className="text-foreground font-medium">{participant.name}</div>
                     {participant.role && (
-                      <div className="text-sm text-gray-400">{participant.role}</div>
+                      <div className="text-sm text-muted-foreground">{participant.role}</div>
                     )}
                   </div>
                   <Badge
@@ -172,25 +172,25 @@ export function MeetingDossier({ event, context }: MeetingDossierProps) {
         {dossier.agenda.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <FileText className="h-4 w-4 text-gray-400" />
-              <h3 className="font-semibold text-white">Agenda</h3>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-semibold text-foreground">Agenda</h3>
             </div>
             <div className="space-y-3">
               {dossier.agenda.map((item, idx) => (
-                <div key={idx} className="p-3 rounded-lg bg-[#0d1117] border border-gray-800/50">
+                <div key={idx} className="p-3 rounded-lg bg-muted border border-border">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded">
                           {idx + 1}
                         </span>
-                        <h4 className="font-medium text-white">{item.title}</h4>
+                        <h4 className="font-medium text-foreground">{item.title}</h4>
                       </div>
                       {item.description && (
-                        <p className="text-sm text-gray-400 mt-1">{item.description}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Clock className="h-3.5 w-3.5" />
                       {item.duration} min
                     </div>
@@ -205,16 +205,16 @@ export function MeetingDossier({ event, context }: MeetingDossierProps) {
         {dossier.actionItems && dossier.actionItems.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <CheckCircle2 className="h-4 w-4 text-gray-400" />
-              <h3 className="font-semibold text-white">Action Items</h3>
+              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-semibold text-foreground">Action Items</h3>
             </div>
             <div className="space-y-2">
               {dossier.actionItems.map((item, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-[#0d1117] border border-gray-800/50">
+                <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-muted border border-border">
                   <CheckCircle2 className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-white font-medium">{item.title}</span>
+                      <span className="text-foreground font-medium">{item.title}</span>
                       <Badge
                         variant="outline"
                         className={cn("text-xs", priorityColors[item.priority])}
@@ -225,7 +225,7 @@ export function MeetingDossier({ event, context }: MeetingDossierProps) {
                       </Badge>
                     </div>
                     {item.description && (
-                      <p className="text-sm text-gray-400">{item.description}</p>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
                     )}
                     {item.assignedTo && (
                       <p className="text-xs text-gray-500 mt-1">
@@ -242,9 +242,9 @@ export function MeetingDossier({ event, context }: MeetingDossierProps) {
         {/* Notas */}
         {dossier.notes && (
           <div>
-            <h3 className="font-semibold text-white mb-2">Notas</h3>
-            <div className="p-3 rounded-lg bg-[#0d1117] border border-gray-800/50">
-              <p className="text-sm text-gray-300 whitespace-pre-wrap">{dossier.notes}</p>
+            <h3 className="font-semibold text-foreground mb-2">Notas</h3>
+            <div className="p-3 rounded-lg bg-muted border border-border">
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{dossier.notes}</p>
             </div>
           </div>
         )}
@@ -252,24 +252,24 @@ export function MeetingDossier({ event, context }: MeetingDossierProps) {
         {/* Contexto */}
         {dossier.context && (
           <div>
-            <h3 className="font-semibold text-white mb-2">Contexto</h3>
-            <div className="p-3 rounded-lg bg-[#0d1117] border border-gray-800/50 space-y-2">
+            <h3 className="font-semibold text-foreground mb-2">Contexto</h3>
+            <div className="p-3 rounded-lg bg-muted border border-border space-y-2">
               {dossier.context.relatedClient && (
                 <div className="text-sm">
-                  <span className="text-gray-400">Cliente: </span>
-                  <span className="text-white">{dossier.context.relatedClient.name}</span>
+                  <span className="text-muted-foreground">Cliente: </span>
+                  <span className="text-foreground">{dossier.context.relatedClient.name}</span>
                 </div>
               )}
               {dossier.context.relatedProject && (
                 <div className="text-sm">
-                  <span className="text-gray-400">Proyecto: </span>
-                  <span className="text-white">{dossier.context.relatedProject.name}</span>
+                  <span className="text-muted-foreground">Proyecto: </span>
+                  <span className="text-foreground">{dossier.context.relatedProject.name}</span>
                 </div>
               )}
               {dossier.context.relatedOpportunity && (
                 <div className="text-sm">
-                  <span className="text-gray-400">Oportunidad: </span>
-                  <span className="text-white">{dossier.context.relatedOpportunity.name}</span>
+                  <span className="text-muted-foreground">Oportunidad: </span>
+                  <span className="text-foreground">{dossier.context.relatedOpportunity.name}</span>
                 </div>
               )}
             </div>

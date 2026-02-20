@@ -95,24 +95,24 @@ export function TenantOnboarding() {
         {/* Logo Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-cyan-600 shadow-lg shadow-cyan-500/25 mb-4">
-            <Zap className="w-8 h-8 text-white" />
+            <Zap className="w-8 h-8 text-foreground" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Bienvenido a ZADIA OS
           </h1>
-          <p className="text-gray-400">
+          <p className="text-muted-foreground">
             Configura tu empresa para comenzar
           </p>
         </div>
 
         {/* Main Card */}
-        <Card className="bg-[#161b22] border-gray-800/50">
+        <Card className="bg-card border-border">
           <CardHeader className="text-center pb-2">
             <div className="mx-auto w-12 h-12 bg-cyan-500/10 rounded-full flex items-center justify-center mb-4">
               <Building2 className="h-6 w-6 text-cyan-400" />
             </div>
-            <CardTitle className="text-white">Crear tu Empresa</CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardTitle className="text-foreground">Crear tu Empresa</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Ingresa los datos de tu empresa para configurar tu espacio de trabajo
             </CardDescription>
           </CardHeader>
@@ -125,13 +125,13 @@ export function TenantOnboarding() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-300">
+                      <FormLabel className="text-muted-foreground">
                         Nombre de la Empresa
                       </FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Mi Empresa S.A. de C.V."
-                          className="bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan-500"
+                          className="bg-muted border-border text-foreground placeholder:text-gray-500 focus:border-cyan-500"
                           {...field}
                           onChange={(e) => {
                             field.onChange(e);
@@ -152,7 +152,7 @@ export function TenantOnboarding() {
                   name="slug"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-300">
+                      <FormLabel className="text-muted-foreground">
                         Identificador Único
                       </FormLabel>
                       <FormControl>
@@ -162,7 +162,7 @@ export function TenantOnboarding() {
                           </span>
                           <Input
                             placeholder="mi-empresa"
-                            className="bg-gray-900/50 border-gray-700 text-white placeholder:text-gray-500 focus:border-cyan-500"
+                            className="bg-muted border-border text-foreground placeholder:text-gray-500 focus:border-cyan-500"
                             {...field}
                           />
                         </div>
@@ -177,7 +177,7 @@ export function TenantOnboarding() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white"
+                  className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-foreground"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -203,19 +203,19 @@ export function TenantOnboarding() {
             <div className="flex justify-center mb-2">
               <LayoutDashboard className="h-6 w-6 text-cyan-400" />
             </div>
-            <p className="text-xs text-gray-400">Dashboard Inteligente</p>
+            <p className="text-xs text-muted-foreground">Dashboard Inteligente</p>
           </div>
           <div className="p-4 rounded-lg bg-gray-800/30">
             <div className="flex justify-center mb-2">
               <Bot className="h-6 w-6 text-purple-400" />
             </div>
-            <p className="text-xs text-gray-400">Asistente IA</p>
+            <p className="text-xs text-muted-foreground">Asistente IA</p>
           </div>
           <div className="p-4 rounded-lg bg-gray-800/30">
             <div className="flex justify-center mb-2">
               <Briefcase className="h-6 w-6 text-amber-400" />
             </div>
-            <p className="text-xs text-gray-400">CRM Completo</p>
+            <p className="text-xs text-muted-foreground">CRM Completo</p>
           </div>
         </div>
       </div>

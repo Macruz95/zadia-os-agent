@@ -49,10 +49,10 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center">
-          <Settings className="h-6 w-6 text-white" />
+          <Settings className="h-6 w-6 text-foreground" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white">Configuración</h1>
+          <h1 className="text-2xl font-bold text-foreground">Configuración</h1>
           <p className="text-sm text-gray-500">
             Gestiona tu organización, seguridad e integraciones
           </p>
@@ -61,7 +61,7 @@ export default function SettingsPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-gray-800/50 border border-gray-700/50 flex-wrap h-auto p-1 gap-1">
+        <TabsList className="bg-gray-800/50 border border-border flex-wrap h-auto p-1 gap-1">
           <TabsTrigger value="organization" className="data-[state=active]:bg-gray-700">
             <Building2 className="h-4 w-4 mr-2" />
             Organización
@@ -200,21 +200,21 @@ const SYSTEM_ROLES = [
     description: 'Visualización sin edición', 
     permissions: ['read'],
     isSystem: true,
-    color: 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+    color: 'bg-gray-500/20 text-muted-foreground border-gray-500/30'
   },
 ];
 
 function RolesSettingsCard() {
   return (
-    <Card className="bg-gray-800/30 border-gray-700/50">
+    <Card className="bg-gray-800/30 border-border">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center">
-              <Shield className="h-5 w-5 text-white" />
+              <Shield className="h-5 w-5 text-foreground" />
             </div>
             <div>
-              <CardTitle className="text-white">Roles y Permisos</CardTitle>
+              <CardTitle className="text-foreground">Roles y Permisos</CardTitle>
               <CardDescription>
                 Configura los roles y permisos de acceso al sistema
               </CardDescription>
@@ -231,7 +231,7 @@ function RolesSettingsCard() {
           {SYSTEM_ROLES.map((role) => (
             <div 
               key={role.id}
-              className="flex items-center justify-between p-4 rounded-lg bg-gray-900/50 border border-gray-700/30 hover:border-gray-600/50 transition-colors"
+              className="flex items-center justify-between p-4 rounded-lg bg-muted border border-border hover:border-border/80 transition-colors"
             >
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center">
@@ -239,9 +239,9 @@ function RolesSettingsCard() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="text-white font-medium">{role.name}</p>
+                    <p className="text-foreground font-medium">{role.name}</p>
                     {role.isSystem && (
-                      <Badge variant="outline" className="border-gray-600 text-gray-400 text-xs">
+                      <Badge variant="outline" className="border-gray-600 text-muted-foreground text-xs">
                         Sistema
                       </Badge>
                     )}
@@ -251,7 +251,7 @@ function RolesSettingsCard() {
                     {role.permissions.slice(0, 4).map((perm) => (
                       <span 
                         key={perm} 
-                        className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400"
+                        className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-gray-800 text-muted-foreground"
                       >
                         <Check className="h-3 w-3 text-green-400" />
                         {perm}
@@ -272,7 +272,7 @@ function RolesSettingsCard() {
                 </Badge>
                 {!role.isSystem && (
                   <>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                       <Edit2 className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300">

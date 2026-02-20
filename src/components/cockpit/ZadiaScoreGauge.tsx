@@ -148,7 +148,7 @@ export function ZadiaScoreGauge({
           {/* Status Label */}
           <div className={cn(
             "px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider",
-            "bg-gray-800/50 border border-gray-700/50",
+            "bg-gray-800/50 border border-border",
             scoreData.color
           )}>
             <Activity className="h-3 w-3 inline mr-1.5" />

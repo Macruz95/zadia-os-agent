@@ -87,7 +87,7 @@ export function useOrderForm(userId?: string) {
           return;
         }
 
-        setValue('clientId', quote.clientId);
+        setValue('clientId', quote.clientId || '');
         // Note: clientName needs to be fetched separately from clientId
         setValue('quoteId', quote.id);
         setValue('quoteNumber', quote.number);

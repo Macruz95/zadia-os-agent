@@ -11,7 +11,7 @@
 
 import { Activity, Info, Database } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -31,27 +31,27 @@ export function ZadiaScoreWidget({ className }: ZadiaScoreWidgetProps) {
 
   return (
     <Card className={cn(
-      "bg-[#161b22] border-gray-800/50 overflow-hidden relative",
+      "bg-card border-border overflow-hidden relative",
       className
     )}>
       {/* Top Glow */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
-      
+
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-gray-200">
+          <CardTitle className="flex items-center gap-2 text-foreground">
             <Activity className="h-5 w-5 text-cyan-400" />
             ZADIA Score™
           </CardTitle>
-          
+
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <Info className="h-4 w-4 text-gray-500 hover:text-gray-400 transition-colors" />
+                <Info className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
               </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-xs bg-gray-900 border-gray-800">
-                <p className="text-xs text-gray-300">
-                  El ZADIA Score™ es una puntuación holística de 0-100 que mide la salud 
+              <TooltipContent side="left" className="max-w-xs bg-popover border-border">
+                <p className="text-xs text-popover-foreground">
+                  El ZADIA Score™ es una puntuación holística de 0-100 que mide la salud
                   general de tu empresa, calculada en tiempo real desde tus datos en Firebase.
                 </p>
               </TooltipContent>
@@ -62,15 +62,15 @@ export function ZadiaScoreWidget({ className }: ZadiaScoreWidgetProps) {
 
       <CardContent className="pt-0">
         {error ? (
-          <div className="text-center py-8 text-red-400 text-sm">
+          <div className="text-center py-8 text-destructive text-sm">
             {error}
           </div>
         ) : !hasData && !loading ? (
           // No data state - show empty state
           <div className="text-center py-8">
-            <Database className="h-12 w-12 text-gray-700 mx-auto mb-3" />
-            <p className="text-gray-500 text-sm mb-1">Sin datos suficientes</p>
-            <p className="text-gray-600 text-xs">
+            <Database className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+            <p className="text-muted-foreground text-sm mb-1">Sin datos suficientes</p>
+            <p className="text-muted-foreground/70 text-xs">
               Agrega clientes, proyectos y facturas para ver tu ZADIA Score
             </p>
           </div>
@@ -78,8 +78,8 @@ export function ZadiaScoreWidget({ className }: ZadiaScoreWidgetProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
             {/* Gauge */}
             <div className="flex justify-center">
-              <ZadiaScoreGauge 
-                score={score} 
+              <ZadiaScoreGauge
+                score={score}
                 previousScore={previousScore ?? undefined}
                 loading={loading}
                 size="lg"
@@ -88,7 +88,7 @@ export function ZadiaScoreWidget({ className }: ZadiaScoreWidgetProps) {
 
             {/* Metrics Breakdown */}
             <div>
-              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
                 Desglose de Métricas
               </h4>
               <ScoreMetricsBreakdown metrics={metrics} loading={loading} />

@@ -22,17 +22,18 @@ import { UseFormReturn } from 'react-hook-form';
 import { EditRawMaterialFormData, RAW_MATERIAL_CATEGORIES, UNITS_OF_MEASURE } from '../types/form-data';
 
 interface RawMaterialEditFormProps {
-  form: UseFormReturn<EditRawMaterialFormData>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<EditRawMaterialFormData, any, any>;
   onSubmit: (data: EditRawMaterialFormData) => void;
   onCancel: () => void;
   isSubmitting: boolean;
 }
 
-export function RawMaterialEditForm({ 
-  form, 
-  onSubmit, 
-  onCancel, 
-  isSubmitting 
+export function RawMaterialEditForm({
+  form,
+  onSubmit,
+  onCancel,
+  isSubmitting
 }: RawMaterialEditFormProps) {
   return (
     <Form {...form}>
@@ -79,6 +80,26 @@ export function RawMaterialEditForm({
 
           <FormField
             control={form.control}
+            name="brand"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Marca / Fabricante</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Ej: Sherwin Williams"
+                    {...field}
+                    value={field.value || ''}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
             name="unitOfMeasure"
             render={({ field }) => (
               <FormItem>
@@ -101,9 +122,7 @@ export function RawMaterialEditForm({
               </FormItem>
             )}
           />
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="minimumStock"
@@ -111,9 +130,9 @@ export function RawMaterialEditForm({
               <FormItem>
                 <FormLabel>Stock Mínimo</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    min="0" 
+                  <Input
+                    type="number"
+                    min="0"
                     step="1"
                     {...field}
                     onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
@@ -123,7 +142,9 @@ export function RawMaterialEditForm({
               </FormItem>
             )}
           />
+        </div>
 
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="unitCost"
@@ -131,9 +152,9 @@ export function RawMaterialEditForm({
               <FormItem>
                 <FormLabel>Costo Unitario (USD)</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    min="0" 
+                  <Input
+                    type="number"
+                    min="0"
                     step="0.01"
                     {...field}
                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
@@ -152,7 +173,7 @@ export function RawMaterialEditForm({
             <FormItem>
               <FormLabel>Descripción (Opcional)</FormLabel>
               <FormControl>
-                <Textarea 
+                <Textarea
                   placeholder="Descripción detallada de la materia prima..."
                   rows={3}
                   {...field}

@@ -52,8 +52,30 @@ export const QuotesPDFService = {
     try {
       logger.info('Generando PDF de cotización', { metadata: { quoteNumber: quote.number } });
 
-      // Obtener información del cliente
-      const clientInfo = await this.getClientInfo(quote.clientId);
+      // Obtener información del cliente o lead
+      let clientInfo;
+      if (quote.clientId) {
+        clientInfo = await this.getClientInfo(quote.clientId);
+      } else if (quote.leadId) {
+        // Fallback para cotizaciones desde leads
+        // Importamos dinámicamente para evitar ciclos si fuera necesario, 
+        // pero idealmente LeadsService debería estar disponible
+        const { getLeadById } = await import('@/modules/sales/services/leads.service');
+        const lead = await getLeadById(quote.leadId);
+
+        if (lead) {
+          clientInfo = {
+            name: (lead.entityType === 'person' ? lead.fullName : lead.entityName) || lead.company || 'Lead sin nombre',
+            email: lead.email,
+            phone: lead.phone,
+            address: 'Dirección pendiente' // Leads might not have address
+          };
+        } else {
+          clientInfo = { name: quote.leadName || 'Lead no encontrado' };
+        }
+      } else {
+        clientInfo = { name: 'Cliente no especificado' };
+      }
 
       // Crear componente React-PDF
       const pdfDocument = (
@@ -72,7 +94,7 @@ export const QuotesPDFService = {
         metadata: {
           quoteId: quote.id,
           quoteNumber: quote.number,
-          clientId: quote.clientId,
+          clientId: quote.clientId || 'lead-based',
         },
       });
 
@@ -106,7 +128,7 @@ export const QuotesPDFService = {
   async getClientInfo(clientId: string) {
     try {
       const clientDoc = await getDoc(doc(db, 'clients', clientId));
-      
+
       if (!clientDoc.exists()) {
         logger.error('Cliente no encontrado', new Error('Cliente no encontrado'), { clientId });
         return {
@@ -120,17 +142,19 @@ export const QuotesPDFService = {
       let name = '';
       if (client.entityType === 'person') {
         name = `${client.firstName || ''} ${client.lastName || ''}`.trim();
+        // Fallback if structured names are empty but name field exists
+        if (!name.trim() && client.name) name = client.name;
       } else {
-        name = client.companyName || client.institutionName || 'Sin nombre';
+        name = client.companyName || client.institutionName || client.name || 'Sin nombre';
       }
 
       return {
         name,
-        address: client.address ? 
-          `${client.address.street || ''}, ${client.address.city || ''}, ${client.address.state || ''}, ${client.address.country || ''}`.trim() 
+        address: client.address ?
+          `${client.address.street || ''}, ${client.address.city || ''}, ${client.address.state || ''}, ${client.address.country || ''}`.trim()
           : undefined,
-        phone: client.phone,
-        email: client.email,
+        phone: client.phone || '', // Ensure string
+        email: client.email || '', // Ensure string
       };
 
     } catch (error) {

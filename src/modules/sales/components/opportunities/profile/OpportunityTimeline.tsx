@@ -52,7 +52,7 @@ export function OpportunityTimeline({ opportunityId }: OpportunityTimelineProps)
 
   const loadTimelineData = async () => {
     if (!tenantId) return;
-    
+
     try {
       setLoading(true);
 
@@ -60,7 +60,7 @@ export function OpportunityTimeline({ opportunityId }: OpportunityTimelineProps)
       const interactions = await OpportunityInteractionsService.getInteractionsByOpportunity(opportunityId, tenantId);
 
       // Load quotes (already has tenant isolation in its hook)
-      const quotes = await QuotesService.getQuotesByOpportunity(opportunityId);
+      const quotes = await QuotesService.getQuotesByOpportunity(opportunityId, tenantId);
 
       // Convert to timeline events
       const timelineEvents: TimelineEvent[] = [];

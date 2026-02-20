@@ -66,15 +66,13 @@ export default function MainLayout({
           <ZadiaAgenticProvider>
             <ZadiaSystemInitializer>
               <SidebarProvider>
-                <div className="flex min-h-screen w-full bg-[#0a0f1a]">
-                  <Sidebar />
-                  <SidebarInset className="bg-[#0a0f1a]">
-                    <Header />
-                    <main className="flex-1">
-                      {children}
-                    </main>
-                  </SidebarInset>
-                </div>
+                <Sidebar />
+                <SidebarInset>
+                  <Header />
+                  <main className="flex-1 w-full bg-background">
+                    {children}
+                  </main>
+                </SidebarInset>
                 <CommandBar />
               </SidebarProvider>
             </ZadiaSystemInitializer>

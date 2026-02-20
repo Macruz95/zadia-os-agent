@@ -66,23 +66,23 @@ export const colors = {
 
 export const tw = {
   // Fondos de cards/contenedores
-  card: 'bg-[#161b22] border border-gray-800/50 rounded-lg',
-  cardHover: 'bg-[#161b22] border border-gray-800/50 rounded-lg hover:border-cyan-500/30 transition-colors',
+  card: 'bg-card border border-border rounded-lg',
+  cardHover: 'bg-card border border-border rounded-lg hover:border-cyan-500/30 transition-colors',
   
   // Inputs
-  input: 'bg-[#0d1117] border-gray-800/50',
-  inputFocus: 'bg-[#0d1117] border-gray-800/50 focus:border-cyan-500/50 focus:ring-cyan-500/20',
+  input: 'bg-muted border-border',
+  inputFocus: 'bg-muted border-border focus:border-cyan-500/50 focus:ring-cyan-500/20',
   
   // Badges de estado
   badgeCyan: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
   badgeGreen: 'bg-green-500/20 text-green-400 border-green-500/30',
   badgeYellow: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
   badgeRed: 'bg-red-500/20 text-red-400 border-red-500/30',
-  badgeGray: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+  badgeGray: 'bg-gray-500/20 text-muted-foreground border-gray-500/30',
   
   // Texto
-  textPrimary: 'text-white',
-  textSecondary: 'text-gray-400',
+  textPrimary: 'text-foreground',
+  textSecondary: 'text-muted-foreground',
   textMuted: 'text-gray-500',
   textAccent: 'text-cyan-400',
   
@@ -91,18 +91,18 @@ export const tw = {
   iconMuted: 'text-gray-500',
   
   // Headers de página estándar
-  pageTitle: 'text-2xl font-bold text-white tracking-tight',
-  pageSubtitle: 'text-sm text-gray-400',
+  pageTitle: 'text-2xl font-bold text-foreground tracking-tight',
+  pageSubtitle: 'text-sm text-muted-foreground',
   
   // Secciones
-  sectionTitle: 'text-lg font-semibold text-white',
+  sectionTitle: 'text-lg font-semibold text-foreground',
   
   // Dialogs
-  dialogContent: 'bg-[#161b22] border-gray-800/50',
+  dialogContent: 'bg-card border-border',
   
   // Botones especiales (gradiente cyan)
-  btnGradient: 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white',
-  btnCyan: 'bg-cyan-600 hover:bg-cyan-700 text-white',
+  btnGradient: 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-foreground',
+  btnCyan: 'bg-cyan-600 hover:bg-cyan-700 text-foreground',
 } as const;
 
 // ============================================

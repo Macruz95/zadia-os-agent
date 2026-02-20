@@ -1,65 +1,72 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { 
-  User, 
-  Building2, 
-  Phone, 
-  Mail, 
+import {
+  User,
+  Building2,
+  Phone,
+  Mail,
   MapPin,
   Users,
-  Briefcase
+  Briefcase,
+  UserPlus
 } from 'lucide-react';
 import { getClientById, getContactsByClient } from '@/modules/clients/services/clients.service';
+import { getLeadById } from '@/modules/sales/services/leads.service';
 import type { Client, Contact, Address } from '@/modules/clients/types/clients.types';
+import type { Lead } from '@/modules/sales/types/sales.types';
 
 interface QuoteReviewHeaderProps {
   clientId?: string;
   clientName?: string;
   contactId?: string;
   contactName?: string;
+  leadId?: string;
+  leadName?: string;
 }
 
-export function QuoteReviewHeader({ 
-  clientId, 
-  clientName, 
-  contactId, 
-  contactName 
+export function QuoteReviewHeader({
+  clientId,
+  clientName,
+  contactId,
+  contactName,
+  leadId,
+  leadName
 }: QuoteReviewHeaderProps) {
   const [client, setClient] = useState<Client | null>(null);
   const [contact, setContact] = useState<Contact | null>(null);
+  const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Cargar información completa del cliente
+  // Cargar información completa
   useEffect(() => {
-    const loadClientData = async () => {
-      if (!clientId) {
-        setLoading(false);
-        return;
-      }
-
+    const loadData = async () => {
+      setLoading(true);
       try {
-        const clientData = await getClientById(clientId);
-        setClient(clientData);
+        if (clientId) {
+          const clientData = await getClientById(clientId);
+          setClient(clientData);
 
-        // Cargar contacto si está especificado
-        if (contactId) {
-          const contacts = await getContactsByClient(clientId);
-          const selectedContact = contacts.find((c: Contact) => c.id === contactId);
-          setContact(selectedContact || null);
+          // Cargar contacto si está especificado
+          if (contactId) {
+            const contacts = await getContactsByClient(clientId);
+            const selectedContact = contacts.find((c: Contact) => c.id === contactId);
+            setContact(selectedContact || null);
+          }
+        } else if (leadId) {
+          const leadData = await getLeadById(leadId);
+          setLead(leadData);
         }
-      } catch {
-        // Error silencioso - mostraremos solo los datos básicos
+      } catch (error) {
+        console.error('Error loading entity data', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadClientData();
-  }, [clientId, contactId]);
+    loadData();
+  }, [clientId, contactId, leadId]);
 
   const getClientTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
@@ -82,6 +89,73 @@ export function QuoteReviewHeader({
     return parts.join(', ');
   };
 
+  // Render para LEAD
+  if (!clientId && (lead || leadId)) {
+    return (
+      <Card className="border-emerald-200 bg-emerald-50/10">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-emerald-800">
+            <UserPlus className="w-5 h-5" />
+            Información del Prospecto (Lead)
+            <Badge variant="outline" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200">
+              En proceso de conversión
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <p className="text-sm text-muted-foreground">Cargando información del prospecto...</p>
+          ) : lead ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <User className="w-3 h-3" /> Nombre
+                  </p>
+                  <p className="font-semibold text-lg">{lead.fullName || lead.entityName || leadName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Tipo</p>
+                  <p className="font-medium capitalize">{lead.entityType === 'person' ? 'Persona' : 'Empresa'}</p>
+                </div>
+              </div>
+
+              <Separator className="bg-emerald-100" />
+
+              <div className="grid grid-cols-2 gap-4">
+                {lead.email && (
+                  <div>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Mail className="w-3 h-3" /> Email
+                    </p>
+                    <p className="font-medium">{lead.email}</p>
+                  </div>
+                )}
+                {lead.phone && (
+                  <div>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Phone className="w-3 h-3" /> Teléfono
+                    </p>
+                    <p className="font-medium">{lead.phone}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="text-xs text-muted-foreground mt-2 bg-white/50 p-2 rounded">
+                * El cliente será creado automáticamente al aceptar esta cotización.
+              </div>
+            </div>
+          ) : (
+            <div className="text-center p-4">
+              <p className="text-sm text-muted-foreground">Prospecto: {leadName || 'No identificado'}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Render para CLIENTE (Existing code wrapped)
   return (
     <Card>
       <CardHeader>
@@ -116,7 +190,7 @@ export function QuoteReviewHeader({
                 </p>
                 <p className="font-semibold text-lg">{client.name}</p>
               </div>
-              
+
               {client.legalName && (
                 <div>
                   <p className="text-sm text-muted-foreground flex items-center gap-1">

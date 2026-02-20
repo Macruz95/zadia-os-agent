@@ -25,7 +25,7 @@ import { LeadsActionsService } from './leads-actions.service';
  */
 export class LeadsService {
   // CRUD Operations (delegated to LeadsCrudService)
-  static async createLead(data: CreateLeadFormData, createdBy: string, tenantId?: string): Promise<Lead> {
+  static async createLead(data: CreateLeadFormData, createdBy: string, tenantId: string): Promise<Lead> {
     return LeadsCrudService.createLead(data, createdBy, tenantId);
   }
 
@@ -44,13 +44,13 @@ export class LeadsService {
   static async searchLeads(
     filters: LeadFilters = {},
     pageSize: number = 20,
-    lastDocId?: string,
-    tenantId?: string
+    lastDocId: string | undefined,
+    tenantId: string
   ): Promise<LeadSearchResult> {
     return LeadsCrudService.searchLeads(filters, pageSize, lastDocId, tenantId);
   }
 
-  static async getLeadsByUser(userId: string, tenantId?: string): Promise<Lead[]> {
+  static async getLeadsByUser(userId: string, tenantId: string): Promise<Lead[]> {
     return LeadsCrudService.getLeadsByUser(userId, tenantId);
   }
 

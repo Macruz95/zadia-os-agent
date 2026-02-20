@@ -45,18 +45,20 @@ export async function middleware(request: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('X-XSS-Protection', '1; mode=block');
 
-  // Content Security Policy
+  // Content-Security-Policy
+  // Note: 'unsafe-inline' for script-src is required for Google Analytics and Next.js inline scripts.
+  // For production, implement nonce-based CSP via Next.js middleware or a custom solution.
   response.headers.set(
     'Content-Security-Policy',
-    [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://js.stripe.com",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self' data:",
-      "connect-src 'self' https://www.googleapis.com https://identitytoolkit.googleapis.com https://firestore.googleapis.com https://firebasestorage.googleapis.com https://www.google-analytics.com https://api.stripe.com https://checkout.stripe.com https://r.stripe.com https://api.resend.com",
-      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://checkout.stripe.com",
-    ].join('; ')
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://js.stripe.com; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "img-src 'self' data: https: blob:; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://api.stripe.com https://*.openrouter.ai https://api.groq.com https://generativelanguage.googleapis.com wss://*.firebaseio.com; " +
+    "frame-src 'self' https://js.stripe.com; " +
+    "object-src 'none'; " +
+    "base-uri 'self';"
   );
 
   return response;

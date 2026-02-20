@@ -89,9 +89,9 @@ export function QuoteAcceptanceWizard({ quote, open, onClose }: QuoteAcceptanceW
                       <div
                         className={`flex items-center justify-center w-8 h-8 rounded-full mb-1 ${
                           isCompleted
-                            ? 'bg-green-500 text-white'
+                            ? 'bg-green-500 text-foreground'
                             : isActive
-                            ? 'bg-primary text-white'
+                            ? 'bg-primary text-foreground'
                             : 'bg-muted'
                         }`}
                       >

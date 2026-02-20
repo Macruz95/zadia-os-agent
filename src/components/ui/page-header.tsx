@@ -66,13 +66,13 @@ export function PageHeader({
         
         <div>
           <h1 className={cn(
-            'font-bold tracking-tight text-white',
+            'font-bold tracking-tight text-foreground',
             variant === 'compact' ? 'text-xl' : 'text-2xl'
           )}>
             {title}
           </h1>
           {description && (
-            <p className="text-sm text-gray-400 mt-0.5">
+            <p className="text-sm text-muted-foreground mt-0.5">
               {description}
             </p>
           )}

@@ -25,6 +25,10 @@ export type QuoteAcceptanceInput = z.infer<typeof quoteAcceptanceSchema>;
 export const projectConfigSchema = z.object({
   name: z.string().min(3, 'Nombre de proyecto requerido'),
   description: z.string().optional(),
+
+  // Link to existing customer or use quote's client
+  customerId: z.string().min(1, 'Cliente requerido'),
+
   startDate: z.date(),
   estimatedEndDate: z.date().optional(),
   priority: z.enum(['low', 'medium', 'high', 'urgent']).optional().default('medium'),

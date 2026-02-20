@@ -9,10 +9,10 @@
 'use client';
 
 import Link from 'next/link';
-import { 
-  AlertTriangle, 
-  TrendingUp, 
-  Info, 
+import {
+  AlertTriangle,
+  TrendingUp,
+  Info,
   Zap,
   ChevronRight,
   DollarSign
@@ -27,25 +27,25 @@ interface InsightCardProps {
 }
 
 const TYPE_CONFIG: Record<InsightType, { icon: typeof AlertTriangle; color: string; bgColor: string }> = {
-  risk: { 
-    icon: AlertTriangle, 
-    color: 'text-red-400', 
-    bgColor: 'bg-red-500/10 border-red-500/20' 
+  risk: {
+    icon: AlertTriangle,
+    color: 'text-red-400',
+    bgColor: 'bg-red-500/10 border-red-500/20'
   },
-  opportunity: { 
-    icon: TrendingUp, 
-    color: 'text-emerald-400', 
-    bgColor: 'bg-emerald-500/10 border-emerald-500/20' 
+  opportunity: {
+    icon: TrendingUp,
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/10 border-emerald-500/20'
   },
-  info: { 
-    icon: Info, 
-    color: 'text-blue-400', 
-    bgColor: 'bg-blue-500/10 border-blue-500/20' 
+  info: {
+    icon: Info,
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10 border-blue-500/20'
   },
-  action: { 
-    icon: Zap, 
-    color: 'text-amber-400', 
-    bgColor: 'bg-amber-500/10 border-amber-500/20' 
+  action: {
+    icon: Zap,
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-500/10 border-amber-500/20'
   },
 };
 
@@ -53,7 +53,7 @@ const PRIORITY_BADGE: Record<InsightPriority, { label: string; className: string
   critical: { label: 'Crítico', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
   high: { label: 'Alto', className: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
   medium: { label: 'Medio', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-  low: { label: 'Bajo', className: 'bg-gray-500/20 text-gray-400 border-gray-500/30' },
+  low: { label: 'Bajo', className: 'bg-gray-500/20 text-muted-foreground border-gray-500/30' },
 };
 
 export function InsightCard({ insight, className }: InsightCardProps) {
@@ -72,14 +72,14 @@ export function InsightCard({ insight, className }: InsightCardProps) {
       <div className="flex items-start gap-3 mb-3">
         <div className={cn(
           "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
-          "bg-gray-900/50"
+          "bg-muted"
         )}>
           <Icon className={cn("h-5 w-5", typeConfig.color)} />
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-semibold text-gray-200 truncate">
+            <h4 className="font-semibold text-foreground truncate">
               {insight.title}
             </h4>
             <span className={cn(
@@ -89,7 +89,7 @@ export function InsightCard({ insight, className }: InsightCardProps) {
               {priorityConfig.label}
             </span>
           </div>
-          <p className="text-sm text-gray-400 line-clamp-2">
+          <p className="text-sm text-muted-foreground line-clamp-2">
             {insight.description}
           </p>
         </div>
@@ -97,9 +97,9 @@ export function InsightCard({ insight, className }: InsightCardProps) {
 
       {/* Impact */}
       {insight.impact && (
-        <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-gray-900/30">
-          <DollarSign className="h-4 w-4 text-gray-500" />
-          <span className="text-sm text-gray-300 font-medium">
+        <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-muted/50">
+          <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm text-foreground/80 font-medium">
             {insight.impact}
           </span>
         </div>
@@ -116,9 +116,9 @@ export function InsightCard({ insight, className }: InsightCardProps) {
                 size="sm"
                 asChild
                 className={cn(
-                  action.variant === 'primary' 
-                    ? 'bg-cyan-600 hover:bg-cyan-500 text-white' 
-                    : 'border-gray-700 hover:border-gray-600'
+                  action.variant === 'primary'
+                    ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                    : 'border-border hover:bg-accent hover:text-accent-foreground'
                 )}
               >
                 <Link href={action.href}>
@@ -132,9 +132,9 @@ export function InsightCard({ insight, className }: InsightCardProps) {
                 variant={action.variant === 'primary' ? 'default' : 'outline'}
                 size="sm"
                 className={cn(
-                  action.variant === 'primary' 
-                    ? 'bg-cyan-600 hover:bg-cyan-500 text-white' 
-                    : 'border-gray-700 hover:border-gray-600'
+                  action.variant === 'primary'
+                    ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                    : 'border-border hover:bg-accent hover:text-accent-foreground'
                 )}
               >
                 {action.label}

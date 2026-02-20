@@ -23,6 +23,8 @@ import { PROJECT_STATUS_CONFIG } from '../../types/projects.types';
 interface ProjectsKanbanProps {
   projects: Project[];
   onProjectClick: (projectId: string) => void;
+  userId: string;
+  userName: string;
 }
 
 const STATUS_ORDER: ProjectStatus[] = [
@@ -33,7 +35,7 @@ const STATUS_ORDER: ProjectStatus[] = [
   'cancelled',
 ];
 
-export function ProjectsKanban({ projects, onProjectClick }: ProjectsKanbanProps) {
+export function ProjectsKanban({ projects, onProjectClick, userId, userName }: ProjectsKanbanProps) {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -71,8 +73,8 @@ export function ProjectsKanban({ projects, onProjectClick }: ProjectsKanbanProps
       await ProjectsService.changeStatus(
         projectId,
         newStatus,
-        'current-user', // TODO: Get from auth context
-        'Usuario' // TODO: Get from auth context
+        userId,
+        userName
       );
 
       toast.success(`Proyecto movido a ${PROJECT_STATUS_CONFIG[newStatus].label}`);
@@ -152,7 +154,7 @@ export function ProjectsKanban({ projects, onProjectClick }: ProjectsKanbanProps
           <div className="opacity-80">
             <ProjectKanbanCard
               project={activeProject}
-              onClick={() => {}}
+              onClick={() => { }}
               isDragging={true}
             />
           </div>

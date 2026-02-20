@@ -106,6 +106,7 @@ export const userProfileSchema = z.object({
   role: z.string().optional(),
   language: languageSchema,
   organization: z.string().optional(),
+  organizationId: z.string().optional(), // Support legacy/SQL naming convention
   objective: userObjectiveSchema.optional(),
   photoURL: z.string().url().optional(),
   createdAt: z.date(),

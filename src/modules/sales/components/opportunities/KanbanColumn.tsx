@@ -2,6 +2,8 @@ import { Badge } from '@/components/ui/badge';
 import { Opportunity, OpportunityStage } from '../../types/sales.types';
 import { OpportunityCard } from './OpportunityCard';
 import { STAGE_CONFIG } from './KanbanConfig';
+import { useDroppable } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 interface KanbanColumnProps {
   stage: OpportunityStage;
@@ -15,6 +17,14 @@ export function KanbanColumn({ stage, opportunities, onStageChange, onCardClick 
   const stageValue = opportunities.reduce((sum, opp) => sum + opp.estimatedValue, 0);
   const Icon = stageConfig.icon;
 
+  const { setNodeRef } = useDroppable({
+    id: stage,
+    data: {
+      type: 'Column',
+      stage,
+    },
+  });
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-PY', {
       style: 'currency',
@@ -24,7 +34,7 @@ export function KanbanColumn({ stage, opportunities, onStageChange, onCardClick 
   };
 
   return (
-    <div className={`rounded-lg border-2 ${stageConfig.color} p-4`}>
+    <div className={`rounded-lg border-2 ${stageConfig.color} p-4 flex flex-col h-full bg-[#0a0f1a]/50 backdrop-blur-sm`}>
       {/* Stage Header */}
       <div className="mb-4">
         <div className="flex items-center gap-2 mb-2">
@@ -42,21 +52,26 @@ export function KanbanColumn({ stage, opportunities, onStageChange, onCardClick 
       </div>
 
       {/* Opportunities Cards */}
-      <div className="space-y-3">
-        {opportunities.map((opportunity) => (
-          <OpportunityCard
-            key={opportunity.id}
-            opportunity={opportunity}
-            stage={stage}
-            onStageChange={onStageChange}
-            onCardClick={onCardClick}
-          />
-        ))}
+      <div className="space-y-3 flex-1 min-h-[150px]" ref={setNodeRef}>
+        <SortableContext
+          items={opportunities.map(o => o.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {opportunities.map((opportunity) => (
+            <OpportunityCard
+              key={opportunity.id}
+              opportunity={opportunity}
+              stage={stage}
+              onStageChange={onStageChange}
+              onCardClick={onCardClick}
+            />
+          ))}
+        </SortableContext>
 
         {/* Empty State */}
         {opportunities.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground text-sm">
-            No hay oportunidades en esta etapa
+          <div className="text-center py-8 text-muted-foreground text-sm opacity-50">
+            Arratre tarjetas aquí
           </div>
         )}
       </div>

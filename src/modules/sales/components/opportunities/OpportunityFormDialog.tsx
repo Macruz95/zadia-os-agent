@@ -22,8 +22,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Save, Loader2, DollarSign, Calendar } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTenantId } from '@/contexts/TenantContext';
 import { OpportunitiesService } from '../../services/opportunities.service';
 import { ClientsService } from '@/modules/clients/services/clients.service';
+import { ContactsService } from '@/modules/clients/services/entities/contacts-entity.service';
 import type { Opportunity, OpportunityPriority } from '../../types/sales.types';
 import type { Client } from '@/modules/clients/types/clients.types';
 
@@ -41,6 +43,7 @@ export function OpportunityFormDialog({
   onSuccess,
 }: OpportunityFormDialogProps) {
   const { user } = useAuth();
+  const tenantId = useTenantId();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [clients, setClients] = useState<Client[]>([]);
   const [loadingClients, setLoadingClients] = useState(false);
@@ -60,10 +63,9 @@ export function OpportunityFormDialog({
     return clients.find(c => c.id === clientId);
   }, [clients, clientId]);
 
-  // Note: Contacts are managed separately in the contacts collection
-  // For now, we'll use a simplified approach - contacts will be loaded when needed
-  const availableContacts: { id: string; name: string; email?: string }[] = [];
-  
+  const [availableContacts, setAvailableContacts] = useState<{ id: string; name: string; email?: string }[]>([]);
+  const [loadingContacts, setLoadingContacts] = useState(false);
+
   // Suppress unused variable warning - client will be used for contact loading
   void _selectedClient;
 
@@ -86,12 +88,35 @@ export function OpportunityFormDialog({
     }
   }, [open]);
 
-  // Reset contact when client changes
+  // Reset/load contacts when client changes
   useEffect(() => {
+    let active = true;
+
+    const loadClientContacts = async () => {
+      if (!clientId || !tenantId) {
+        setAvailableContacts([]);
+        return;
+      }
+      try {
+        setLoadingContacts(true);
+        const fetched = await ContactsService.getContactsByClient(clientId, tenantId);
+        if (active) {
+          setAvailableContacts(fetched.map(c => ({ id: c.id, name: c.name, email: c.email })));
+        }
+      } catch (err) {
+        toast.error('Error al cargar contactos del cliente');
+      } finally {
+        if (active) setLoadingContacts(false);
+      }
+    };
+
     if (clientId && !opportunity) {
       setContactId('');
     }
-  }, [clientId, opportunity]);
+    loadClientContacts();
+
+    return () => { active = false; };
+  }, [clientId, tenantId, opportunity]);
 
   // Load opportunity data for editing
   useEffect(() => {
@@ -134,6 +159,11 @@ export function OpportunityFormDialog({
       return;
     }
 
+    if (!tenantId) {
+      toast.error('No se pudo identificar la organización');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
 
@@ -155,10 +185,10 @@ export function OpportunityFormDialog({
       };
 
       if (opportunity) {
-        await OpportunitiesService.updateOpportunity(opportunity.id, oppData);
+        await OpportunitiesService.updateOpportunity(opportunity.id, oppData, tenantId);
         toast.success('Oportunidad actualizada');
       } else {
-        await OpportunitiesService.createOpportunity(oppData, user.uid);
+        await OpportunitiesService.createOpportunity(oppData, user.uid, tenantId);
         toast.success('Oportunidad creada exitosamente');
       }
 
@@ -225,11 +255,17 @@ export function OpportunityFormDialog({
             <Select
               value={contactId}
               onValueChange={setContactId}
-              disabled={!clientId}
+              disabled={!clientId || loadingContacts}
               required
             >
               <SelectTrigger>
-                <SelectValue placeholder={clientId ? "Seleccione contacto" : "Primero seleccione un cliente"} />
+                <SelectValue placeholder={
+                  loadingContacts
+                    ? "Cargando contactos..."
+                    : clientId
+                      ? "Seleccione contacto"
+                      : "Primero seleccione un cliente"
+                } />
               </SelectTrigger>
               <SelectContent>
                 {availableContacts.length === 0 ? (

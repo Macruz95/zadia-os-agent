@@ -8,8 +8,10 @@
 
 'use client';
 
-import { LucideIcon, TrendingUp, TrendingDown, Minus, Info } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { TrendingUp, TrendingDown, Minus, Info } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { CardContent } from '@/components/ui/card';
+import { AnimatedCard, AnimatedNumber } from '@/components/ui/motion';
 import { cn } from '@/lib/utils';
 import { Sparkline } from './Sparkline';
 import { SmartTooltip } from './SmartTooltip';
@@ -28,43 +30,44 @@ interface KPICardProps {
   variant?: 'default' | 'success' | 'warning' | 'danger' | 'info';
   loading?: boolean;
   className?: string;
+  delay?: number;
 }
 
 const VARIANT_CONFIG = {
   default: {
-    iconBg: 'bg-gray-800/50',
-    iconColor: 'text-gray-400',
+    iconBg: 'bg-muted',
+    iconColor: 'text-muted-foreground',
     sparklineColor: '#6b7280',
-    trendUp: 'text-emerald-400',
-    trendDown: 'text-red-400',
+    trendUp: 'text-emerald-500 dark:text-emerald-400',
+    trendDown: 'text-red-500 dark:text-red-400',
   },
   success: {
     iconBg: 'bg-emerald-500/10',
-    iconColor: 'text-emerald-400',
+    iconColor: 'text-emerald-500 dark:text-emerald-400',
     sparklineColor: '#34d399',
-    trendUp: 'text-emerald-400',
-    trendDown: 'text-red-400',
+    trendUp: 'text-emerald-500 dark:text-emerald-400',
+    trendDown: 'text-red-500 dark:text-red-400',
   },
   warning: {
     iconBg: 'bg-amber-500/10',
-    iconColor: 'text-amber-400',
+    iconColor: 'text-amber-500 dark:text-amber-400',
     sparklineColor: '#fbbf24',
-    trendUp: 'text-emerald-400',
-    trendDown: 'text-red-400',
+    trendUp: 'text-emerald-500 dark:text-emerald-400',
+    trendDown: 'text-red-500 dark:text-red-400',
   },
   danger: {
     iconBg: 'bg-red-500/10',
-    iconColor: 'text-red-400',
+    iconColor: 'text-red-500 dark:text-red-400',
     sparklineColor: '#f87171',
-    trendUp: 'text-emerald-400',
-    trendDown: 'text-red-400',
+    trendUp: 'text-emerald-500 dark:text-emerald-400',
+    trendDown: 'text-red-500 dark:text-red-400',
   },
   info: {
     iconBg: 'bg-cyan-500/10',
-    iconColor: 'text-cyan-400',
+    iconColor: 'text-cyan-500 dark:text-cyan-400',
     sparklineColor: '#22d3ee',
-    trendUp: 'text-emerald-400',
-    trendDown: 'text-red-400',
+    trendUp: 'text-emerald-500 dark:text-emerald-400',
+    trendDown: 'text-red-500 dark:text-red-400',
   },
 };
 
@@ -82,41 +85,45 @@ export function KPICard({
   variant = 'default',
   loading = false,
   className,
+  delay = 0,
 }: KPICardProps) {
   const config = VARIANT_CONFIG[variant];
-  
-  const TrendIcon = trend === undefined || trend === 0 
-    ? Minus 
-    : trend > 0 
-      ? TrendingUp 
+
+  const TrendIcon = trend === undefined || trend === 0
+    ? Minus
+    : trend > 0
+      ? TrendingUp
       : TrendingDown;
 
   const trendColor = trend === undefined || trend === 0
-    ? 'text-gray-500'
+    ? 'text-muted-foreground'
     : trend > 0
       ? config.trendUp
       : config.trendDown;
 
   if (loading) {
     return (
-      <Card className={cn("bg-[#161b22] border-gray-800/50", className)}>
+      <AnimatedCard delay={delay} glowColor={variant === 'default' ? 'primary' : variant} className={cn("bg-card border-border", className)}>
         <CardContent className="p-4">
           <div className="animate-pulse space-y-3">
-            <div className="h-3 w-20 bg-gray-800 rounded" />
-            <div className="h-8 w-24 bg-gray-800 rounded" />
-            <div className="h-8 w-full bg-gray-800 rounded" />
+            <div className="h-3 w-20 bg-muted rounded" />
+            <div className="h-8 w-24 bg-muted rounded" />
+            <div className="h-8 w-full bg-muted rounded" />
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     );
   }
 
   return (
-    <Card className={cn(
-      "bg-[#161b22] border-gray-800/50 overflow-hidden relative group",
-      "hover:border-gray-700/50 transition-colors duration-200",
-      className
-    )}>
+    <AnimatedCard
+      delay={delay}
+      glowColor={variant === 'default' ? 'primary' : variant}
+      className={cn(
+        "bg-card border-border overflow-hidden relative group transition-colors duration-200",
+        className
+      )}
+    >
       {/* Top glow line */}
       <div className={cn(
         "absolute top-0 left-0 right-0 h-px opacity-50",
@@ -131,7 +138,7 @@ export function KPICard({
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5">
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               {title}
             </span>
             {(aiInsight || tooltipDetails) && (
@@ -143,7 +150,7 @@ export function KPICard({
                 aiInsight={aiInsight}
                 details={tooltipDetails}
               >
-                <Info className="h-3 w-3 text-gray-600 hover:text-gray-400 cursor-help transition-colors" />
+                <Info className="h-3 w-3 text-muted-foreground/50 hover:text-muted-foreground cursor-help transition-colors" />
               </SmartTooltip>
             )}
           </div>
@@ -156,11 +163,15 @@ export function KPICard({
 
         {/* Value */}
         <div className="mb-2">
-          <span className="text-2xl font-bold text-white tabular-nums">
-            {value}
+          <span className="text-2xl font-bold text-foreground tabular-nums">
+            {typeof value === 'number' ? (
+              <AnimatedNumber value={value} />
+            ) : (
+              value
+            )}
           </span>
           {subtitle && (
-            <span className="text-xs text-gray-500 ml-2">
+            <span className="text-xs text-muted-foreground ml-2">
               {subtitle}
             </span>
           )}
@@ -169,9 +180,9 @@ export function KPICard({
         {/* Sparkline + Trend */}
         <div className="flex items-center justify-between">
           {trendData && trendData.length > 1 ? (
-            <Sparkline 
-              data={trendData} 
-              width={80} 
+            <Sparkline
+              data={trendData}
+              width={80}
               height={24}
               strokeColor={config.sparklineColor}
             />
@@ -184,13 +195,13 @@ export function KPICard({
               <TrendIcon className="h-3 w-3" />
               <span>{Math.abs(trend).toFixed(1)}%</span>
               {trendLabel && (
-                <span className="text-gray-600 ml-1">{trendLabel}</span>
+                <span className="text-muted-foreground/70 ml-1">{trendLabel}</span>
               )}
             </div>
           )}
         </div>
       </CardContent>
-    </Card>
+    </AnimatedCard>
   );
 }
 

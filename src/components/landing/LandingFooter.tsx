@@ -62,10 +62,10 @@ export function LandingFooter() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[hsl(250_95%_60%)] to-[hsl(280_90%_55%)] flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-white" />
+                <Sparkles className="h-5 w-5 text-foreground" />
               </div>
               <div>
-                <span className="text-xl font-bold text-white">ZADIA</span>
+                <span className="text-xl font-bold text-foreground">ZADIA</span>
                 <span className="text-xl font-light text-[hsl(230_10%_60%)]"> OS</span>
               </div>
             </Link>
@@ -83,7 +83,7 @@ export function LandingFooter() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-[hsl(230_20%_12%)] border border-[hsl(230_15%_20%)] flex items-center justify-center text-[hsl(230_10%_55%)] hover:text-white hover:border-[hsl(250_95%_60%/0.5)] hover:bg-[hsl(230_20%_15%)] transition-all"
+                  className="w-10 h-10 rounded-lg bg-[hsl(230_20%_12%)] border border-[hsl(230_15%_20%)] flex items-center justify-center text-[hsl(230_10%_55%)] hover:text-foreground hover:border-[hsl(250_95%_60%/0.5)] hover:bg-[hsl(230_20%_15%)] transition-all"
                   aria-label={social.name}
                 >
                   <social.icon className="h-4 w-4" />
@@ -94,13 +94,13 @@ export function LandingFooter() {
 
           {/* Producto */}
           <div>
-            <h4 className="font-semibold text-white mb-4">Producto</h4>
+            <h4 className="font-semibold text-foreground mb-4">Producto</h4>
             <ul className="space-y-3">
               {footerLinks.producto.map((link) => (
                 <li key={link.name}>
                   <Link 
                     href={link.href}
-                    className="text-[hsl(230_10%_55%)] hover:text-white transition-colors text-sm"
+                    className="text-[hsl(230_10%_55%)] hover:text-foreground transition-colors text-sm"
                   >
                     {link.name}
                   </Link>
@@ -111,13 +111,13 @@ export function LandingFooter() {
 
           {/* Empresa */}
           <div>
-            <h4 className="font-semibold text-white mb-4">Empresa</h4>
+            <h4 className="font-semibold text-foreground mb-4">Empresa</h4>
             <ul className="space-y-3">
               {footerLinks.empresa.map((link) => (
                 <li key={link.name}>
                   <Link 
                     href={link.href}
-                    className="text-[hsl(230_10%_55%)] hover:text-white transition-colors text-sm"
+                    className="text-[hsl(230_10%_55%)] hover:text-foreground transition-colors text-sm"
                   >
                     {link.name}
                   </Link>
@@ -128,13 +128,13 @@ export function LandingFooter() {
 
           {/* Recursos */}
           <div>
-            <h4 className="font-semibold text-white mb-4">Recursos</h4>
+            <h4 className="font-semibold text-foreground mb-4">Recursos</h4>
             <ul className="space-y-3">
               {footerLinks.recursos.map((link) => (
                 <li key={link.name}>
                   <Link 
                     href={link.href}
-                    className="text-[hsl(230_10%_55%)] hover:text-white transition-colors text-sm"
+                    className="text-[hsl(230_10%_55%)] hover:text-foreground transition-colors text-sm"
                   >
                     {link.name}
                   </Link>
@@ -145,13 +145,13 @@ export function LandingFooter() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-semibold text-white mb-4">Legal</h4>
+            <h4 className="font-semibold text-foreground mb-4">Legal</h4>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.name}>
                   <Link 
                     href={link.href}
-                    className="text-[hsl(230_10%_55%)] hover:text-white transition-colors text-sm"
+                    className="text-[hsl(230_10%_55%)] hover:text-foreground transition-colors text-sm"
                   >
                     {link.name}
                   </Link>

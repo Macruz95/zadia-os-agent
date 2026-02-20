@@ -59,7 +59,7 @@ export function useKPITrendData() {
 
         // Fetch revenue trend from invoices (last 30 days by week)
         const revenueTrend = await fetchRevenueByWeek(thirtyDaysAgo, tenantId);
-        
+
         // Fetch leads trend (last 30 days by week)
         const leadsTrend = await fetchLeadsByWeek(thirtyDaysAgo, tenantId);
 
@@ -118,7 +118,7 @@ async function fetchRevenueByWeek(startDate: Date, tenantId: string): Promise<nu
     );
 
     const snapshot = await getDocs(q);
-    
+
     // Group by week (4 weeks)
     const weeklyRevenue = [0, 0, 0, 0];
     const now = new Date();
@@ -126,7 +126,7 @@ async function fetchRevenueByWeek(startDate: Date, tenantId: string): Promise<nu
     snapshot.forEach((doc) => {
       const data = doc.data();
       const paidAt = data.paidAt?.toDate();
-      
+
       if (paidAt) {
         const daysDiff = Math.floor((now.getTime() - paidAt.getTime()) / (1000 * 60 * 60 * 24));
         const weekIndex = Math.min(Math.floor(daysDiff / 7), 3);
@@ -154,14 +154,14 @@ async function fetchLeadsByWeek(startDate: Date, tenantId: string): Promise<numb
     );
 
     const snapshot = await getDocs(q);
-    
+
     const weeklyLeads = [0, 0, 0, 0];
     const now = new Date();
 
     snapshot.forEach((doc) => {
       const data = doc.data();
       const createdAt = data.createdAt?.toDate();
-      
+
       if (createdAt) {
         const daysDiff = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
         const weekIndex = Math.min(Math.floor(daysDiff / 7), 3);
@@ -185,17 +185,17 @@ async function fetchClientsByWeek(tenantId: string): Promise<number[]> {
     const q = query(clientsRef, where('tenantId', '==', tenantId));
 
     const snapshot = await getDocs(q);
-    
+
     const weeklyCounts = [0, 0, 0, 0];
     const now = new Date();
 
     snapshot.forEach((doc) => {
       const data = doc.data();
       const createdAt = data.createdAt?.toDate();
-      
+
       if (createdAt) {
         const daysDiff = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-        
+
         // Cumulative count for each week
         for (let i = 0; i < 4; i++) {
           if (daysDiff >= i * 7) {
@@ -221,12 +221,28 @@ async function fetchProjectsByWeek(tenantId: string): Promise<number[]> {
     const q = query(
       projectsRef,
       where('tenantId', '==', tenantId),
-      where('status', 'in', ['Planificación', 'En Progreso', 'En Revisión'])
+      where('status', 'in', ['planning', 'in-progress'])
     );
 
     const snapshot = await getDocs(q);
-    
-    return [snapshot.size, snapshot.size, snapshot.size, snapshot.size];
+
+    // Group by week based on createdAt
+    const weeklyProjects = [0, 0, 0, 0];
+    const now = new Date();
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const createdAt = data.createdAt?.toDate();
+      if (createdAt) {
+        const daysDiff = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysDiff <= 28) {
+          const weekIndex = Math.min(Math.floor(daysDiff / 7), 3);
+          weeklyProjects[3 - weekIndex]++;
+        }
+      }
+    });
+
+    return weeklyProjects;
   } catch (error) {
     logger.error('Error fetching projects trend', error as Error);
     return [0, 0, 0, 0];
@@ -242,12 +258,28 @@ async function fetchOpportunitiesByWeek(tenantId: string): Promise<number[]> {
     const q = query(
       oppsRef,
       where('tenantId', '==', tenantId),
-      where('status', 'in', ['Calificación', 'Negociación', 'Propuesta'])
+      where('status', '==', 'open')
     );
 
     const snapshot = await getDocs(q);
-    
-    return [snapshot.size, snapshot.size, snapshot.size, snapshot.size];
+
+    // Group by week based on createdAt
+    const weeklyOpps = [0, 0, 0, 0];
+    const now = new Date();
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const createdAt = data.createdAt?.toDate();
+      if (createdAt) {
+        const daysDiff = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysDiff <= 28) {
+          const weekIndex = Math.min(Math.floor(daysDiff / 7), 3);
+          weeklyOpps[3 - weekIndex]++;
+        }
+      }
+    });
+
+    return weeklyOpps;
   } catch (error) {
     logger.error('Error fetching opportunities trend', error as Error);
     return [0, 0, 0, 0];

@@ -59,11 +59,11 @@ function docToQuote(doc: QueryDocumentSnapshot<DocumentData>): Quote {
  * Obtener todas las cotizaciones
  * @param tenantId - Required tenant ID for data isolation
  */
-export async function getAllQuotes(tenantId?: string): Promise<Quote[]> {
+export async function getAllQuotes(tenantId: string): Promise<Quote[]> {
   if (!tenantId) {
     return []; // Return empty if no tenant
   }
-  
+
   try {
     const q = query(
       collection(db, QUOTES_COLLECTION),
@@ -94,12 +94,12 @@ export async function getAllQuotes(tenantId?: string): Promise<Quote[]> {
  */
 export async function getQuotesByOpportunity(
   opportunityId: string,
-  tenantId?: string
+  tenantId: string
 ): Promise<Quote[]> {
   if (!tenantId) {
     return []; // Return empty if no tenant
   }
-  
+
   try {
     const q = query(
       collection(db, QUOTES_COLLECTION),
@@ -132,12 +132,12 @@ export async function getQuotesByOpportunity(
  */
 export async function getQuotesByStatus(
   status: Quote['status'],
-  tenantId?: string
+  tenantId: string
 ): Promise<Quote[]> {
   if (!tenantId) {
     return []; // Return empty if no tenant
   }
-  
+
   try {
     const q = query(
       collection(db, QUOTES_COLLECTION),
@@ -170,12 +170,12 @@ export async function getQuotesByStatus(
  */
 export async function getQuotesByClient(
   clientId: string,
-  tenantId?: string
+  tenantId: string
 ): Promise<Quote[]> {
   if (!tenantId) {
     return []; // Return empty if no tenant
   }
-  
+
   try {
     const q = query(
       collection(db, QUOTES_COLLECTION),

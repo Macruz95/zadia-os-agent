@@ -1,5 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, DollarSign, Clock, CheckCircle } from 'lucide-react';
+import { AnimatedCard, AnimatedNumber } from '@/components/ui/motion';
 import { Quote } from '../../types/sales.types';
 
 interface QuotesKPICardsProps {
@@ -21,7 +22,7 @@ export function QuotesKPICards({ quotes }: QuotesKPICardsProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <Card>
+      <AnimatedCard delay={0} glowColor="primary">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
             Total Cotizaciones
@@ -29,14 +30,16 @@ export function QuotesKPICards({ quotes }: QuotesKPICardsProps) {
           <FileText className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{totalQuotes}</div>
+          <div className="text-2xl font-bold">
+            <AnimatedNumber value={totalQuotes} />
+          </div>
           <p className="text-xs text-muted-foreground">
             Generadas este mes
           </p>
         </CardContent>
-      </Card>
+      </AnimatedCard>
 
-      <Card>
+      <AnimatedCard delay={0.1} glowColor="primary">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
             Valor Total
@@ -45,15 +48,15 @@ export function QuotesKPICards({ quotes }: QuotesKPICardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {formatCurrency(totalValue)}
+            <AnimatedNumber value={totalValue} format={(val) => formatCurrency(val)} />
           </div>
           <p className="text-xs text-muted-foreground">
             En cotizaciones activas
           </p>
         </CardContent>
-      </Card>
+      </AnimatedCard>
 
-      <Card>
+      <AnimatedCard delay={0.2} glowColor="primary">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
             Pendientes
@@ -61,14 +64,16 @@ export function QuotesKPICards({ quotes }: QuotesKPICardsProps) {
           <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{pendingQuotes}</div>
+          <div className="text-2xl font-bold">
+            <AnimatedNumber value={pendingQuotes} />
+          </div>
           <p className="text-xs text-muted-foreground">
             Esperando respuesta
           </p>
         </CardContent>
-      </Card>
+      </AnimatedCard>
 
-      <Card>
+      <AnimatedCard delay={0.3} glowColor="primary">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
             Tasa de Aceptación
@@ -77,13 +82,13 @@ export function QuotesKPICards({ quotes }: QuotesKPICardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {totalQuotes > 0 ? Math.round((acceptedQuotes / totalQuotes) * 100) : 0}%
+            <AnimatedNumber value={totalQuotes > 0 ? Math.round((acceptedQuotes / totalQuotes) * 100) : 0} />%
           </div>
           <p className="text-xs text-muted-foreground">
             {acceptedQuotes} de {totalQuotes} aceptadas
           </p>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     </div>
   );
 }

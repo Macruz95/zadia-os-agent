@@ -20,7 +20,9 @@ import { LeadsHeader } from './LeadsHeader';
 import { LeadsKPICards } from './LeadsKPICards';
 import { LeadsFilters } from './LeadsFilters';
 import { LeadsTable } from './LeadsTable';
+import { QuoteFormWizard } from '../quotes/QuoteFormWizard'; // NEW: For creating quotes from leads
 import { Lead, LeadStatus, LeadSource, LeadPriority } from '../../types/sales.types';
+import { AnimatedPage, AnimatedSection } from '@/components/ui/motion';
 
 export function LeadsDirectory() {
   const { user } = useAuth();
@@ -49,6 +51,11 @@ export function LeadsDirectory() {
     lead: null,
   });
   const [disqualifyDialog, setDisqualifyDialog] = useState<{ open: boolean; lead: Lead | null }>({
+    open: false,
+    lead: null,
+  });
+  // NEW: Quote dialog state for creating quotes from leads
+  const [quoteDialog, setQuoteDialog] = useState<{ open: boolean; lead: Lead | null }>({
     open: false,
     lead: null,
   });
@@ -140,6 +147,16 @@ export function LeadsDirectory() {
     setEditDialog({ open: false, lead: null });
   };
 
+  // NEW: Handler for creating quotes from leads
+  const handleCreateQuote = (lead: Lead) => {
+    setQuoteDialog({ open: true, lead });
+  };
+
+  const handleQuoteSuccess = (quoteId: string) => {
+    toast.success(`Cotización creada exitosamente (${quoteId.slice(0, 8)})`);
+    setQuoteDialog({ open: false, lead: null });
+  };
+
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -149,40 +166,49 @@ export function LeadsDirectory() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <LeadsHeader
-        onRefresh={refresh}
-        onCreateLead={() => {
-          logger.info('Create Lead button clicked');
-          setShowCreateDialog(true);
-        }}
-        loading={loading}
-      />
+    <AnimatedPage className="p-6 space-y-6">
+      <AnimatedSection>
+        <LeadsHeader
+          onRefresh={refresh}
+          onCreateLead={() => {
+            logger.info('Create Lead button clicked');
+            setShowCreateDialog(true);
+          }}
+          loading={loading}
+        />
+      </AnimatedSection>
 
-      <LeadsKPICards leads={leads} />
+      <AnimatedSection delay={0.08}>
+        <LeadsKPICards leads={leads} />
+      </AnimatedSection>
 
-      <LeadsFilters
-        searchQuery={searchQuery}
-        onSearchQueryChange={setSearchQuery}
-        statusFilter={statusFilter}
-        onStatusFilterChange={(value) => setStatusFilter(value as LeadStatus | 'all')}
-        sourceFilter={sourceFilter}
-        onSourceFilterChange={(value) => setSourceFilter(value as LeadSource | 'all')}
-        priorityFilter={priorityFilter}
-        onPriorityFilterChange={(value) => setPriorityFilter(value as LeadPriority | 'all')}
-        onSearch={handleSearch}
-        loading={loading}
-      />
+      <AnimatedSection delay={0.12}>
+        <LeadsFilters
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          statusFilter={statusFilter}
+          onStatusFilterChange={(value) => setStatusFilter(value as LeadStatus | 'all')}
+          sourceFilter={sourceFilter}
+          onSourceFilterChange={(value) => setSourceFilter(value as LeadSource | 'all')}
+          priorityFilter={priorityFilter}
+          onPriorityFilterChange={(value) => setPriorityFilter(value as LeadPriority | 'all')}
+          onSearch={handleSearch}
+          loading={loading}
+        />
+      </AnimatedSection>
 
-      <LeadsTable
-        leads={leads}
-        loading={loading}
-        totalCount={totalCount}
-        onConvertLead={handleConvertLead}
-        onDisqualifyLead={handleDisqualifyLead}
-        onEditLead={handleEditLead}
-        onDeleteLead={handleDeleteLead}
-      />
+      <AnimatedSection delay={0.16}>
+        <LeadsTable
+          leads={leads}
+          loading={loading}
+          totalCount={totalCount}
+          onConvertLead={handleConvertLead}
+          onDisqualifyLead={handleDisqualifyLead}
+          onCreateQuote={handleCreateQuote}
+          onEditLead={handleEditLead}
+          onDeleteLead={handleDeleteLead}
+        />
+      </AnimatedSection>
 
       <CreateLeadDialog
         open={showCreateDialog}
@@ -212,6 +238,17 @@ export function LeadsDirectory() {
         onConfirm={confirmDisqualifyLead}
         leadName={disqualifyDialog.lead?.fullName || disqualifyDialog.lead?.entityName || ''}
       />
-    </div>
+
+      {/* NEW: Quote Form Wizard for creating quotes from leads */}
+      {quoteDialog.lead && (
+        <QuoteFormWizard
+          open={quoteDialog.open}
+          onOpenChange={(open) => setQuoteDialog({ open, lead: null })}
+          leadId={quoteDialog.lead.id}
+          leadName={quoteDialog.lead.fullName || quoteDialog.lead.entityName}
+          onSuccess={handleQuoteSuccess}
+        />
+      )}
+    </AnimatedPage>
   );
 }

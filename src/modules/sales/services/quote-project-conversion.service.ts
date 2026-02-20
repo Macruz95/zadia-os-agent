@@ -35,7 +35,9 @@ const OPPORTUNITIES_COLLECTION = 'opportunities';
  * Convert accepted quote to project with atomic transaction
  */
 export async function convertQuoteToProject(
-  data: QuoteProjectConversionInput
+  data: QuoteProjectConversionInput,
+  userId: string = 'system',
+  userName: string = 'Sistema'
 ): Promise<ConversionResult> {
   try {
     // Step 1: Validate quote exists and is accepted
@@ -60,11 +62,12 @@ export async function convertQuoteToProject(
     const projectRef = doc(collection(db, PROJECTS_COLLECTION));
     const projectData = {
       ...data.projectConfig,
+      tenantId: quote.tenantId, // IMPORTANT: Inherit tenant isolation
       quoteId: data.quoteId,
       opportunityId: quote.opportunityId,
       clientId: quote.clientId,
       number: await generateProjectNumber(),
-      status: 'Planificación' as const,
+      status: 'planning' as const,
       progress: 0,
       totalBudget: data.projectConfig.budget || quote.total,
       currency: quote.currency,
@@ -114,6 +117,7 @@ export async function convertQuoteToProject(
       const reservationRef = doc(collection(db, INVENTORY_RESERVATIONS_COLLECTION));
       batch.set(reservationRef, {
         ...reservation,
+        tenantId: quote.tenantId,
         projectId: projectRef.id,
         quoteId: data.quoteId,
         status: 'reserved',
@@ -133,6 +137,7 @@ export async function convertQuoteToProject(
       const workOrderRef = doc(collection(db, WORK_ORDERS_COLLECTION));
       batch.set(workOrderRef, {
         ...workOrder,
+        tenantId: quote.tenantId,
         projectId: projectRef.id,
         quoteId: data.quoteId,
         clientId: quote.clientId,
@@ -157,8 +162,8 @@ export async function convertQuoteToProject(
         type: 'milestone',
         title: 'Proyecto creado desde cotización',
         description: `Proyecto generado automáticamente desde cotización ${quote.number}`,
-        performedBy: 'system', // TODO: Pass actual user ID
-        performedByName: 'Sistema',
+        performedBy: userId,
+        performedByName: userName,
         performedAt: Timestamp.now(),
         metadata: {
           quoteId: data.quoteId,

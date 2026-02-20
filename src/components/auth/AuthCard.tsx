@@ -28,7 +28,7 @@ export function AuthCard({ children, className }: AuthCardProps) {
   return (
     <div className={cn(
       "relative overflow-hidden",
-      "bg-[#161b22] border border-gray-800/50 rounded-2xl",
+      "bg-card border border-border rounded-2xl",
       "shadow-2xl shadow-black/50",
       className
     )}>
@@ -56,11 +56,11 @@ export function AuthCardHeader({ title, subtitle, icon }: AuthCardHeaderProps) {
           </div>
         </div>
       )}
-      <h1 className="text-2xl font-bold text-white tracking-tight">
+      <h1 className="text-2xl font-bold text-foreground tracking-tight">
         {title}
       </h1>
       {subtitle && (
-        <p className="mt-2 text-sm text-gray-400">
+        <p className="mt-2 text-sm text-muted-foreground">
           {subtitle}
         </p>
       )}
@@ -79,7 +79,7 @@ export function AuthCardContent({ children, className }: AuthCardContentProps) {
 export function AuthCardFooter({ children, className }: AuthCardFooterProps) {
   return (
     <div className={cn(
-      "px-8 py-5 bg-black/20 border-t border-gray-800/50",
+      "px-8 py-5 bg-black/20 border-t border-border",
       className
     )}>
       {children}

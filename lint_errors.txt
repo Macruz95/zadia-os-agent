@@ -1,16 +1,16 @@
-﻿
+
 > zadia-os-agent@0.1.0 lint
 > eslint
 
 
 C:\Users\mario\zadia-os-agent\src\app\(main)\ai-assistant\page.tsx
-  82:24  warning  '_conversationTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  81:24  warning  '_conversationTitle' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
 C:\Users\mario\zadia-os-agent\src\app\(main)\hr\employees\[id]\page.tsx
   103:6  warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
 C:\Users\mario\zadia-os-agent\src\app\(main)\sales\opportunities\[id]\page.tsx
-  47:6  warning  React Hook useEffect has a missing dependency: 'loadOpportunityData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  49:6  warning  React Hook useEffect has a missing dependency: 'loadOpportunityData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
 C:\Users\mario\zadia-os-agent\src\components\CommandBar.tsx
   112:6  warning  React Hook useEffect has missing dependencies: 'handleCommand', 'handleQuestion', and 'handleSearch'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
@@ -52,11 +52,34 @@ C:\Users\mario\zadia-os-agent\src\modules\hr\components\periods\ActivePeriodCard
 C:\Users\mario\zadia-os-agent\src\modules\hr\components\periods\AddLoanDialog.tsx
   83:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
 
+C:\Users\mario\zadia-os-agent\src\modules\inventory\components\InventoryDirectory.tsx
+  37:11  warning  'user' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mario\zadia-os-agent\src\modules\inventory\components\MovementForm.tsx
+  39:48  warning  'onSuccess' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mario\zadia-os-agent\src\modules\inventory\components\purchase-history\PriceAlerts.tsx
+  39:17  warning  Unexpected console statement  no-console
+
+C:\Users\mario\zadia-os-agent\src\modules\inventory\components\purchase-history\SupplierAnalysisCard.tsx
+   8:10  warning  'PurchaseHistory' is defined but never used  @typescript-eslint/no-unused-vars
+  44:17  warning  Unexpected console statement                 no-console
+
+C:\Users\mario\zadia-os-agent\src\modules\inventory\services\entities\inventory-movements-entity.service.ts
+  69:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  79:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  86:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mario\zadia-os-agent\src\modules\inventory\services\utils\movement-processor.service.ts
+  38:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  52:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  53:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
 C:\Users\mario\zadia-os-agent\src\modules\orders\hooks\use-orders.ts
   179:6  warning  React Hook useEffect has a missing dependency: 'fetchOrders'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
 C:\Users\mario\zadia-os-agent\src\modules\projects\components\documents\ProjectDocumentsTab.tsx
-  54:6  warning  React Hook useEffect has a missing dependency: 'loadDocuments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  56:6  warning  React Hook useEffect has a missing dependency: 'loadDocuments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
 C:\Users\mario\zadia-os-agent\src\modules\projects\hooks\use-projects\use-projects-list.ts
   111:6  warning  React Hook useEffect has a missing dependency: 'filters'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
@@ -64,11 +87,21 @@ C:\Users\mario\zadia-os-agent\src\modules\projects\hooks\use-projects\use-projec
 C:\Users\mario\zadia-os-agent\src\modules\projects\hooks\use-work-orders.ts
   156:6  warning  React Hook useEffect has a missing dependency: 'fetchWorkOrders'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
-C:\Users\mario\zadia-os-agent\src\modules\sales\components\leads\CreateLeadDialogSimple.tsx
-  42:11  warning  'user' is assigned a value but never used  @typescript-eslint/no-unused-vars
-
 C:\Users\mario\zadia-os-agent\src\modules\sales\components\leads\LeadDialogActions.tsx
   11:56  warning  'onSubmit' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mario\zadia-os-agent\src\modules\sales\components\leads\LeadProfile.tsx
+  189:23  warning  'quoteId' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mario\zadia-os-agent\src\modules\sales\components\leads\LeadsTableRow.tsx
+  2:21  warning  'TableRow' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\mario\zadia-os-agent\src\modules\sales\components\opportunities\OpportunitiesKanban.tsx
+  156:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  157:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\mario\zadia-os-agent\src\modules\sales\components\opportunities\OpportunityFormDialog.tsx
+  106:16  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Users\mario\zadia-os-agent\src\modules\sales\components\opportunities\profile\OpportunityTimeline.tsx
   51:6  warning  React Hook useEffect has a missing dependency: 'loadTimelineData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
@@ -79,11 +112,34 @@ C:\Users\mario\zadia-os-agent\src\modules\sales\components\quotes\QuoteCalculato
 C:\Users\mario\zadia-os-agent\src\modules\sales\components\quotes\QuoteTemplatesDialog.tsx
   54:6  warning  React Hook useEffect has a missing dependency: 'loadTemplates'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
+C:\Users\mario\zadia-os-agent\src\modules\sales\components\quotes\review\QuoteReviewHeader.tsx
+  62:9  warning  Unexpected console statement  no-console
+
+C:\Users\mario\zadia-os-agent\src\modules\sales\hooks\use-opportunities.ts
+  106:6  warning  React Hook useCallback has a missing dependency: 'tenantId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  125:6  warning  React Hook useCallback has a missing dependency: 'tenantId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\mario\zadia-os-agent\src\modules\sales\hooks\use-quote-acceptance.ts
+  157:11  warning  'finalContactId' is assigned a value but never used                                                             @typescript-eslint/no-unused-vars
+  175:11  warning  Unexpected console statement                                                                                    no-console
+  221:6   warning  React Hook useCallback has a missing dependency: 'user?.uid'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\mario\zadia-os-agent\src\modules\sales\hooks\use-quote-form.ts
+  127:6  warning  React Hook useCallback has a missing dependency: 'tenantId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\mario\zadia-os-agent\src\modules\sales\hooks\use-sales-actions.ts
+   61:6  warning  React Hook useCallback has a missing dependency: 'tenantId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  117:6  warning  React Hook useCallback has a missing dependency: 'tenantId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  137:6  warning  React Hook useCallback has a missing dependency: 'tenantId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  155:6  warning  React Hook useCallback has a missing dependency: 'tenantId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  171:6  warning  React Hook useCallback has a missing dependency: 'tenantId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  193:6  warning  React Hook useCallback has a missing dependency: 'tenantId'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
 C:\Users\mario\zadia-os-agent\src\modules\sales\services\leads.service.ts
   15:3  warning  'LeadFormData' is defined but never used  @typescript-eslint/no-unused-vars
 
 C:\Users\mario\zadia-os-agent\src\modules\workflows\components\WorkflowHistory.tsx
   30:6  warning  React Hook useEffect has a missing dependency: 'loadExecutions'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
-Ô£û 30 problems (0 errors, 30 warnings)
+✖ 58 problems (0 errors, 58 warnings)
 

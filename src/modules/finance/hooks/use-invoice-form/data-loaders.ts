@@ -25,7 +25,7 @@ export async function loadQuoteData(quoteId: string): Promise<InvoiceFormData | 
     toast.success('Datos cargados desde cotización');
 
     return {
-      clientId: quote.clientId,
+      clientId: quote.clientId || '',
       clientName: 'Cliente',
       quoteId: quote.id,
       quoteNumber: quote.number,

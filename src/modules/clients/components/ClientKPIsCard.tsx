@@ -1,7 +1,8 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
+import { CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import { Badge } from '../../../components/ui/badge';
+import { AnimatedCard, AnimatedNumber } from '@/components/ui/motion';
 import { TrendingUp, FileText, Briefcase, Calendar, DollarSign, Clock } from 'lucide-react';
 import { Transaction, Project, Quote, Client } from '../types/clients.types';
 import { formatCurrency } from '../utils/currency.utils';
@@ -27,11 +28,11 @@ export const ClientKPIsCard = ({ client, transactions, projects, quotes }: Clien
   const balanceDue = totalInvoiced - totalPaid;
 
   // Business KPIs
-  const activeProjects = projects.filter(p => 
+  const activeProjects = projects.filter(p =>
     p.status === 'EnProgreso' || p.status === 'Planificación'
   ).length;
 
-  const activeQuotes = quotes.filter(q => 
+  const activeQuotes = quotes.filter(q =>
     q.status === 'Enviada' || q.status === 'Borrador'
   ).length;
 
@@ -40,7 +41,7 @@ export const ClientKPIsCard = ({ client, transactions, projects, quotes }: Clien
 
   // Timeline KPIs
   const clientSince = formatDate(client.createdAt);
-  const lastActivity = client.lastInteractionDate 
+  const lastActivity = client.lastInteractionDate
     ? formatDate(client.lastInteractionDate)
     : 'Sin actividad';
 
@@ -50,9 +51,9 @@ export const ClientKPIsCard = ({ client, transactions, projects, quotes }: Clien
   );
 
   return (
-    <Card>
+    <AnimatedCard delay={0.2} glowColor="primary" className="bg-card border-[#1e293b]">
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
+        <CardTitle className="text-lg flex items-center gap-2 text-foreground">
           <TrendingUp className="w-5 h-5" />
           KPIs del Cliente
         </CardTitle>
@@ -92,20 +93,26 @@ export const ClientKPIsCard = ({ client, transactions, projects, quotes }: Clien
               Actividad Comercial
             </h4>
             <div className="grid grid-cols-3 gap-2">
-              <div className="text-center p-3 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-900">{openOpportunities}</div>
-                <div className="text-xs text-purple-600 font-medium mt-1">Oportunidades</div>
+              <div className="text-center p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
+                <div className="text-2xl font-bold text-purple-400">
+                  <AnimatedNumber value={openOpportunities} />
+                </div>
+                <div className="text-xs text-purple-300/80 font-medium mt-1">Oportunidades</div>
               </div>
-              <div className="text-center p-3 bg-orange-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-900">{activeQuotes}</div>
-                <div className="text-xs text-orange-600 font-medium mt-1 flex items-center justify-center gap-1">
+              <div className="text-center p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+                <div className="text-2xl font-bold text-orange-400">
+                  <AnimatedNumber value={activeQuotes} />
+                </div>
+                <div className="text-xs text-orange-300/80 font-medium mt-1 flex items-center justify-center gap-1">
                   <FileText className="w-3 h-3" />
                   Cotizaciones
                 </div>
               </div>
-              <div className="text-center p-3 bg-indigo-50 rounded-lg">
-                <div className="text-2xl font-bold text-indigo-900">{activeProjects}</div>
-                <div className="text-xs text-indigo-600 font-medium mt-1 flex items-center justify-center gap-1">
+              <div className="text-center p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
+                <div className="text-2xl font-bold text-indigo-400">
+                  <AnimatedNumber value={activeProjects} />
+                </div>
+                <div className="text-xs text-indigo-300/80 font-medium mt-1 flex items-center justify-center gap-1">
                   <Briefcase className="w-3 h-3" />
                   Proyectos
                 </div>
@@ -137,7 +144,7 @@ export const ClientKPIsCard = ({ client, transactions, projects, quotes }: Clien
               </div>
               <div className="flex items-center justify-between p-2 bg-slate-50 rounded">
                 <span className="text-sm text-slate-600">Última actividad</span>
-                <Badge 
+                <Badge
                   variant={client.lastInteractionDate ? "default" : "secondary"}
                   className="text-xs"
                 >
@@ -148,6 +155,6 @@ export const ClientKPIsCard = ({ client, transactions, projects, quotes }: Clien
           </div>
         </div>
       </CardContent>
-    </Card>
+    </AnimatedCard>
   );
 };

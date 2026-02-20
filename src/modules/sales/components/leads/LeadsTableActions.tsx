@@ -1,11 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, UserCheck, UserX, Edit, Trash2, Eye } from 'lucide-react';
+import { MoreHorizontal, UserCheck, UserX, Edit, Trash2, Eye, FileText } from 'lucide-react';
 import { Lead } from '../../types/sales.types';
 
 interface LeadsTableActionsProps {
@@ -13,23 +14,25 @@ interface LeadsTableActionsProps {
   onConvertLead: (lead: Lead) => void;
   onDisqualifyLead: (lead: Lead) => void;
   onViewDetails: (leadId: string) => void;
+  onCreateQuote?: (lead: Lead) => void; // NEW: For creating quote from lead
   onEditLead?: (lead: Lead) => void;
   onDeleteLead?: (lead: Lead) => void;
 }
 
-export function LeadsTableActions({ 
-  lead, 
-  onConvertLead, 
-  onDisqualifyLead, 
+export function LeadsTableActions({
+  lead,
+  onConvertLead,
+  onDisqualifyLead,
   onViewDetails,
+  onCreateQuote,
   onEditLead,
   onDeleteLead
 }: LeadsTableActionsProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           className="h-8 w-8 p-0"
           onClick={(e) => e.stopPropagation()}
         >
@@ -44,6 +47,20 @@ export function LeadsTableActions({
           <Eye className="h-4 w-4 mr-2 text-blue-500" />
           Ver detalles
         </DropdownMenuItem>
+
+        {/* NEW: Create Quote action - available for active leads */}
+        {onCreateQuote && ['new', 'contacted', 'qualifying'].includes(lead.status) && (
+          <DropdownMenuItem onClick={(e) => {
+            e.stopPropagation();
+            onCreateQuote(lead);
+          }}>
+            <FileText className="h-4 w-4 mr-2 text-emerald-600" />
+            Crear Cotización
+          </DropdownMenuItem>
+        )}
+
+        <DropdownMenuSeparator />
+
         {onEditLead && (
           <DropdownMenuItem onClick={(e) => {
             e.stopPropagation();
@@ -53,7 +70,7 @@ export function LeadsTableActions({
             Editar
           </DropdownMenuItem>
         )}
-        {lead.status === 'qualifying' && (
+        {(['new', 'contacted', 'qualifying'].includes(lead.status)) && (
           <DropdownMenuItem onClick={(e) => {
             e.stopPropagation();
             onConvertLead(lead);
@@ -63,7 +80,7 @@ export function LeadsTableActions({
           </DropdownMenuItem>
         )}
         {['new', 'contacted', 'qualifying'].includes(lead.status) && (
-          <DropdownMenuItem 
+          <DropdownMenuItem
             onClick={(e) => {
               e.stopPropagation();
               onDisqualifyLead(lead);
@@ -75,7 +92,7 @@ export function LeadsTableActions({
           </DropdownMenuItem>
         )}
         {onDeleteLead && (
-          <DropdownMenuItem 
+          <DropdownMenuItem
             onClick={(e) => {
               e.stopPropagation();
               onDeleteLead(lead);

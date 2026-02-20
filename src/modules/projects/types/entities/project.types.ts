@@ -9,7 +9,7 @@ import { Timestamp } from 'firebase/firestore';
 /**
  * Estado del Proyecto
  */
-export type ProjectStatus = 
+export type ProjectStatus =
   | 'planning'        // Planificación
   | 'in-progress'     // En Progreso
   | 'on-hold'         // En Espera
@@ -27,47 +27,48 @@ export type ProjectPriority = 'low' | 'medium' | 'high' | 'urgent';
  */
 export interface Project {
   id: string;
-  
+
   // Información Básica
   name: string;
   description?: string;
   projectType: 'production' | 'service' | 'internal';
   status: ProjectStatus;
   priority: ProjectPriority;
-  
+
   // Relaciones (origen del proyecto)
   clientId: string;
   clientName: string;
   opportunityId?: string;
   quoteId?: string;
   quoteNumber?: string;
-  
+
   // Financiero
   salesPrice: number;              // Precio de venta (de la cotización)
   estimatedCost: number;           // Costo estimado
   actualCost: number;              // Costo real (acumulado)
   currency: string;
+  hourlyRate?: number;
   paymentTerms?: string;
-  
+
   // Fechas
   startDate?: Timestamp;
   estimatedEndDate?: Timestamp;
   actualStartDate?: Timestamp;
   actualEndDate?: Timestamp;
-  
+
   // Equipo
   projectManager: string;          // UID del PM
   teamMembers: string[];           // UIDs del equipo
-  
+
   // Progreso
   progressPercent: number;         // 0-100
-  
+
   // BOM y Materiales
   bomId?: string;                  // Referencia al BOM
   materialsCost: number;           // Costo de materiales consumidos
   laborCost: number;               // Costo de mano de obra
   overheadCost: number;            // Gastos indirectos
-  
+
   // Metadata
   tags: string[];
   createdAt: Timestamp;
@@ -117,20 +118,20 @@ export interface ProjectKPIs {
   budgetVariance: number;          // salesPrice - actualCost
   budgetVariancePercent: number;   // ((salesPrice - actualCost) / salesPrice) * 100
   profitMargin: number;            // ((salesPrice - actualCost) / salesPrice) * 100
-  
+
   // Tiempo
   daysElapsed: number;
   daysRemaining: number;
   isDelayed: boolean;
   delayDays?: number;
-  
+
   // Progreso
   progressPercent: number;
   completedTasks: number;
   totalTasks: number;
   completedWorkOrders: number;
   totalWorkOrders: number;
-  
+
   // Costos desglosados
   materialsCost: number;
   laborCost: number;

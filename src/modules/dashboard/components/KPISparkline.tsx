@@ -54,7 +54,7 @@ export function KPISparkline({
       case 'down':
         return 'text-red-600 dark:text-red-400';
       default:
-        return 'text-gray-500 dark:text-gray-400';
+        return 'text-gray-500 dark:text-muted-foreground';
     }
   };
 

@@ -59,7 +59,7 @@ export function ChatHeader({
   lastUsedModel,
 }: ChatHeaderProps) {
   return (
-    <div className="border-b border-gray-800/50 bg-[#0d1117]/80 backdrop-blur-md sticky top-0 z-20">
+    <div className="border-b border-border bg-muted/80 backdrop-blur-md sticky top-0 z-20">
       <div className="flex items-center justify-between px-4 py-3">
         {/* Left: Logo & Title */}
         <div className="flex items-center gap-3">
@@ -69,7 +69,7 @@ export function ChatHeader({
               "bg-gradient-to-br from-cyan-500 to-purple-600 shadow-cyan-500/20",
               isLoading && "animate-pulse"
             )}>
-              <Bot className="h-5 w-5 text-white" />
+              <Bot className="h-5 w-5 text-foreground" />
             </div>
             <div className={cn(
               "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#0d1117]",
@@ -78,7 +78,7 @@ export function ChatHeader({
           </div>
           
           <div>
-            <h1 className="text-lg font-semibold text-white flex items-center gap-2">
+            <h1 className="text-lg font-semibold text-foreground flex items-center gap-2">
               ZADIA
               <Badge 
                 variant="outline" 
@@ -129,7 +129,7 @@ export function ChatHeader({
         {/* Right: Actions */}
         <div className="flex items-center gap-1">
           {messageCount > 0 && (
-            <Badge variant="outline" className="text-[10px] px-2 py-0 border-gray-700 text-gray-500 mr-2 hidden sm:inline-flex">
+            <Badge variant="outline" className="text-[10px] px-2 py-0 border-border text-gray-500 mr-2 hidden sm:inline-flex">
               {messageCount} {messageCount === 1 ? 'mensaje' : 'mensajes'}
             </Badge>
           )}
@@ -142,7 +142,7 @@ export function ChatHeader({
                     variant="ghost"
                     size="sm"
                     onClick={onOpenHistory}
-                    className="h-8 w-8 p-0 text-gray-400 hover:text-white hover:bg-gray-800/50"
+                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-gray-800/50"
                   >
                     <History className="h-4 w-4" />
                   </Button>
@@ -160,7 +160,7 @@ export function ChatHeader({
                     variant="ghost"
                     size="sm"
                     onClick={onOpenSettings}
-                    className="h-8 w-8 p-0 text-gray-400 hover:text-white hover:bg-gray-800/50"
+                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-gray-800/50"
                   >
                     <Settings2 className="h-4 w-4" />
                   </Button>
@@ -178,7 +178,7 @@ export function ChatHeader({
                   size="sm"
                   onClick={onClear}
                   disabled={messageCount === 0}
-                  className="h-8 w-8 p-0 text-gray-400 hover:text-red-400 hover:bg-red-500/10 disabled:opacity-30"
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 disabled:opacity-30"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

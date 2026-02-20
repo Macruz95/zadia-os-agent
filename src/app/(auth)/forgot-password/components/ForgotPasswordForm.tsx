@@ -59,7 +59,7 @@ export function ForgotPasswordForm() {
       <AuthCardFooter>
         <Link
           href="/login"
-          className="flex items-center justify-center gap-2 text-sm text-gray-400 hover:text-cyan-400 transition-colors"
+          className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-cyan-400 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           {t('auth.forgotPassword.backToLogin')}

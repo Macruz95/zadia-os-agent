@@ -64,7 +64,7 @@ export function TopClientsWidget({
   return (
     <Card className="bg-zinc-900/50 border-zinc-800">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-white">
+        <CardTitle className="text-lg font-semibold text-foreground">
           {title}
         </CardTitle>
       </CardHeader>
@@ -85,19 +85,19 @@ export function TopClientsWidget({
                     {index + 1}
                   </div>
                   <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-foreground">
                       {getInitials(client.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-white">{client.name}</p>
+                    <p className="font-medium text-foreground">{client.name}</p>
                     <p className="text-xs text-zinc-500">
                       {formatRelativeDate(client.lastOrder)}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-white">
+                  <p className="font-semibold text-foreground">
                     {formatCurrency(client.totalPurchases)}
                   </p>
                   <Badge variant="secondary" className="bg-zinc-700 text-zinc-300">

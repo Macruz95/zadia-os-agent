@@ -6,6 +6,8 @@ import type { QuoteItem } from '../../types/sales.types';
 
 interface QuoteFormData {
   opportunityName?: string;
+  leadId?: string; // NEW
+  leadName?: string; // NEW
   clientId?: string;
   clientName?: string;
   contactId?: string;
@@ -47,6 +49,8 @@ export function QuoteReviewStep({ formData }: QuoteReviewStepProps) {
         clientName={formData.clientName}
         contactId={formData.contactId}
         contactName={formData.contactName}
+        leadId={formData.leadId} // NEW
+        leadName={formData.leadName} // NEW
       />
 
       <QuoteReviewItems

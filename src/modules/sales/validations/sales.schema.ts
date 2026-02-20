@@ -16,7 +16,7 @@ export const OpportunityStageSchema = z.enum(['qualified', 'proposal-sent', 'neg
 export const OpportunityStatusSchema = z.enum(['open', 'won', 'lost']);
 export const OpportunityPrioritySchema = z.enum(['high', 'medium', 'low']);
 
-export const QuoteStatusSchema = z.enum(['draft', 'sent', 'accepted', 'rejected', 'expired']);
+export const QuoteStatusSchema = z.enum(['draft', 'sent', 'accepted', 'rejected', 'expired', 'converted-to-project']);
 
 // Create Lead Input Validation Schema
 export const createLeadSchema = z.object({
@@ -32,20 +32,25 @@ export const createLeadSchema = z.object({
   priority: LeadPrioritySchema,
   notes: z.string().optional(),
   interests: z.string().optional(),
-}).refine(
-  (data) => {
-    // Para persona natural: nombre completo requerido
-    if (data.entityType === 'person') {
-      return data.fullName && data.fullName.length > 0;
+}).superRefine((data, ctx) => {
+  if (data.entityType === 'person') {
+    if (!data.fullName || data.fullName.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Por favor ingresa un nombre',
+        path: ['fullName'],
+      });
     }
-    // Para empresa/institución: nombre de entidad requerido
-    return data.entityName && data.entityName.length > 0;
-  },
-  {
-    message: 'Por favor ingresa un nombre',
-    path: ['fullName'],
+  } else {
+    if (!data.entityName || data.entityName.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Por favor ingresa un nombre',
+        path: ['entityName'],
+      });
+    }
   }
-);
+});
 
 // Lead Validation Schema
 export const leadSchema = z.object({
@@ -62,16 +67,25 @@ export const leadSchema = z.object({
   score: z.number().int().min(1).max(100),
   assignedTo: z.string().min(1, 'Vendedor asignado requerido'),
   notes: z.string().max(1000, 'Notas muy largas').optional(),
-  lastContactDate: z.any().optional(), // Timestamp from Firestore
-}).refine((data) => {
-  // Validate based on entity type
+  lastContactDate: z.union([z.date(), z.object({ seconds: z.number(), nanoseconds: z.number() }), z.string()]).optional(), // Firestore Timestamp or Date
+}).superRefine((data, ctx) => {
   if (data.entityType === 'person') {
-    return data.fullName && data.fullName.length > 0;
+    if (!data.fullName || data.fullName.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Nombre completo requerido para persona',
+        path: ['fullName'],
+      });
+    }
+  } else {
+    if (!data.entityName || data.entityName.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Nombre de entidad requerido para empresa/institución',
+        path: ['entityName'],
+      });
+    }
   }
-  return data.entityName && data.entityName.length > 0;
-}, {
-  message: 'Nombre completo requerido para persona o nombre de entidad para empresa/institución',
-  path: ['fullName'],
 });
 
 export const LeadFormSchema = leadSchema;
@@ -124,9 +138,15 @@ export const QuoteItemSchema = z.object({
 });
 
 export const QuoteSchema = z.object({
-  opportunityId: z.string().min(1, 'Oportunidad requerida').optional(),
-  clientId: z.string().min(1, 'Cliente requerido'),
-  contactId: z.string().min(1, 'Contacto requerido'),
+  // Source - either Opportunity OR Lead (at least one optional)
+  opportunityId: z.string().optional(),
+  leadId: z.string().optional(),
+  leadName: z.string().optional(),
+
+  // Client - optional for Lead-based quotes (created on acceptance)
+  clientId: z.string().optional(),
+  contactId: z.string().optional(),
+
   items: z.array(QuoteItemSchema).min(1, 'Al menos un ítem requerido'),
   subtotal: z.number().min(0, 'Subtotal no puede ser negativo'),
   taxes: z.record(z.string(), z.number()).default({}),
@@ -134,14 +154,18 @@ export const QuoteSchema = z.object({
   discounts: z.number().min(0, 'Descuentos no pueden ser negativos'),
   total: z.number().positive('Total debe ser positivo'),
   currency: z.string().length(3, 'Moneda debe ser código de 3 letras').default('USD'),
-  validUntil: z.date().refine((date) => date > new Date(), {
-    message: 'Fecha de validez debe ser futura',
-  }),
+  validUntil: z.date(),
   paymentTerms: z.string().min(1, 'Términos de pago requeridos').max(200, 'Términos muy largos'),
   notes: z.string().max(1000, 'Notas muy largas').optional(),
   internalNotes: z.string().max(1000, 'Notas internas muy largas').optional(),
   assignedTo: z.string().min(1, 'Vendedor asignado requerido'),
   attachments: z.array(z.string()).optional(),
+}).refine((data) => {
+  // Must have either leadId OR clientId
+  return data.leadId || data.clientId;
+}, {
+  message: 'Debe seleccionar un Lead o un Cliente',
+  path: ['clientId'],
 });
 
 export const QuoteFormSchema = QuoteSchema;

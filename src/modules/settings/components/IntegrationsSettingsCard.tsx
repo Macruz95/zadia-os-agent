@@ -275,7 +275,7 @@ export function IntegrationsSettingsCard() {
       email: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
       automation: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
     };
-    return colors[category] || 'bg-gray-500/20 text-gray-400';
+    return colors[category] || 'bg-gray-500/20 text-muted-foreground';
   };
 
   const connectedCount = integrationsList.filter(i => i.connected).length;
@@ -283,15 +283,15 @@ export function IntegrationsSettingsCard() {
   return (
     <div className="space-y-6">
       {/* Integrations Overview */}
-      <Card className="bg-gray-800/30 border-gray-700/50">
+      <Card className="bg-gray-800/30 border-border">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
-                <Plug className="h-5 w-5 text-white" />
+                <Plug className="h-5 w-5 text-foreground" />
               </div>
               <div>
-                <CardTitle className="text-white">Integraciones</CardTitle>
+                <CardTitle className="text-foreground">Integraciones</CardTitle>
                 <CardDescription>
                   {connectedCount} de {integrationsList.length} integraciones conectadas
                 </CardDescription>
@@ -312,7 +312,7 @@ export function IntegrationsSettingsCard() {
             {integrationsList.map((integration) => (
               <div 
                 key={integration.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-gray-900/30 border border-gray-700/30 hover:border-gray-600/50 transition-colors"
+                className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border hover:border-border/80 transition-colors"
               >
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
@@ -324,7 +324,7 @@ export function IntegrationsSettingsCard() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="text-white font-medium">{integration.name}</p>
+                      <p className="text-foreground font-medium">{integration.name}</p>
                       <Badge variant="outline" className={getCategoryColor(integration.category)}>
                         {getCategoryLabel(integration.category)}
                       </Badge>
@@ -348,7 +348,7 @@ export function IntegrationsSettingsCard() {
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        className="text-gray-400 hover:text-white"
+                        className="text-muted-foreground hover:text-foreground"
                       >
                         <Settings2 className="h-4 w-4" />
                       </Button>
@@ -379,29 +379,29 @@ export function IntegrationsSettingsCard() {
       </Card>
 
       {/* Webhooks Section */}
-      <Card className="bg-gray-800/30 border-gray-700/50">
+      <Card className="bg-gray-800/30 border-border">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center">
-              <Webhook className="h-5 w-5 text-white" />
+              <Webhook className="h-5 w-5 text-foreground" />
             </div>
             <div>
-              <CardTitle className="text-white">Webhooks</CardTitle>
+              <CardTitle className="text-foreground">Webhooks</CardTitle>
               <CardDescription>Recibe notificaciones en tiempo real de eventos</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="p-4 rounded-lg bg-gray-900/30 border border-gray-700/30">
+            <div className="p-4 rounded-lg bg-muted/50 border border-border">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-cyan-400" />
-                  <p className="text-white font-medium">Endpoint Principal</p>
+                  <p className="text-foreground font-medium">Endpoint Principal</p>
                 </div>
                 <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Activo</Badge>
               </div>
-              <code className="text-sm text-gray-400 bg-gray-800 px-3 py-2 rounded block">
+              <code className="text-sm text-muted-foreground bg-gray-800 px-3 py-2 rounded block">
                 https://tu-servidor.com/api/webhooks/zadia
               </code>
               <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
@@ -420,9 +420,9 @@ export function IntegrationsSettingsCard() {
 
       {/* API Keys Dialog */}
       <Dialog open={showApiDialog} onOpenChange={setShowApiDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700 max-w-lg">
+        <DialogContent className="bg-card border-border max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-white">Claves de API</DialogTitle>
+            <DialogTitle className="text-foreground">Claves de API</DialogTitle>
             <DialogDescription>
               Usa estas claves para integrar ZADIA OS con tus aplicaciones
             </DialogDescription>
@@ -431,13 +431,13 @@ export function IntegrationsSettingsCard() {
           <div className="space-y-4 py-4">
             {/* Create New API Key */}
             <div className="space-y-2">
-              <Label className="text-gray-400">Crear Nueva Clave</Label>
+              <Label className="text-muted-foreground">Crear Nueva Clave</Label>
               <div className="flex gap-2">
                 <Input
                   value={newApiKeyName}
                   onChange={(e) => setNewApiKeyName(e.target.value)}
                   placeholder="Nombre de la clave..."
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-gray-800 border-border"
                 />
                 <Button 
                   className="bg-cyan-600 hover:bg-cyan-700"
@@ -459,7 +459,7 @@ export function IntegrationsSettingsCard() {
                   <Input
                     value={generatedApiKey}
                     readOnly
-                    className="bg-gray-800 border-gray-700 font-mono text-xs"
+                    className="bg-gray-800 border-border font-mono text-xs"
                   />
                   <Button 
                     variant="outline" 
@@ -477,7 +477,7 @@ export function IntegrationsSettingsCard() {
 
             {/* Existing API Keys List */}
             <div className="space-y-2">
-              <Label className="text-gray-400">Claves Activas</Label>
+              <Label className="text-muted-foreground">Claves Activas</Label>
               {isLoading ? (
                 <div className="space-y-2">
                   <Skeleton className="h-12 w-full bg-gray-700/50" />
@@ -492,10 +492,10 @@ export function IntegrationsSettingsCard() {
                   {apiKeysList.map((key) => (
                     <div 
                       key={key.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 border border-gray-700/30"
+                      className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 border border-border"
                     >
                       <div>
-                        <p className="text-white text-sm font-medium">{key.name}</p>
+                        <p className="text-foreground text-sm font-medium">{key.name}</p>
                         <p className="text-gray-500 text-xs font-mono">{key.keyPrefix}...</p>
                       </div>
                       <Button 
@@ -534,9 +534,9 @@ export function IntegrationsSettingsCard() {
 
       {/* Connect Integration Dialog */}
       <Dialog open={showConnectDialog} onOpenChange={setShowConnectDialog}>
-        <DialogContent className="bg-gray-900 border-gray-700">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-white">
+            <DialogTitle className="text-foreground">
               Conectar {selectedIntegration?.name}
             </DialogTitle>
             <DialogDescription>
@@ -556,7 +556,7 @@ export function IntegrationsSettingsCard() {
                 <Label>Client ID / API Key</Label>
                 <Input 
                   placeholder="Ingresa tu Client ID"
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-gray-800 border-border"
                 />
               </div>
               <div className="space-y-2">
@@ -564,7 +564,7 @@ export function IntegrationsSettingsCard() {
                 <Input 
                   type="password"
                   placeholder="Ingresa tu Client Secret"
-                  className="bg-gray-800 border-gray-700"
+                  className="bg-gray-800 border-border"
                 />
               </div>
             </div>

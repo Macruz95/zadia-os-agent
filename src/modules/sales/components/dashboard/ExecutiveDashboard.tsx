@@ -17,6 +17,7 @@ import { SalesAnalyticsService } from '../../services/analytics.service';
 import type { SalesAnalyticsData } from '../../services/analytics.service';
 import { toast } from 'sonner';
 import { useTenantId } from '@/contexts/TenantContext';
+import { AnimatedPage, AnimatedSection } from '@/components/ui/motion';
 
 export function ExecutiveDashboard() {
   const router = useRouter();
@@ -74,22 +75,30 @@ export function ExecutiveDashboard() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <DashboardHeader 
-        onViewAnalytics={() => router.push('/sales/analytics')}
-        onGoToSales={() => router.push('/sales/leads')}
-      />
-      
-      <DashboardKPICards analyticsData={analyticsData} />
-      
-      <DashboardGoalsProgress analyticsData={analyticsData} />
-      
-      <DashboardInsights 
-        analyticsData={analyticsData}
-        onViewAnalytics={() => router.push('/sales/analytics')}
-        onGoToSales={() => router.push('/sales')}
-        onViewPipeline={() => router.push('/sales/opportunities')}
-      />
-    </div>
+    <AnimatedPage className="p-6 space-y-6">
+      <AnimatedSection>
+        <DashboardHeader
+          onViewAnalytics={() => router.push('/sales/analytics')}
+          onGoToSales={() => router.push('/sales/leads')}
+        />
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.1}>
+        <DashboardKPICards analyticsData={analyticsData} />
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.15}>
+        <DashboardGoalsProgress analyticsData={analyticsData} />
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.2}>
+        <DashboardInsights
+          analyticsData={analyticsData}
+          onViewAnalytics={() => router.push('/sales/analytics')}
+          onGoToSales={() => router.push('/sales')}
+          onViewPipeline={() => router.push('/sales/opportunities')}
+        />
+      </AnimatedSection>
+    </AnimatedPage>
   );
 }

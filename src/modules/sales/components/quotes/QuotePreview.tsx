@@ -34,7 +34,7 @@ export function QuotePreview({ quote, clientName, opportunityName }: QuotePrevie
     <Card className="print:shadow-none print:border-0">
       <CardContent className="p-8 print:p-12">
         {/* Header */}
-        <div className="mb-8 pb-4 border-b-2 border-primary print:border-gray-800">
+        <div className="mb-8 pb-4 border-b-2 border-primary print:border-border">
           <h2 className="text-3xl font-bold text-primary print:text-gray-900">ZADIA OS</h2>
           <p className="text-sm text-muted-foreground print:text-gray-600">Sistema de Gestión Empresarial</p>
         </div>

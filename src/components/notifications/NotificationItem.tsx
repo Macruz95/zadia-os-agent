@@ -68,7 +68,7 @@ export function NotificationItem({ notification, onMarkAsRead }: NotificationIte
         <div className="flex items-start justify-between gap-2">
           <p className={cn(
             "text-sm font-medium",
-            notification.read ? "text-gray-400" : "text-gray-200"
+            notification.read ? "text-muted-foreground" : "text-foreground"
           )}>
             {notification.title}
           </p>

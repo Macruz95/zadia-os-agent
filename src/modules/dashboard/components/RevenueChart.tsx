@@ -30,13 +30,13 @@ interface RevenueChartProps {
 
 export function RevenueChart({ data }: RevenueChartProps) {
   return (
-    <Card className="bg-[#161b22] border-gray-800/50">
+    <Card className="bg-card border-border">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-cyan-400" />
-          <CardTitle className="text-gray-200 text-base">Ingresos Mensuales</CardTitle>
+          <CardTitle className="text-foreground text-base">Ingresos Mensuales</CardTitle>
         </div>
-        <p className="text-xs text-gray-500">Evolución de los últimos 6 meses</p>
+        <p className="text-xs text-muted-foreground">Evolución de los últimos 6 meses</p>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={250}>
@@ -47,30 +47,32 @@ export function RevenueChart({ data }: RevenueChartProps) {
                 <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} />
-            <XAxis 
-              dataKey="month" 
-              stroke="#4b5563" 
+            <CartesianGrid strokeDasharray="3 3" stroke="currentColor" strokeOpacity={0.1} vertical={false} />
+            <XAxis
+              dataKey="month"
+              stroke="currentColor"
+              strokeOpacity={0.5}
               fontSize={11}
               tickLine={false}
               axisLine={false}
             />
-            <YAxis 
-              stroke="#4b5563" 
+            <YAxis
+              stroke="currentColor"
+              strokeOpacity={0.5}
               fontSize={11}
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
             />
-            <Tooltip 
+            <Tooltip
               contentStyle={{
-                backgroundColor: '#1a1f2e',
-                border: '1px solid #374151',
+                backgroundColor: 'hsl(var(--popover))',
+                border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
-                color: '#e5e7eb',
+                color: 'hsl(var(--popover-foreground))',
               }}
               formatter={(value) => [formatCurrency(Number(value)), 'Ingresos']}
-              labelStyle={{ color: '#9ca3af' }}
+              labelStyle={{ color: 'hsl(var(--muted-foreground))' }}
             />
             <Area
               type="monotone"

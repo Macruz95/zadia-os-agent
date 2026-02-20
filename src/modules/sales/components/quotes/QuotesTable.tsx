@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   Table,
   TableBody,
   TableCell,
@@ -12,8 +12,11 @@ import {
 import { Calendar, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { motion } from 'motion/react';
 import { Quote } from '../../types/sales.types';
 import { STATUS_CONFIG } from './QuotesStatusConfig';
+
+const MotionTableRow = motion.tr;
 
 interface QuotesTableProps {
   quotes: Quote[];
@@ -57,16 +60,19 @@ export function QuotesTable({ quotes, onQuoteClick }: QuotesTableProps) {
                   </TableCell>
                 </TableRow>
               ) : (
-                quotes.map((quote) => {
+                quotes.map((quote, index) => {
                   const statusConfig = STATUS_CONFIG[quote.status];
                   const StatusIcon = statusConfig.icon;
                   const isExpiringSoon = quote.validUntil.toDate() < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-                  
+
                   return (
-                    <TableRow 
-                      key={quote.id} 
-                      className="cursor-pointer hover:bg-muted/50"
+                    <MotionTableRow
+                      key={quote.id}
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
                       onClick={() => onQuoteClick(quote.id)}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.04, type: 'spring', stiffness: 350, damping: 25 }}
                     >
                       <TableCell>
                         <div>
@@ -116,7 +122,7 @@ export function QuotesTable({ quotes, onQuoteClick }: QuotesTableProps) {
                           </Button>
                         </div>
                       </TableCell>
-                    </TableRow>
+                    </MotionTableRow>
                   );
                 })
               )}

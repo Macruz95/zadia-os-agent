@@ -16,13 +16,13 @@ interface RawMaterialsTableProps {
   onRefresh: () => void;
 }
 
-export function RawMaterialsTable({ 
-  data, 
-  loading, 
-  onRefresh 
+export function RawMaterialsTable({
+  data,
+  loading,
+  onRefresh
 }: RawMaterialsTableProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { firebaseUser } = useAuth();
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; item: RawMaterial | null }>({ open: false, item: null });
   const [editDialog, setEditDialog] = useState<{ open: boolean; item: RawMaterial | null }>({ open: false, item: null });
   const [isDeleting, setIsDeleting] = useState(false);
@@ -41,16 +41,16 @@ export function RawMaterialsTable({
   };
 
   const handleConfirmDelete = async () => {
-    if (!deleteDialog.item || !user) {
-      if (!user) toast.error('Usuario no autenticado');
+    if (!deleteDialog.item || !firebaseUser) {
+      if (!firebaseUser) toast.error('Usuario no autenticado');
       return;
     }
-    
+
     setIsDeleting(true);
     try {
-      await RawMaterialsService.deleteRawMaterial(deleteDialog.item.id, user.uid);
+      await RawMaterialsService.deleteRawMaterial(deleteDialog.item.id, firebaseUser.uid);
       toast.success(`Materia prima "${deleteDialog.item.name}" eliminada correctamente`);
-      
+
       setDeleteDialog({ open: false, item: null });
       onRefresh();
     } catch (error) {
@@ -90,7 +90,7 @@ export function RawMaterialsTable({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={isDeleting}
               className="bg-red-600 hover:bg-red-700"

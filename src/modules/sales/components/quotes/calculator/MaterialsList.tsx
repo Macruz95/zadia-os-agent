@@ -64,7 +64,7 @@ export function MaterialsList({
         </CardHeader>
         <CardContent>
           <div className="text-center p-8 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed">
-            <Package className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+            <Package className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
             <p className="text-sm">Use el selector arriba para agregar materiales</p>
           </div>
         </CardContent>

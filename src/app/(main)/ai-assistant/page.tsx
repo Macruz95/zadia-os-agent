@@ -26,10 +26,10 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { 
-  Plus, 
-  Search, 
-  MessageSquare, 
+import {
+  Plus,
+  Search,
+  MessageSquare,
   Trash2,
   ChevronDown,
   Send,
@@ -45,22 +45,21 @@ import {
   PanelLeft,
   Loader2,
 } from 'lucide-react';
-import { 
-  ChatMessage, 
+import {
+  ChatMessage,
   useAdvancedAIChat,
 } from '@/modules/ai-assistant';
 
-// Model icons mapping (verified Dec 2025)
+// Model icons mapping (verified Early 2026)
 const MODEL_ICONS: Record<string, React.ReactNode> = {
-  'kat-coder-pro': <Code className="h-4 w-4" />,
-  'amazon-nova-2-lite': <Zap className="h-4 w-4" />,
-  'gemini-2.0-flash': <Sparkles className="h-4 w-4" />,
-  'tongyi-deepresearch': <Brain className="h-4 w-4" />,
-  'tng-r1t-chimera': <Brain className="h-4 w-4" />,
-  'longcat-flash': <Zap className="h-4 w-4" />,
-  'olmo-3-32b': <Brain className="h-4 w-4" />,
-  'nemotron-nano-12b': <Eye className="h-4 w-4" />,
+  'gpt-oss-120b': <Brain className="h-4 w-4" />,
+  'qwen3-vl-30b': <Eye className="h-4 w-4" />,
+  'solar-pro-3': <Sparkles className="h-4 w-4" />,
+  'devstral-2': <Code className="h-4 w-4" />,
+  'gemini-2.5-pro': <Brain className="h-4 w-4" />,
   'groq-llama-3.3-70b': <Zap className="h-4 w-4" />,
+  'tng-r1t-chimera': <Bot className="h-4 w-4" />,
+  'nemotron-3-nano-30b': <Zap className="h-4 w-4" />,
 };
 
 export default function AIAssistantPage() {
@@ -89,7 +88,7 @@ export default function AIAssistantPage() {
     deleteConversation,
     isLoadingHistory,
   } = useAdvancedAIChat({
-    defaultModel: 'kat-coder-pro',
+    defaultModel: 'gpt-oss-120b',
     defaultMode: 'auto',
     enableTools: true,
     enableWebSearch: true,
@@ -202,9 +201,9 @@ export default function AIAssistantPage() {
                   <span className="flex-1 truncate text-sm">{conv.title}</span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -212,11 +211,11 @@ export default function AIAssistantPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-40">
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
                           deleteConversation(conv.id);
-                        }} 
+                        }}
                         className="text-destructive"
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
@@ -269,7 +268,7 @@ export default function AIAssistantPage() {
               <DropdownMenuContent align="start" className="w-72">
                 <DropdownMenuLabel>Modelo de IA</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                
+
                 {/* Auto Mode */}
                 <DropdownMenuItem
                   onClick={() => setModelMode('auto')}
@@ -362,15 +361,15 @@ export default function AIAssistantPage() {
                   isLast={idx === messages.length - 1}
                 />
               ))}
-              
+
               {/* Loading indicator */}
-              {isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'assistant' && 
-               messages[messages.length - 1]?.status === 'pending' && (
-                <div className="flex items-center gap-2 text-muted-foreground text-sm pl-10">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Pensando...</span>
-                </div>
-              )}
+              {isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'assistant' &&
+                messages[messages.length - 1]?.status === 'pending' && (
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm pl-10">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Pensando...</span>
+                  </div>
+                )}
             </div>
           )}
         </ScrollArea>

@@ -192,7 +192,7 @@ export function CommandBar() {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className={cn(
         "max-w-2xl p-0 gap-0 overflow-hidden",
-        "bg-[#0d1117] border-gray-800/50",
+        "bg-muted border-border",
         "shadow-2xl shadow-black/50"
       )}>
         <VisuallyHidden>
@@ -203,8 +203,8 @@ export function CommandBar() {
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
         
         {/* Search Input */}
-        <div className="flex items-center border-b border-gray-800/50">
-          <div className={cn("flex items-center gap-2 px-4 py-3 border-r border-gray-800/50", modeConfig.color)}>
+        <div className="flex items-center border-b border-border">
+          <div className={cn("flex items-center gap-2 px-4 py-3 border-r border-border", modeConfig.color)}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ModeIcon className="h-4 w-4" />}
             <span className="text-xs font-medium uppercase tracking-wider">{modeConfig.label}</span>
           </div>
@@ -231,7 +231,7 @@ export function CommandBar() {
                 <Zap className="h-4 w-4 text-amber-400" />
                 <span className="text-sm font-medium text-amber-400">Comando ejecutado</span>
               </div>
-              <p className="text-sm text-gray-300">{commandResult}</p>
+              <p className="text-sm text-muted-foreground">{commandResult}</p>
             </div>
           )}
 
@@ -242,7 +242,7 @@ export function CommandBar() {
                 <MessageSquare className="h-4 w-4 text-purple-400" />
                 <span className="text-sm font-medium text-purple-400">Respuesta IA</span>
               </div>
-              <p className="text-sm text-gray-300 whitespace-pre-wrap">{questionAnswer}</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{questionAnswer}</p>
             </div>
           )}
 
@@ -258,7 +258,7 @@ export function CommandBar() {
                 return (
                   <div key={category} className="mb-2">
                     <div className="px-4 py-2 flex items-center gap-2">
-                      <span className={cn("text-xs font-semibold uppercase tracking-wider", CATEGORY_COLORS[category] || 'text-gray-400')}>
+                      <span className={cn("text-xs font-semibold uppercase tracking-wider", CATEGORY_COLORS[category] || 'text-muted-foreground')}>
                         {categoryLabels[category] || category}
                       </span>
                       <span className="text-xs text-gray-600">({items.length})</span>
@@ -276,10 +276,10 @@ export function CommandBar() {
                           )}
                         >
                           <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center", isSelected ? "bg-cyan-500/20" : "bg-gray-800/50")}>
-                            <Icon className={cn("h-4 w-4", CATEGORY_COLORS[category + 's'] || 'text-gray-400')} />
+                            <Icon className={cn("h-4 w-4", CATEGORY_COLORS[category + 's'] || 'text-muted-foreground')} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={cn("font-medium truncate", isSelected ? "text-white" : "text-gray-200")}>{item.title}</p>
+                            <p className={cn("font-medium truncate", isSelected ? "text-foreground" : "text-foreground")}>{item.title}</p>
                             {item.subtitle && <p className="text-sm text-gray-500 truncate">{item.subtitle}</p>}
                           </div>
                           <ChevronRight className={cn("h-4 w-4 transition-transform", isSelected ? "text-cyan-400 translate-x-1" : "text-gray-600")} />
@@ -302,8 +302,8 @@ export function CommandBar() {
                     const Icon = action.icon;
                     return (
                       <button key={action.label} onClick={() => handleResultClick(action.href)}
-                        className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gray-800/30 hover:bg-gray-800/50 border border-gray-800/50 hover:border-gray-700 transition-all">
-                        <Icon className="h-5 w-5 text-gray-400" />
+                        className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gray-800/30 hover:bg-gray-800/50 border border-border hover:border-border transition-all">
+                        <Icon className="h-5 w-5 text-muted-foreground" />
                         <span className="text-xs text-gray-500">{action.label}</span>
                       </button>
                     );
@@ -311,24 +311,24 @@ export function CommandBar() {
                 </div>
               </div>
               <div className="px-4 grid grid-cols-3 gap-3">
-                <div className="p-3 rounded-lg bg-gray-800/30 border border-gray-800/50">
+                <div className="p-3 rounded-lg bg-gray-800/30 border border-border">
                   <div className="flex items-center gap-2 mb-1">
                     <Search className="h-4 w-4 text-cyan-400" />
-                    <span className="text-sm font-medium text-gray-300">Buscar</span>
+                    <span className="text-sm font-medium text-muted-foreground">Buscar</span>
                   </div>
                   <p className="text-xs text-gray-500">cliente, proyecto...</p>
                 </div>
-                <div className="p-3 rounded-lg bg-gray-800/30 border border-gray-800/50">
+                <div className="p-3 rounded-lg bg-gray-800/30 border border-border">
                   <div className="flex items-center gap-2 mb-1">
                     <Zap className="h-4 w-4 text-amber-400" />
-                    <span className="text-sm font-medium text-gray-300">Crear</span>
+                    <span className="text-sm font-medium text-muted-foreground">Crear</span>
                   </div>
                   <p className="text-xs text-gray-500">+tarea, +proyecto</p>
                 </div>
-                <div className="p-3 rounded-lg bg-gray-800/30 border border-gray-800/50">
+                <div className="p-3 rounded-lg bg-gray-800/30 border border-border">
                   <div className="flex items-center gap-2 mb-1">
                     <MessageSquare className="h-4 w-4 text-purple-400" />
-                    <span className="text-sm font-medium text-gray-300">Preguntar</span>
+                    <span className="text-sm font-medium text-muted-foreground">Preguntar</span>
                   </div>
                   <p className="text-xs text-gray-500">¿Cuántos...?</p>
                 </div>
@@ -346,25 +346,25 @@ export function CommandBar() {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-800/50 bg-black/20">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-black/20">
           <div className="flex items-center gap-4 text-xs text-gray-500">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 font-mono">↑↓</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-muted-foreground font-mono">↑↓</kbd>
               navegar
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 font-mono">↵</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-muted-foreground font-mono">↵</kbd>
               seleccionar
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 font-mono">esc</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-muted-foreground font-mono">esc</kbd>
               cerrar
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs text-gray-500">
             <span className="text-cyan-400">ZADIA</span>
             <span>Command</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 font-mono">
+            <kbd className="px-1.5 py-0.5 rounded bg-gray-800 text-muted-foreground font-mono">
               {isMac ? <Command className="h-3 w-3 inline" /> : 'Ctrl'}+K
             </kbd>
           </div>

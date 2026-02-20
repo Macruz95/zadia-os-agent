@@ -20,92 +20,59 @@ import { logger } from '@/lib/logger';
 import { TOOL_DEFINITIONS, AgentToolsExecutor } from './agent-tools.service';
 import type { Conversation, AIModel } from '../types';
 
-// Available AI Models (sorted by priority - VERIFIED FREE Dec 2025)
+// Available AI Models (sorted by priority - VERIFIED FREE Early 2026)
 export const AI_MODELS: AIModel[] = [
   {
-    id: 'kat-coder-pro',
-    name: 'KAT Coder Pro',
+    id: 'gpt-oss-120b',
+    name: 'OpenAI GPT-OSS-120B',
     provider: 'openrouter',
-    description: '🥇 Mejor para código/agentes. 73.4% SWE-Bench. 256K contexto.',
-    capabilities: ['coding', 'function-calling', 'tool-use', 'agents', 'reasoning'],
-    contextWindow: 256000,
-    isFree: true,
-    speed: 'medium',
-    quality: 'excellent',
-  },
-  {
-    id: 'amazon-nova-2-lite',
-    name: 'Amazon Nova 2 Lite',
-    provider: 'openrouter',
-    description: '🚀 Ultra rápido. 1M tokens contexto. Multimodal.',
-    capabilities: ['fast', 'multimodal', 'general', 'vision', 'document'],
-    contextWindow: 1000000,
-    isFree: true,
-    speed: 'fast',
-    quality: 'excellent',
-  },
-  {
-    id: 'gemini-2.0-flash',
-    name: 'Gemini 2.0 Flash',
-    provider: 'openrouter',
-    description: 'Google. 1M tokens. Multimodal avanzado.',
-    capabilities: ['fast', 'multimodal', 'general', 'vision', 'document'],
-    contextWindow: 1050000,
-    isFree: true,
-    speed: 'fast',
-    quality: 'excellent',
-  },
-  {
-    id: 'tongyi-deepresearch',
-    name: 'Tongyi DeepResearch',
-    provider: 'openrouter',
-    description: 'Investigación profunda. Agente de búsqueda.',
-    capabilities: ['research', 'reasoning', 'agents', 'tool-use'],
-    contextWindow: 131072,
-    isFree: true,
-    speed: 'medium',
-    quality: 'excellent',
-  },
-  {
-    id: 'tng-r1t-chimera',
-    name: 'TNG R1T Chimera',
-    provider: 'openrouter',
-    description: 'Razonamiento creativo. Chain-of-thought.',
-    capabilities: ['reasoning', 'creative', 'tool-use'],
-    contextWindow: 164000,
-    isFree: true,
-    speed: 'medium',
-    quality: 'excellent',
-  },
-  {
-    id: 'longcat-flash',
-    name: 'LongCat Flash Chat',
-    provider: 'openrouter',
-    description: 'MoE ultra-rápido. 560B total params.',
-    capabilities: ['fast', 'general', 'agents', 'tool-use'],
+    description: '🥇 El primer modelo abierto de OpenAI (MoE 117B). Nivel de razonamiento profundo y agentes autónomos.',
+    capabilities: ['reasoning', 'coding', 'function-calling', 'agents', 'tool-use'],
     contextWindow: 131072,
     isFree: true,
     speed: 'fast',
     quality: 'excellent',
   },
   {
-    id: 'olmo-3-32b',
-    name: 'AllenAI Olmo 3 32B',
+    id: 'qwen3-vl-30b',
+    name: 'Qwen3-VL 30B Thinking',
     provider: 'openrouter',
-    description: 'Open-source. Razonamiento profundo.',
-    capabilities: ['reasoning', 'general', 'coding'],
-    contextWindow: 66000,
+    description: '👁️ Multimodal nativo Top 1. Excelente entendimiento de imagen/video y razonamiento STEM/lógico.',
+    capabilities: ['multimodal', 'vision', 'reasoning', 'documents', 'ocr'],
+    contextWindow: 32768,
     isFree: true,
     speed: 'medium',
     quality: 'excellent',
   },
   {
-    id: 'nemotron-nano-12b',
-    name: 'NVIDIA Nemotron Nano 12B',
+    id: 'solar-pro-3',
+    name: 'Upstage Solar Pro 3',
     provider: 'openrouter',
-    description: 'Multimodal. OCR avanzado. Documentos.',
-    capabilities: ['multimodal', 'vision', 'ocr', 'documents'],
+    description: '🧠 MoE masivo de 102B. Altamente cualificado para lógica, matemáticas e idiomas (temporalmente gratis).',
+    capabilities: ['reasoning', 'general', 'fast'],
     contextWindow: 128000,
+    isFree: true,
+    speed: 'fast',
+    quality: 'excellent',
+  },
+  {
+    id: 'devstral-2',
+    name: 'Mistral Devstral 2',
+    provider: 'openrouter',
+    description: '💻 #1 en programación (SWE-Bench) open-source. Maneja proyectos multiarchivo masivos.',
+    capabilities: ['coding', 'agents', 'tool-use', 'general'],
+    contextWindow: 262000,
+    isFree: true,
+    speed: 'medium',
+    quality: 'excellent',
+  },
+  {
+    id: 'gemini-2.5-pro',
+    name: 'Gemini 2.5 Pro',
+    provider: 'openrouter',
+    description: '📚 Contexto colosal (1 Millón de tokens). Ideal para analizar docenas de PDFs o historiales inmensos.',
+    capabilities: ['long-context', 'multimodal', 'research', 'general', 'vision'],
+    contextWindow: 1000000,
     isFree: true,
     speed: 'fast',
     quality: 'excellent',
@@ -114,26 +81,47 @@ export const AI_MODELS: AIModel[] = [
     id: 'groq-llama-3.3-70b',
     name: 'Groq Llama 3.3 70B',
     provider: 'groq',
-    description: '⚡ ULTRA-RÁPIDO. Ideal para respuestas instantáneas.',
+    description: '⚡ Velocidad LPU instantánea. Ideal para respuestas de chat generales e inmediatas.',
     capabilities: ['fast', 'general', 'coding'],
     contextWindow: 32768,
     isFree: true,
     speed: 'fast',
     quality: 'excellent',
   },
+  {
+    id: 'tng-r1t-chimera',
+    name: 'TNG R1T Chimera',
+    provider: 'openrouter',
+    description: '🎭 Fusión DeepSeek R1 creativa. Destaca en personalidad y chain-of-thought equilibrado.',
+    capabilities: ['reasoning', 'creative', 'roleplay', 'tool-use'],
+    contextWindow: 164000,
+    isFree: true,
+    speed: 'medium',
+    quality: 'excellent',
+  },
+  {
+    id: 'nemotron-3-nano-30b',
+    name: 'Nemotron Nano 30B',
+    provider: 'openrouter',
+    description: '🤖 Optimizado por NVIDIA. Altísima eficiencia para sistemas de agentes y herramientas rápidas.',
+    capabilities: ['agents', 'tool-use', 'fast', 'logic'],
+    contextWindow: 262144,
+    isFree: true,
+    speed: 'fast',
+    quality: 'good',
+  }
 ];
 
-// Model ID to OpenRouter/Groq model string mapping (VERIFIED Dec 2025)
+// Model ID to OpenRouter/Groq model string mapping (VERIFIED FREE Early 2026)
 const MODEL_MAPPING: Record<string, string> = {
-  'kat-coder-pro': 'kwaipilot/kat-coder-pro:free',
-  'amazon-nova-2-lite': 'amazon/nova-2-lite-v1:free',
-  'gemini-2.0-flash': 'google/gemini-2.0-flash-exp:free',
-  'tongyi-deepresearch': 'alibaba/tongyi-deepresearch-30b-a3b:free',
-  'tng-r1t-chimera': 'tngtech/tng-r1t-chimera:free',
-  'longcat-flash': 'meituan/longcat-flash-chat:free',
-  'olmo-3-32b': 'allenai/olmo-3-32b-think:free',
-  'nemotron-nano-12b': 'nvidia/nemotron-nano-12b-v2-vl:free',
+  'gpt-oss-120b': 'openai/gpt-oss-120b:free', // OpenAI MoE open-weights model
+  'qwen3-vl-30b': 'qwen/qwen3-vl-30b-a3b-thinking:free', // Multimodal reasoning
+  'solar-pro-3': 'upstage/solar-pro-3:free', // Upstage MoE
+  'devstral-2': 'mistralai/devstral-2-2512:free', // Best for coding
+  'gemini-2.5-pro': 'google/gemini-2.5-pro-exp-03-25:free', // 1M context multimodal
   'groq-llama-3.3-70b': 'llama-3.3-70b-versatile', // Groq uses different format
+  'tng-r1t-chimera': 'tngtech/tng-r1t-chimera:free', // Deepseek R1 fusion
+  'nemotron-3-nano-30b': 'nvidia/nemotron-3-nano-30b-a3b:free', // Efficient agentic
 };
 
 interface ChatRequest {
@@ -172,9 +160,9 @@ async function buildSystemContext(tenantId: string): Promise<string> {
 
     // Get recent clients
     const recentClientsQ = query(
-      collection(db, 'clients'), 
-      where('tenantId', '==', tenantId), 
-      orderBy('createdAt', 'desc'), 
+      collection(db, 'clients'),
+      where('tenantId', '==', tenantId),
+      orderBy('createdAt', 'desc'),
       limit(5)
     );
     const recentClientsSnap = await getDocs(recentClientsQ);
@@ -209,7 +197,7 @@ async function buildSystemContext(tenantId: string): Promise<string> {
 
     // Get invoice stats
     const invoicesQ = query(
-      collection(db, 'invoices'), 
+      collection(db, 'invoices'),
       where('tenantId', '==', tenantId),
       orderBy('createdAt', 'desc'),
       limit(50)
@@ -352,10 +340,10 @@ export const AdvancedAIService = {
    * @param tenantId - Tenant ID for data isolation
    */
   async chat(tenantId: string, request: ChatRequest): Promise<ChatResponse> {
-    const { 
-      messages, 
-      modelId = 'deepseek-r1', 
-      temperature = 0.7, 
+    const {
+      messages,
+      modelId = 'deepseek-r1',
+      temperature = 0.7,
       enableTools = true,
       mode = 'auto',
     } = request;
@@ -423,11 +411,11 @@ export const AdvancedAIService = {
     while ((match = codeBlockRegex.exec(content)) !== null) {
       try {
         const toolCall = JSON.parse(match[1].trim());
-        
+
         if (toolCall.tool && typeof toolCall.tool === 'string') {
           const executor = new AgentToolsExecutor(tenantId);
           const result = await executor.execute(toolCall.tool, toolCall.parameters || {});
-          
+
           toolResults.push({
             tool: toolCall.tool,
             result,
@@ -452,11 +440,11 @@ export const AdvancedAIService = {
         const trimmedContent = content.trim();
         if (trimmedContent.startsWith('{') && trimmedContent.includes('"tool"')) {
           const toolCall = JSON.parse(trimmedContent);
-          
+
           if (toolCall.tool && typeof toolCall.tool === 'string') {
             const executor = new AgentToolsExecutor(tenantId);
             const result = await executor.execute(toolCall.tool, toolCall.parameters || {});
-            
+
             toolResults.push({
               tool: toolCall.tool,
               result,
@@ -479,15 +467,15 @@ export const AdvancedAIService = {
     if (toolResults.length === 0) {
       const inlineJsonRegex = /\{[^{}]*"tool"\s*:\s*"[^"]+"\s*[^{}]*(?:\{[^{}]*\}[^{}]*)?\}/g;
       let inlineMatch;
-      
+
       while ((inlineMatch = inlineJsonRegex.exec(content)) !== null) {
         try {
           const toolCall = JSON.parse(inlineMatch[0]);
-          
+
           if (toolCall.tool && typeof toolCall.tool === 'string') {
             const executor = new AgentToolsExecutor(tenantId);
             const result = await executor.execute(toolCall.tool, toolCall.parameters || {});
-            
+
             toolResults.push({
               tool: toolCall.tool,
               result,

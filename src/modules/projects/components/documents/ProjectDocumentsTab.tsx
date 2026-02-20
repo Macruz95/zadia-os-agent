@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import { storage } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
 import { Progress } from '@/components/ui/progress';
 import {
   ref,
@@ -47,6 +48,7 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
   // Cargar documentos al montar el componente
   useEffect(() => {
@@ -106,7 +108,7 @@ export function ProjectDocumentsTab({ projectId }: ProjectDocumentsTabProps) {
         const uploadTask = uploadBytesResumable(storageRef, file, {
           customMetadata: {
             category: selectedCategory === 'all' ? 'other' : selectedCategory,
-            uploadedBy: 'current-user', // TODO: Get from auth context
+            uploadedBy: user?.uid || 'unknown',
           }
         });
 

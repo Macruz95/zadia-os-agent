@@ -34,7 +34,7 @@ export function useOpportunities(): UseOpportunitiesReturn {
 
   const searchOpportunities = useCallback(async () => {
     if (!tenantId) return; // Wait for tenant
-    
+
     try {
       setLoading(true);
       setError(undefined);
@@ -62,13 +62,13 @@ export function useOpportunities(): UseOpportunitiesReturn {
     data: OpportunityFormData
   ): Promise<Opportunity> => {
     if (!tenantId) throw new Error('No tenant ID');
-    
+
     try {
       setLoading(true);
       setError(undefined);
 
       const newOpportunity = await OpportunitiesService.createOpportunity(data, user?.uid || '', tenantId);
-      
+
       setOpportunities(prev => [newOpportunity, ...prev]);
       setTotalCount(prev => prev + 1);
 
@@ -90,8 +90,9 @@ export function useOpportunities(): UseOpportunitiesReturn {
     try {
       setError(undefined);
 
-      await OpportunitiesService.updateOpportunity(id, data);
-      
+      if (!tenantId) throw new Error('No tenant ID');
+      await OpportunitiesService.updateOpportunity(id, data, tenantId);
+
       // Refresh data after update
       await searchOpportunities();
 
@@ -108,8 +109,9 @@ export function useOpportunities(): UseOpportunitiesReturn {
     try {
       setError(undefined);
 
-      await OpportunitiesService.deleteOpportunity(id);
-      
+      if (!tenantId) throw new Error('No tenant ID');
+      await OpportunitiesService.deleteOpportunity(id, tenantId);
+
       setOpportunities(prev => prev.filter(opportunity => opportunity.id !== id));
       setTotalCount(prev => prev - 1);
 

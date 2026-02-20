@@ -3,37 +3,47 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import { Mail, PhoneCall } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { motion } from 'motion/react';
 import { Lead } from '../../types/sales.types';
 import { LEAD_STATUS_LABELS, LEAD_SOURCE_LABELS, getStatusBadgeVariant, getPriorityIcon } from './LeadsTableUtils';
 import { LeadsTableActions } from './LeadsTableActions';
 
+const MotionTableRow = motion.tr;
+
 interface LeadsTableRowProps {
   lead: Lead;
+  index: number;
   onConvertLead: (lead: Lead) => void;
   onDisqualifyLead: (lead: Lead) => void;
   onRowClick: (leadId: string) => void;
+  onCreateQuote?: (lead: Lead) => void; // NEW
   onEditLead?: (lead: Lead) => void;
   onDeleteLead?: (lead: Lead) => void;
 }
 
-export function LeadsTableRow({ 
-  lead, 
-  onConvertLead, 
-  onDisqualifyLead, 
+export function LeadsTableRow({
+  lead,
+  index,
+  onConvertLead,
+  onDisqualifyLead,
   onRowClick,
+  onCreateQuote, // NEW
   onEditLead,
   onDeleteLead
 }: LeadsTableRowProps) {
   return (
-    <TableRow 
-      className="cursor-pointer hover:bg-muted/50"
+    <MotionTableRow
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.04, type: 'spring', stiffness: 350, damping: 25 }}
+      className="cursor-pointer hover:bg-muted/50 border-b transition-colors"
       onClick={() => onRowClick(lead.id)}
     >
       <TableCell>
         <div>
           <p className="font-medium">
-            {lead.entityType === 'person' 
-              ? lead.fullName 
+            {lead.entityType === 'person'
+              ? lead.fullName
               : lead.entityName
             }
           </p>
@@ -82,10 +92,11 @@ export function LeadsTableRow({
           onConvertLead={onConvertLead}
           onDisqualifyLead={onDisqualifyLead}
           onViewDetails={onRowClick}
+          onCreateQuote={onCreateQuote} // NEW
           onEditLead={onEditLead}
           onDeleteLead={onDeleteLead}
         />
       </TableCell>
-    </TableRow>
+    </MotionTableRow>
   );
 }

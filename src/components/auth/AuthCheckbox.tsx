@@ -35,11 +35,11 @@ export function AuthCheckbox({ id, checked, onCheckedChange, label, error }: Aut
               : "bg-transparent border-gray-600 group-hover:border-gray-500"
           )}>
             {checked && (
-              <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+              <Check className="h-3.5 w-3.5 text-foreground" strokeWidth={3} />
             )}
           </div>
         </div>
-        <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors leading-tight">
+        <span className="text-sm text-muted-foreground group-hover:text-muted-foreground transition-colors leading-tight">
           {label}
         </span>
       </label>

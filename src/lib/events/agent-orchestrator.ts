@@ -71,7 +71,7 @@ class AgentOrchestratorClass {
         id: 'sales-agent',
         name: 'Agente de Ventas',
         description: 'Analiza oportunidades, leads y cotizaciones',
-        model: 'deepseek/deepseek-r1:free',
+        model: 'openai/gpt-oss-120b:free',
         triggerEvents: [
           'lead:created', 'lead:updated', 'lead:converted',
           'opportunity:created', 'opportunity:updated', 'opportunity:won', 'opportunity:lost',
@@ -85,7 +85,7 @@ class AgentOrchestratorClass {
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // AGENTE FINANCIERO
       // ═══════════════════════════════════════════════════════════════════════
@@ -93,7 +93,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
         id: 'finance-agent',
         name: 'Agente Financiero',
         description: 'Monitorea cash flow, facturas y pagos',
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'upstage/solar-pro-3:free',
         triggerEvents: [
           'invoice:created', 'invoice:sent', 'invoice:paid', 'invoice:overdue',
           'expense:created', 'expense:approved',
@@ -107,7 +107,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // AGENTE DE INVENTARIO
       // ═══════════════════════════════════════════════════════════════════════
@@ -115,7 +115,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
         id: 'inventory-agent',
         name: 'Agente de Inventario',
         description: 'Optimiza stock y predice necesidades',
-        model: 'kwaipilot/kat-coder-pro:free',
+        model: 'qwen/qwen3-vl-30b-a3b-thinking:free',
         triggerEvents: [
           'product:created', 'product:updated', 'product:low_stock',
           'movement:in', 'movement:out', 'movement:transfer'
@@ -128,7 +128,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // AGENTE DE PROYECTOS
       // ═══════════════════════════════════════════════════════════════════════
@@ -136,7 +136,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
         id: 'project-agent',
         name: 'Agente de Proyectos',
         description: 'Monitorea salud de proyectos y tareas',
-        model: 'deepseek/deepseek-r1:free',
+        model: 'mistralai/devstral-2-2512:free',
         triggerEvents: [
           'project:created', 'project:updated', 'project:started', 'project:paused',
           'project:completed', 'project:cancelled', 'project:delayed', 'project:budget_overrun',
@@ -153,7 +153,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // AGENTE DE CLIENTES
       // ═══════════════════════════════════════════════════════════════════════
@@ -161,7 +161,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
         id: 'client-agent',
         name: 'Agente de Clientes',
         description: 'Analiza relaciones y satisfacción',
-        model: 'google/gemini-2.0-flash-exp:free',
+        model: 'google/gemini-2.5-pro-exp-03-25:free',
         triggerEvents: [
           'client:created', 'client:updated', 'client:activated', 'client:deactivated',
           'client:interaction', 'client:vip_marked', 'client:segment_changed', 'client:flagged',
@@ -177,7 +177,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // AGENTE DE PEDIDOS
       // ═══════════════════════════════════════════════════════════════════════
@@ -185,7 +185,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
         id: 'orders-agent',
         name: 'Agente de Pedidos',
         description: 'Monitorea flujo de pedidos y entregas',
-        model: 'meituan/longcat-flash-chat:free',
+        model: 'openai/gpt-oss-120b:free',
         triggerEvents: [
           'order:created', 'order:confirmed', 'order:production_started',
           'order:ready', 'order:delivered', 'order:cancelled',
@@ -201,7 +201,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // AGENTE DE RRHH
       // ═══════════════════════════════════════════════════════════════════════
@@ -209,7 +209,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
         id: 'hr-agent',
         name: 'Agente de RRHH',
         description: 'Gestiona talento y bienestar',
-        model: 'amazon/nova-2-lite-v1:free',
+        model: 'nvidia/nemotron-3-nano-30b-a3b:free',
         triggerEvents: [
           'employee:created', 'employee:updated', 'employee:promoted', 'employee:transferred',
           'employee:timeoff_requested', 'employee:timeoff_approved', 'employee:timeoff_rejected',
@@ -225,7 +225,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // AGENTE DE CALENDARIO
       // ═══════════════════════════════════════════════════════════════════════
@@ -233,7 +233,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
         id: 'calendar-agent',
         name: 'Agente de Calendario',
         description: 'Optimiza agenda y evita conflictos',
-        model: 'alibaba/tongyi-deepresearch-30b-a3b:free',
+        model: 'qwen/qwen3-vl-30b-a3b-thinking:free',
         triggerEvents: [
           'calendar:event_created', 'calendar:event_updated', 'calendar:event_cancelled',
           'calendar:event_rescheduled', 'calendar:attendance_confirmed', 'calendar:event_completed',
@@ -249,7 +249,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
 Responde en JSON con: analysis, suggestedActions[], insights[]`,
         enabled: true
       },
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // AGENTE ESTRATÉGICO (SUPERVISA TODO)
       // ═══════════════════════════════════════════════════════════════════════
@@ -257,7 +257,7 @@ Responde en JSON con: analysis, suggestedActions[], insights[]`,
         id: 'strategic-agent',
         name: 'Agente Estratégico',
         description: 'Visión holística del negocio',
-        model: 'allenai/olmo-3-32b-think:free',
+        model: 'openai/gpt-oss-120b:free',
         triggerEvents: [
           // Eventos críticos de alto impacto
           'opportunity:won', 'opportunity:lost',

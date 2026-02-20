@@ -35,28 +35,33 @@ export const useAuthState = () => {
       try {
         setLoading(true);
         setFirebaseUser(firebaseUser);
-        
+
         if (firebaseUser) {
-          // Force token refresh to get latest security rules
-          await firebaseUser.getIdToken(true);
-          
-          // Update last login
-          await UserService.updateLastLogin(firebaseUser.uid);
-          
+          // Update last login (non-blocking)
+          UserService.updateLastLogin(firebaseUser.uid).catch(() => {
+            // Non-critical - don't block auth flow
+          });
+
           // Try to get user profile
           try {
             const userProfile = await UserService.getUserProfile(firebaseUser.uid);
             setUser(userProfile);
           } catch {
-            // If permission denied, user might not have custom claims yet
-            logger.warn('Could not load user profile - user may not have role assigned yet', {
-              component: 'useAuthState',
-              metadata: {
-                userId: firebaseUser.uid,
-                email: firebaseUser.email || 'unknown'
-              }
-            });
-            setUser(null);
+            // If permission denied, try refreshing token once then retry
+            try {
+              await firebaseUser.getIdToken(true);
+              const userProfile = await UserService.getUserProfile(firebaseUser.uid);
+              setUser(userProfile);
+            } catch {
+              logger.warn('Could not load user profile - user may not have role assigned yet', {
+                component: 'useAuthState',
+                metadata: {
+                  userId: firebaseUser.uid,
+                  email: firebaseUser.email || 'unknown'
+                }
+              });
+              setUser(null);
+            }
           }
         } else {
           setUser(null);

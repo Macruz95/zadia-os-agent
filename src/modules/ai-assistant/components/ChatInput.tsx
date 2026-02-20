@@ -97,21 +97,21 @@ export function ChatInput({
   };
 
   return (
-    <div className="border-t border-gray-800/50 bg-[#0d1117]">
+    <div className="border-t border-border bg-muted">
       {/* Attachments Preview */}
       {attachments.length > 0 && (
         <div className="px-4 pt-3 flex flex-wrap gap-2">
           {attachments.map(att => (
             <div 
               key={att.id}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800/50 border border-gray-700/50 group"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800/50 border border-border group"
             >
               {att.type === 'image' ? (
                 <ImageIcon className="h-4 w-4 text-cyan-400" />
               ) : (
-                <Paperclip className="h-4 w-4 text-gray-400" />
+                <Paperclip className="h-4 w-4 text-muted-foreground" />
               )}
-              <span className="text-xs text-gray-300 max-w-[150px] truncate">{att.name}</span>
+              <span className="text-xs text-muted-foreground max-w-[150px] truncate">{att.name}</span>
               <button 
                 onClick={() => removeAttachment(att.id)}
                 className="text-gray-500 hover:text-red-400 transition-colors"
@@ -127,7 +127,7 @@ export function ChatInput({
       <div className="p-4">
         <div className={cn(
           "relative flex items-end gap-2 rounded-2xl border transition-all",
-          "bg-[#161b22] border-gray-800/50",
+          "bg-card border-border",
           "focus-within:border-cyan-500/50 focus-within:ring-2 focus-within:ring-cyan-500/10"
         )}>
           {/* File Upload Button (Left Side) */}
@@ -144,7 +144,7 @@ export function ChatInput({
             size="sm"
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled}
-            className="h-10 w-10 p-0 ml-2 mb-2 text-gray-500 hover:text-white hover:bg-gray-800/50 rounded-xl"
+            className="h-10 w-10 p-0 ml-2 mb-2 text-gray-500 hover:text-foreground hover:bg-gray-800/50 rounded-xl"
           >
             <Paperclip className="h-4 w-4" />
           </Button>
@@ -160,7 +160,7 @@ export function ChatInput({
             className={cn(
               "flex-1 min-h-[44px] max-h-[200px] py-3 px-1",
               "bg-transparent border-0 resize-none",
-              "text-white placeholder:text-gray-600",
+              "text-foreground placeholder:text-gray-600",
               "focus-visible:ring-0 focus-visible:ring-offset-0"
             )}
             rows={1}
@@ -175,7 +175,7 @@ export function ChatInput({
               className={cn(
                 "h-10 w-10 p-0 rounded-xl transition-all",
                 input.trim() && !disabled
-                  ? "bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white shadow-lg shadow-cyan-500/20"
+                  ? "bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-foreground shadow-lg shadow-cyan-500/20"
                   : "bg-gray-800 text-gray-600"
               )}
             >
@@ -190,9 +190,9 @@ export function ChatInput({
             ZADIA puede cometer errores. Verifica la información importante.
           </p>
           <div className="flex items-center gap-2 text-[10px] text-gray-600">
-            <kbd className="px-1.5 py-0.5 rounded bg-gray-800/50 border border-gray-700/50">Enter</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-gray-800/50 border border-border">Enter</kbd>
             <span>enviar</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-gray-800/50 border border-gray-700/50">Shift+Enter</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-gray-800/50 border border-border">Shift+Enter</kbd>
             <span>nueva línea</span>
           </div>
         </div>

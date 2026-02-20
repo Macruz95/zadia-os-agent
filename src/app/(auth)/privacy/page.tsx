@@ -15,25 +15,25 @@ export default function PrivacyPage() {
         {/* Header */}
         <div className="mb-8">
           <Link href="/register">
-            <Button variant="ghost" className="text-gray-400 hover:text-white mb-4">
+            <Button variant="ghost" className="text-muted-foreground hover:text-foreground mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver al registro
             </Button>
           </Link>
-          <h1 className="text-4xl font-bold text-white mb-2">Política de Privacidad</h1>
-          <p className="text-gray-400">Última actualización: 30 de noviembre, 2025</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Política de Privacidad</h1>
+          <p className="text-muted-foreground">Última actualización: 30 de noviembre, 2025</p>
         </div>
 
         {/* Content */}
         <div className="space-y-6">
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <Shield className="w-5 h-5 text-cyan-400" />
                 Introducción
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300 space-y-3">
+            <CardContent className="text-muted-foreground space-y-3">
               <p>
                 En ZADIA OS, nos tomamos muy en serio la privacidad de nuestros usuarios.
                 Esta Política de Privacidad describe cómo recopilamos, usamos, almacenamos
@@ -45,15 +45,15 @@ export default function PrivacyPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <Database className="w-5 h-5 text-cyan-400" />
                 Información que Recopilamos
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300 space-y-3">
-              <p><strong className="text-white">Información de cuenta:</strong></p>
+            <CardContent className="text-muted-foreground space-y-3">
+              <p><strong className="text-foreground">Información de cuenta:</strong></p>
               <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>Nombre completo</li>
                 <li>Dirección de correo electrónico</li>
@@ -61,14 +61,14 @@ export default function PrivacyPage() {
                 <li>Nombre de empresa (opcional)</li>
               </ul>
 
-              <p className="mt-4"><strong className="text-white">Información de uso:</strong></p>
+              <p className="mt-4"><strong className="text-foreground">Información de uso:</strong></p>
               <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>Datos de clientes, proyectos e inventario que usted ingrese</li>
                 <li>Registros de actividad dentro de la plataforma</li>
                 <li>Preferencias de configuración</li>
               </ul>
 
-              <p className="mt-4"><strong className="text-white">Información técnica:</strong></p>
+              <p className="mt-4"><strong className="text-foreground">Información técnica:</strong></p>
               <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>Dirección IP</li>
                 <li>Tipo de navegador y dispositivo</li>
@@ -77,14 +77,14 @@ export default function PrivacyPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <Eye className="w-5 h-5 text-cyan-400" />
                 Cómo Usamos su Información
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300 space-y-3">
+            <CardContent className="text-muted-foreground space-y-3">
               <p>Utilizamos su información para:</p>
               <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>Proporcionar y mantener el servicio ZADIA OS</li>
@@ -98,14 +98,14 @@ export default function PrivacyPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <Lock className="w-5 h-5 text-cyan-400" />
                 Seguridad de los Datos
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300 space-y-3">
+            <CardContent className="text-muted-foreground space-y-3">
               <p>
                 Implementamos medidas de seguridad técnicas y organizativas para proteger
                 su información, incluyendo:
@@ -121,14 +121,14 @@ export default function PrivacyPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <Bell className="w-5 h-5 text-cyan-400" />
                 Cookies y Tecnologías Similares
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300 space-y-3">
+            <CardContent className="text-muted-foreground space-y-3">
               <p>Utilizamos cookies y tecnologías similares para:</p>
               <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>Mantener su sesión iniciada</li>
@@ -143,14 +143,14 @@ export default function PrivacyPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
+              <CardTitle className="flex items-center gap-2 text-foreground">
                 <Trash2 className="w-5 h-5 text-cyan-400" />
                 Sus Derechos
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300 space-y-3">
+            <CardContent className="text-muted-foreground space-y-3">
               <p>Usted tiene derecho a:</p>
               <ul className="list-disc list-inside space-y-1 ml-4">
                 <li><strong>Acceso:</strong> Solicitar una copia de sus datos personales</li>
@@ -165,11 +165,11 @@ export default function PrivacyPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-800/50 border-border">
             <CardHeader>
-              <CardTitle className="text-white">Contacto</CardTitle>
+              <CardTitle className="text-foreground">Contacto</CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-300">
+            <CardContent className="text-muted-foreground">
               <p>
                 Si tiene preguntas sobre esta Política de Privacidad o sobre cómo
                 manejamos sus datos, puede contactarnos en:
@@ -182,7 +182,7 @@ export default function PrivacyPage() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <Link href="/terms">
-            <Button variant="outline" className="border-gray-600 text-gray-300 hover:text-white">
+            <Button variant="outline" className="border-gray-600 text-muted-foreground hover:text-foreground">
               Ver Términos de Servicio
             </Button>
           </Link>

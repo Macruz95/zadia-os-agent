@@ -115,9 +115,9 @@ export function InviteMemberDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-gray-900 border-gray-700 sm:max-w-md">
+      <DialogContent className="bg-card border-border sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white flex items-center gap-2">
+          <DialogTitle className="text-foreground flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-cyan-400" />
             Invitar Miembro
           </DialogTitle>
@@ -133,12 +133,12 @@ export function InviteMemberDialog({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-300">Email</FormLabel>
+                  <FormLabel className="text-muted-foreground">Email</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="email@ejemplo.com"
                       type="email"
-                      className="bg-gray-800 border-gray-700 text-white"
+                      className="bg-gray-800 border-border text-foreground"
                       {...field}
                     />
                   </FormControl>
@@ -152,23 +152,23 @@ export function InviteMemberDialog({
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-300">Rol</FormLabel>
+                  <FormLabel className="text-muted-foreground">Rol</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                      <SelectTrigger className="bg-gray-800 border-border text-foreground">
                         <SelectValue placeholder="Selecciona un rol" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectContent className="bg-gray-800 border-border">
                       {ROLES.map((role) => (
                         <SelectItem 
                           key={role.value} 
                           value={role.value}
-                          className="text-white focus:bg-gray-700"
+                          className="text-foreground focus:bg-gray-700"
                         >
                           <div>
                             <p className="font-medium">{role.label}</p>
-                            <p className="text-xs text-gray-400">{role.description}</p>
+                            <p className="text-xs text-muted-foreground">{role.description}</p>
                           </div>
                         </SelectItem>
                       ))}
@@ -187,7 +187,7 @@ export function InviteMemberDialog({
                 type="button" 
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
-                className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                className="border-gray-600 text-muted-foreground hover:bg-gray-800"
               >
                 Cancelar
               </Button>

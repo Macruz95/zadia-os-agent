@@ -40,6 +40,69 @@ export interface InventoryAudit {
   reason?: string;
 }
 
+// Purchase History Types
+export interface PurchaseHistory {
+  id: string;
+  tenantId: string;
+
+  // Material comprado
+  rawMaterialId: string;
+  rawMaterialName: string;
+  rawMaterialSku: string;
+
+  // Proveedor
+  supplier: string;
+
+  // Detalles de compra
+  quantity: number;
+  unitOfMeasure: string;
+  unitCost: number;
+  totalCost: number;
+
+  // Fechas y documentación
+  purchaseDate: Date;
+  invoiceNumber?: string;
+  referenceDocument?: string;
+
+  // Tracking
+  createdBy: string;
+  createdAt: Date;
+  notes?: string;
+}
+
+// Price Analysis Types
+export interface SupplierPriceAnalysis {
+  supplier: string;
+  purchaseCount: number;
+  averagePrice: number;
+  lastPrice: number;
+  lowestPrice: number;
+  highestPrice: number;
+  priceVariation: number;
+  lastPurchaseDate: Date;
+  totalQuantityBought: number;
+}
+
+export interface PriceAlert {
+  type: 'increase' | 'decrease';
+  currentPrice: number;
+  previousPrice: number;
+  percentageChange: number;
+  supplier: string;
+  purchaseDate: Date;
+  message: string;
+}
+
+export interface SupplierComparison {
+  rank: number;
+  supplier: string;
+  averagePrice: number;
+  lastPrice: number;
+  purchaseCount: number;
+  recommendation: 'best_price' | 'frequent' | 'recent' | 'expensive';
+}
+
+
 // Filter and Search Types
 export interface InventoryFilters {
   category?: string;
@@ -72,6 +135,7 @@ export interface MovementFormData {
   referenceDocument?: string;
   notes?: string;
   performedBy: string;
+  performedAt?: Date;
 }
 
 // UI State Types

@@ -4,16 +4,16 @@
  * Handles all opportunity operations with Firebase integration
  */
 
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
   orderBy,
   Timestamp
 } from 'firebase/firestore';
@@ -24,16 +24,27 @@ import { OpportunityFormData } from '../validations/sales.schema';
 
 const OPPORTUNITIES_COLLECTION = 'opportunities';
 
+const getStageProbability = (stage: string) => {
+  const stageProbabilities: Record<string, number> = {
+    'qualified': 20,
+    'proposal-sent': 50,
+    'negotiation': 80,
+    'closed-won': 100,
+    'closed-lost': 0
+  };
+  return stageProbabilities[stage] || 0;
+};
+
 export class OpportunitiesService {
   /**
    * Create a new opportunity
    * @param tenantId - Required tenant ID for data isolation
    */
-  static async createOpportunity(data: OpportunityFormData, createdBy: string, tenantId?: string): Promise<Opportunity> {
+  static async createOpportunity(data: OpportunityFormData, createdBy: string, tenantId: string): Promise<Opportunity> {
     if (!tenantId) {
       throw new Error('tenantId is required for data isolation');
     }
-    
+
     try {
       const now = Timestamp.fromDate(new Date());
       const opportunityData = {
@@ -44,11 +55,11 @@ export class OpportunitiesService {
         createdAt: now,
         updatedAt: now,
         createdBy,
-        probability: 0, // Default probability based on stage
+        probability: getStageProbability(data.stage || 'qualified'),
       };
 
       const docRef = await addDoc(collection(db, OPPORTUNITIES_COLLECTION), opportunityData);
-      
+
       const newOpportunity: Opportunity = {
         ...opportunityData,
         id: docRef.id,
@@ -66,18 +77,18 @@ export class OpportunitiesService {
    * Get all opportunities
    * @param tenantId - Required tenant ID for data isolation
    */
-  static async getOpportunities(tenantId?: string): Promise<Opportunity[]> {
+  static async getOpportunities(tenantId: string): Promise<Opportunity[]> {
     if (!tenantId) {
       return []; // Return empty if no tenant
     }
-    
+
     try {
       const q = query(
         collection(db, OPPORTUNITIES_COLLECTION),
         where('tenantId', '==', tenantId), // CRITICAL: Filter by tenant
         orderBy('createdAt', 'desc')
       );
-      
+
       const querySnapshot = await getDocs(q);
       const opportunities: Opportunity[] = [];
 
@@ -101,8 +112,9 @@ export class OpportunitiesService {
 
   /**
    * Get opportunity by ID
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async getOpportunityById(id: string): Promise<Opportunity | null> {
+  static async getOpportunityById(id: string, tenantId: string): Promise<Opportunity | null> {
     try {
       const docRef = doc(db, OPPORTUNITIES_COLLECTION, id);
       const docSnap = await getDoc(docRef);
@@ -112,6 +124,16 @@ export class OpportunitiesService {
       }
 
       const data = docSnap.data();
+
+      // Verify tenant isolation
+      if (tenantId && data.tenantId && data.tenantId !== tenantId) {
+        logger.warn('Tenant mismatch on opportunity access', {
+          component: 'OpportunitiesService',
+          action: 'getById',
+        });
+        return null;
+      }
+
       return {
         id: docSnap.id,
         ...data,
@@ -127,9 +149,18 @@ export class OpportunitiesService {
 
   /**
    * Update opportunity
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async updateOpportunity(id: string, updates: Partial<OpportunityFormData>): Promise<void> {
+  static async updateOpportunity(id: string, updates: Partial<OpportunityFormData>, tenantId: string): Promise<void> {
     try {
+      // Verify tenant ownership before update
+      if (tenantId) {
+        const existing = await this.getOpportunityById(id, tenantId);
+        if (!existing) {
+          throw new Error('Opportunity not found or access denied');
+        }
+      }
+
       const docRef = doc(db, OPPORTUNITIES_COLLECTION, id);
       const updateData = {
         ...updates,
@@ -146,12 +177,22 @@ export class OpportunitiesService {
 
   /**
    * Update opportunity stage
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async updateOpportunityStage(id: string, stage: string, updatedBy: string): Promise<void> {
+  static async updateOpportunityStage(id: string, stage: string, updatedBy: string, tenantId: string): Promise<void> {
     try {
+      // Verify tenant ownership before stage update
+      if (tenantId) {
+        const existing = await this.getOpportunityById(id, tenantId);
+        if (!existing) {
+          throw new Error('Opportunity not found or access denied');
+        }
+      }
+
       const docRef = doc(db, OPPORTUNITIES_COLLECTION, id);
       const updateData = {
         stage,
+        probability: getStageProbability(stage),
         updatedAt: Timestamp.fromDate(new Date()),
         updatedBy,
       };
@@ -166,9 +207,18 @@ export class OpportunitiesService {
 
   /**
    * Delete opportunity
+   * @param tenantId - Required tenant ID for data isolation
    */
-  static async deleteOpportunity(id: string): Promise<void> {
+  static async deleteOpportunity(id: string, tenantId: string): Promise<void> {
     try {
+      // Verify tenant ownership before deletion
+      if (tenantId) {
+        const existing = await this.getOpportunityById(id, tenantId);
+        if (!existing) {
+          throw new Error('Opportunity not found or access denied');
+        }
+      }
+
       const docRef = doc(db, OPPORTUNITIES_COLLECTION, id);
       await deleteDoc(docRef);
       logger.info('Opportunity deleted successfully', { component: 'OpportunitiesService', action: 'delete' });
@@ -182,11 +232,11 @@ export class OpportunitiesService {
    * Get opportunities by stage
    * @param tenantId - Required tenant ID for data isolation
    */
-  static async getOpportunitiesByStage(stage: string, tenantId?: string): Promise<Opportunity[]> {
+  static async getOpportunitiesByStage(stage: string, tenantId: string): Promise<Opportunity[]> {
     if (!tenantId) {
       return []; // Return empty if no tenant
     }
-    
+
     try {
       const q = query(
         collection(db, OPPORTUNITIES_COLLECTION),
@@ -194,7 +244,7 @@ export class OpportunitiesService {
         where('stage', '==', stage),
         orderBy('createdAt', 'desc')
       );
-      
+
       const querySnapshot = await getDocs(q);
       const opportunities: Opportunity[] = [];
 
@@ -220,11 +270,11 @@ export class OpportunitiesService {
    * Get opportunities by assigned user
    * @param tenantId - Required tenant ID for data isolation
    */
-  static async getOpportunitiesByAssignedUser(userId: string, tenantId?: string): Promise<Opportunity[]> {
+  static async getOpportunitiesByAssignedUser(userId: string, tenantId: string): Promise<Opportunity[]> {
     if (!tenantId) {
       return []; // Return empty if no tenant
     }
-    
+
     try {
       const q = query(
         collection(db, OPPORTUNITIES_COLLECTION),
@@ -232,7 +282,7 @@ export class OpportunitiesService {
         where('assignedTo', '==', userId),
         orderBy('createdAt', 'desc')
       );
-      
+
       const querySnapshot = await getDocs(q);
       const opportunities: Opportunity[] = [];
 

@@ -27,7 +27,7 @@ export default function PortalLayout({ children }: PortalLayoutProps) {
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">Z</span>
+                <span className="text-foreground font-bold text-sm">Z</span>
               </div>
               <span className="font-semibold text-lg">ZADIA</span>
               <span className="text-muted-foreground">| Portal de Cliente</span>

@@ -12,14 +12,17 @@ import { useRouter } from 'next/navigation';
 import { QuotesPageHeader } from './QuotesPageHeader';
 import { QuotesKPICards } from './QuotesKPICards';
 import { QuotesFilters } from './QuotesFilters';
+import { useTenantId } from '@/contexts/TenantContext';
 import { QuotesTable } from './QuotesTable';
 import { QuoteTemplatesDialog } from './QuoteTemplatesDialog';
 import { QuotesService } from '../../services/quotes.service';
 import { Quote } from '../../types/sales.types';
 import { toast } from 'sonner';
+import { AnimatedPage, AnimatedSection } from '@/components/ui/motion';
 
 export function QuotesDirectory() {
   const router = useRouter();
+  const tenantId = useTenantId();
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<Quote['status'] | 'all'>('all');
@@ -28,8 +31,9 @@ export function QuotesDirectory() {
   // Load quotes
   useEffect(() => {
     const loadQuotes = async () => {
+      if (!tenantId) return;
       try {
-        const data = await QuotesService.getQuotes();
+        const data = await QuotesService.getQuotes(tenantId);
         setQuotes(data);
       } catch (error) {
         logger.error('Error loading quotes', error as Error, {
@@ -41,41 +45,49 @@ export function QuotesDirectory() {
     };
 
     loadQuotes();
-  }, []);
+  }, [tenantId]);
 
 
   // Filtered quotes
   const filteredQuotes = quotes.filter(quote => {
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       quote.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (quote.notes && quote.notes.toLowerCase().includes(searchQuery.toLowerCase())) ||
       quote.id.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || quote.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
   return (
-    <div className="p-6 space-y-6">
-      <QuotesPageHeader 
-        onNewQuote={() => router.push('/sales/quotes/new')}
-        onTemplatesClick={() => setTemplatesDialogOpen(true)}
-      />
-      
-      <QuotesKPICards quotes={quotes} />
-      
-      <QuotesFilters 
-        searchQuery={searchQuery}
-        statusFilter={statusFilter}
-        onSearchChange={setSearchQuery}
-        onStatusFilterChange={setStatusFilter}
-      />
-      
-      <QuotesTable 
-        quotes={filteredQuotes}
-        onQuoteClick={(quoteId) => router.push(`/sales/quotes/${quoteId}`)}
-      />
+    <AnimatedPage className="p-6 space-y-6">
+      <AnimatedSection>
+        <QuotesPageHeader
+          onNewQuote={() => router.push('/sales/quotes/new')}
+          onTemplatesClick={() => setTemplatesDialogOpen(true)}
+        />
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.08}>
+        <QuotesKPICards quotes={quotes} />
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.12}>
+        <QuotesFilters
+          searchQuery={searchQuery}
+          statusFilter={statusFilter}
+          onSearchChange={setSearchQuery}
+          onStatusFilterChange={setStatusFilter}
+        />
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.16}>
+        <QuotesTable
+          quotes={filteredQuotes}
+          onQuoteClick={(quoteId) => router.push(`/sales/quotes/${quoteId}`)}
+        />
+      </AnimatedSection>
 
       <QuoteTemplatesDialog
         open={templatesDialogOpen}
@@ -86,6 +98,6 @@ export function QuotesDirectory() {
           router.push('/sales/quotes/new');
         }}
       />
-    </div>
+    </AnimatedPage>
   );
 }
